@@ -1,0 +1,9 @@
+http:
+  address: ":8080"
+
+player:
+  socket: "/tmp/masjidpi.sock"
+  volume: 70
+
+streams:
+  refresh_interval: "6h"

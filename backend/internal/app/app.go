@@ -1,15 +1,29 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/X-Calibre/MasjidPi/backend/internal/api"
+	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
-// Run starts the application.
 func Run() error {
-	fmt.Printf("Starting %s %s...\n", version.AppName, version.Version)
+	log := logger.New()
 
-	return api.Start(":8080")
+	log.Info(
+		"Starting application",
+		"name", version.AppName,
+		"version", version.Version,
+	)
+
+	cfg, err := config.Load("configs/default.yaml")
+	if err != nil {
+		return err
+	}
+
+	log.Info("Configuration loaded")
+
+	server := api.New(cfg.HTTP.Address, log)
+
+	return server.Start()
 }

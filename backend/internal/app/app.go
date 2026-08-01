@@ -40,19 +40,6 @@ func Run() error {
 		"version", version,
 	)
 
-	const testStream = "https://relay.livemasjid.com:8443/activetakbeer"
-
-	log.Info(
-		"Playing test stream",
-		"url", testStream,
-	)
-
-	if err := mpv.Play(testStream); err != nil {
-		return err
-	}
-
-	log.Info("Playback started")
-
 	server := api.New(cfg.HTTP.Address, log)
 
 	return server.Start()

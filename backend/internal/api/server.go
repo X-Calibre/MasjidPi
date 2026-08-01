@@ -5,20 +5,27 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/player"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
 type Server struct {
 	httpServer *http.Server
 	logger     *slog.Logger
+	player     *player.MPV
 }
 
 // New creates a new HTTP server.
-func New(addr string, logger *slog.Logger) *Server {
+func New(
+	addr string,
+	logger *slog.Logger,
+	player *player.MPV,
+) *Server {
 	mux := http.NewServeMux()
 
 	server := &Server{
 		logger: logger,
+		player: player,
 		httpServer: &http.Server{
 			Addr:    addr,
 			Handler: mux,

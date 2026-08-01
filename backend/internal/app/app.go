@@ -40,7 +40,11 @@ func Run() error {
 		"version", version,
 	)
 
-	server := api.New(cfg.HTTP.Address, log)
+	server := api.New(
+		cfg.HTTP.Address,
+		log,
+		mpv,
+	)
 
 	return server.Start()
 }

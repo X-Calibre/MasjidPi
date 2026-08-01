@@ -78,3 +78,12 @@ func (m *MPV) Version() (string, error) {
 
 	return version, nil
 }
+
+func (m *MPV) Play(url string) error {
+	_, err := m.execute(
+		"loadfile",
+		url,
+	)
+
+	return err
+}

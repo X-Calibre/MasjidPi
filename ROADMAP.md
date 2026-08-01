@@ -1,38 +1,57 @@
-Milestone 1
-✅ Development Environment
+# MasjidPi Roadmap
 
-Milestone 2
-✅ Initial HTTP Server
+## ✅ Completed
 
-Milestone 3
-🚧 Project Foundation
+- [x] Project structure
+- [x] AGPL-3.0 licensing
+- [x] Configuration management
+- [x] Structured logging
+- [x] HTTP server
+- [x] MPV process management
+- [x] MPV IPC communication
+- [x] MPV controller abstraction
 
-Milestone 4
-⬜ Configuration
+## 🚧 Current Milestone
 
-Milestone 5
-⬜ Logging
+### Play the first stream
 
-Milestone 6
-⬜ SQLite
+- [ ] Implement `Play(url)`
+- [ ] Play a hard-coded test stream
+- [ ] Verify audio output
 
-Milestone 7
-⬜ Stream Provider Interface
+## 📋 Upcoming Milestones
 
-Milestone 8
-⬜ LiveMasjid Provider
+### Player Control
 
-Milestone 9
-⬜ Stream Database
+- [ ] Stop playback
+- [ ] Pause / Resume
+- [ ] Volume control
+- [ ] Mute
 
-Milestone 10
-⬜ Audio Playback
+### Stream Library
 
-Milestone 11
-⬜ Web UI
+- [ ] Stream model
+- [ ] Local stream database
+- [ ] Import Livemasjid streams
+- [ ] Background refresh
 
-Milestone 12
-⬜ Raspberry Pi Package
+### REST API
 
-Milestone 13
-⬜ First Public Release (v0.1.0)
+- [ ] GET /api/streams
+- [ ] POST /api/player/play
+- [ ] POST /api/player/stop
+- [ ] POST /api/player/volume
+
+### Web UI
+
+- [ ] Stream list
+- [ ] Search
+- [ ] Current playing indicator
+- [ ] Volume slider
+
+### Raspberry Pi
+
+- [ ] systemd service
+- [ ] Read-only friendly configuration
+- [ ] Auto-start on boot
+- [ ] Pi Zero 2 optimisation

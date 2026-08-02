@@ -6,7 +6,7 @@ import (
 )
 
 type PlayRequest struct {
-	URL string `json:"url"`
+	ID string `json:"id"`
 }
 
 func (s *Server) play(w http.ResponseWriter, r *http.Request) {
@@ -30,16 +30,26 @@ func (s *Server) play(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.URL == "" {
+	if req.ID == "" {
 		writeError(
 			w,
 			http.StatusBadRequest,
-			"missing URL",
+			"missing ID",
 		)
 		return
 	}
 
-	if err := s.player.Play(req.URL); err != nil {
+	stream, err := s.streams.FindByID(req.ID)
+	if err != nil {
+		writeError(
+			w,
+			http.StatusNotFound,
+			err.Error(),
+		)
+		return
+	}
+
+	if err := s.player.Play(stream.URL); err != nil {
 		writeError(
 			w,
 			http.StatusInternalServerError,

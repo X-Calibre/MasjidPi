@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -13,6 +14,7 @@ type Server struct {
 	httpServer *http.Server
 	logger     *slog.Logger
 	player     *player.MPV
+	streams    *stream.Store
 }
 
 // New creates a new HTTP server.
@@ -20,14 +22,16 @@ func New(
 	addr string,
 	logger *slog.Logger,
 	player *player.MPV,
+	streams *stream.Store,
 ) *Server {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir("../frontend"))
 
 	server := &Server{
-		logger: logger,
-		player: player,
+		logger:  logger,
+		player:  player,
+		streams: streams,
 		httpServer: &http.Server{
 			Addr:    addr,
 			Handler: mux,
@@ -38,6 +42,7 @@ func New(
 	mux.HandleFunc("/api/player/stop", server.stop)
 	mux.HandleFunc("/api/player/status", server.status)
 	mux.HandleFunc("/api/player/volume", server.volume)
+	mux.HandleFunc("/api/streams", server.streamsList)
 
 	mux.Handle("/", fileServer)
 

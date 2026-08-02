@@ -24,14 +24,38 @@ async function getStatus() {
     return response.json();
 }
 
-async function playStream(url) {
+async function loadStreams() {
+    const response = await fetch("/api/streams");
+
+    if (!response.ok) {
+        console.error("Unable to load streams");
+        return;
+    }
+
+    const streams = await response.json();
+
+    const select = document.getElementById("stream");
+
+    select.innerHTML = "";
+
+    for (const stream of streams) {
+        const option = document.createElement("option");
+
+        option.value = stream.id;
+        option.textContent = stream.name;
+
+        select.appendChild(option);
+    }
+}
+
+async function playStream(id) {
     const response = await fetch("/api/player/play", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            url: url
+            id: id
         })
     });
 
@@ -102,7 +126,7 @@ async function refreshStatus() {
 playButton.addEventListener("click", async () => {
 
     if (!streamInput.value) {
-        alert("Please enter a stream URL");
+        alert("Please select a masjid");
         return;
     }
 
@@ -134,16 +158,18 @@ stopButton.addEventListener("click", async () => {
 
 volumeSlider.addEventListener("input", async () => {
 
-    volumeValue.textContent = status.volume + "%";
+const value = Number(volumeSlider.value);
 
-    if (status.volume > 100) {
+    volumeValue.textContent = value + "%";
+
+    if (value > 100) {
         volumeValue.style.color = "#ffb347";
     } else {
         volumeValue.style.color = "#32c36c";
     }
 
     try {
-        await setVolume(Number(volumeSlider.value));
+        await setVolume(value);
 
         await refreshStatus();
 
@@ -155,6 +181,7 @@ volumeSlider.addEventListener("input", async () => {
 
 // ---------- Startup ----------
 
+loadStreams();
 refreshStatus();
 
 setInterval(refreshStatus, 1000);

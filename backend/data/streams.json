@@ -1,0 +1,10 @@
+[
+    {
+        "id": "active-takbeer",
+        "name": "Active Takbeer",
+        "city": "",
+        "country": "",
+        "language": "Arabic",
+        "url": "https://relay.livemasjid.com:8443/activetakbeer"
+    }
+]

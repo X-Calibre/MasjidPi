@@ -5,6 +5,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -23,6 +24,16 @@ func Run() error {
 	}
 
 	log.Info("Configuration loaded")
+
+	streamStore, err := stream.New("data/streams.json")
+	if err != nil {
+		return err
+	}
+
+	log.Info(
+		"Loaded stream catalogue",
+		"streams", len(streamStore.All()),
+	)
 
 	mpv := player.New(cfg.Player.Socket)
 
@@ -53,6 +64,7 @@ func Run() error {
 		cfg.HTTP.Address,
 		log,
 		mpv,
+		streamStore,
 	)
 
 	return server.Start()

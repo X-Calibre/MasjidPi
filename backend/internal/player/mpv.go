@@ -34,6 +34,11 @@ func (m *MPV) Start() error {
 	return nil
 }
 
+func (m *MPV) Stop() error {
+	_, err := m.execute("stop")
+	return err
+}
+
 func (m *MPV) Close() error {
 	_ = m.ipc.Close()
 
@@ -63,20 +68,39 @@ func (m *MPV) execute(command ...any) (*Response, error) {
 }
 
 func (m *MPV) Version() (string, error) {
-	resp, err := m.execute(
-		"get_property",
-		"mpv-version",
-	)
+	value, err := m.GetProperty("mpv-version")
 	if err != nil {
 		return "", err
 	}
 
-	version, ok := resp.Data.(string)
+	version, ok := value.(string)
 	if !ok {
 		return "", fmt.Errorf("unexpected response type")
 	}
 
 	return version, nil
+}
+
+func (m *MPV) GetProperty(name string) (any, error) {
+	resp, err := m.execute(
+		"get_property",
+		name,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
+}
+
+func (m *MPV) SetProperty(name string, value any) error {
+	_, err := m.execute(
+		"set_property",
+		name,
+		value,
+	)
+
+	return err
 }
 
 func (m *MPV) Play(url string) error {

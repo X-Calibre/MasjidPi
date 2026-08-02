@@ -33,6 +33,7 @@ func New(
 	}
 
 	mux.HandleFunc("/", server.home)
+	mux.HandleFunc("/api/player/play", server.play)
 
 	return server
 }

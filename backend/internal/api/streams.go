@@ -2,12 +2,11 @@ package api
 
 import "net/http"
 
-type StreamResponse struct {
+type streamResponse struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
-	City     string `json:"city"`
-	Country  string `json:"country"`
-	Language string `json:"language"`
+	Location string `json:"location,omitempty"`
+	URL      string `json:"url"`
 }
 
 func (s *Server) streamsList(w http.ResponseWriter, r *http.Request) {
@@ -22,15 +21,14 @@ func (s *Server) streamsList(w http.ResponseWriter, r *http.Request) {
 
 	streams := s.streams.All()
 
-	response := make([]StreamResponse, 0, len(streams))
+	response := make([]streamResponse, 0, len(streams))
 
 	for _, stream := range streams {
-		response = append(response, StreamResponse{
+		response = append(response, streamResponse{
 			ID:       stream.ID,
 			Name:     stream.Name,
-			City:     stream.City,
-			Country:  stream.Country,
-			Language: stream.Language,
+			Location: stream.Location,
+			URL:      stream.URL,
 		})
 	}
 

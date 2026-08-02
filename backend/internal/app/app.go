@@ -25,7 +25,7 @@ func Run() error {
 
 	log.Info("Configuration loaded")
 
-	streamStore, err := stream.New("data/streams.json")
+	streamStore, err := stream.New("data/catalogue.json")
 	if err != nil {
 		return err
 	}

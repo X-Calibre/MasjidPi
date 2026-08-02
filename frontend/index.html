@@ -12,29 +12,64 @@
 
 <div class="container">
 
-    <h1>MasjidPi</h1>
+    <header>
+        <h1>MasjidPi</h1>
+        <p>Masjid Audio Streaming</p>
+    </header>
 
-    <h2>Player Status</h2>
+    <section class="card">
 
-    <p><strong>State:</strong> <span id="state">Unknown</span></p>
+        <h2>Player Status</h2>
 
-    <p><strong>Volume:</strong> <span id="volume">0</span></p>
+        <div class="status-row">
+            <span>State</span>
+            <span id="state">Unknown</span>
+        </div>
 
-    <p><strong>Current URL:</strong></p>
+        <div class="status-row">
+            <span>Volume</span>
+            <span id="volume">0</span>
+        </div>
 
-    <pre id="url"></pre>
+        <label>Current Stream</label>
 
-    <hr>
+        <pre id="url"></pre>
 
-    <input
-        id="stream"
-        type="text"
-        placeholder="Stream URL">
+    </section>
 
-    <div class="buttons">
-        <button id="play">Play</button>
-        <button id="stop">Stop</button>
-    </div>
+    <section class="card">
+
+        <label>Stream URL</label>
+
+        <input
+            id="stream"
+            type="text"
+            placeholder="https://">
+
+    <label for="volumeSlider">Volume</label>
+
+        <input
+            id="volumeSlider"
+            type="range"
+           min="0"
+           max="100"
+            value="100">
+
+        <div id="volumeValue">100%</div>
+
+        <div class="buttons">
+
+            <button id="play">
+                ▶ Play
+            </button>
+
+            <button id="stop">
+                ■ Stop
+            </button>
+
+        </div>
+
+    </section>
 
 </div>
 

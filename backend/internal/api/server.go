@@ -23,6 +23,8 @@ func New(
 ) *Server {
 	mux := http.NewServeMux()
 
+	fileServer := http.FileServer(http.Dir("../frontend"))
+
 	server := &Server{
 		logger: logger,
 		player: player,
@@ -32,11 +34,12 @@ func New(
 		},
 	}
 
-	mux.HandleFunc("/", server.home)
 	mux.HandleFunc("/api/player/play", server.play)
 	mux.HandleFunc("/api/player/stop", server.stop)
 	mux.HandleFunc("/api/player/status", server.status)
 	mux.HandleFunc("/api/player/volume", server.volume)
+
+	mux.Handle("/", fileServer)
 
 	return server
 }

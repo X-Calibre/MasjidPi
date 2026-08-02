@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasjidPi</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>MasjidPi</h1>
+
+    <h2>Player Status</h2>
+
+    <p><strong>State:</strong> <span id="state">Unknown</span></p>
+
+    <p><strong>Volume:</strong> <span id="volume">0</span></p>
+
+    <p><strong>Current URL:</strong></p>
+
+    <pre id="url"></pre>
+
+    <hr>
+
+    <input
+        id="stream"
+        type="text"
+        placeholder="Stream URL">
+
+    <div class="buttons">
+        <button id="play">Play</button>
+        <button id="stop">Stop</button>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

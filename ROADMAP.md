@@ -40,10 +40,31 @@ Stream catalogue
 
 Catalogue updater
 
-- LiveMasjid scraper
-- Local catalogue update
+### Completed
+
+- Download LiveMasjid catalogue
+- Parse LiveMasjid HTML
+- Generate local catalogue
+- Preserve LiveMasjid stream order
+- Generate relay URLs automatically
+- Normalise stream names and locations
+
+### Remaining
+
 - Reload catalogue without restart
-- Update button in UI
+- Catalogue update API
+- Update Catalogue button in UI
+
+---
+
+## 🚧 Milestone 0.5
+
+Playback improvements
+
+- Detect streams that are offline
+- Gracefully handle unavailable streams
+- Display playback errors in the UI
+- Prevent endless reconnect attempts
 
 ---
 
@@ -53,7 +74,7 @@ Catalogue updater
 
 - Instant filtering
 - Search by mosque
-- Search by city
+- Search by location
 
 ### Favourites
 
@@ -62,7 +83,6 @@ Catalogue updater
 
 ### Hardware
 
-- Rotary encoder
 - OLED display
 - Push buttons
 

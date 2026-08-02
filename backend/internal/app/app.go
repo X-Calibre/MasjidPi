@@ -35,6 +35,15 @@ func Run() error {
 		return err
 	}
 
+	status, err := mpv.Status()
+	if err != nil {
+		return err
+	}
+
+	log.Info(
+		"Player status",
+		"status", status,
+	)
 	log.Info(
 		"Connected to MPV",
 		"version", version,

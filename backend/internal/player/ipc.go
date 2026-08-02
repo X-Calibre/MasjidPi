@@ -9,7 +9,12 @@ import (
 
 type IPC struct {
 	socket string
-	conn   net.Conn
+
+	conn    net.Conn
+	encoder *json.Encoder
+	decoder *json.Decoder
+
+	responses chan Response
 }
 
 func NewIPC(socket string) *IPC {
@@ -25,6 +30,12 @@ func (i *IPC) Connect() error {
 	}
 
 	i.conn = conn
+	i.encoder = json.NewEncoder(conn)
+	i.decoder = json.NewDecoder(conn)
+
+	i.responses = make(chan Response)
+
+	go i.readLoop()
 
 	return nil
 }
@@ -38,11 +49,33 @@ func (i *IPC) Close() error {
 }
 
 func (i *IPC) Send(command any) error {
-	encoder := json.NewEncoder(i.conn)
-	return encoder.Encode(command)
+	return i.encoder.Encode(command)
 }
 
-func (i *IPC) Receive(v any) error {
-	decoder := json.NewDecoder(i.conn)
-	return decoder.Decode(v)
+func (i *IPC) readLoop() {
+	for {
+		var resp Response
+
+		if err := i.decoder.Decode(&resp); err != nil {
+			close(i.responses)
+			return
+		}
+
+		// Ignore MPV event messages for now.
+		if resp.Event != "" {
+			continue
+		}
+
+		i.responses <- resp
+	}
+}
+
+func (i *IPC) Receive(v *Response) error {
+	resp, ok := <-i.responses
+	if !ok {
+		return fmt.Errorf("ipc connection closed")
+	}
+
+	*v = resp
+	return nil
 }

@@ -5,6 +5,7 @@ type Command struct {
 }
 
 type Response struct {
-	Data  any    `json:"data"`
-	Error string `json:"error"`
+	Event string `json:"event,omitempty"`
+	Data  any    `json:"data,omitempty"`
+	Error string `json:"error,omitempty"`
 }

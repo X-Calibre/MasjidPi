@@ -35,6 +35,8 @@ func New(
 	mux.HandleFunc("/", server.home)
 	mux.HandleFunc("/api/player/play", server.play)
 	mux.HandleFunc("/api/player/stop", server.stop)
+	mux.HandleFunc("/api/player/status", server.status)
+	mux.HandleFunc("/api/player/volume", server.volume)
 
 	return server
 }

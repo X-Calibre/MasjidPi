@@ -203,3 +203,20 @@ button {
     color: #888;
     font-size: 12px;
 }
+
+/* ---------- Checkbox ---------- */
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 18px;
+    margin-bottom: 18px;
+
+    color: #bbbbbb;
+}
+
+.checkbox input {
+    width: auto;
+}

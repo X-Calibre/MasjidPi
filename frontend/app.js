@@ -11,6 +11,7 @@ const volumeValue = document.getElementById("volumeValue");
 
 const playButton = document.getElementById("play");
 const stopButton = document.getElementById("stop");
+const autoplay = document.getElementById("autoplay");
 
 // ---------- API ----------
 
@@ -45,6 +46,12 @@ async function loadStreams() {
         option.textContent = stream.name;
 
         select.appendChild(option);
+    }
+
+    const last = localStorage.getItem("lastStream");
+
+        if (last) {
+        select.value = last;
     }
 }
 
@@ -123,6 +130,13 @@ async function refreshStatus() {
 
 // ---------- Events ----------
 
+streamInput.addEventListener("change", () => {
+    localStorage.setItem(
+        "lastStream",
+        streamInput.value
+    );
+});
+
 playButton.addEventListener("click", async () => {
 
     if (!streamInput.value) {
@@ -179,9 +193,42 @@ const value = Number(volumeSlider.value);
 
 });
 
+autoplay.addEventListener("change", () => {
+    localStorage.setItem(
+        "autoplay",
+        autoplay.checked
+    );
+});
+
 // ---------- Startup ----------
 
-loadStreams();
-refreshStatus();
+async function initialize() {
 
-setInterval(refreshStatus, 1000);
+    await loadStreams();
+
+    await refreshStatus();
+
+    autoplay.checked =
+        localStorage.getItem("autoplay") === "true";
+
+    if (autoplay.checked && streamInput.value) {
+
+        try {
+
+            await playStream(streamInput.value);
+
+            await refreshStatus();
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
+
+    setInterval(refreshStatus, 1000);
+
+}
+
+initialize();

@@ -1,57 +1,78 @@
 # MasjidPi Roadmap
 
-## ✅ Completed
+## ✅ Milestone 0.1
 
-- [x] Project structure
-- [x] AGPL-3.0 licensing
-- [x] Configuration management
-- [x] Structured logging
-- [x] HTTP server
-- [x] MPV process management
-- [x] MPV IPC communication
-- [x] MPV controller abstraction
+Project foundation
 
-## 🚧 Current Milestone
+- Repository structure
+- Backend skeleton
+- Frontend skeleton
+- MPV integration
 
-### Play the first stream
+---
 
-- [ ] Implement `Play(url)`
-- [ ] Play a hard-coded test stream
-- [ ] Verify audio output
+## ✅ Milestone 0.2
 
-## 📋 Upcoming Milestones
+Player API
 
-### Player Control
+- Play
+- Stop
+- Status
+- Volume
+- Responsive web UI
 
-- [ ] Stop playback
-- [ ] Pause / Resume
-- [ ] Volume control
-- [ ] Mute
+---
 
-### Stream Library
+## ✅ Milestone 0.3
 
-- [ ] Stream model
-- [ ] Local stream database
-- [ ] Import Livemasjid streams
-- [ ] Background refresh
+Stream catalogue
 
-### REST API
+- Stream model
+- Local catalogue
+- Play by stream ID
+- Stream API
+- Remember last stream
+- Auto play
 
-- [ ] GET /api/streams
-- [ ] POST /api/player/play
-- [ ] POST /api/player/stop
-- [ ] POST /api/player/volume
+---
 
-### Web UI
+## 🚧 Milestone 0.4
 
-- [ ] Stream list
-- [ ] Search
-- [ ] Current playing indicator
-- [ ] Volume slider
+Catalogue updater
+
+- LiveMasjid scraper
+- Local catalogue update
+- Reload catalogue without restart
+- Update button in UI
+
+---
+
+## Future
+
+### Search
+
+- Instant filtering
+- Search by mosque
+- Search by city
+
+### Favourites
+
+- Favourite stations
+- Quick access
+
+### Hardware
+
+- Rotary encoder
+- OLED display
+- Push buttons
+
+### Audio
+
+- Equaliser
+- Presets
 
 ### Raspberry Pi
 
-- [ ] systemd service
-- [ ] Read-only friendly configuration
-- [ ] Auto-start on boot
-- [ ] Pi Zero 2 optimisation
+- Kiosk mode
+- Read-only mode
+- Automatic startup

@@ -1,60 +1,30 @@
-async function refreshStatus() {
+// ---------- DOM ----------
+
+const state = document.getElementById("state");
+const volume = document.getElementById("volume");
+const stream = document.getElementById("url");
+
+const streamInput = document.getElementById("stream");
+
+const volumeSlider = document.getElementById("volumeSlider");
+const volumeValue = document.getElementById("volumeValue");
+
+const playButton = document.getElementById("play");
+const stopButton = document.getElementById("stop");
+
+// ---------- API ----------
+
+async function getStatus() {
     const response = await fetch("/api/player/status");
 
     if (!response.ok) {
-        console.error("Unable to get player status");
-        return;
+        throw new Error("Unable to get player status");
     }
 
-    const status = await response.json();
-
-    // ----- State badge -----
-
-    const state = document.getElementById("state");
-
-    state.textContent = status.state.toUpperCase();
-
-    state.className =
-        status.state === "playing"
-            ? "status-playing"
-            : "status-stopped";
-
-    // ----- Volume -----
-
-    document.getElementById("volume").textContent =
-        status.volume + "%";
-
-    document.getElementById("volumeSlider").value =
-        status.volume;
-
-    document.getElementById("volumeValue").textContent =
-        status.volume + "%";
-
-    // ----- Current Stream -----
-
-    const stream = document.getElementById("url");
-
-    if (!status.url) {
-        stream.textContent = "No stream playing";
-    } else if (status.url.includes("activetakbeer")) {
-        stream.textContent = "🕌 Active Takbeer";
-    } else {
-        stream.textContent = status.url;
-    }
+    return response.json();
 }
 
-refreshStatus();
-
-setInterval(refreshStatus, 1000);
-
-document.getElementById("play").addEventListener("click", async () => {
-    const url = document.getElementById("stream").value;
-
-    if (!url) {
-        alert("Please enter a stream URL");
-        return;
-    }
-
+async function playStream(url) {
     const response = await fetch("/api/player/play", {
         method: "POST",
         headers: {
@@ -66,47 +36,125 @@ document.getElementById("play").addEventListener("click", async () => {
     });
 
     if (!response.ok) {
-        alert("Unable to play stream");
-        return;
+        throw new Error("Unable to play stream");
     }
+}
 
-document.getElementById("stream").value = "";
-
-await refreshStatus();
-});
-
-document.getElementById("stop").addEventListener("click", async () => {
+async function stopStream() {
     const response = await fetch("/api/player/stop", {
         method: "POST"
     });
 
     if (!response.ok) {
-        alert("Unable to stop playback");
-        return;
+        throw new Error("Unable to stop playback");
     }
+}
 
-    await refreshStatus();
-});
-
-document.getElementById("volumeSlider").addEventListener("input", async (event) => {
-    const volume = Number(event.target.value);
-
-    document.getElementById("volumeValue").textContent = volume + "%";
-
+async function setVolume(level) {
     const response = await fetch("/api/player/volume", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            volume: volume
+            volume: level
         })
     });
 
     if (!response.ok) {
-        console.error("Unable to set volume");
+        throw new Error("Unable to change volume");
+    }
+}
+
+// ---------- UI ----------
+
+async function refreshStatus() {
+    try {
+        const status = await getStatus();
+
+        state.textContent = status.state.toUpperCase();
+
+        state.className =
+            status.state === "playing"
+                ? "status-playing"
+                : "status-stopped";
+
+        volume.textContent = status.volume + "%";
+
+        volumeSlider.value = status.volume;
+        volumeValue.textContent = status.volume + "%";
+
+        if (!status.url) {
+            stream.textContent = "No stream playing";
+        } else if (status.url.includes("activetakbeer")) {
+            stream.textContent = "🕌 Active Takbeer";
+        } else {
+            stream.textContent = status.url;
+        }
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+// ---------- Events ----------
+
+playButton.addEventListener("click", async () => {
+
+    if (!streamInput.value) {
+        alert("Please enter a stream URL");
         return;
     }
 
-    await refreshStatus();
+    try {
+        await playStream(streamInput.value);
+
+        streamInput.value = "";
+
+        await refreshStatus();
+
+    } catch (err) {
+        alert(err.message);
+    }
+
 });
+
+stopButton.addEventListener("click", async () => {
+
+    try {
+        await stopStream();
+
+        await refreshStatus();
+
+    } catch (err) {
+        alert(err.message);
+    }
+
+});
+
+volumeSlider.addEventListener("input", async () => {
+
+    volumeValue.textContent = status.volume + "%";
+
+    if (status.volume > 100) {
+        volumeValue.style.color = "#ffb347";
+    } else {
+        volumeValue.style.color = "#32c36c";
+    }
+
+    try {
+        await setVolume(Number(volumeSlider.value));
+
+        await refreshStatus();
+
+    } catch (err) {
+        console.error(err);
+    }
+
+});
+
+// ---------- Startup ----------
+
+refreshStatus();
+
+setInterval(refreshStatus, 1000);

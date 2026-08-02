@@ -117,8 +117,8 @@ func (m *MPV) Play(url string) error {
 }
 
 func (m *MPV) Volume(volume int) error {
-	if volume < 0 || volume > 100 {
-		return fmt.Errorf("volume must be between 0 and 100")
+	if volume < 0 || volume > 125 {
+		return fmt.Errorf("volume must be between 0 and 125")
 	}
 
 	return m.SetProperty("volume", volume)

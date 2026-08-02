@@ -11,40 +11,76 @@ type PlayRequest struct {
 
 func (s *Server) play(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		writeError(
+			w,
+			http.StatusMethodNotAllowed,
+			"method not allowed",
+		)
 		return
 	}
 
 	var req PlayRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"invalid JSON",
+		)
 		return
 	}
 
 	if req.URL == "" {
-		http.Error(w, "Missing URL", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"missing URL",
+		)
 		return
 	}
 
 	if err := s.player.Play(req.URL); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			err.Error(),
+		)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	writeJSON(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"status": "playing",
+		},
+	)
 }
 
 func (s *Server) stop(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		writeError(
+			w,
+			http.StatusMethodNotAllowed,
+			"method not allowed",
+		)
 		return
 	}
 
 	if err := s.player.Stop(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeError(
+			w,
+			http.StatusInternalServerError,
+			err.Error(),
+		)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	writeJSON(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"status": "stopped",
+		},
+	)
 }

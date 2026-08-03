@@ -11,6 +11,7 @@ const volumeValue = document.getElementById("volumeValue");
 
 const playButton = document.getElementById("play");
 const stopButton = document.getElementById("stop");
+const updateCatalogueButton = document.getElementById("updateCatalogueButton");
 const autoplay = document.getElementById("autoplay");
 
 // ---------- API ----------
@@ -48,11 +49,21 @@ async function loadStreams() {
         select.appendChild(option);
     }
 
-    const last = localStorage.getItem("lastStream");
+    const preferred =
+       currentSelection ||
+        localStorage.getItem("lastStream");
 
-        if (last) {
-        select.value = last;
+if (preferred) {
+
+    const exists = [...select.options].some(
+        option => option.value === preferred
+    );
+
+    if (exists) {
+        select.value = preferred;
     }
+
+}
 }
 
 async function playStream(id) {
@@ -95,6 +106,22 @@ async function setVolume(level) {
     if (!response.ok) {
         throw new Error("Unable to change volume");
     }
+}
+
+async function updateCatalogue() {
+
+    const response = await fetch(
+        "/api/catalogue/update",
+        {
+            method: "POST"
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Unable to update catalogue");
+    }
+
+    return response.json();
 }
 
 // ---------- UI ----------

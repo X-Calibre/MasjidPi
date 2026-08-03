@@ -36,11 +36,9 @@ Stream catalogue
 
 ---
 
-## 🚧 Milestone 0.4
+## ✅ Milestone 0.4
 
 Catalogue updater
-
-### Completed
 
 - Download LiveMasjid catalogue
 - Parse LiveMasjid HTML
@@ -48,12 +46,9 @@ Catalogue updater
 - Preserve LiveMasjid stream order
 - Generate relay URLs automatically
 - Normalise stream names and locations
-
-### Remaining
-
-- Reload catalogue without restart
+- Reload catalogue without restarting the application
 - Catalogue update API
-- Update Catalogue button in UI
+- Update Catalogue button in the web UI
 
 ---
 
@@ -61,10 +56,18 @@ Catalogue updater
 
 Playback improvements
 
+### Playback reliability
+
 - Detect streams that are offline
 - Gracefully handle unavailable streams
 - Display playback errors in the UI
 - Prevent endless reconnect attempts
+
+### Stream information
+
+- Display current stream name and relay URL
+- Show whether a stream is online or offline
+- Indicate buffering and reconnecting states
 
 ---
 
@@ -94,5 +97,13 @@ Playback improvements
 ### Raspberry Pi
 
 - Kiosk mode
-- Read-only mode
+- Read-only filesystem
 - Automatic startup
+- Systemd service
+
+### Settings
+
+- Persist application settings
+- Remember volume
+- Remember autoplay
+- Remember last selected stream

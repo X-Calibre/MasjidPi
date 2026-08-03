@@ -29,3 +29,7 @@ frontend/node_modules/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Temporary files
+backend/data/livemasjid.js
+backend/data/*.html

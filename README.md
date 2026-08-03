@@ -18,9 +18,9 @@ This project has a unique story.
 
 MasjidPi is being developed by someone with **no prior software development experience**. Every line of code has been written through an iterative collaboration with AI, while the project vision, feature decisions, testing, and overall direction remain human-driven.
 
-The goal is to demonstrate that modern AI tools can empower people without formal programming backgrounds to build high-quality open-source software by combining domain knowledge, curiosity, careful testing, and incremental development.
-
 Rather than using AI to generate an application in one step, every feature is designed, implemented, tested and refined through many small iterations.
+
+The goal is not only to build a reliable Raspberry Pi streaming appliance, but also to demonstrate how AI can help people learn software engineering through practical, real-world projects.
 
 If the project inspires someone else to learn software development, then it has already been a success.
 
@@ -59,10 +59,14 @@ MasjidPi follows a few simple principles.
 
 - Web-based player interface
 - Live playback status
+- Current stream name and relay URL
 - Volume control (0–125%)
 - MPV audio playback
-- Local stream catalogue
+- Local JSON stream catalogue
 - Automatic catalogue generation from LiveMasjid
+- One-click catalogue update
+- Hot reload of the catalogue without restarting
+- Automatically generated relay URLs
 - Play streams by catalogue selection
 - Remember the last selected stream
 - Optional automatic playback on startup
@@ -72,11 +76,10 @@ MasjidPi follows a few simple principles.
 
 # Planned Features
 
-- One-click catalogue update
-- Reload catalogue without restarting
+- Detect offline streams
+- Gracefully handle unavailable streams
 - Searchable catalogue
 - Favourite masājid
-- Graceful handling of offline streams
 - OLED display support
 - Push-button controls
 - Audio equaliser
@@ -102,7 +105,7 @@ sudo apt update
 sudo apt install git mpv
 ```
 
-Install Go by following the official Go installation instructions.
+Install Go by following the official Go installation guide.
 
 ---
 
@@ -154,13 +157,25 @@ If running on another machine, replace `localhost` with the Raspberry Pi's IP ad
 
 ---
 
-## Updating the Stream Catalogue
+# Updating the Stream Catalogue
 
-MasjidPi generates its catalogue from LiveMasjid.
+MasjidPi builds its local catalogue directly from the LiveMasjid website.
 
-At the moment this is performed during development.
+To refresh the catalogue:
 
-Future versions will include a one-click **Update Catalogue** button in the web interface.
+1. Open the web interface.
+2. Click **Update Catalogue**.
+3. MasjidPi downloads the latest catalogue from LiveMasjid.
+4. The local catalogue is regenerated and reloaded automatically.
+5. No application restart is required.
+
+---
+
+# Current Limitations
+
+MasjidPi currently assumes that every stream in the catalogue is available.
+
+Support for detecting offline streams and providing user-friendly playback errors is currently under development.
 
 ---
 
@@ -168,9 +183,9 @@ Future versions will include a one-click **Update Catalogue** button in the web 
 
 MasjidPi is currently in active development.
 
-The project is functional, but many planned features are still under development.
+The application is already suitable for everyday listening, while additional reliability improvements and Raspberry Pi-specific features continue to be added.
 
-Breaking changes may occur until version 1.0.
+Breaking changes may still occur before the first stable release.
 
 ---
 

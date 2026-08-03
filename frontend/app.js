@@ -1,3 +1,5 @@
+let catalogue = [];
+
 // ---------- DOM ----------
 
 const state = document.getElementById("state");
@@ -27,6 +29,9 @@ async function getStatus() {
 }
 
 async function loadStreams() {
+
+    const currentSelection = streamInput.value;
+
     const response = await fetch("/api/streams");
 
     if (!response.ok) {
@@ -34,36 +39,33 @@ async function loadStreams() {
         return;
     }
 
-    const streams = await response.json();
+    catalogue = await response.json();
 
-    const select = document.getElementById("stream");
+    streamInput.innerHTML = "";
 
-    select.innerHTML = "";
-
-    for (const stream of streams) {
+    for (const stream of catalogue) {
         const option = document.createElement("option");
 
         option.value = stream.id;
         option.textContent = stream.name;
 
-        select.appendChild(option);
+        streamInput.appendChild(option);
     }
 
     const preferred =
-       currentSelection ||
+        currentSelection ||
         localStorage.getItem("lastStream");
 
-if (preferred) {
+    if (preferred) {
 
-    const exists = [...select.options].some(
-        option => option.value === preferred
-    );
+        const exists = [...streamInput.options].some(
+            option => option.value === preferred
+        );
 
-    if (exists) {
-        select.value = preferred;
+        if (exists) {
+            streamInput.value = preferred;
+        }
     }
-
-}
 }
 
 async function playStream(id) {
@@ -124,10 +126,18 @@ async function updateCatalogue() {
     return response.json();
 }
 
+// ---------- Helpers ----------
+
+function findStreamByURL(url) {
+    return catalogue.find(stream => stream.url === url);
+}
+
 // ---------- UI ----------
 
 async function refreshStatus() {
+
     try {
+
         const status = await getStatus();
 
         state.textContent = status.state.toUpperCase();
@@ -143,25 +153,42 @@ async function refreshStatus() {
         volumeValue.textContent = status.volume + "%";
 
         if (!status.url) {
+
             stream.textContent = "No stream playing";
-        } else if (status.url.includes("activetakbeer")) {
-            stream.textContent = "🕌 Active Takbeer";
+
         } else {
-            stream.textContent = status.url;
+
+            const current = findStreamByURL(status.url);
+
+            if (current) {
+
+                stream.textContent =
+                    current.name + "\n" +
+                    current.url;
+
+            } else {
+
+                stream.textContent = status.url;
+
+            }
         }
 
     } catch (err) {
+
         console.error(err);
+
     }
 }
 
 // ---------- Events ----------
 
 streamInput.addEventListener("change", () => {
+
     localStorage.setItem(
         "lastStream",
         streamInput.value
     );
+
 });
 
 playButton.addEventListener("click", async () => {
@@ -172,14 +199,15 @@ playButton.addEventListener("click", async () => {
     }
 
     try {
-        await playStream(streamInput.value);
 
-        streamInput.value = "";
+        await playStream(streamInput.value);
 
         await refreshStatus();
 
     } catch (err) {
+
         alert(err.message);
+
     }
 
 });
@@ -187,19 +215,22 @@ playButton.addEventListener("click", async () => {
 stopButton.addEventListener("click", async () => {
 
     try {
+
         await stopStream();
 
         await refreshStatus();
 
     } catch (err) {
+
         alert(err.message);
+
     }
 
 });
 
 volumeSlider.addEventListener("input", async () => {
 
-const value = Number(volumeSlider.value);
+    const value = Number(volumeSlider.value);
 
     volumeValue.textContent = value + "%";
 
@@ -210,21 +241,52 @@ const value = Number(volumeSlider.value);
     }
 
     try {
+
         await setVolume(value);
 
         await refreshStatus();
 
     } catch (err) {
+
         console.error(err);
+
     }
 
 });
 
 autoplay.addEventListener("change", () => {
+
     localStorage.setItem(
         "autoplay",
         autoplay.checked
     );
+
+});
+
+updateCatalogueButton.addEventListener("click", async () => {
+
+    try {
+
+        updateCatalogueButton.disabled = true;
+        updateCatalogueButton.textContent = "Updating...";
+
+        await updateCatalogue();
+        await loadStreams();
+        await refreshStatus();
+
+        alert("Catalogue updated successfully.");
+
+    } catch (err) {
+
+        alert(err.message);
+
+    } finally {
+
+        updateCatalogueButton.disabled = false;
+        updateCatalogueButton.textContent = "🔄 Update Catalogue";
+
+    }
+
 });
 
 // ---------- Startup ----------

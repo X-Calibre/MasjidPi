@@ -5,7 +5,6 @@ run_selftest() {
     info "Running self test..."
 
     command -v mpv >/dev/null || die "mpv not found"
-
     command -v go >/dev/null || die "Go not found"
 
     [[ -f "$PROJECT_ROOT/backend/data/catalogue.json" ]] \
@@ -13,12 +12,35 @@ run_selftest() {
 
     cd "$PROJECT_ROOT/backend"
 
-    timeout 5 go run ./cmd/masjidpi >/tmp/masjidpi.log 2>&1 || true
+    LOG="/tmp/masjidpi-selftest.log"
 
-    grep -q "Starting HTTP server" /tmp/masjidpi.log \
-        || die "Application failed to start."
+    info "Starting MasjidPi..."
+
+    ./masjidpi >"$LOG" 2>&1 &
+    PID=$!
+
+    # Wait up to 5 seconds for the HTTP server to start.
+    for i in {1..50}; do
+        if grep -q "Starting HTTP server" "$LOG"; then
+            break
+        fi
+
+        sleep 0.1
+    done
+
+    grep -q "Starting HTTP server" "$LOG" \
+        || {
+            kill "$PID" 2>/dev/null || true
+            wait "$PID" 2>/dev/null || true
+            die "Application failed to start."
+        }
 
     success "Application started successfully."
+
+    info "Stopping MasjidPi..."
+
+    kill "$PID" 2>/dev/null || true
+    wait "$PID" 2>/dev/null || true
 
     if aplay -l >/dev/null 2>&1; then
         success "Audio device detected."

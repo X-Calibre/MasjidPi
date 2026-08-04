@@ -1,6 +1,12 @@
 package app
 
 import (
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/X-Calibre/MasjidPi/backend/internal/api"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
@@ -41,6 +47,11 @@ func Run() error {
 		return err
 	}
 
+	defer func() {
+		log.Info("Stopping MPV")
+		_ = mpv.Close()
+	}()
+
 	version, err := mpv.Version()
 	if err != nil {
 		return err
@@ -55,6 +66,7 @@ func Run() error {
 		"Player status",
 		"status", status,
 	)
+
 	log.Info(
 		"Connected to MPV",
 		"version", version,
@@ -66,6 +78,33 @@ func Run() error {
 		mpv,
 		streamStore,
 	)
+
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	go func() {
+		<-ctx.Done()
+
+		log.Info("Shutdown requested")
+
+		shutdownCtx, cancel := context.WithTimeout(
+			context.Background(),
+			5*time.Second,
+		)
+		defer cancel()
+
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.Error(
+				"HTTP shutdown failed",
+				"error",
+				err,
+			)
+		}
+	}()
 
 	return server.Start()
 }

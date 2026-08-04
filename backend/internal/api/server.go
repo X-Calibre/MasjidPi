@@ -56,7 +56,13 @@ func (s *Server) Start() error {
 		"address", s.httpServer.Addr,
 	)
 
-	return s.httpServer.ListenAndServe()
+	err := s.httpServer.ListenAndServe()
+
+	if err == http.ErrServerClosed {
+		return nil
+	}
+
+	return err
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {

@@ -6,11 +6,13 @@ import (
 )
 
 type Process struct {
-	cmd *exec.Cmd
+	socket string
+	cmd    *exec.Cmd
 }
 
 func NewProcess(socket string) *Process {
 	return &Process{
+		socket: socket,
 		cmd: exec.Command(
 			"mpv",
 			"--idle=yes",
@@ -21,6 +23,10 @@ func NewProcess(socket string) *Process {
 }
 
 func (p *Process) Start() error {
+
+	// Remove any stale socket from a previous crash.
+	_ = os.Remove(p.socket)
+
 	p.cmd.Stdout = os.Stdout
 	p.cmd.Stderr = os.Stderr
 
@@ -28,9 +34,18 @@ func (p *Process) Start() error {
 }
 
 func (p *Process) Stop() error {
+
 	if p.cmd == nil || p.cmd.Process == nil {
 		return nil
 	}
 
-	return p.cmd.Process.Kill()
+	err := p.cmd.Process.Kill()
+
+	_ = p.cmd.Wait()
+
+	_ = os.Remove(p.socket)
+
+	p.cmd = nil
+
+	return err
 }

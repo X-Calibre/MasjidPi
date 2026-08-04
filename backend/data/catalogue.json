@@ -15,34 +15,16 @@
         "url": "https://relay.livemasjid.com:8443/activetakbeer"
     },
     {
-        "id": "duzak",
-        "name": "Darul Uloom Zakariyya, Lenasia, Johannesburg, Gauteng, RSA",
-        "location": "8-10 Golden Highway, Zakariyyah Park, Johannesburg, Gauteng, South Africa, 1821",
-        "url": "https://relay.livemasjid.com:8443/duzak"
-    },
-    {
-        "id": "hmjamaat",
-        "name": "Houghton Muslim Jamaat, Jhb, RSA",
-        "location": "47 West Street, Houghton, Johannesburg, Gauteng, South Africa, 2198",
-        "url": "https://relay.livemasjid.com:8443/hmjamaat"
-    },
-    {
-        "id": "salaamlaudium",
-        "name": "Masjid us Salaam, Laudium, Pretoria, RSA",
-        "location": "415 Corundum Street, Laudium, Pretoria, Gauteng, South Africa. 0157",
-        "url": "https://relay.livemasjid.com:8443/salaamlaudium"
+        "id": "hamidiya",
+        "name": "Hamidiya Musalla, Leicester, UK",
+        "location": "11 Abbotsford Rd, Rowlatts Hill, Leicester LE5 4DA, UK",
+        "url": "https://relay.livemasjid.com:8443/hamidiya"
     },
     {
         "id": "nui",
         "name": "Noor Ul Islam - United Kingdom",
         "location": "713 High Rd Leyton, London E10 5AB, UK",
         "url": "https://relay.livemasjid.com:8443/nui"
-    },
-    {
-        "id": "kenwyn",
-        "name": "Waterloo Road Masjid, Kenwyn, Cpt, RSA",
-        "location": "42 Waterloo Road, Kenwyn, Cape Town, Western Cape, South Africa, 7779",
-        "url": "https://relay.livemasjid.com:8443/kenwyn"
     },
     {
         "id": "makkah",
@@ -92,6 +74,11 @@
         "id": "armaitsounds",
         "name": "ARM SSS 1 AND AIT SOUNDS, Mozambique",
         "url": "https://relay.livemasjid.com:8443/armaitsounds"
+    },
+    {
+        "id": "armaitsounds2",
+        "name": "ARM SSS 2 AND AIT SOUNDS, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/armaitsounds2"
     },
     {
         "id": "kelvin",
@@ -376,6 +363,12 @@
         "url": "https://relay.livemasjid.com:8443/dun"
     },
     {
+        "id": "duzak",
+        "name": "Darul Uloom Zakariyya, Lenasia, Johannesburg, Gauteng, RSA",
+        "location": "8-10 Golden Highway, Zakariyyah Park, Johannesburg, Gauteng, South Africa, 1821",
+        "url": "https://relay.livemasjid.com:8443/duzak"
+    },
+    {
         "id": "dundee",
         "name": "Dundee Jaami Masjid, KZN",
         "url": "https://relay.livemasjid.com:8443/dundee"
@@ -452,12 +445,6 @@
         "url": "https://relay.livemasjid.com:8443/hafizqaasim"
     },
     {
-        "id": "hamidiya",
-        "name": "Hamidiya Musalla, Leicester, UK",
-        "location": "11 Abbotsford Rd, Rowlatts Hill, Leicester LE5 4DA, UK",
-        "url": "https://relay.livemasjid.com:8443/hamidiya"
-    },
-    {
         "id": "harding",
         "name": "Harding Jummah Musjid, KZN, RSA",
         "location": "4 Musgrave St, Harding, 4680, South Africa",
@@ -519,6 +506,12 @@
         "name": "Himayatul Islam Masjid, Lenasia, Jhb, RSA",
         "location": "24 \u0026 26 Lark Street, Lenasia, Johannesburg, Gauteng, South Africa, 1821",
         "url": "https://relay.livemasjid.com:8443/rmsc"
+    },
+    {
+        "id": "hmjamaat",
+        "name": "Houghton Muslim Jamaat, Jhb, RSA",
+        "location": "47 West Street, Houghton, Johannesburg, Gauteng, South Africa, 2198",
+        "url": "https://relay.livemasjid.com:8443/hmjamaat"
     },
     {
         "id": "howick",
@@ -1036,6 +1029,12 @@
         "url": "https://relay.livemasjid.com:8443/alrahman"
     },
     {
+        "id": "mozali",
+        "name": "Masjid Ali RA, Maputo, Mozambique",
+        "location": "3F43+JCG, Matola, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozali"
+    },
+    {
         "id": "anwaarulabraar",
         "name": "Masjid Anwaarul Abraar, PMB",
         "location": "5 Wallace Rd, Manor, Pietermaritzburg, 3201, South Africa",
@@ -1176,6 +1175,12 @@
         "id": "hamzalenasia",
         "name": "Masjid Hamza, Lenasia, Ext 9, Johannesburg, RSA",
         "url": "https://relay.livemasjid.com:8443/hamzalenasia"
+    },
+    {
+        "id": "mozhamza",
+        "name": "Masjid Hamza, Maputo, Mozambique",
+        "location": "2FQ3+FVC, Matola, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozhamza"
     },
     {
         "id": "crowngardens",
@@ -1332,6 +1337,12 @@
         "name": "Masjid Omar Farouk, Ext 8, Lenasia, Jhb, RSA",
         "location": "Cnr Garrick \u0026 Protea Avenue, Lenasia Ext 8, Johannesburg, Gauteng, South Africa",
         "url": "https://relay.livemasjid.com:8443/umarfarouklenasia"
+    },
+    {
+        "id": "mozqubachimoio",
+        "name": "Masjid Quba, Chimoio, Mozambique",
+        "location": "VFCH+WQ8, Chimoio, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozqubachimoio"
     },
     {
         "id": "mozquba",
@@ -1648,6 +1659,12 @@
         "url": "https://relay.livemasjid.com:8443/rahman"
     },
     {
+        "id": "salaamlaudium",
+        "name": "Masjid us Salaam, Laudium, Pretoria, RSA",
+        "location": "415 Corundum Street, Laudium, Pretoria, Gauteng, South Africa. 0157",
+        "url": "https://relay.livemasjid.com:8443/salaamlaudium"
+    },
+    {
         "id": "saliheendbn",
         "name": "Masjid us Saliheen, Sherwood, Durban, Kzn, RSA",
         "location": "85 Harris Crescent, Sherwood, Durban, Kwazulu Natal, South Africa, 4091",
@@ -1819,6 +1836,12 @@
         "id": "isipingorail",
         "name": "Mehboobia Masjid, Isipingo Rail, Durban, Kzn, RSA",
         "url": "https://relay.livemasjid.com:8443/isipingorail"
+    },
+    {
+        "id": "mozcentralchimoio",
+        "name": "Mesquita Central, Chimoio Manica, Mozambique",
+        "location": "VFPJ+9Q8, Rua dos Agricultores, Chimoio, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozcentralchimoio"
     },
     {
         "id": "middelburg",
@@ -2473,6 +2496,12 @@
         "id": "warrenton",
         "name": "Warrenton Masjid, Warrenton, North West, RSA",
         "url": "https://relay.livemasjid.com:8443/warrenton"
+    },
+    {
+        "id": "kenwyn",
+        "name": "Waterloo Road Masjid, Kenwyn, Cpt, RSA",
+        "location": "42 Waterloo Road, Kenwyn, Cape Town, Western Cape, South Africa, 7779",
+        "url": "https://relay.livemasjid.com:8443/kenwyn"
     },
     {
         "id": "weltevredenpark",

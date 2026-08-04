@@ -1,0 +1,2524 @@
+[
+    {
+        "id": "activestream",
+        "name": "Quraan Recitation",
+        "url": "https://relay.livemasjid.com:8443/activestream"
+    },
+    {
+        "id": "annoor-relay",
+        "name": "Sautun Noor - 24 Hour Bayaans of our Akaabireen",
+        "url": "https://relay.livemasjid.com:8443/annoor-relay"
+    },
+    {
+        "id": "activetakbeer",
+        "name": "Takbeer Audio",
+        "url": "https://relay.livemasjid.com:8443/activetakbeer"
+    },
+    {
+        "id": "duzak",
+        "name": "Darul Uloom Zakariyya, Lenasia, Johannesburg, Gauteng, RSA",
+        "location": "8-10 Golden Highway, Zakariyyah Park, Johannesburg, Gauteng, South Africa, 1821",
+        "url": "https://relay.livemasjid.com:8443/duzak"
+    },
+    {
+        "id": "hmjamaat",
+        "name": "Houghton Muslim Jamaat, Jhb, RSA",
+        "location": "47 West Street, Houghton, Johannesburg, Gauteng, South Africa, 2198",
+        "url": "https://relay.livemasjid.com:8443/hmjamaat"
+    },
+    {
+        "id": "salaamlaudium",
+        "name": "Masjid us Salaam, Laudium, Pretoria, RSA",
+        "location": "415 Corundum Street, Laudium, Pretoria, Gauteng, South Africa. 0157",
+        "url": "https://relay.livemasjid.com:8443/salaamlaudium"
+    },
+    {
+        "id": "nui",
+        "name": "Noor Ul Islam - United Kingdom",
+        "location": "713 High Rd Leyton, London E10 5AB, UK",
+        "url": "https://relay.livemasjid.com:8443/nui"
+    },
+    {
+        "id": "kenwyn",
+        "name": "Waterloo Road Masjid, Kenwyn, Cpt, RSA",
+        "location": "42 Waterloo Road, Kenwyn, Cape Town, Western Cape, South Africa, 7779",
+        "url": "https://relay.livemasjid.com:8443/kenwyn"
+    },
+    {
+        "id": "makkah",
+        "name": "Masjid al-Haram, Makkah Mukarama, Saudi Arabia",
+        "location": "Mecca 24231, Saudi Arabia",
+        "url": "https://relay.livemasjid.com:8443/makkah"
+    },
+    {
+        "id": "medina",
+        "name": "Masjidun Nabawi, Medina, Saudi Arabia",
+        "location": "Al Haram, Medina 42311, Saudi Arabia",
+        "url": "https://relay.livemasjid.com:8443/medina"
+    },
+    {
+        "id": "jaamiaazaadville",
+        "name": "Jaamia Masjid Azaadville",
+        "location": "Azaad Ave, Azaadville, Johannesburg, 1750",
+        "url": "https://relay.livemasjid.com:8443/jaamiaazaadville"
+    },
+    {
+        "id": "jusa",
+        "name": "Jamiatul Ulama South Africa - Dawah Wal Irshaad",
+        "url": "https://relay.livemasjid.com:8443/jusa"
+    },
+    {
+        "id": "khuddaamulquraan",
+        "name": "Khuddaamul Quraan - Remote Broadcast",
+        "url": "https://relay.livemasjid.com:8443/khuddaamulquraan"
+    },
+    {
+        "id": "aqsa",
+        "name": "Masjid al-Aqsa - Jerusalem, Palestine",
+        "url": "https://relay.livemasjid.com:8443/aqsa"
+    },
+    {
+        "id": "mrh",
+        "name": "Moulana Muhammed R Hathurani, Jhb, RSA",
+        "url": "https://relay.livemasjid.com:8443/mrh"
+    },
+    {
+        "id": "sautunnoor2",
+        "name": "Sautun Noor - Spare Channel",
+        "location": "4 Ayr Road, Athol, Sandton, Johannesburg, Gauteng, South Africa, 2196",
+        "url": "https://relay.livemasjid.com:8443/sautunnoor2"
+    },
+    {
+        "id": "armaitsounds",
+        "name": "ARM SSS 1 AND AIT SOUNDS, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/armaitsounds"
+    },
+    {
+        "id": "kelvin",
+        "name": "Abdullah Bin Salaam Masjid - Kelvin",
+        "location": "21 Fairway St, Kelvin, Sandton, 2090",
+        "url": "https://relay.livemasjid.com:8443/kelvin"
+    },
+    {
+        "id": "accaciavile",
+        "name": "Accaciavile Musjid, Ladysmith, KZN, RSA",
+        "location": "2 Aster Crescent, uMnambithi, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/accaciavile"
+    },
+    {
+        "id": "alqadr",
+        "name": "Al Qadr Masjid, Northcliff, Jhb, Gauteng, RSA",
+        "location": "49 Mountainview Drive, Northcliff, Johannesburg, 2115, South Africa",
+        "url": "https://relay.livemasjid.com:8443/alqadr"
+    },
+    {
+        "id": "alarqam",
+        "name": "Al-Arqam Islamic Centre, Oshawa, Canada, North America",
+        "location": "1709 Durham Regional Rd 33, Oshawa, ON L1H 7K5, Canada",
+        "url": "https://relay.livemasjid.com:8443/alarqam"
+    },
+    {
+        "id": "alislamia",
+        "name": "Al-Islamia Maderasa, Ladysmith",
+        "location": "40 Marula Drive, uMnambithi, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/alislamia"
+    },
+    {
+        "id": "almiftaah",
+        "name": "Al-Miftaah, Kenwyn, Cape Town, WC, RSA",
+        "location": "12 Ladbrook St, Kenwyn, Cape Town, 7779, South Africa",
+        "url": "https://relay.livemasjid.com:8443/almiftaah"
+    },
+    {
+        "id": "portshepstone",
+        "name": "Albersville Masjid, Port Shepstone, Kzn, RSA",
+        "location": "Robin Road, Albersville, Port Shepstone, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/portshepstone"
+    },
+    {
+        "id": "alberton",
+        "name": "Alberton Jumma Masjid - JHB",
+        "location": "4 Middel St, Alberton, 1450, South Africa",
+        "url": "https://relay.livemasjid.com:8443/alberton"
+    },
+    {
+        "id": "bethlehem",
+        "name": "An Noor Jaame Musjid, Bethlehem",
+        "location": "16 De Leeuw St, Bethlehem, 9701, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bethlehem"
+    },
+    {
+        "id": "tongaat",
+        "name": "Anjuman Islam - Tongaat",
+        "location": "16 Railway St, Gandhinagar, Tongaat, 4399",
+        "url": "https://relay.livemasjid.com:8443/tongaat"
+    },
+    {
+        "id": "maltonmasjid",
+        "name": "Anjuman-E-Anwarul Islam of Malton",
+        "location": "7097 Airport Rd, Mississauga, ON L4T 2G7, Canada",
+        "url": "https://relay.livemasjid.com:8443/maltonmasjid"
+    },
+    {
+        "id": "anwarulislam",
+        "name": "Anwarul Islam Mussala, Rondebosch East, Cape Town",
+        "location": "123 2nd Ave, Rondebosch East, Cape Town, 7780, South Africa",
+        "url": "https://relay.livemasjid.com:8443/anwarulislam"
+    },
+    {
+        "id": "arconpark",
+        "name": "Arcon Park Musallah, Vereeniging, JHB",
+        "url": "https://relay.livemasjid.com:8443/arconpark"
+    },
+    {
+        "id": "bloemfontein",
+        "name": "As Siddique Jumu'ah Masjid, Bloemfontein, Free State, RSA",
+        "location": "Henry Street, Bloemfontein, Free State, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bloemfontein"
+    },
+    {
+        "id": "asharahmubasharah",
+        "name": "Asharah Mubasharah Masjid \u0026 Islamic Centre",
+        "location": "112 Cuckoo Ave, Cashan, Rustenburg, 2999, South Africa",
+        "url": "https://relay.livemasjid.com:8443/asharahmubasharah"
+    },
+    {
+        "id": "aucklandpark",
+        "name": "Auckland Park Masjid, Jhb, Gauteng, RSA",
+        "location": "Richmond Avenue, Auckland Park, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/aucklandpark"
+    },
+    {
+        "id": "auwal",
+        "name": "Auwal Masjid, CPT",
+        "location": "43 Dorp St, Cape Town City Centre, Cape Town, 8001, South Africa",
+        "url": "https://relay.livemasjid.com:8443/auwal"
+    },
+    {
+        "id": "babussalaam",
+        "name": "Babus Salaam Masjid, Mayfair West, JHB",
+        "url": "https://relay.livemasjid.com:8443/babussalaam"
+    },
+    {
+        "id": "albertville",
+        "name": "Bait-ur-Rahmah Masjid, Albertville, Jhb, Gauteng, RSA",
+        "location": "21 Main St, Albertville, Randburg, 2195, South Africa",
+        "url": "https://relay.livemasjid.com:8443/albertville"
+    },
+    {
+        "id": "baitulaman",
+        "name": "Baitul Aman Masjid, Scarborough, Canada, North America",
+        "location": "3114 Danforth Ave, Scarborough, ON M1L 1B1, Canada",
+        "url": "https://relay.livemasjid.com:8443/baitulaman"
+    },
+    {
+        "id": "baitulhamd",
+        "name": "Baitul Hamd Masjid, Lenasia, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/baitulhamd"
+    },
+    {
+        "id": "ballito",
+        "name": "Ballito Musallah",
+        "location": "3 Douglas Crowe Dr, Ballito, 4420, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ballito"
+    },
+    {
+        "id": "barberton",
+        "name": "Barberton Anjuman Masjid, Mpumalanga, RSA",
+        "location": "Barberton Mosque, 8 Froger St, Barberton, 1300, South Africa",
+        "url": "https://relay.livemasjid.com:8443/barberton"
+    },
+    {
+        "id": "bassonia",
+        "name": "Bassonia Musalla",
+        "location": "4 Meerkat Ave, Bassonia, Johannesburg South, 2061, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bassonia"
+    },
+    {
+        "id": "bedfordview",
+        "name": "Bedfordview Musallah, Jhb, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/bedfordview"
+    },
+    {
+        "id": "bendor",
+        "name": "Bendor Jamaat Khana",
+        "location": "53A Van Nispen St, Polokwane Ext 4, Polokwane, 0700, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bendor"
+    },
+    {
+        "id": "beyerspark",
+        "name": "Beyerspark Musallah, Boksburg, Jhb, Gauteng, RSA",
+        "location": "1 Griessel Road, Beyers Park, Boksburg, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/beyerspark"
+    },
+    {
+        "id": "gaboroneblock8",
+        "name": "Block 8 Musallah, Gaborone, Botswana",
+        "location": "9WM7+X3W, 37500 Khiding Cres, Gaborone, Botswana",
+        "url": "https://relay.livemasjid.com:8443/gaboroneblock8"
+    },
+    {
+        "id": "eastlondon",
+        "name": "Braelyn Jaami' Masjid, East London, Eastern Cape, RSA",
+        "location": "57 Maple Leaf Avenue, Braelyn, East London, Eastern Cape, South Africa",
+        "url": "https://relay.livemasjid.com:8443/eastlondon"
+    },
+    {
+        "id": "britsjamia",
+        "name": "Brits Jamia Masjid, North West, RSA",
+        "location": "Central Street, Primindia, Brits, North West, South Africa, 0250",
+        "url": "https://relay.livemasjid.com:8443/britsjamia"
+    },
+    {
+        "id": "broadstreet",
+        "name": "Broad Street Mussallah, Durban, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/broadstreet"
+    },
+    {
+        "id": "cambridge",
+        "name": "Cambridge Muslim Society, Ontario, Canada, North America",
+        "location": "282 Elgin St N, Cambridge, ON N1R 7H9, Canada",
+        "url": "https://relay.livemasjid.com:8443/cambridge"
+    },
+    {
+        "id": "camperdown",
+        "name": "Camperdown Jami Masjid, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/camperdown"
+    },
+    {
+        "id": "carolina",
+        "name": "Carolina Town Masjid -MP",
+        "location": "37A Voortrekker St, Carolina, 1185, South Africa",
+        "url": "https://relay.livemasjid.com:8443/carolina"
+    },
+    {
+        "id": "cascades",
+        "name": "Cascades Foundation Musallah, Pietermaritzburg, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/cascades"
+    },
+    {
+        "id": "center",
+        "name": "Central Masjid, Pietermaritzburg, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/center"
+    },
+    {
+        "id": "ladysmithcentral",
+        "name": "Central Musjid - Ladysmith",
+        "location": "338 Murchison St, uMnambithi, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ladysmithcentral"
+    },
+    {
+        "id": "chakaskraal",
+        "name": "Chakaskraal Madressa Anjuman Islam, Kzn, RSA",
+        "location": "95 Main Road, Shakaskraal, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/chakaskraal"
+    },
+    {
+        "id": "chipata",
+        "name": "Chipata Jummah Masjid, Zambia",
+        "url": "https://relay.livemasjid.com:8443/chipata"
+    },
+    {
+        "id": "dadhal",
+        "name": "Dadhal Jumah Masjid, Ankleshwar, Gujarat India",
+        "url": "https://relay.livemasjid.com:8443/dadhal"
+    },
+    {
+        "id": "darulihsan",
+        "name": "Darul Ihsan, Durban, Kzn, RSA",
+        "location": "53 Joyce Road, Sea Cow Lake, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/darulihsan"
+    },
+    {
+        "id": "darulislaah",
+        "name": "Darul Islaah Spiritual Reformation And Wellness Centre, Lenasia",
+        "location": "134 Nirvana Dr E, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/darulislaah"
+    },
+    {
+        "id": "dqm",
+        "name": "Darul Quraan Masjid - Ladysmith",
+        "location": "Darul Quraan Masjid, 29 Daisy Ave, Ladysmith, uMnambithi, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/dqm"
+    },
+    {
+        "id": "dua",
+        "name": "Darul Uloom Azaadville, Krugersdorp, Gauteng, RSA",
+        "location": "1 Azaad Avenue, Azaadville, Krugersdorp, Johannesburg, Gauteng, South Africa, 1754",
+        "url": "https://relay.livemasjid.com:8443/dua"
+    },
+    {
+        "id": "inaamiyyah",
+        "name": "Darul Uloom Camperdown, Kzn, RSA",
+        "location": "R103, Camperdown, Kwazulu Natal, South Africa, 3720",
+        "url": "https://relay.livemasjid.com:8443/inaamiyyah"
+    },
+    {
+        "id": "duh",
+        "name": "Darul Uloom Heidelberg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/duh"
+    },
+    {
+        "id": "saadiqeen",
+        "name": "Darul Uloom Madrasatus Saadiqeen, Jhb, RSA",
+        "location": "33 Kindon Road, Robertsham, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/saadiqeen"
+    },
+    {
+        "id": "dumf",
+        "name": "Darul Uloom Miftahul Falaah, Port Shepstone, Kzn, RSA",
+        "location": "2 Boundary Rd, Oslo Beach, Port Shepstone, South Africa",
+        "url": "https://relay.livemasjid.com:8443/dumf"
+    },
+    {
+        "id": "dun",
+        "name": "Darul Uloom Newcastle",
+        "url": "https://relay.livemasjid.com:8443/dun"
+    },
+    {
+        "id": "dundee",
+        "name": "Dundee Jaami Masjid, KZN",
+        "url": "https://relay.livemasjid.com:8443/dundee"
+    },
+    {
+        "id": "eikenhof",
+        "name": "Eikenhof Masjid, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/eikenhof"
+    },
+    {
+        "id": "eldoraigne",
+        "name": "Eldoraigne Musallah, Centurion, Pretoria, Gauteng, RSA",
+        "location": "1252 Willem Botha Drive, Weirdapark, Centurion, Pretoria, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/eldoraigne"
+    },
+    {
+        "id": "empangeni",
+        "name": "Empangeni Jumuah Masjid, Kzn, RSA",
+        "location": "6 North Road, Empangeni, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/empangeni"
+    },
+    {
+        "id": "ermelojummah",
+        "name": "Ermelo Jummah Masjid, Mpumalanga, RSA",
+        "location": "93 Jassat St, Cassim Park, Ermelo, 2351, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ermelojummah"
+    },
+    {
+        "id": "eshowe",
+        "name": "Eshowe Masjid, KZN",
+        "location": "32 Osborne Rd, Eshowe, 3815, South Africa",
+        "url": "https://relay.livemasjid.com:8443/eshowe"
+    },
+    {
+        "id": "estcourttown",
+        "name": "Estcourt Town Mosque, Kzn, RSA",
+        "location": "134 Albert St, Estcourt, 3310, South Africa",
+        "url": "https://relay.livemasjid.com:8443/estcourttown"
+    },
+    {
+        "id": "farrarmere",
+        "name": "Farrarmere Masjid, Benoni, Gauteng, RSA",
+        "location": "93 Main Rd, Farrarmere, Benoni, 1501, South Africa",
+        "url": "https://relay.livemasjid.com:8443/farrarmere"
+    },
+    {
+        "id": "fernwood",
+        "name": "Fernwood Masjid, NEWCASTLE, KZN, RSA",
+        "location": "56 Davalia Ave, Fernwood, Newcastle, 2941, South Africa",
+        "url": "https://relay.livemasjid.com:8443/fernwood"
+    },
+    {
+        "id": "galtislamic",
+        "name": "Galt Islamic Centre, Cambridge, Canada",
+        "location": "431 Dundas St N, Cambridge, ON N1R 5R5, Canada",
+        "url": "https://relay.livemasjid.com:8443/galtislamic"
+    },
+    {
+        "id": "greytown",
+        "name": "Greytown Masjid - KZN",
+        "location": "64 Bell St, Greytown, 3250, South Africa",
+        "url": "https://relay.livemasjid.com:8443/greytown"
+    },
+    {
+        "id": "mlshabiersaloojee",
+        "name": "Hadhrat Maulana Shabier Saloojee",
+        "location": "8-10 Golden Hwy, Zakariyya Park, 1821",
+        "url": "https://relay.livemasjid.com:8443/mlshabiersaloojee"
+    },
+    {
+        "id": "hafizqaasim",
+        "name": "Hafiz Qaasim Paruk, Pietermaritzburg, Kzn, RSA",
+        "location": "5 Wallace Road, Manor, Pietermaritzburg, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/hafizqaasim"
+    },
+    {
+        "id": "hamidiya",
+        "name": "Hamidiya Musalla, Leicester, UK",
+        "location": "11 Abbotsford Rd, Rowlatts Hill, Leicester LE5 4DA, UK",
+        "url": "https://relay.livemasjid.com:8443/hamidiya"
+    },
+    {
+        "id": "harding",
+        "name": "Harding Jummah Musjid, KZN, RSA",
+        "location": "4 Musgrave St, Harding, 4680, South Africa",
+        "url": "https://relay.livemasjid.com:8443/harding"
+    },
+    {
+        "id": "caropark",
+        "name": "Hashimie Musjid, Carolina",
+        "url": "https://relay.livemasjid.com:8443/caropark"
+    },
+    {
+        "id": "mozhh",
+        "name": "Hassan and Husain Masjid, Maputo, Mozambique",
+        "location": "2HFF+GGQ, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozhh"
+    },
+    {
+        "id": "mljunaidhassim",
+        "name": "Hazrat Maulana Junaid Hassim, Mayfair, Jhb, RSA",
+        "location": "13 St Just Ave, Mayfair West, Johannesburg, 2092, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mljunaidhassim"
+    },
+    {
+        "id": "hazratbhaijan",
+        "name": "Hazrat Shaykh Abdul Mu'eed Saheb",
+        "url": "https://relay.livemasjid.com:8443/hazratbhaijan"
+    },
+    {
+        "id": "hazyview",
+        "name": "Hazyview Masjid, Mpumalanga, RSA",
+        "location": "62 Korhaan Way, Hazyview, 1242, South Africa",
+        "url": "https://relay.livemasjid.com:8443/hazyview"
+    },
+    {
+        "id": "helderkruin",
+        "name": "Helderkruin Masjid, Rooderpoort, Jhb, RSA",
+        "location": "17 Newart Street, Helderkruin, Roodepoort, Johannesburg, South Africa",
+        "url": "https://relay.livemasjid.com:8443/helderkruin"
+    },
+    {
+        "id": "highbury",
+        "name": "Highbury Musallah, Killarney, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/highbury"
+    },
+    {
+        "id": "hillcrest",
+        "name": "Hillcrest Masjid, KZN",
+        "location": "2 Fraser Rd, Assagay, Outer West Durban, 3624, South Africa",
+        "url": "https://relay.livemasjid.com:8443/hillcrest"
+    },
+    {
+        "id": "hilldrop",
+        "name": "Hilldrop Musallah, Newcastle, KZN, RSA",
+        "location": "11 Hilldrop Rd, South Africa",
+        "url": "https://relay.livemasjid.com:8443/hilldrop"
+    },
+    {
+        "id": "rmsc",
+        "name": "Himayatul Islam Masjid, Lenasia, Jhb, RSA",
+        "location": "24 \u0026 26 Lark Street, Lenasia, Johannesburg, Gauteng, South Africa, 1821",
+        "url": "https://relay.livemasjid.com:8443/rmsc"
+    },
+    {
+        "id": "howick",
+        "name": "Howick West Masjid",
+        "url": "https://relay.livemasjid.com:8443/howick"
+    },
+    {
+        "id": "ijtima",
+        "name": "Ijtima Broadcasts",
+        "url": "https://relay.livemasjid.com:8443/ijtima"
+    },
+    {
+        "id": "isipingobeachmasjid",
+        "name": "Isipingo Beach Top Masjid - Durban",
+        "location": "3rd Ave, Isipingo Beach, Durban, Kwazulu Natal, South Africa, 4115",
+        "url": "https://relay.livemasjid.com:8443/isipingobeachmasjid"
+    },
+    {
+        "id": "isipingohills",
+        "name": "Isipingo Hills Masjid, Durban, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/isipingohills"
+    },
+    {
+        "id": "ixopojummah",
+        "name": "Ixopo Jummah Musjid - KZN",
+        "location": "103 Chapel St, Ixopo, 3276",
+        "url": "https://relay.livemasjid.com:8443/ixopojummah"
+    },
+    {
+        "id": "actonville",
+        "name": "Jaame Masjid, Actonville, Benoni, Gauteng, RSA",
+        "location": "Rawat Street, Actonville, Benoni, Johannesburg, Gauteng, South Africa, 1501",
+        "url": "https://relay.livemasjid.com:8443/actonville"
+    },
+    {
+        "id": "jaamiaheidelberg",
+        "name": "Jaamia Masjid - Heidelberg Town",
+        "location": "61 Van Der Westhuizen St, Heidelberg, Heidelberg - GP, 1441, South Africa",
+        "url": "https://relay.livemasjid.com:8443/jaamiaheidelberg"
+    },
+    {
+        "id": "jaamiaazaadvilleathaan",
+        "name": "Jaamia Masjid Azaadville Athaan",
+        "url": "https://relay.livemasjid.com:8443/jaamiaazaadvilleathaan"
+    },
+    {
+        "id": "springs",
+        "name": "Jameah Mahmoodiyah Masjid, Springs, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/springs"
+    },
+    {
+        "id": "jamisprings",
+        "name": "Jami Masjid, Springs, Gauteng, RSA",
+        "location": "Cnr 3rd and 2nd Avenue, Bakerton, Springs, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/jamisprings"
+    },
+    {
+        "id": "jai",
+        "name": "Jamia Arabiah Islamiah Darul Uloom, Stanger, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/jai"
+    },
+    {
+        "id": "gaboronejamia",
+        "name": "Jamia Masjid Gaborone, Botswana",
+        "location": "Notwane Road, Gaborone, Botswana",
+        "url": "https://relay.livemasjid.com:8443/gaboronejamia"
+    },
+    {
+        "id": "kinross",
+        "name": "Jamia Masjid Kinross, Mpumalanga, RSA",
+        "url": "https://relay.livemasjid.com:8443/kinross"
+    },
+    {
+        "id": "francistown",
+        "name": "Jamia Masjid, Francistown, Botswana",
+        "location": "337 Khama St, Francistown, Botswana",
+        "url": "https://relay.livemasjid.com:8443/francistown"
+    },
+    {
+        "id": "giyani",
+        "name": "Jamiah Masjid Giyani, Limpopo, RSA",
+        "url": "https://relay.livemasjid.com:8443/giyani"
+    },
+    {
+        "id": "leslie",
+        "name": "Jamiah Masjid Leslie, Mpumalanga, RSA",
+        "url": "https://relay.livemasjid.com:8443/leslie"
+    },
+    {
+        "id": "jamiatkzn",
+        "name": "Jamiat ul Ulema, Kwazulu Natal, RSA",
+        "location": "223 Alpine Road, Springfield, Durban, Kwazulu Natal, South Africa, 4091",
+        "url": "https://relay.livemasjid.com:8443/jamiatkzn"
+    },
+    {
+        "id": "jh1430",
+        "name": "Jamiatul Hufaaz, Azaadville, Jhb, RSA",
+        "location": "Azaadville, Krugersdorp, Johannesburg, Gauteng, South Africa, 1754",
+        "url": "https://relay.livemasjid.com:8443/jh1430"
+    },
+    {
+        "id": "mozjummah",
+        "name": "Jumah Masjid, Maputo, Mozambique",
+        "location": "2HH9+876, Rua da Gávea, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozjummah"
+    },
+    {
+        "id": "lusakajaamemasjid",
+        "name": "Jumma Masjid, Burma Road, Kamwala, Lusaka",
+        "url": "https://relay.livemasjid.com:8443/lusakajaamemasjid"
+    },
+    {
+        "id": "polokwane",
+        "name": "Jumu'ah Masjid, Polokwane, Limpopo, RSA",
+        "location": "Polokwane, Limpopo, South Africa",
+        "url": "https://relay.livemasjid.com:8443/polokwane"
+    },
+    {
+        "id": "thohoyandou",
+        "name": "Jumuah Masjid Thohoyandou, Limpopo, RSA",
+        "url": "https://relay.livemasjid.com:8443/thohoyandou"
+    },
+    {
+        "id": "kathu",
+        "name": "Kathu Masjid, Northern Cape. RSA",
+        "url": "https://relay.livemasjid.com:8443/kathu"
+    },
+    {
+        "id": "nigel",
+        "name": "Khalid bin Waleed, Nigel, Gauteng, RSA",
+        "location": "18 Dadoo Ave, Mackenzieville, Nigel, 1491, South Africa",
+        "url": "https://relay.livemasjid.com:8443/nigel"
+    },
+    {
+        "id": "kah",
+        "name": "Khanqah Akhtari Hamidi, Durban, Kzn, RSA",
+        "location": "Overport, Durban, Kwazulu Natal, South Africa, 4091",
+        "url": "https://relay.livemasjid.com:8443/kah"
+    },
+    {
+        "id": "kai",
+        "name": "Khanqah Akhtari, Azaadville, Jhb, RSA",
+        "location": "1 Azaad Avenue, Azaadville, Krugersdorp, Johannesburg, Gauteng, South Africa, 1754",
+        "url": "https://relay.livemasjid.com:8443/kai"
+    },
+    {
+        "id": "kia",
+        "name": "Khanqah Imdadia Ashrafia, Karachi, Pakistan",
+        "location": "ST-1/A, Block 2, Gulshan-e-Iqbal, Karachi, Pakistan",
+        "url": "https://relay.livemasjid.com:8443/kia"
+    },
+    {
+        "id": "kkm",
+        "name": "Khanqah Khaliliyah Makkiyah, Mayfair, Jhb, RSA",
+        "location": "13 St Just Avenue, Mayfair West, Johannesburg, Gauteng, South Africa, 2092",
+        "url": "https://relay.livemasjid.com:8443/kkm"
+    },
+    {
+        "id": "kszt",
+        "name": "Khanqah Sheikh Zakariyya Tswane, Pta, RSA",
+        "location": "529 Barbara Coetzer St, Erasmia, Pretoria, Gauteng, South Africa, 0183",
+        "url": "https://relay.livemasjid.com:8443/kszt"
+    },
+    {
+        "id": "kmszislaahitalks",
+        "name": "Khanqah Sheikh Zakariyyah Islaahi Talks, RSA",
+        "location": "40 Nirvana Service Road, Ext 1, Lenasia, Johannesburg, Gauteng, South Africa, 1827",
+        "url": "https://relay.livemasjid.com:8443/kmszislaahitalks"
+    },
+    {
+        "id": "kmsz",
+        "name": "Khanqah Sheikh Zakariyyah, Lenasia, Jhb, RSA",
+        "location": "40 Nirvana Service Road, Ext 1, Lenasia, Johannesburg, Gauteng, South Africa, 1827",
+        "url": "https://relay.livemasjid.com:8443/kmsz"
+    },
+    {
+        "id": "klerksdorp",
+        "name": "Klerksdorp Town Masjid, Northern Province, RSA",
+        "location": "Bishop Desmond Tutu St, Klerksdorp Central, Klerksdorp, Northern Cape, South Africa, 2571",
+        "url": "https://relay.livemasjid.com:8443/klerksdorp"
+    },
+    {
+        "id": "kloof",
+        "name": "Kloof Musallah, Ronalskloof, KZN",
+        "location": "43 Buckingham Rd, Ronaldskloof Ext, Kloof, 3640, South Africa",
+        "url": "https://relay.livemasjid.com:8443/kloof"
+    },
+    {
+        "id": "kokstad",
+        "name": "Kokstad Masjid - KZN",
+        "url": "https://relay.livemasjid.com:8443/kokstad"
+    },
+    {
+        "id": "lakefieldext21",
+        "name": "Lakefield Ext21 Musallah",
+        "location": "23 Mentz St, Lakefield, Benoni, 1501, South Africa",
+        "url": "https://relay.livemasjid.com:8443/lakefieldext21"
+    },
+    {
+        "id": "lakewood",
+        "name": "Lakewood Estate Masjid, Ormonde, Jhb, RSA",
+        "location": "Lakewood Estate, Ormonnde Ext 37 B, Ormonde, Johannesburg, Gauteng, South Africa, 2091",
+        "url": "https://relay.livemasjid.com:8443/lakewood"
+    },
+    {
+        "id": "lichtenburg",
+        "name": "Lichtenburg Jaamiah Masjid",
+        "location": "38 Buchanan St, Lichtenburg, 2740, South Africa",
+        "url": "https://relay.livemasjid.com:8443/lichtenburg"
+    },
+    {
+        "id": "lobatse",
+        "name": "Lobatse Masjid - Botswana",
+        "location": "QM87+GVG, Lobatse, Botswana",
+        "url": "https://relay.livemasjid.com:8443/lobatse"
+    },
+    {
+        "id": "lotusville",
+        "name": "Lotusville Masjid, Verulam, Durban, Kzn, RSA",
+        "location": "78A Trevenen Road, Lotusville, Verulam, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/lotusville"
+    },
+    {
+        "id": "luqmaanrustenburg",
+        "name": "Luqmaan-al-Hakeem, Rustenburg, North West, RSA",
+        "location": "37 Beneden St, Rustenburg Oos-Einde, Rustenburg, 2999, South Africa",
+        "url": "https://relay.livemasjid.com:8443/luqmaanrustenburg"
+    },
+    {
+        "id": "lydenburg",
+        "name": "Lydenburg Jamia Masjid, Mpumalanga, RSA",
+        "url": "https://relay.livemasjid.com:8443/lydenburg"
+    },
+    {
+        "id": "macs",
+        "name": "Macs",
+        "url": "https://relay.livemasjid.com:8443/macs"
+    },
+    {
+        "id": "ibrahimiyah",
+        "name": "Madrasa Ibrahimia, Illinois, Chicago, USA",
+        "location": "3929 Oakton Street, Skokie, Illinois, Chicago, United States of America",
+        "url": "https://relay.livemasjid.com:8443/ibrahimiyah"
+    },
+    {
+        "id": "mid",
+        "name": "Madrasah Ihyaa id Deen, Lenasia, Jhb, RSA",
+        "location": "Plot 301, Rietfontein 301-Iq, Lenasia, Johannesburg, Gauteng, South Africa, 1821",
+        "url": "https://relay.livemasjid.com:8443/mid"
+    },
+    {
+        "id": "jibalussalaam",
+        "name": "Madrasah Jibalus Salaam",
+        "url": "https://relay.livemasjid.com:8443/jibalussalaam"
+    },
+    {
+        "id": "mahmoodiyah",
+        "name": "Madrasah Mahmoodiyah, Esenembe, Kzn, RSA",
+        "location": "Esenembe, KwaDukuza, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mahmoodiyah"
+    },
+    {
+        "id": "mqipalmridge",
+        "name": "Madrasah Quwwatul Islam - Palmridge",
+        "location": "62 Celtis Street, Palm Ridge, Katlehong, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mqipalmridge"
+    },
+    {
+        "id": "taleemuddeen",
+        "name": "Madrasah Taleemuddeen - Isipingo",
+        "location": "4 3rd Ave, Isipingo Beach, Isipingo, 4115",
+        "url": "https://relay.livemasjid.com:8443/taleemuddeen"
+    },
+    {
+        "id": "mus",
+        "name": "Madrasah Uloom Shariyyah - Benoni",
+        "location": "2 Moth Road, Benoni 77-Ir, Benoni, 1501, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mus"
+    },
+    {
+        "id": "mubz",
+        "name": "Madrasah Urwah Bin Az Zubayr",
+        "url": "https://relay.livemasjid.com:8443/mubz"
+    },
+    {
+        "id": "uthmaniya",
+        "name": "Madrasah Uthmaniya - Stanmore Phoenix - KZN",
+        "location": "2 Cleargrove Rd, Grove End, Phoenix, 4068, South Africa",
+        "url": "https://relay.livemasjid.com:8443/uthmaniya"
+    },
+    {
+        "id": "rosedale",
+        "name": "Madrasatush Shaahid, Rosedale, Uitenhage",
+        "url": "https://relay.livemasjid.com:8443/rosedale"
+    },
+    {
+        "id": "rylands",
+        "name": "Madrassa Al Rahmaniya, Rylands, Cape Town, WC, RSA",
+        "url": "https://relay.livemasjid.com:8443/rylands"
+    },
+    {
+        "id": "ibrahimiyahvryheid",
+        "name": "Madrassah Islamia Ibrahimiya - Vryheid",
+        "location": "Melmoth Road, Vryheid, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ibrahimiyahvryheid"
+    },
+    {
+        "id": "altarteel",
+        "name": "Madrassah Tarteel ul Quraan, Pmb, Kzn, RSA",
+        "location": "71 Royston Road, Mountain Rise, Pietermaritzburg, Kwazulu Natal, South Africa, 3201",
+        "url": "https://relay.livemasjid.com:8443/altarteel"
+    },
+    {
+        "id": "vaaloewer",
+        "name": "Madrassah Yunus, Vaaloewer, Vanderbijlpark, Gauteng, RSA",
+        "location": "7H9W+J9 Vaal Oewer, South Africa",
+        "url": "https://relay.livemasjid.com:8443/vaaloewer"
+    },
+    {
+        "id": "mafikengjummah",
+        "name": "Mafikeng Jumuah Masjid, Mahikeng",
+        "location": "418 Molopo Rd, Mahikeng, 2745, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mafikengjummah"
+    },
+    {
+        "id": "mfmoosagie",
+        "name": "Mahad Al-Suffah, Port Elizabeth",
+        "url": "https://relay.livemasjid.com:8443/mfmoosagie"
+    },
+    {
+        "id": "malawianulema",
+        "name": "Malawian Ulema - South Africa",
+        "url": "https://relay.livemasjid.com:8443/malawianulema"
+    },
+    {
+        "id": "manzilparkmasjid",
+        "name": "Manzilpark Masjid, Klerksdorp, RSA",
+        "location": "Jassat Street, Manzilpark, Klerksdorp, North West, South Africa, 2574",
+        "url": "https://relay.livemasjid.com:8443/manzilparkmasjid"
+    },
+    {
+        "id": "maraisburg",
+        "name": "Maraisburg Jumuah Masjid, Jhb, Rsa",
+        "location": "30 7th Street, Maraisburg, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/maraisburg"
+    },
+    {
+        "id": "marlboromasjid",
+        "name": "Marlboro Masjid, Sandton, Jhb, RSA",
+        "location": "2 Islamabad Drive, Marlboro Gardens, Sandton, Johannesburg, Gauteng, South Africa, 2063",
+        "url": "https://relay.livemasjid.com:8443/marlboromasjid"
+    },
+    {
+        "id": "qarimaroof",
+        "name": "Maroof Abdulazeez, Kyami Abuja, Nigeria",
+        "url": "https://relay.livemasjid.com:8443/qarimaroof"
+    },
+    {
+        "id": "masgidhawwa",
+        "name": "Masgid Hawwa - Matola - Mozambique",
+        "location": "3HG2+39, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/masgidhawwa"
+    },
+    {
+        "id": "marquard",
+        "name": "Masjid AL Noor, Marquard, Free State, RSA",
+        "url": "https://relay.livemasjid.com:8443/marquard"
+    },
+    {
+        "id": "saadiqeenerasmia",
+        "name": "Masjid Aaisha, Erasmia, Pretoria, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/saadiqeenerasmia"
+    },
+    {
+        "id": "parlock2",
+        "name": "Masjid Abdur Rahmaan Ibn Auf",
+        "location": "73 Amlock Dr, Parlock, Newlands West, 4037, South Africa",
+        "url": "https://relay.livemasjid.com:8443/parlock2"
+    },
+    {
+        "id": "abraarrustenburg",
+        "name": "Masjid Abraar, Zinniaville, Rustenburg, North West, RSA",
+        "location": "3 Petunia St, Zinniaville, Rustenburg, North West Province, South Africa, 0302",
+        "url": "https://relay.livemasjid.com:8443/abraarrustenburg"
+    },
+    {
+        "id": "abubakrmackenzie",
+        "name": "Masjid Abu Bakr Siddiq, Mackenzie Park, Benoni, Gauteng, RSA",
+        "location": "31 Heron Street, Mackenzie Park, Benoni, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/abubakrmackenzie"
+    },
+    {
+        "id": "elsburgmasjid",
+        "name": "Masjid Abu Bakr Siddique - Elsburg",
+        "location": "1 Joubert St, Elsburg, Germiston, 1428, South Africa",
+        "url": "https://relay.livemasjid.com:8443/elsburgmasjid"
+    },
+    {
+        "id": "siddiquewitbank",
+        "name": "Masjid Abu Bakr Siddique - Witbank",
+        "url": "https://relay.livemasjid.com:8443/siddiquewitbank"
+    },
+    {
+        "id": "zimabubakr",
+        "name": "Masjid Abu Bakr, Harare, Zimbabwe",
+        "location": "52RG+MQH, Stidolph Cresent, Harare, Zimbabwe",
+        "url": "https://relay.livemasjid.com:8443/zimabubakr"
+    },
+    {
+        "id": "abubakrnigel",
+        "name": "Masjid Abu Bakr, Nigel, Gauteng, RSA",
+        "location": "71 Northern Rd, Nigel, 1490, South Africa",
+        "url": "https://relay.livemasjid.com:8443/abubakrnigel"
+    },
+    {
+        "id": "abubakrpe",
+        "name": "Masjid Abu Bakr, Port Elizabeth",
+        "url": "https://relay.livemasjid.com:8443/abubakrpe"
+    },
+    {
+        "id": "abubakrthohoyandou",
+        "name": "Masjid Abu Bakr, Thohoyandou, Limpopo, RSA",
+        "url": "https://relay.livemasjid.com:8443/abubakrthohoyandou"
+    },
+    {
+        "id": "vryheid",
+        "name": "Masjid Abu Huraira, Vryheid, KZN, Rsa",
+        "location": "242 Boeren St, Vryheid, 3100, South Africa",
+        "url": "https://relay.livemasjid.com:8443/vryheid"
+    },
+    {
+        "id": "abubakr",
+        "name": "Masjid Abubakr Siddique, Ladysmith, Kzn, RSA",
+        "location": "48 Poona Rd, Ladysmith, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/abubakr"
+    },
+    {
+        "id": "meyersdal",
+        "name": "Masjid Aisha R.A - Meyersdal",
+        "location": "8 Philip Engelbrecht Ave, Meyersdal, Alberton, 1448, South Africa",
+        "url": "https://relay.livemasjid.com:8443/meyersdal"
+    },
+    {
+        "id": "abedeenmasjid",
+        "name": "Masjid Al Abedeen, Islamic Research Center of Canada",
+        "location": "1 Stamford Square N, Scarborough, ON M1L 1X4, Canada",
+        "url": "https://relay.livemasjid.com:8443/abedeenmasjid"
+    },
+    {
+        "id": "alansaarharrismith",
+        "name": "Masjid Al Ansaar, Harrismith, Kzn, RSA",
+        "location": "69 Percy St, Harrismith, 9880, South Africa",
+        "url": "https://relay.livemasjid.com:8443/alansaarharrismith"
+    },
+    {
+        "id": "barakah",
+        "name": "Masjid Al Barakah, Kalingalinga, Lusaka, Zambia",
+        "url": "https://relay.livemasjid.com:8443/barakah"
+    },
+    {
+        "id": "robertsham",
+        "name": "Masjid Al Huda, Robertsham, Jhb, RSA",
+        "location": "140 Kimberley Road, Robertsham, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/robertsham"
+    },
+    {
+        "id": "stegman",
+        "name": "Masjid Al Jamia, Claremont , CPT",
+        "url": "https://relay.livemasjid.com:8443/stegman"
+    },
+    {
+        "id": "kawther",
+        "name": "Masjid Al Kawther",
+        "location": "Masjid Ul Kawthar, 52 Dubai St, Nirvana X2, Polokwane, 0699, South Africa",
+        "url": "https://relay.livemasjid.com:8443/kawther"
+    },
+    {
+        "id": "buccleuch",
+        "name": "Masjid Al Khaleel, Buccleuch, Jhb, Gauteng, RSA",
+        "location": "Parkville Place, Buccleuch, Sandton, Johannesburg, Gauteng, South Africa, 2206",
+        "url": "https://relay.livemasjid.com:8443/buccleuch"
+    },
+    {
+        "id": "noorlaudium",
+        "name": "Masjid Al Noor, Laudium, Pretoria, RSA",
+        "location": "330 Turquoise Street, Laudium, Pretoria, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/noorlaudium"
+    },
+    {
+        "id": "tuba",
+        "name": "Masjid Al Tuba - CPT",
+        "location": "1 Wendy Way, Panorama, Cape Town, 7500, South Africa",
+        "url": "https://relay.livemasjid.com:8443/tuba"
+    },
+    {
+        "id": "zimalabbas",
+        "name": "Masjid Al-Abbas, Harare, Zimbabwe",
+        "location": "5278+XMM, Boeing Rd, Harare, Zimbabwe",
+        "url": "https://relay.livemasjid.com:8443/zimalabbas"
+    },
+    {
+        "id": "scottburgh",
+        "name": "Masjid Al-Ikraam, Scottburgh, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/scottburgh"
+    },
+    {
+        "id": "allatief",
+        "name": "Masjid Al-Latief, Langford, Perth, Australia",
+        "location": "214 Nicholson Rd, Langford WA 6147, Australia",
+        "url": "https://relay.livemasjid.com:8443/allatief"
+    },
+    {
+        "id": "alrahman",
+        "name": "Masjid Al-Rahman, Gosnells Perth, Australia",
+        "url": "https://relay.livemasjid.com:8443/alrahman"
+    },
+    {
+        "id": "anwaarulabraar",
+        "name": "Masjid Anwaarul Abraar, PMB",
+        "location": "5 Wallace Rd, Manor, Pietermaritzburg, 3201, South Africa",
+        "url": "https://relay.livemasjid.com:8443/anwaarulabraar"
+    },
+    {
+        "id": "northbeachdbn",
+        "name": "Masjid As Siddique, North Beach, Durban, Kzn, RSA",
+        "location": "11/15 John Mc Intyre Road, North Beach, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/northbeachdbn"
+    },
+    {
+        "id": "ashrafsprings",
+        "name": "Masjid Ashraf, Springs, Gauteng, RSA",
+        "location": "29 Francolin Drive, Springs, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ashrafsprings"
+    },
+    {
+        "id": "ayshaormonde",
+        "name": "Masjid Aysha, Ormonde, Jhb, Gauteng, RSA",
+        "location": "Sandalwood Estate, Lakewood Terrace, Ormonde",
+        "url": "https://relay.livemasjid.com:8443/ayshaormonde"
+    },
+    {
+        "id": "mozbabussalaam",
+        "name": "Masjid Babus Salam, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozbabussalaam"
+    },
+    {
+        "id": "bilaallenasia",
+        "name": "Masjid Bilaal, Lenasia, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/bilaallenasia"
+    },
+    {
+        "id": "bilal",
+        "name": "Masjid Bilal - Al Tawheed Islamic Centre",
+        "url": "https://relay.livemasjid.com:8443/bilal"
+    },
+    {
+        "id": "bilalazaadville",
+        "name": "Masjid Bilal Ibn Rabaah (R.A) Azaadville, JHB, RSA",
+        "location": "215 Jacaranda Street, Azaadville Gardens, Randfontein, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bilalazaadville"
+    },
+    {
+        "id": "berea",
+        "name": "Masjid Bilal Ibn Rabah, Berea, Durban, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/berea"
+    },
+    {
+        "id": "mozbilal",
+        "name": "Masjid Bilal, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozbilal"
+    },
+    {
+        "id": "mozcentral",
+        "name": "Masjid Central, Beira, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozcentral"
+    },
+    {
+        "id": "makenidawah",
+        "name": "Masjid Dawah - Makeni Lusaka",
+        "url": "https://relay.livemasjid.com:8443/makenidawah"
+    },
+    {
+        "id": "masjidedawood",
+        "name": "Masjid E Dawood, Durban, Kzn, RSA",
+        "location": "78 McArthur St, Durban Central, Durban, 4001, South Africa",
+        "url": "https://relay.livemasjid.com:8443/masjidedawood"
+    },
+    {
+        "id": "bluff",
+        "name": "Masjid E Fatima, Bluff, Durban, Kzn, RSA",
+        "location": "208 Tara Rd, Grosvenor, Bluff, 4052, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bluff"
+    },
+    {
+        "id": "ebrahimrobertsham",
+        "name": "Masjid Ebrahim, Robertsham, Johannesburg, Gauteng, RSA",
+        "location": "19 Alamein Rd, Robertsham, Johannesburg South, 2091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ebrahimrobertsham"
+    },
+    {
+        "id": "mozfaizan",
+        "name": "Masjid Faizan-e-Madina, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozfaizan"
+    },
+    {
+        "id": "newmodder",
+        "name": "Masjid Falaah e Daarain, Benoni, Jhb, RSA",
+        "location": "5 Selby Street, New Modder, Benoni, Johannesburg, Gauteng, South Africa, 1501",
+        "url": "https://relay.livemasjid.com:8443/newmodder"
+    },
+    {
+        "id": "makenifatima",
+        "name": "Masjid Fatima Tuz-Zahra, Makeni, Lusaka",
+        "url": "https://relay.livemasjid.com:8443/makenifatima"
+    },
+    {
+        "id": "mozfatimah",
+        "name": "Masjid Fatimah, Beira, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozfatimah"
+    },
+    {
+        "id": "fatimah",
+        "name": "Masjid Fatimah, Springfield, Durban, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/fatimah"
+    },
+    {
+        "id": "fuqara",
+        "name": "Masjid Fuqara - PE",
+        "location": "8 Selago Cres, Malabar, Gqeberha, 6020, South Africa",
+        "url": "https://relay.livemasjid.com:8443/fuqara"
+    },
+    {
+        "id": "hma",
+        "name": "Masjid Furqaan, Houghton, Jhb, RSA",
+        "location": "52 2nd Avenue, Houghton, Johannesburg, Gauteng, South Africa, 2198",
+        "url": "https://relay.livemasjid.com:8443/hma"
+    },
+    {
+        "id": "mozfuyudhulislam",
+        "name": "Masjid Fuyudhul Islam, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozfuyudhulislam"
+    },
+    {
+        "id": "mozhafsah",
+        "name": "Masjid Hafsah, Beira, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozhafsah"
+    },
+    {
+        "id": "masjidhamza",
+        "name": "Masjid Hamza, Erasmia, Pretoria, RSA",
+        "location": "529 Barbara Coetzer St, Erasmia, Pretoria, Gauteng, South Africa, 0183",
+        "url": "https://relay.livemasjid.com:8443/masjidhamza"
+    },
+    {
+        "id": "hamzalenasia",
+        "name": "Masjid Hamza, Lenasia, Ext 9, Johannesburg, RSA",
+        "url": "https://relay.livemasjid.com:8443/hamzalenasia"
+    },
+    {
+        "id": "crowngardens",
+        "name": "Masjid Hamzah, Crown Gardens, Johannesburg, Gauteng, RSA",
+        "location": "42 Ulster Cres, Crown Gardens, Johannesburg South, 2091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/crowngardens"
+    },
+    {
+        "id": "mozhassane",
+        "name": "Masjid Hassan, Beira, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozhassane"
+    },
+    {
+        "id": "mir",
+        "name": "Masjid Ibaadur Rahmaan, Lenasia, Jhb, RSA",
+        "location": "27 Danube St, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mir"
+    },
+    {
+        "id": "ibaadurrahmaanuitenhage",
+        "name": "Masjid Ibaadur Rahmaan, Uitenhage, EC, RSA",
+        "location": "13 Chase St, Cannon Hill, Uitenhage, Eastern Cape, South Africa, 6229",
+        "url": "https://relay.livemasjid.com:8443/ibaadurrahmaanuitenhage"
+    },
+    {
+        "id": "masjidibrahim",
+        "name": "Masjid Ibrahim, Perth, Australia",
+        "location": "1526 Leslie St, Southern River WA 6110, Australia",
+        "url": "https://relay.livemasjid.com:8443/masjidibrahim"
+    },
+    {
+        "id": "cyrildene",
+        "name": "Masjid Imdaadiya, Cyrildene, Johannesburg, Gauteng, RSA",
+        "location": "13 Tainton Street, Cyrildene, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/cyrildene"
+    },
+    {
+        "id": "spencerrd",
+        "name": "Masjid Izharul Haq, Spencer Rd, Durban, Kzn, RSA",
+        "location": "369 Spencer Road, Palmiet, Durban, Kwazulu Natal, South Africa, 4090",
+        "url": "https://relay.livemasjid.com:8443/spencerrd"
+    },
+    {
+        "id": "scottsville",
+        "name": "Masjid Khadijatul Kubra, Pietermaritzburg, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/scottsville"
+    },
+    {
+        "id": "mkbw",
+        "name": "Masjid Khalid Bin Waleed - Lenasia",
+        "location": "330 Flamingo St, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mkbw"
+    },
+    {
+        "id": "mondeor",
+        "name": "Masjid Khalid bin Walid, Mondeor, JHB",
+        "location": "267 Columbine Ave, Mondeor, Johannesburg South, 2091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mondeor"
+    },
+    {
+        "id": "victorypark",
+        "name": "Masjid Khalilul Rahman - JHB",
+        "location": "1 Andre St, Pierneef Park, Randburg, 2195, South Africa",
+        "url": "https://relay.livemasjid.com:8443/victorypark"
+    },
+    {
+        "id": "luqmanmarlboro",
+        "name": "Masjid Luqman, Marlboro, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/luqmanmarlboro"
+    },
+    {
+        "id": "mansoorpe",
+        "name": "Masjid Mansoor, Port Elizabeth, EC, RSA",
+        "location": "43 Calendula Road, Malabar, Port Elizabeth, Eastern Cape, South Africa, 6020",
+        "url": "https://relay.livemasjid.com:8443/mansoorpe"
+    },
+    {
+        "id": "winchesterhills",
+        "name": "Masjid Miftaahul Jannah - Winchester Hills",
+        "location": "62 Vleiroos St, Winchester Hills, Johannesburg South, 2091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/winchesterhills"
+    },
+    {
+        "id": "rockdale",
+        "name": "Masjid Mu'aadh ibn Jabal (R.A)",
+        "location": "56 Rockdale Ave, Berea West, Westville, 3629, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rockdale"
+    },
+    {
+        "id": "crosby",
+        "name": "Masjid Muaaz bin Jabal, Crosby, Jhb, Gauteng, RSA",
+        "location": "Jamestown Avenue, Crosby, Johannesburg, Gauteng, South Africa, 2092",
+        "url": "https://relay.livemasjid.com:8443/crosby"
+    },
+    {
+        "id": "muawiyah",
+        "name": "Masjid Muawiyah, Lenasia, JHB",
+        "location": "8 Calcutta St, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/muawiyah"
+    },
+    {
+        "id": "mozmuhammad",
+        "name": "Masjid Muhammad, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozmuhammad"
+    },
+    {
+        "id": "bertrams",
+        "name": "Masjid Muqeemus Salaah, Bertrams, Jhb, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/bertrams"
+    },
+    {
+        "id": "musabbinumair",
+        "name": "Masjid Musab Bin Umair, Crosby, Jhb, RSA",
+        "location": "57 Moira Avenue, Crosby, Johannesburg, Gauteng, South Africa, 2092",
+        "url": "https://relay.livemasjid.com:8443/musabbinumair"
+    },
+    {
+        "id": "muttaqeen",
+        "name": "Masjid Muttaqeen",
+        "location": "630 Clare Rd, Palmiet, Durban, 4090, South Africa",
+        "url": "https://relay.livemasjid.com:8443/muttaqeen"
+    },
+    {
+        "id": "noorbenoni",
+        "name": "Masjid Noor, Benoni, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/noorbenoni"
+    },
+    {
+        "id": "noorroshnee",
+        "name": "Masjid Noor, Roshnee, Vereeniging, Gauteng, RSA",
+        "location": "1 Bilal Drive, Roshnee, Vereeniging, Gauteng, South Africa, 1939",
+        "url": "https://relay.livemasjid.com:8443/noorroshnee"
+    },
+    {
+        "id": "noorstanger",
+        "name": "Masjid Noor, Stanger, Kzn, RSA",
+        "location": "Lavoipierre Drive, Stanger Ext 25, KwaDukuza, Kwazulu Natal, South Africa, 4450",
+        "url": "https://relay.livemasjid.com:8443/noorstanger"
+    },
+    {
+        "id": "noorulislam",
+        "name": "Masjid Noorul Islam - Durban",
+        "location": "142 Spencer Rd, Palmiet, Durban, 4090, South Africa",
+        "url": "https://relay.livemasjid.com:8443/noorulislam"
+    },
+    {
+        "id": "nurulhuda",
+        "name": "Masjid Nurul Huda, Durban, KZN, RSA",
+        "location": "266 Randles Road, Sydenham, Berea, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/nurulhuda"
+    },
+    {
+        "id": "umarfarouklenasia",
+        "name": "Masjid Omar Farouk, Ext 8, Lenasia, Jhb, RSA",
+        "location": "Cnr Garrick \u0026 Protea Avenue, Lenasia Ext 8, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/umarfarouklenasia"
+    },
+    {
+        "id": "mozquba",
+        "name": "Masjid Quba, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozquba"
+    },
+    {
+        "id": "quba",
+        "name": "Masjid Quba, Ridgeway, JHB",
+        "location": "130 Riverside Dr, Ridgeway, Johannesburg, 2191, South Africa",
+        "url": "https://relay.livemasjid.com:8443/quba"
+    },
+    {
+        "id": "rabia",
+        "name": "Masjid Rabia - Estcourt",
+        "location": "11 Brokensha Road, Estcourt, 3310, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rabia"
+    },
+    {
+        "id": "emmarentia",
+        "name": "Masjid Safiyyah, Emmarentia, Johannesburg, Gauteng, RSA",
+        "location": "26 Kei Rd, Emmarentia, Randburg, 2195, South Africa",
+        "url": "https://relay.livemasjid.com:8443/emmarentia"
+    },
+    {
+        "id": "mozsalam",
+        "name": "Masjid Salam, Beira, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozsalam"
+    },
+    {
+        "id": "sawliheenpmb",
+        "name": "Masjid Sawliheen, Pietermaritzburg, Kzn, RSA",
+        "location": "480 Prince Alfred Street, Pietermaritzburg, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/sawliheenpmb"
+    },
+    {
+        "id": "bilaalbenoni",
+        "name": "Masjid Sayyidina Bilaal, Benoni, Jhb, Gauteng, RSA",
+        "location": "1669 Drakensberg Street, Actonville, Benoni, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bilaalbenoni"
+    },
+    {
+        "id": "isipingo",
+        "name": "Masjid Sayyidina Muadh bin Jabal, Isipingo, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/isipingo"
+    },
+    {
+        "id": "evanspark",
+        "name": "Masjid Siraatul Jannah, Ormonde, Johannesburg, Gauteng, RSA",
+        "location": "253 Kimberley Road, Evans Park, Johannesburg, Gauteng, South Africa, 2091",
+        "url": "https://relay.livemasjid.com:8443/evanspark"
+    },
+    {
+        "id": "taqwaazaadville",
+        "name": "Masjid Taqwa - Azaadville - JHB",
+        "url": "https://relay.livemasjid.com:8443/taqwaazaadville"
+    },
+    {
+        "id": "homesteadpark",
+        "name": "Masjid Taqwa - Homestead Park",
+        "url": "https://relay.livemasjid.com:8443/homesteadpark"
+    },
+    {
+        "id": "taqwabrits",
+        "name": "Masjid Taqwa, Brits, NW, RSA",
+        "location": "4 Protea Crescent, Primindia, Brits, North West Province, South Africa, 0250",
+        "url": "https://relay.livemasjid.com:8443/taqwabrits"
+    },
+    {
+        "id": "gaboronetaqwa",
+        "name": "Masjid Taqwa, Gaborone, Botswana",
+        "location": "Just off Masabasi Road, Gaborone, Botswana",
+        "url": "https://relay.livemasjid.com:8443/gaboronetaqwa"
+    },
+    {
+        "id": "taqwape",
+        "name": "Masjid Taqwa, Gelvan Park, Port Elizabeth, EC, RSA",
+        "location": "Habelgaarn Road, Gelvan Park, Port Elizabeth, Eastern Cape, South Africa",
+        "url": "https://relay.livemasjid.com:8443/taqwape"
+    },
+    {
+        "id": "moztaqwa",
+        "name": "Masjid Taqwa, Maputo, Mozambique",
+        "location": "2HJM+J96, Avenida Eduardo Mondlane, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/moztaqwa"
+    },
+    {
+        "id": "linbropark",
+        "name": "Masjid Tariq Bin Ziyad, Linbro Park, Jhb, RSA",
+        "location": "69 1st Road, Linbro Park, Sandton, Johannesburg, Gauteng, South Africa, 2065",
+        "url": "https://relay.livemasjid.com:8443/linbropark"
+    },
+    {
+        "id": "delmas",
+        "name": "Masjid Tauheed, Delmas, Mpumalanga, RSA",
+        "location": "7 4th St, Delmas, Mpumalanga, 2210, South Africa",
+        "url": "https://relay.livemasjid.com:8443/delmas"
+    },
+    {
+        "id": "umarzambia",
+        "name": "Masjid Umar Al Farooq - Lusaka, Zambia",
+        "location": "Plot 16837 Chakwala Road Kamwala Lusaka",
+        "url": "https://relay.livemasjid.com:8443/umarzambia"
+    },
+    {
+        "id": "mozumar",
+        "name": "Masjid Umar Coop, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozumar"
+    },
+    {
+        "id": "mackenzie",
+        "name": "Masjid Umar Farooq, Benoni, Jhb, RSA",
+        "location": "Coucal Street, Mackenzie Park, Benoni, Johannesburg, Gauteng, South Africa, 1501",
+        "url": "https://relay.livemasjid.com:8443/mackenzie"
+    },
+    {
+        "id": "bonela",
+        "name": "Masjid Umar Farooq, Bonela, KZN",
+        "location": "17 Jubilee Cres, Bonela, Durban, 4091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bonela"
+    },
+    {
+        "id": "sibasa",
+        "name": "Masjid Umar Farooq, Sibasa, Limpopo, RSA",
+        "url": "https://relay.livemasjid.com:8443/sibasa"
+    },
+    {
+        "id": "noorlenasia",
+        "name": "Masjid Un Noor, Lenasia, Jhb, RSA",
+        "location": "16 Petrea Street, Ext 3, Lenasia, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/noorlenasia"
+    },
+    {
+        "id": "greensidemasjid",
+        "name": "Masjid Ur Rahmah, Greenside, Jhb, RSA",
+        "location": "23 Ingalele Road, Emmarentia, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/greensidemasjid"
+    },
+    {
+        "id": "siddiqnewcastle",
+        "name": "Masjid Us Siddiq, Newcastle, Kzn, RSA",
+        "location": "42 St Dominic St, Paradise, Newcastle, South Africa",
+        "url": "https://relay.livemasjid.com:8443/siddiqnewcastle"
+    },
+    {
+        "id": "lsma",
+        "name": "Masjid Uthmaan Ghani, Lenasia South, Jhb, RSA",
+        "url": "https://relay.livemasjid.com:8443/lsma"
+    },
+    {
+        "id": "kitkat",
+        "name": "Masjid Uthmaan, Pretoria West, RSA",
+        "location": "327 WF Nkomo Street, Pretoria West, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/kitkat"
+    },
+    {
+        "id": "uthman",
+        "name": "Masjid Uthman R.A, Trichardt, MP",
+        "location": "Cnr Bekker St and Louis Botha St, Trichardt, 2302, South Africa",
+        "url": "https://relay.livemasjid.com:8443/uthman"
+    },
+    {
+        "id": "mozyussuf",
+        "name": "Masjid Yussuf, Maputo Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozyussuf"
+    },
+    {
+        "id": "daarululoombrits",
+        "name": "Masjid Yusuf - Darul Uloom Brits",
+        "location": "9Q29+74, Brits, South Africa",
+        "url": "https://relay.livemasjid.com:8443/daarululoombrits"
+    },
+    {
+        "id": "fourways",
+        "name": "Masjid al Kawthar, Fourways, Jhb, RSA",
+        "location": "1 Osprey Avenue, Fourways, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/fourways"
+    },
+    {
+        "id": "muhajireen",
+        "name": "Masjid al Muhajireen wal Ansar",
+        "location": "10 Concord Pl, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/muhajireen"
+    },
+    {
+        "id": "reigerpark",
+        "name": "Masjid al Noor - Boksburg",
+        "location": "1 Goedehoop Ave, Reiger Park, Boksburg, 1459, South Africa",
+        "url": "https://relay.livemasjid.com:8443/reigerpark"
+    },
+    {
+        "id": "alfalahmasjidcardiff",
+        "name": "Masjid al falah, Cardiff, United Kingdom",
+        "location": "58 Caerau Lane Cardiff CF5 5HW, United Kingdom",
+        "url": "https://relay.livemasjid.com:8443/alfalahmasjidcardiff"
+    },
+    {
+        "id": "khair",
+        "name": "Masjid e Khair, Mayfair West, Johannesburg, Gauteng, RSA",
+        "location": "49 St Gothard Street, Mayfair West, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/khair"
+    },
+    {
+        "id": "mahmood",
+        "name": "Masjid e Mahmood, Clare Estate, Durban, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/mahmood"
+    },
+    {
+        "id": "ladysmith",
+        "name": "Masjid e Museehullah, Ladysmith, Kzn, RSA",
+        "location": "5 Tagore Street, Rose Park, Ladysmith, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ladysmith"
+    },
+    {
+        "id": "noor",
+        "name": "Masjid e Noor, Overport, Durban, Kzn, RSA",
+        "location": "123 Mallinson Road, Asherville, Durban, Kwazulu Natal, 4091",
+        "url": "https://relay.livemasjid.com:8443/noor"
+    },
+    {
+        "id": "thabanchu",
+        "name": "Masjid e Noor, Thaba Nchu, Free State, RSA",
+        "url": "https://relay.livemasjid.com:8443/thabanchu"
+    },
+    {
+        "id": "emmasdalequba",
+        "name": "Masjid e Quba - Emmasdale Luskaka",
+        "url": "https://relay.livemasjid.com:8443/emmasdalequba"
+    },
+    {
+        "id": "shallcross",
+        "name": "Masjid e Quwwatul Islam, Durban, Kzn, RSA",
+        "location": "108 Granada Streest, Shallcross, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/shallcross"
+    },
+    {
+        "id": "rynsoord",
+        "name": "Masjid e Tauheed, Rynsoord, Benoni, Jhb, RSA",
+        "location": "7 Netania Street, Rynsoord, Benoni, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rynsoord"
+    },
+    {
+        "id": "lusakatawheed",
+        "name": "Masjid e Tawheed - Lusaka",
+        "url": "https://relay.livemasjid.com:8443/lusakatawheed"
+    },
+    {
+        "id": "komatipoort",
+        "name": "Masjid e Uthmaan RA, Komatipoort, Mpumalanga, RSA",
+        "url": "https://relay.livemasjid.com:8443/komatipoort"
+    },
+    {
+        "id": "abaas",
+        "name": "Masjid ibne Abaas, ,Lichtenburg, North West, RSA",
+        "url": "https://relay.livemasjid.com:8443/abaas"
+    },
+    {
+        "id": "ansaarazaadville",
+        "name": "Masjid ul Ansaar, Azaadville, Krugersdorp, Gauteng, RSA",
+        "location": "868 Abdul Hassan Cres, Azaadville, Krugersdorp, 1754, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ansaarazaadville"
+    },
+    {
+        "id": "lakefield",
+        "name": "Masjid ul Ansaar, Lakefield, Benoni, Jhb, RSA",
+        "location": "Vernon Street, Lakefield, Benoni, Johannesburg, Gauteng, South Africa, 1501",
+        "url": "https://relay.livemasjid.com:8443/lakefield"
+    },
+    {
+        "id": "lalucia",
+        "name": "Masjid ul Fatah, La Lucia, Durban, KZN, RSA",
+        "location": "86 William Campbell Dr, La Lucia, uMhlanga, 4051, South Africa",
+        "url": "https://relay.livemasjid.com:8443/lalucia"
+    },
+    {
+        "id": "nirvanapolokwane",
+        "name": "Masjid ul Firdaus, Polokwane, Limpopo, RSA",
+        "location": "266 Orient Drive, Nirvana X1, Polokwane, Limpopo, 0699",
+        "url": "https://relay.livemasjid.com:8443/nirvanapolokwane"
+    },
+    {
+        "id": "letlhkane",
+        "name": "Masjid ul Firdous, Letlhkane, Botswana",
+        "location": "JH3J+Q97, Letlhakane, Botswana",
+        "url": "https://relay.livemasjid.com:8443/letlhkane"
+    },
+    {
+        "id": "atholl",
+        "name": "Masjid ul Mahmood, Athol Sandton, Jhb, Gauteng, RSA",
+        "location": "69 Dennis Rd, Atholl, Sandton, 2196",
+        "url": "https://relay.livemasjid.com:8443/atholl"
+    },
+    {
+        "id": "gaboronenoor",
+        "name": "Masjid un Noor, Gaborone, Botswana",
+        "location": "Gaborone, Botswana",
+        "url": "https://relay.livemasjid.com:8443/gaboronenoor"
+    },
+    {
+        "id": "ermelocp",
+        "name": "Masjid ur Rahmaan, Ermelo, Mpumalanga, RSA",
+        "location": "33 Naude St, Ermelo, 2351, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ermelocp"
+    },
+    {
+        "id": "richardsbay",
+        "name": "Masjid ur Rahmah, Richardsbay, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/richardsbay"
+    },
+    {
+        "id": "rahman",
+        "name": "Masjid ur Rahman - Heidelberg",
+        "location": "20 Roshini St, Shalimar Ridge, Heidelberg - GP, 1441, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rahman"
+    },
+    {
+        "id": "saliheendbn",
+        "name": "Masjid us Saliheen, Sherwood, Durban, Kzn, RSA",
+        "location": "85 Harris Crescent, Sherwood, Durban, Kwazulu Natal, South Africa, 4091",
+        "url": "https://relay.livemasjid.com:8443/saliheendbn"
+    },
+    {
+        "id": "tzaneen",
+        "name": "Masjid us salaam, Tzaneen",
+        "location": "7 Fees St, Arbor Park, Tzaneen, 0850, South Africa",
+        "url": "https://relay.livemasjid.com:8443/tzaneen"
+    },
+    {
+        "id": "taqwadbn",
+        "name": "Masjid ut Taqwa, Sea Cow Lake, Durban, Kzn, RSA",
+        "location": "55 Joyce Road, Sea Cow Lake, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/taqwadbn"
+    },
+    {
+        "id": "taqwasprings",
+        "name": "Masjid ut Taqwa, Springs, Gauteng, RSA",
+        "location": "Lavender Road, Bakerton, Springs, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/taqwasprings"
+    },
+    {
+        "id": "emmasdale",
+        "name": "Masjid-E-Noor, Lusaka, Zambia",
+        "url": "https://relay.livemasjid.com:8443/emmasdale"
+    },
+    {
+        "id": "rahmahrustenburg",
+        "name": "Masjid-ur-Rahmah - Rustenburg",
+        "location": "82 Sachville St, Karlienpark, Rustenburg, 2999",
+        "url": "https://relay.livemasjid.com:8443/rahmahrustenburg"
+    },
+    {
+        "id": "burgersfort",
+        "name": "Masjid-us-Shaakireen, Burgersfort Masjid, Limpopo, RSA",
+        "location": "116 Marone St, Burgersfort, 1150, South Africa",
+        "url": "https://relay.livemasjid.com:8443/burgersfort"
+    },
+    {
+        "id": "taqwarustenburg",
+        "name": "Masjid-ut-Taqwa (Town Masjid) - Rustenburg",
+        "location": "54 Loop St, Rustenburg, 2999",
+        "url": "https://relay.livemasjid.com:8443/taqwarustenburg"
+    },
+    {
+        "id": "taqwaroshnee",
+        "name": "Masjid-ut-Taqwa, Roshnee",
+        "url": "https://relay.livemasjid.com:8443/taqwaroshnee"
+    },
+    {
+        "id": "lilayi",
+        "name": "Masjide Khadeejatul Kubra, Lusaka, Zambia",
+        "url": "https://relay.livemasjid.com:8443/lilayi"
+    },
+    {
+        "id": "kibriya",
+        "name": "Masjidul Kibriya, Ladysmith, Kzn, RSA",
+        "location": "67 Van Der Stel, Ladysmith, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/kibriya"
+    },
+    {
+        "id": "bergville",
+        "name": "Masjidul Manaazir, Bergville, Kzn, RSA",
+        "location": "Sharp Street, Bergville, Kwazulu Natal, South Africa, 3350",
+        "url": "https://relay.livemasjid.com:8443/bergville"
+    },
+    {
+        "id": "northcliffext",
+        "name": "Masjidullah, Northcliff EXT, Jhb,RSA",
+        "location": "35 Maluti Avenue, Northcliff Ext, Johannesburg, Gauteng, South Africa, 1709",
+        "url": "https://relay.livemasjid.com:8443/northcliffext"
+    },
+    {
+        "id": "sunford",
+        "name": "Masjidus Salaam, Phoenix, Durban, RSA",
+        "location": "105 Sunford Drive, Sunford, Phoenix, Durban, Kwazulu Natal, South Africa, 4068",
+        "url": "https://relay.livemasjid.com:8443/sunford"
+    },
+    {
+        "id": "matatiele",
+        "name": "Matatiele Masjid - KZN",
+        "url": "https://relay.livemasjid.com:8443/matatiele"
+    },
+    {
+        "id": "mueenuddeen",
+        "name": "Maulana Abdul Haq Makada, Durban, Kzn, RSA",
+        "location": "64 Glenearn Rd, Sydenham, Berea, Durban, Kwazulu Natal, South Africa, 4091",
+        "url": "https://relay.livemasjid.com:8443/mueenuddeen"
+    },
+    {
+        "id": "abdullahosman",
+        "name": "Maulana Abdullah Osman, Venezuela, South America",
+        "location": "0286, Ciudad Guayana 8050, Bolívar, Venezuela",
+        "url": "https://relay.livemasjid.com:8443/abdullahosman"
+    },
+    {
+        "id": "arilambat",
+        "name": "Maulana Abdur Rahman Lambat, Jhb, Gauteng, RSA",
+        "location": "Palmridge, Kathlehong, Johannesburg, Gauteng, South Africa, 1488",
+        "url": "https://relay.livemasjid.com:8443/arilambat"
+    },
+    {
+        "id": "bandha",
+        "name": "Maulana Akbar Ali, Azaadville, Jhb, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/bandha"
+    },
+    {
+        "id": "rahmaniyyah",
+        "name": "Maulana Fazlur Rahman, Azaadville, Jhb, RSA",
+        "location": "215 Jacaranda Street, Azaadville Gardens, Randfontein, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rahmaniyyah"
+    },
+    {
+        "id": "mlhravat",
+        "name": "Maulana Hasan Ravat, Mackenzie Park, Benoni, RSA",
+        "url": "https://relay.livemasjid.com:8443/mlhravat"
+    },
+    {
+        "id": "mlilyas",
+        "name": "Maulana Ilyas Patel, Durban, Kzn, RSA",
+        "location": "4 3rd Ave, Isipingo Beach, Isipingo, Durban, Kwazulu Natal, South Africa, 4115",
+        "url": "https://relay.livemasjid.com:8443/mlilyas"
+    },
+    {
+        "id": "mlmuaz",
+        "name": "Maulana Muaz Bhyat, Lenasia, Johannesburg, RSA",
+        "location": "Protea St, Jim Fouchepark, Welkom, 9459",
+        "url": "https://relay.livemasjid.com:8443/mlmuaz"
+    },
+    {
+        "id": "mii",
+        "name": "Maulana Muhammed Jeena, Kimberley, Nw, RSA",
+        "location": "Kimberley, North West, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mii"
+    },
+    {
+        "id": "imaamshaakir",
+        "name": "Maulana Muhammed Shaakir, Auckland, NZ",
+        "location": "Tait St, Blockhouse Bay, Auckland 1022, New Zealand",
+        "url": "https://relay.livemasjid.com:8443/imaamshaakir"
+    },
+    {
+        "id": "idauk",
+        "name": "Maulana Saleem Dhorat, Leicester, UK",
+        "location": "120 Melbourne Road, Leicester, LE2 0UT, United Kingdom",
+        "url": "https://relay.livemasjid.com:8443/idauk"
+    },
+    {
+        "id": "mlyusufbhikhoo",
+        "name": "Maulana Yusuf Bhikhoo, Lenasia, Jhb, RSA",
+        "location": "Lenasia, Johannesburg, Gauteng, South Africa, 1821",
+        "url": "https://relay.livemasjid.com:8443/mlyusufbhikhoo"
+    },
+    {
+        "id": "may",
+        "name": "May Street Masjid, Durban, Kzn, RSA",
+        "location": "Cnr May and Fynn Street, Greyville, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/may"
+    },
+    {
+        "id": "mayfairjummah",
+        "name": "Mayfair Jummah Masjid, JHB, RSA",
+        "location": "21 Hanover St, Mayfair, Johannesburg, 2108, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mayfairjummah"
+    },
+    {
+        "id": "isipingorail",
+        "name": "Mehboobia Masjid, Isipingo Rail, Durban, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/isipingorail"
+    },
+    {
+        "id": "middelburg",
+        "name": "Middelburg Masjid, Mpumalanga, RSA",
+        "location": "Koets St, Eastdene, Middelburg, Mpumalanga, South Africa, 1055",
+        "url": "https://relay.livemasjid.com:8443/middelburg"
+    },
+    {
+        "id": "mkondeni",
+        "name": "Mkondeni Mussallah",
+        "url": "https://relay.livemasjid.com:8443/mkondeni"
+    },
+    {
+        "id": "mlabdurrahmaansaloojee",
+        "name": "Ml Abdurrahmaan Saloojee - Kelvin",
+        "url": "https://relay.livemasjid.com:8443/mlabdurrahmaansaloojee"
+    },
+    {
+        "id": "mlebrahimpandor",
+        "name": "Ml Ebrahim Pandor - Germiston",
+        "url": "https://relay.livemasjid.com:8443/mlebrahimpandor"
+    },
+    {
+        "id": "mlmoosakajee",
+        "name": "Ml Moosa Kajee",
+        "url": "https://relay.livemasjid.com:8443/mlmoosakajee"
+    },
+    {
+        "id": "mlobeidullah",
+        "name": "Ml Obeidullah - Laudium",
+        "url": "https://relay.livemasjid.com:8443/mlobeidullah"
+    },
+    {
+        "id": "mlzakmotala",
+        "name": "Ml Zakariyya Motala Saheb, Isipingo Beach",
+        "url": "https://relay.livemasjid.com:8443/mlzakmotala"
+    },
+    {
+        "id": "mlmsa",
+        "name": "Ml. Mohammed Shoaib Adam - CPT",
+        "url": "https://relay.livemasjid.com:8443/mlmsa"
+    },
+    {
+        "id": "mohadin",
+        "name": "Mohadin Masjid, Potchefstroom, North West, RSA",
+        "location": "39 Sooliman Street, Mohadin, Potchefstroom, North West, South Africa, 2531",
+        "url": "https://relay.livemasjid.com:8443/mohadin"
+    },
+    {
+        "id": "mohammedia",
+        "name": "Mohammedia Madressa And Mosque - Piet Retief",
+        "location": "Piet Retief Mosque, 25 Jacaranda Ln, Kempville, Mkhondo, 2380, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mohammedia"
+    },
+    {
+        "id": "mokopane",
+        "name": "Mokopane Masjid - Akasia",
+        "location": "23 Nymania Ave, Akasia, Mokopane, 0601, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mokopane"
+    },
+    {
+        "id": "mountainrise",
+        "name": "Mountainrise Masjid, Pmb, Kzn, RSA",
+        "location": "104 Royston Road, Mountain Rise, Pietermaritzburg, Kwazulu Natal, South Africa, 3201",
+        "url": "https://relay.livemasjid.com:8443/mountainrise"
+    },
+    {
+        "id": "mtuba",
+        "name": "Mtubatuba Jami Musjid - KZN",
+        "location": "373 Essenwood Dr, Mtubatuba, 3935, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mtuba"
+    },
+    {
+        "id": "muftiak",
+        "name": "Mufti Abdul Kader Hoosen, Lenasia, Jhb, RSA",
+        "location": "Lenasia, Johannesburg, Gauteng, South Africa, 1821",
+        "url": "https://relay.livemasjid.com:8443/muftiak"
+    },
+    {
+        "id": "learndeen",
+        "name": "Mufti Muhammed Saeed Motara, Jhb, RSA",
+        "location": "362 Kohinoor Street, Azaadville, Krigersdorp, Gauteng, South Africa, 1754",
+        "url": "https://relay.livemasjid.com:8443/learndeen"
+    },
+    {
+        "id": "safwah",
+        "name": "Mufti Shabir - Safwah Online, Perth , Australia",
+        "url": "https://relay.livemasjid.com:8443/safwah"
+    },
+    {
+        "id": "muftispatel",
+        "name": "Mufti Shuayb Patel, Shallcross, Durban, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/muftispatel"
+    },
+    {
+        "id": "muftiyacoobvally",
+        "name": "Mufti Yacoob Vally",
+        "location": "2 boundary road, oslo beach, port shepstone, south africa, rsa",
+        "url": "https://relay.livemasjid.com:8443/muftiyacoobvally"
+    },
+    {
+        "id": "myd",
+        "name": "Mufti Yusuf Desai, Durban, Kzn, RSA",
+        "url": "https://relay.livemasjid.com:8443/myd"
+    },
+    {
+        "id": "muftizubair",
+        "name": "Mufti Zubair Bhayat, Durban, Kzn, RSA",
+        "location": "Joyce Rd, Parlock, Durban, Kwazulu Natal, South Africa, 4001",
+        "url": "https://relay.livemasjid.com:8443/muftizubair"
+    },
+    {
+        "id": "redberry",
+        "name": "Musalla Mus'ab bin Umayr",
+        "location": "168 Redberry Road, Phoenix, Durban",
+        "url": "https://relay.livemasjid.com:8443/redberry"
+    },
+    {
+        "id": "westwoodabs",
+        "name": "Musallah Abu Bakr Siddique, Westville, Dbn, RSA",
+        "location": "2 Grace Avenue, Westwood, Westville, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/westwoodabs"
+    },
+    {
+        "id": "fatah",
+        "name": "Musallah Al Fatah, CPT",
+        "location": "9 College Rd, Surrey Estate, Cape Town, 7764, South Africa",
+        "url": "https://relay.livemasjid.com:8443/fatah"
+    },
+    {
+        "id": "westdene",
+        "name": "Musallah Al Muhaajireen - Benoni",
+        "location": "13 Edward St, Westdene, Benoni, 1501, South Africa",
+        "url": "https://relay.livemasjid.com:8443/westdene"
+    },
+    {
+        "id": "fatahlenasia",
+        "name": "Musallah Fatah - Lenasia",
+        "location": "116 Nirvana Dr, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/fatahlenasia"
+    },
+    {
+        "id": "ikhlaas",
+        "name": "Musallah Ikhlaas - Morningside",
+        "location": "77 Hendry Rd, Springfield, Durban, 4091",
+        "url": "https://relay.livemasjid.com:8443/ikhlaas"
+    },
+    {
+        "id": "westvillenorth",
+        "name": "Musallah Mahmoodiyya Westville North",
+        "location": "148 Rodger Sishi Rd, Chiltern Hills, Westville, 3629, South Africa",
+        "url": "https://relay.livemasjid.com:8443/westvillenorth"
+    },
+    {
+        "id": "amanzimtoti",
+        "name": "Musallah Nurul Islam, Amanzimtoti, KZN, RSA",
+        "location": "653 Kingsway, Athlone Park, Amanzimtoti, Durban, Kwazulu Natal, South Africa, 4126",
+        "url": "https://relay.livemasjid.com:8443/amanzimtoti"
+    },
+    {
+        "id": "blairgowrie",
+        "name": "Musallah Ubay bin Ka'b (RA), Blairgowrie, Jhb, Gauteng, RSA",
+        "location": "70 Conrad Dr, Blairgowrie, Randburg, 2194, South Africa",
+        "url": "https://relay.livemasjid.com:8443/blairgowrie"
+    },
+    {
+        "id": "musallahumar",
+        "name": "Musallah Umar - PMB",
+        "location": "43 Dykes Rd, Montrose, Pietermaritzburg, 3201, South Africa",
+        "url": "https://relay.livemasjid.com:8443/musallahumar"
+    },
+    {
+        "id": "farouqglenwood",
+        "name": "Musallah Umar Al Farouq, Glenwood, Durbnn, Kzn, RSA",
+        "location": "1 Wadley Road, Glenwood, Berea, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/farouqglenwood"
+    },
+    {
+        "id": "muf",
+        "name": "Musallah Umar Farouk, Centurion, JHB",
+        "url": "https://relay.livemasjid.com:8443/muf"
+    },
+    {
+        "id": "umaribnkhattaab",
+        "name": "Musallah Umar ibn Khattaab, Jhb",
+        "url": "https://relay.livemasjid.com:8443/umaribnkhattaab"
+    },
+    {
+        "id": "victoriapmb",
+        "name": "Musallah on Victoria - PMB",
+        "location": "328 Victoria Rd, Pietermaritzburg, 3201, South Africa",
+        "url": "https://relay.livemasjid.com:8443/victoriapmb"
+    },
+    {
+        "id": "musina",
+        "name": "Musina Town Masjid, Limpopo, RSA",
+        "url": "https://relay.livemasjid.com:8443/musina"
+    },
+    {
+        "id": "marburg",
+        "name": "Musjid Aisha Marburg - KZN",
+        "url": "https://relay.livemasjid.com:8443/marburg"
+    },
+    {
+        "id": "ihilal",
+        "name": "Musjid Al Hilal - Overport",
+        "location": "139 Crescent Street, Overport, Durban, 4091",
+        "url": "https://relay.livemasjid.com:8443/ihilal"
+    },
+    {
+        "id": "queenstown",
+        "name": "Musjid Al Muhajireen - Queenstown",
+        "location": "11 Komani St, Komani, 5320, South Africa",
+        "url": "https://relay.livemasjid.com:8443/queenstown"
+    },
+    {
+        "id": "newlandswest",
+        "name": "Musjid Ebrahim, Newlands West, Durban, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/newlandswest"
+    },
+    {
+        "id": "ibaadurrahman",
+        "name": "Musjid Ibaadur Rahman, Overport, Durban, Kzn, RSA",
+        "location": "366 Felix Dlamini Rd, Sydenham, Berea, 4091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ibaadurrahman"
+    },
+    {
+        "id": "linbrokhalid",
+        "name": "Musjid Khalid Ibn Al Walid - Jhb",
+        "location": "137 1st Rd, Linbro Park AH, Sandton, 2090, South Africa",
+        "url": "https://relay.livemasjid.com:8443/linbrokhalid"
+    },
+    {
+        "id": "mulbarton",
+        "name": "Musjid Nusaybah - Mulbarton - JHB",
+        "location": "47 True North Road, Mulbarton, Johannesburg South, 2059, South Africa",
+        "url": "https://relay.livemasjid.com:8443/mulbarton"
+    },
+    {
+        "id": "merebank",
+        "name": "Musjid e Tazkiyah - Oil Refinery - KZN",
+        "location": "115 Badulla Dr, Merewent Bluff, 4052, South Africa",
+        "url": "https://relay.livemasjid.com:8443/merebank"
+    },
+    {
+        "id": "amersfoort",
+        "name": "Musjid e nur Amersfoort",
+        "location": "786 Sybrand van Niekerk St, Amersfoort, 2490, South Africa",
+        "url": "https://relay.livemasjid.com:8443/amersfoort"
+    },
+    {
+        "id": "parlock",
+        "name": "Musjid el Yusuf - KZN",
+        "location": "311 Amlock Dr, Parlock, 4037, South Africa",
+        "url": "https://relay.livemasjid.com:8443/parlock"
+    },
+    {
+        "id": "coleraine",
+        "name": "Musjid ud Duha, Sandton, Jhb, Gauteng, RSA",
+        "location": "94 Coleraine Drive, Duxberry, Sandton, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/coleraine"
+    },
+    {
+        "id": "musgrave",
+        "name": "Musjid us Salaam - Musgrave, KZN",
+        "location": "220 St Thomas Rd, Musgrave, Berea, 4001, South Africa",
+        "url": "https://relay.livemasjid.com:8443/musgrave"
+    },
+    {
+        "id": "taqwa",
+        "name": "Musjid-ut-Taqwa, PMB, KZN, RSA",
+        "location": "7 Brixam Road, Allandale, Pietermaritzburg, Kwazulu Natal, South Africa, 3201",
+        "url": "https://relay.livemasjid.com:8443/taqwa"
+    },
+    {
+        "id": "pietretief",
+        "name": "Musjid-ut-Tauheed - Piet Retief",
+        "url": "https://relay.livemasjid.com:8443/pietretief"
+    },
+    {
+        "id": "glenwood",
+        "name": "Musjidul Misbaah, Glenwood, Durban, Kzn, RSA",
+        "location": "298 Che Guevara Road, Glenwood, Berea, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/glenwood"
+    },
+    {
+        "id": "musjidurrahman",
+        "name": "Musjidur Rahman - Durban North",
+        "location": "131 Kenneth Kaunda Rd, Durban North, 4051, South Africa",
+        "url": "https://relay.livemasjid.com:8443/musjidurrahman"
+    },
+    {
+        "id": "mozabuayub",
+        "name": "Mussallah Abu Ayub Ansari, Somerchild 2, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozabuayub"
+    },
+    {
+        "id": "mahdulilm",
+        "name": "Mussallah Mahdul Ilm, Maputo, Mozambique",
+        "location": "1442 Av. Amilcar Cabral, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mahdulilm"
+    },
+    {
+        "id": "mutareislamicsociety",
+        "name": "Mutare Islamic Society - Zimbabwe",
+        "location": "3 Third St, Mutare, Zimbabwe",
+        "url": "https://relay.livemasjid.com:8443/mutareislamicsociety"
+    },
+    {
+        "id": "nmcc",
+        "name": "NMCC Musallah, Newcastle, KZN, RSA",
+        "location": "77 Murchison St, Newcastle Central, Newcastle, 2940, South Africa",
+        "url": "https://relay.livemasjid.com:8443/nmcc"
+    },
+    {
+        "id": "nelspruit",
+        "name": "Nelspruit Masjid, Valencia, Mpumalanga, RSA",
+        "location": "5 Petunia St, Nelindia, Mbombela, 1201, South Africa",
+        "url": "https://relay.livemasjid.com:8443/nelspruit"
+    },
+    {
+        "id": "newparks",
+        "name": "New Parks Academy, UK",
+        "location": "22 Dillon Rd, New Parks, Leicester LE3 9PF, UK",
+        "url": "https://relay.livemasjid.com:8443/newparks"
+    },
+    {
+        "id": "newcastle",
+        "name": "Newcastle Jaamia Masjid, Kzn, RSA",
+        "location": "28 Murchison St, Newcastle CBD, Newcastle, Kwazulu Natal, South Africa, 2940",
+        "url": "https://relay.livemasjid.com:8443/newcastle"
+    },
+    {
+        "id": "newtown",
+        "name": "Newtown Masjid, Newtown, Jhb",
+        "location": "6 Jennings St, Newtown, Johannesburg, 2113, South Africa",
+        "url": "https://relay.livemasjid.com:8443/newtown"
+    },
+    {
+        "id": "fxbnoor",
+        "name": "Noor-e-Taibah Masjid - Ficksburg",
+        "location": "60 Bosch St, Ficksburg, 9730, South Africa",
+        "url": "https://relay.livemasjid.com:8443/fxbnoor"
+    },
+    {
+        "id": "northcliff",
+        "name": "Northcliff Masjid, Jhb, RSA",
+        "location": "3 Salerno Road, Randburg , Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/northcliff"
+    },
+    {
+        "id": "nurulislam",
+        "name": "Nur Ul Islam Masjid, Lenasia, Gauteng, RSA",
+        "location": "2 Nyala Ave, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/nurulislam"
+    },
+    {
+        "id": "bethal",
+        "name": "Nur ul-Islam Mosque",
+        "url": "https://relay.livemasjid.com:8443/bethal"
+    },
+    {
+        "id": "standerton",
+        "name": "Nurul Islam Musjid, Standerton, Mpumalanga, RSA",
+        "url": "https://relay.livemasjid.com:8443/standerton"
+    },
+    {
+        "id": "ogies",
+        "name": "Ogies Masjid, Mpumalanga, RSA",
+        "location": "W3P4+6C Ogies, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ogies"
+    },
+    {
+        "id": "parkrynie",
+        "name": "Park Rynie Masjid, KZN",
+        "location": "Park Rynie Masjid, 25 School Cir, Scottburgh, Park Rynie, 4182, South Africa",
+        "url": "https://relay.livemasjid.com:8443/parkrynie"
+    },
+    {
+        "id": "pearls",
+        "name": "Pearls Musallah, Umhlanga, KZN, RSA",
+        "url": "https://relay.livemasjid.com:8443/pearls"
+    },
+    {
+        "id": "portshepstonetown",
+        "name": "Port Shepstone Juma Masjid - KZN",
+        "location": "41 Reynolds St, Port Shepstone, 4240, South Africa",
+        "url": "https://relay.livemasjid.com:8443/portshepstonetown"
+    },
+    {
+        "id": "portstjohns",
+        "name": "Port St Johns Masjid",
+        "url": "https://relay.livemasjid.com:8443/portstjohns"
+    },
+    {
+        "id": "potchefstroom",
+        "name": "Potchefstroom Town Masjid, North West, RSA",
+        "location": "Owen Avenue, Potchefstroom, North West, South Africa",
+        "url": "https://relay.livemasjid.com:8443/potchefstroom"
+    },
+    {
+        "id": "qaasimululoom",
+        "name": "Qaasimul Uloom, CPT, RSA",
+        "location": "23 Fuller Road, Weltevreden Valley, Cape Town, 7798, South Africa",
+        "url": "https://relay.livemasjid.com:8443/qaasimululoom"
+    },
+    {
+        "id": "dawatulhaq",
+        "name": "Qari Ismaeel Desai, Umzinto, Kzn, RSA",
+        "location": "9 4th Street, Umzinto, Park Rynie, Kwazulu Natal, South Africa, 4182",
+        "url": "https://relay.livemasjid.com:8443/dawatulhaq"
+    },
+    {
+        "id": "qrad",
+        "name": "Qari Rashid Ahmed Dabhelia, Lenasia, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/qrad"
+    },
+    {
+        "id": "qmm",
+        "name": "Quloobul Moemieneen Masjied, Goodwood, CPT",
+        "location": "127-133 Goodwood St, Goodwood Estate, Cape Town, 7460, South Africa",
+        "url": "https://relay.livemasjid.com:8443/qmm"
+    },
+    {
+        "id": "qia",
+        "name": "Qurtuba Islamic Academy - Jhb",
+        "url": "https://relay.livemasjid.com:8443/qia"
+    },
+    {
+        "id": "qijm",
+        "name": "Quwwatul Islam Jaame Musjid, Verulam, Durban",
+        "location": "150 Wick Street, Verulam, Durban, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/qijm"
+    },
+    {
+        "id": "randpark",
+        "name": "RANDPARK RIDGE MUSALLAH - JHB",
+        "location": "10 Randpark Dr, Randpark Ridge, Randburg, 2169, South Africa",
+        "url": "https://relay.livemasjid.com:8443/randpark"
+    },
+    {
+        "id": "raisethorpe",
+        "name": "Raisethorpe Masjid, Pietermaritzburg, KZN, Rsa",
+        "url": "https://relay.livemasjid.com:8443/raisethorpe"
+    },
+    {
+        "id": "rsvltmasjid",
+        "name": "Raudhatul Islam Masjid, Roosevelt Park, Jhb, RSA",
+        "location": "4 Beyers Naude Service Dr, Franklin Roosevelt Park, Randburg, Johannesburg, Gauteng, South Africa, 2195",
+        "url": "https://relay.livemasjid.com:8443/rsvltmasjid"
+    },
+    {
+        "id": "raudhatulquraan",
+        "name": "Raudhatul Quraan, Sandton, JHB",
+        "location": "97 Bowling Ave, Morningside Manor, Sandton, 2057, South Africa",
+        "url": "https://relay.livemasjid.com:8443/raudhatulquraan"
+    },
+    {
+        "id": "reshills",
+        "name": "Reservoir Hills Musjid - KZN",
+        "location": "47 Mountbatten Dr, Reservoir Hills, Durban, 4091, South Africa",
+        "url": "https://relay.livemasjid.com:8443/reshills"
+    },
+    {
+        "id": "risaalatulhaq",
+        "name": "Risaalatul Haq, Lenasia, Jhb, RSA",
+        "url": "https://relay.livemasjid.com:8443/risaalatulhaq"
+    },
+    {
+        "id": "ritakop",
+        "name": "Ritakop Musallah",
+        "location": "27FQ+QM Ritakop, South Africa",
+        "url": "https://relay.livemasjid.com:8443/ritakop"
+    },
+    {
+        "id": "rdpt",
+        "name": "Roodepoort Masjid",
+        "location": "6 Katrina St, Roodepoort, 1724, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rdpt"
+    },
+    {
+        "id": "rustenburg",
+        "name": "Rustenburg Jaame Masjid, Zinniaville, NW, RSA",
+        "location": "Cnr Karlien \u0026 Sonneblom Street, Zinniaville, Rustenburg, North West Province, South Africa, 2999",
+        "url": "https://relay.livemasjid.com:8443/rustenburg"
+    },
+    {
+        "id": "rynfield",
+        "name": "Rynfield Musallah, Benoni, Jhb, RSA",
+        "location": "180 Pretoria Road, Rynfield, Benoni, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/rynfield"
+    },
+    {
+        "id": "saberie",
+        "name": "Saberie Jumuah Masjid, Lenasia, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/saberie"
+    },
+    {
+        "id": "linden",
+        "name": "Saeed bin Zaid Musallah and Madrassah, Linden, JHB",
+        "location": "43 5th St, Linden, Johannesburg, 2104, South Africa",
+        "url": "https://relay.livemasjid.com:8443/linden"
+    },
+    {
+        "id": "sautulquraan",
+        "name": "Sautul Quraan, Jhb, RSA",
+        "url": "https://relay.livemasjid.com:8443/sautulquraan"
+    },
+    {
+        "id": "selebiphikwe",
+        "name": "Selebi Phikwe Masjid - Botswana",
+        "location": "Plot 5165 Independence Rd, Selebi Phikwe, Botswana",
+        "url": "https://relay.livemasjid.com:8443/selebiphikwe"
+    },
+    {
+        "id": "shellybeach",
+        "name": "Shelly Beach Musallah - KZN",
+        "url": "https://relay.livemasjid.com:8443/shellybeach"
+    },
+    {
+        "id": "siraatulhaq",
+        "name": "Siraatul Haq Musjid Estcourt",
+        "location": "7 10th Avenue, Estcourt, 3310, South Africa",
+        "url": "https://relay.livemasjid.com:8443/siraatulhaq"
+    },
+    {
+        "id": "soofie",
+        "name": "Soofie Masjid, Ladysmith, KZN, RSA",
+        "location": "45 Mosque Road, Ladysmith, 3370, South Africa",
+        "url": "https://relay.livemasjid.com:8443/soofie"
+    },
+    {
+        "id": "saqu",
+        "name": "South African Quraan Union",
+        "location": "3 Paulsberg Road, Heideveld, Cape Town, Western Cape, South Africa, 7764",
+        "url": "https://relay.livemasjid.com:8443/saqu"
+    },
+    {
+        "id": "spirituallight",
+        "name": "Spiritual Light - Maulana Ridwan Kajee, Jhb, RSA",
+        "location": "Madrasah Raudatul Islah, 59 Iberis Rd, Eikenhof, 1872, South Africa",
+        "url": "https://relay.livemasjid.com:8443/spirituallight"
+    },
+    {
+        "id": "stangermasjid",
+        "name": "Stanger Jaamia Masjid, Kzn, RSA",
+        "location": "Mahatma Ghandi Street, Stanger, Kwazulu Natal, South Africa, 4450",
+        "url": "https://relay.livemasjid.com:8443/stangermasjid"
+    },
+    {
+        "id": "summerglade",
+        "name": "Summerglade Musallah - KZN",
+        "location": "Flat 108 Summerglades, 17 Avondale Rd, Essenwood, Berea, 4001, South Africa",
+        "url": "https://relay.livemasjid.com:8443/summerglade"
+    },
+    {
+        "id": "sunninghill",
+        "name": "Sunninghill Masjid - Sandton - JHB",
+        "location": "Sunninghill Village Shopping Centre, Upper Ground, Corner of Maxwell Drive \u0026 Edison Crescent, 97 Edison Cres, Sunninghill, Sandton, 2157, South Africa",
+        "url": "https://relay.livemasjid.com:8443/sunninghill"
+    },
+    {
+        "id": "taqwaboys",
+        "name": "Taqwa Boys School, Durban, Kzn, RSA",
+        "location": "11 View St, Sydenham, Berea, Durban, Kwazulu Natal, South Africa, 4091",
+        "url": "https://relay.livemasjid.com:8443/taqwaboys"
+    },
+    {
+        "id": "poplartaraweeh",
+        "name": "Taraweeh 6 Poplar Street, Grey Town",
+        "url": "https://relay.livemasjid.com:8443/poplartaraweeh"
+    },
+    {
+        "id": "bergvilletlc",
+        "name": "Tarbiyat Learning Centre, Bergville, Kzn, RSA",
+        "location": "2 Retief St, Bergville, 3350, South Africa",
+        "url": "https://relay.livemasjid.com:8443/bergvilletlc"
+    },
+    {
+        "id": "tqinigeria",
+        "name": "Tarteelul Quraan Institute, Abuja, Nigeria",
+        "location": "12 Cape Town Street, Wuse Zone, 4 Abuja, Nigeria",
+        "url": "https://relay.livemasjid.com:8443/tqinigeria"
+    },
+    {
+        "id": "thejamiat",
+        "name": "The Jamiatul Ulama, De Deur, Jhb, RSA",
+        "location": "4 R82, The De Deur Estates, De Deur, Gauteng, South Africa, 1884",
+        "url": "https://relay.livemasjid.com:8443/thejamiat"
+    },
+    {
+        "id": "townlinemuslimcentre",
+        "name": "Townline Muslim Centre",
+        "location": "1170 Townline Rd, Cambridge, ON N1T 2E7, Canada",
+        "url": "https://relay.livemasjid.com:8443/townlinemuslimcentre"
+    },
+    {
+        "id": "trichardt",
+        "name": "Trichardt Jami Masjid, MP",
+        "location": "11 Ebrahim Daya St, Trichardt, 2302, South Africa",
+        "url": "https://relay.livemasjid.com:8443/trichardt"
+    },
+    {
+        "id": "turffontein",
+        "name": "Turffontein Musallah, Johannesburg, Gauteng, RSA",
+        "url": "https://relay.livemasjid.com:8443/turffontein"
+    },
+    {
+        "id": "ulamapublications",
+        "name": "Ulama Publications",
+        "url": "https://relay.livemasjid.com:8443/ulamapublications"
+    },
+    {
+        "id": "umhlanga",
+        "name": "Umhlanga Masjid, Durban, KZN, RSA",
+        "location": "2 Bruton Cl, Somerset Park, uMhlanga, 4319, South Africa",
+        "url": "https://relay.livemasjid.com:8443/umhlanga"
+    },
+    {
+        "id": "umzinto",
+        "name": "Umzinto Jaame Masjid, Kzn, RSA",
+        "location": "Nelson Mandela Road, Umzinto, Kwazulu Natal, South Africa",
+        "url": "https://relay.livemasjid.com:8443/umzinto"
+    },
+    {
+        "id": "ustaadhaffejee",
+        "name": "Ustaad Hafiz Shafeeq Haffejee",
+        "url": "https://relay.livemasjid.com:8443/ustaadhaffejee"
+    },
+    {
+        "id": "uswatulmuslimah",
+        "name": "Uswatul Muslimah - South Africa",
+        "url": "https://relay.livemasjid.com:8443/uswatulmuslimah"
+    },
+    {
+        "id": "victoriaroad",
+        "name": "Victoria Road Jamaat Khana, Newcastle, KZN, RSA",
+        "location": "75 Victoria Rd, Pioneer Park, Newcastle, 2940, South Africa",
+        "url": "https://relay.livemasjid.com:8443/victoriaroad"
+    },
+    {
+        "id": "voicingourakaabireen",
+        "name": "Voicing Our Akaabireen - Durban",
+        "url": "https://relay.livemasjid.com:8443/voicingourakaabireen"
+    },
+    {
+        "id": "volksrust",
+        "name": "Volksrust Mosque",
+        "url": "https://relay.livemasjid.com:8443/volksrust"
+    },
+    {
+        "id": "warrenton",
+        "name": "Warrenton Masjid, Warrenton, North West, RSA",
+        "url": "https://relay.livemasjid.com:8443/warrenton"
+    },
+    {
+        "id": "weltevredenpark",
+        "name": "Weltevredenpark Musallah, JHB",
+        "location": "96 Kastaiing St, Weltevredenpark, Roodepoort, 1709, South Africa",
+        "url": "https://relay.livemasjid.com:8443/weltevredenpark"
+    },
+    {
+        "id": "wendywood",
+        "name": "Wendywood Musallah, Sandton, Jhb, RSA",
+        "location": "93 Bowling Ave, Morningside Manor, Sandton, Johannesburg, Gauteng, South Africa,2057",
+        "url": "https://relay.livemasjid.com:8443/wendywood"
+    },
+    {
+        "id": "westcliff",
+        "name": "Westcliff Musallah - JHB, RSA",
+        "location": "1 Lawrence Rd, Westcliff, Johannesburg, 2193, South Africa",
+        "url": "https://relay.livemasjid.com:8443/westcliff"
+    },
+    {
+        "id": "westville",
+        "name": "Westville Masjid, Durban, Kzn, RSA",
+        "location": "46 Meerut Road, Westville, Durban, Kwazulu Natal, South Africa, 3630",
+        "url": "https://relay.livemasjid.com:8443/westville"
+    },
+    {
+        "id": "wifaq",
+        "name": "Wifaqul Ulama SA",
+        "location": "101 Conner Street, Estcourt, South Africa",
+        "url": "https://relay.livemasjid.com:8443/wifaq"
+    },
+    {
+        "id": "witbanktown",
+        "name": "Witbank Jummuah Masjid, Mpumalanga, RSA",
+        "location": "Cnr Nicol \u0026 Dahlia Street, Witbank, Emalahleni, Mpumalanga, South Africa, 1035",
+        "url": "https://relay.livemasjid.com:8443/witbanktown"
+    },
+    {
+        "id": "kensington",
+        "name": "Zeenatul Islam Masjid, Kensington, Jhb, RSA",
+        "url": "https://relay.livemasjid.com:8443/kensington"
+    },
+    {
+        "id": "zeerust",
+        "name": "Zeerust Jaami'ah Masjid, North West, RSA",
+        "location": "3 Queen St, Zeerust, 2865, South Africa",
+        "url": "https://relay.livemasjid.com:8443/zeerust"
+    }
+]

@@ -89,23 +89,17 @@ MasjidPi follows a few simple principles.
 
 # Installation
 
-## Requirements
+MasjidPi provides an automated installer that downloads all required dependencies, installs Go (if necessary), builds the application, and performs a self-test.
 
-Currently MasjidPi requires:
+## Supported Platforms
 
-- Linux
-- Go 1.26 or newer
-- MPV
-- Git
+The installer currently supports:
 
-On Debian or Raspberry Pi OS:
+- Debian 12+
+- Ubuntu 24.04+
+- Raspberry Pi OS Bookworm
 
-```bash
-sudo apt update
-sudo apt install git mpv
-```
-
-Install Go by following the official Go installation guide.
+Additional Linux distributions may work but have not yet been officially tested.
 
 ---
 
@@ -118,9 +112,40 @@ cd MasjidPi
 
 ---
 
-## Run MasjidPi
+## Run the installer
 
-From the project root:
+The installer requires sudo privileges to install system packages.
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+The installer will automatically:
+
+- Detect your operating system
+- Install all required system packages
+- Install Go (if it is not already installed)
+- Build MasjidPi
+- Verify the installation by running a self-test
+- Confirm that audio playback is available
+
+A successful installation will end with output similar to:
+
+```text
+[ OK ] Dependencies installed.
+[ OK ] Go 1.26.5 installed.
+[ OK ] Build complete.
+[ OK ] Application started successfully.
+[ OK ] Audio device detected.
+[ OK ] Installation completed.
+```
+
+---
+
+## Running MasjidPi
+
+After installation, start the application from the project directory:
 
 ```bash
 make run
@@ -130,32 +155,36 @@ or manually:
 
 ```bash
 cd backend
-go run ./cmd/masjidpi
+./masjidpi
 ```
 
-If everything starts correctly you should see output similar to:
+When MasjidPi starts successfully you should see:
 
 ```text
 Starting application
 Configuration loaded
 Loaded stream catalogue
 Connected to MPV
-Starting HTTP server :8080
+Starting HTTP server
 ```
 
 ---
 
 ## Open the Web Interface
 
-Open your browser and navigate to:
+Open your web browser and navigate to:
 
 ```
 http://localhost:8080
 ```
 
-If running on another machine, replace `localhost` with the Raspberry Pi's IP address.
+If MasjidPi is running on another computer or Raspberry Pi, replace `localhost` with its IP address.
 
----
+For example:
+
+```
+http://192.168.1.100:8080
+```
 
 # Updating the Stream Catalogue
 

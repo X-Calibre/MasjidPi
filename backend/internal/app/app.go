@@ -53,6 +53,7 @@ func Run() error {
 		_ = mpv.Close()
 	}()
 
+	playbackConfig, err := newPlaybackConfig(cfg)
 	retryInterval, err := time.ParseDuration(cfg.Playback.RetryInterval)
 	if err != nil {
 		return err
@@ -65,6 +66,10 @@ func Run() error {
 
 	playbackManager := playback.New(
 		mpv,
+		playbackConfig,
+	)
+
+	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
 		playback.Config{
 			RetryInterval:  retryInterval,
 			ReconnectDelay: reconnectDelay,
@@ -133,4 +138,21 @@ func Run() error {
 	}()
 
 	return server.Start()
+}
+
+func newPlaybackConfig(cfg *config.Config) (playback.Config, error) {
+	retryInterval, err := time.ParseDuration(cfg.Playback.RetryInterval)
+	if err != nil {
+		return playback.Config{}, err
+	}
+
+	reconnectDelay, err := time.ParseDuration(cfg.Playback.ReconnectDelay)
+	if err != nil {
+		return playback.Config{}, err
+	}
+
+	return playback.Config{
+		RetryInterval:  retryInterval,
+		ReconnectDelay: reconnectDelay,
+	}, nil
 }

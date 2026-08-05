@@ -3,7 +3,7 @@ http:
 
 player:
   socket: "/tmp/masjidpi.sock"
-  volume: 70
+  volume: 100
 
 streams:
   refresh_interval: "6h"

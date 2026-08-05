@@ -72,6 +72,7 @@ func Run() error {
 	)
 
 	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
+	if err := mpv.Volume(cfg.Player.Volume); err != nil {
 		return err
 	}
 

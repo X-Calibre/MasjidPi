@@ -12,15 +12,5 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status, err := s.player.Status()
-	if err != nil {
-		writeError(
-			w,
-			http.StatusInternalServerError,
-			err.Error(),
-		)
-		return
-	}
-
-	writeJSON(w, http.StatusOK, status)
+	writeJSON(w, http.StatusOK, s.playback.Status())
 }

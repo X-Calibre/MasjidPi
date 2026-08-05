@@ -69,6 +69,7 @@ MasjidPi follows a few simple principles.
 - Automatically generated relay URLs
 - Play streams by catalogue selection
 - Remember the last selected stream
+- Automatically wait and reconnect when a selected stream is temporarily unavailable
 - Optional automatic playback on startup
 - Responsive mobile-friendly interface
 
@@ -201,11 +202,19 @@ To refresh the catalogue:
 
 ---
 
+# Playback Behaviour
+
+MasjidPi now treats Play as "listen to this masjid" rather than "play this URL once".
+
+If the selected stream is offline, MasjidPi keeps the masjid selected and waits before trying again. If playback disconnects unexpectedly, MasjidPi waits briefly and then reconnects automatically.
+
+---
+
 # Current Limitations
 
-MasjidPi currently assumes that every stream in the catalogue is available.
+MasjidPi uses MPV playback state to detect stream availability.
 
-Support for detecting offline streams and providing user-friendly playback errors is currently under development.
+More detailed user-friendly playback error messages are still under development.
 
 ---
 

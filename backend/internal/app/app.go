@@ -54,13 +54,30 @@ func Run() error {
 	}()
 
 	playbackConfig, err := newPlaybackConfig(cfg)
+	retryInterval, err := time.ParseDuration(cfg.Playback.RetryInterval)
 	if err != nil {
 		return err
 	}
 
-	playbackManager := playback.New(mpv, playbackConfig)
+	reconnectDelay, err := time.ParseDuration(cfg.Playback.ReconnectDelay)
+	if err != nil {
+		return err
+	}
+
+	playbackManager := playback.New(
+		mpv,
+		playbackConfig,
+	)
 
 	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
+		playback.Config{
+			RetryInterval:  retryInterval,
+			ReconnectDelay: reconnectDelay,
+		},
+	)
+
+	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
+	if err := mpv.Volume(cfg.Player.Volume); err != nil {
 		return err
 	}
 

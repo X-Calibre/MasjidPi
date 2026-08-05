@@ -10,6 +10,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/api"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
+	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
@@ -52,6 +53,25 @@ func Run() error {
 		_ = mpv.Close()
 	}()
 
+	retryInterval, err := time.ParseDuration(cfg.Playback.RetryInterval)
+	if err != nil {
+		return err
+	}
+
+	reconnectDelay, err := time.ParseDuration(cfg.Playback.ReconnectDelay)
+	if err != nil {
+		return err
+	}
+
+	playbackManager := playback.New(
+		mpv,
+		playback.Config{
+			RetryInterval:  retryInterval,
+			ReconnectDelay: reconnectDelay,
+		},
+	)
+
+	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
 	if err := mpv.Volume(cfg.Player.Volume); err != nil {
 		return err
 	}
@@ -76,19 +96,21 @@ func Run() error {
 		"version", version,
 	)
 
-	server := api.New(
-		cfg.HTTP.Address,
-		log,
-		mpv,
-		streamStore,
-	)
-
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
 		syscall.SIGTERM,
 	)
 	defer stop()
+
+	playbackManager.Start(ctx)
+
+	server := api.New(
+		cfg.HTTP.Address,
+		log,
+		playbackManager,
+		streamStore,
+	)
 
 	go func() {
 		<-ctx.Done()

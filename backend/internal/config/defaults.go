@@ -21,4 +21,12 @@ func applyDefaults(cfg *Config) {
 	if cfg.Player.Volume == 0 {
 		cfg.Player.Volume = 100
 	}
+
+	if cfg.Playback.RetryInterval == "" {
+		cfg.Playback.RetryInterval = "30s"
+	}
+
+	if cfg.Playback.ReconnectDelay == "" {
+		cfg.Playback.ReconnectDelay = "5s"
+	}
 }

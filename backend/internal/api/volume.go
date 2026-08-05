@@ -30,7 +30,7 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.player.Volume(req.Volume); err != nil {
+	if err := s.playback.Volume(req.Volume); err != nil {
 		writeError(
 			w,
 			http.StatusBadRequest,

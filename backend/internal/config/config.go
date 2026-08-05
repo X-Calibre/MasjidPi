@@ -9,9 +9,10 @@ import (
 
 // Config contains all application configuration.
 type Config struct {
-	HTTP    HTTPConfig   `yaml:"http"`
-	Player  PlayerConfig `yaml:"player"`
-	Streams StreamConfig `yaml:"streams"`
+	HTTP     HTTPConfig     `yaml:"http"`
+	Player   PlayerConfig   `yaml:"player"`
+	Streams  StreamConfig   `yaml:"streams"`
+	Playback PlaybackConfig `yaml:"playback"`
 }
 
 // HTTPConfig contains HTTP server settings.
@@ -28,6 +29,12 @@ type PlayerConfig struct {
 // StreamConfig contains stream-related settings.
 type StreamConfig struct {
 	RefreshInterval string `yaml:"refresh_interval"`
+}
+
+// PlaybackConfig contains playback retry settings.
+type PlaybackConfig struct {
+	RetryInterval  string `yaml:"retry_interval"`
+	ReconnectDelay string `yaml:"reconnect_delay"`
 }
 
 // Load reads a YAML configuration file from disk.

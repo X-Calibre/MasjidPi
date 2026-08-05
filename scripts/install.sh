@@ -23,6 +23,8 @@ main() {
     install_packages
     install_go
 
+    update_repository
+
     build_project
 
     run_selftest

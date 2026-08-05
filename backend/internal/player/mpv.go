@@ -22,16 +22,19 @@ func (m *MPV) Start() error {
 		return err
 	}
 
-	// Temporary until we implement WaitForReady().
-	time.Sleep(500 * time.Millisecond)
-	//	if err := m.WaitForReady(3 * time.Second); err != nil {
-	//		return err
+	deadline := time.Now().Add(3 * time.Second)
 
-	if err := m.ipc.Connect(); err != nil {
-		return err
+	for {
+		if err := m.ipc.Connect(); err == nil {
+			return nil
+		}
+
+		if time.Now().After(deadline) {
+			return fmt.Errorf("wait for mpv ipc: timed out")
+		}
+
+		time.Sleep(100 * time.Millisecond)
 	}
-
-	return nil
 }
 
 func (m *MPV) Stop() error {

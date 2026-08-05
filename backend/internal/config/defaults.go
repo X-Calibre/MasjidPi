@@ -14,7 +14,6 @@ func defaultSocketPath() string {
 }
 
 func applyDefaults(cfg *Config) {
-
 	if cfg.Player.Socket == "" {
 		cfg.Player.Socket = defaultSocketPath()
 	}

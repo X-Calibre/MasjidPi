@@ -43,5 +43,7 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("parse config: %w", err)
 	}
 
+	applyDefaults(cfg)
+
 	return cfg, nil
 }

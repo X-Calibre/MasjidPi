@@ -52,6 +52,10 @@ func Run() error {
 		_ = mpv.Close()
 	}()
 
+	if err := mpv.Volume(cfg.Player.Volume); err != nil {
+		return err
+	}
+
 	version, err := mpv.Version()
 	if err != nil {
 		return err

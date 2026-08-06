@@ -15,26 +15,6 @@ update_repository() {
         return
     fi
 
-    cd "$PROJECT_ROOT"
+    info "Using local development repository."
 
-    info "Updating repository..."
-
-    git fetch origin
-
-    STATUS="$(git status --porcelain)"
-
-    if [[ -n "$STATUS" ]]; then
-
-        warn "Repository contains local changes."
-
-        warn "Skipping automatic update."
-
-        return
-    fi
-
-    CURRENT_BRANCH="$(git branch --show-current)"
-
-    git pull --ff-only origin "$CURRENT_BRANCH"
-
-    success "Repository updated."
 }

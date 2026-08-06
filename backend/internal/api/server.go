@@ -45,6 +45,7 @@ func New(
 	mux.HandleFunc("/api/player/volume", server.volume)
 	mux.HandleFunc("/api/streams", server.streamsList)
 	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
+	mux.HandleFunc("/api/version", server.version)
 
 	mux.Handle("/", fileServer)
 

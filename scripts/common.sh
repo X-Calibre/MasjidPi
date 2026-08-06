@@ -65,3 +65,38 @@ detect_arch() {
             ;;
     esac
 }
+
+print_summary() {
+
+    VERSION="$(get_version)"
+
+    echo
+    echo "========================================="
+    echo " MasjidPi installation complete"
+    echo "========================================="
+    echo
+
+    echo "Version"
+    echo
+    echo "    $VERSION"
+    echo
+
+    echo "Web Interface"
+    echo
+    echo "    http://localhost:8080"
+    echo
+
+    echo "Service"
+    echo
+    echo "    Active and running"
+    echo
+
+    echo "Useful commands"
+    echo
+    echo "    sudo systemctl status masjidpi"
+    echo "    sudo systemctl restart masjidpi"
+    echo "    sudo systemctl stop masjidpi"
+    echo "    journalctl -u masjidpi -f"
+    echo
+    echo "========================================="
+}

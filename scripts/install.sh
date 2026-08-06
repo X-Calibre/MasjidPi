@@ -41,10 +41,13 @@ main() {
 
     install_service
 
+    start_service
+
     run_selftest
 
-    success ""
     success "Installation completed."
-}
+
+    print_summary
+    }
 
 main "$@"

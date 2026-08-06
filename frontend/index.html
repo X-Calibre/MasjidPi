@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>MasjidPi</title>
 
     <link rel="stylesheet" href="style.css">
@@ -39,7 +41,7 @@
 
     <section class="card">
 
-      <label for="stream">Masjid</label>
+        <label for="stream">Masjid</label>
 
         <select id="stream"></select>
 
@@ -48,40 +50,35 @@
         </button>
 
         <label class="checkbox">
-        <input
-            type="checkbox"
-            id="autoplay">
+            <input type="checkbox" id="autoplay">
+            Auto play on startup
+        </label>
 
-        Auto play on startup
-    </label>
-
-    <label for="volumeSlider">Volume</label>
+        <label for="volumeSlider">Volume</label>
 
         <input
             id="volumeSlider"
             type="range"
-           min="0"
-           max="125"
+            min="0"
+            max="125"
             value="100">
 
         <div id="volumeValue">100%</div>
+
         <small class="volume-note">
             Boost available up to 125%
         </small>
 
         <div class="buttons">
-
-            <button id="play">
-                ▶ Play
-            </button>
-
-            <button id="stop">
-                ■ Stop
-            </button>
-
+            <button id="play">▶ Play</button>
+            <button id="stop">■ Stop</button>
         </div>
 
     </section>
+
+    <footer class="footer">
+        <span id="version">MasjidPi v0.4.0</span>
+    </footer>
 
 </div>
 

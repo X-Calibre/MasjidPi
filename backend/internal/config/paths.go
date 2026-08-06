@@ -23,17 +23,25 @@ func NewPaths(base string) Paths {
 
 func RuntimePaths() (Paths, error) {
 
-	// If MasjidPi is installed, the installer or systemd service
-	// will set MASJIDPI_HOME.
+	// Installed runtime
 	if home := os.Getenv("MASJIDPI_HOME"); home != "" {
 		return NewPaths(home), nil
 	}
 
-	// Development mode (running from backend/)
+	// Development runtime
 	wd, err := os.Getwd()
 	if err != nil {
 		return Paths{}, err
 	}
 
-	return NewPaths(wd), nil
+	projectRoot := filepath.Dir(wd)
+
+	paths := NewPaths(projectRoot)
+
+	// Development layout
+	paths.Config = filepath.Join(projectRoot, "backend", "configs", "default.yaml")
+	paths.Catalogue = filepath.Join(projectRoot, "backend", "data", "catalogue.json")
+	paths.Frontend = filepath.Join(projectRoot, "frontend")
+
+	return paths, nil
 }

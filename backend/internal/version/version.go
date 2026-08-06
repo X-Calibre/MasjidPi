@@ -2,5 +2,5 @@ package version
 
 const (
 	AppName = "MasjidPi"
-	Version = "dev"
+	Version = "v0.4.0"
 )

@@ -220,3 +220,11 @@ button {
 .checkbox input {
     width: auto;
 }
+
+.footer {
+    margin-top: 30px;
+    padding: 20px 0;
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+}

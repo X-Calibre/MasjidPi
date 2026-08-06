@@ -12,17 +12,17 @@ The project is intentionally lightweight and designed to run on low-powered Rasp
 
 ---
 
-# About this project
+# About this Project
 
-This project has a unique story.
+MasjidPi has a unique story.
 
-MasjidPi is being developed by someone with **no prior software development experience**. Every line of code has been written through an iterative collaboration with AI, while the project vision, feature decisions, testing, and overall direction remain human-driven.
+It is being developed by someone with **no prior software development experience**. Every line of code has been written through an iterative collaboration with AI, while the project vision, feature decisions, testing, and overall direction remain human-driven.
 
-Rather than using AI to generate an application in one step, every feature is designed, implemented, tested and refined through many small iterations.
+Rather than asking AI to generate an application in one step, every feature is designed, implemented, tested, refined and documented through many small iterations.
 
-The goal is not only to build a reliable Raspberry Pi streaming appliance, but also to demonstrate how AI can help people learn software engineering through practical, real-world projects.
+The goal is not only to build a useful piece of software, but also to demonstrate that modern AI tools can empower people without formal programming backgrounds to create high-quality open-source software through curiosity, persistence and careful testing.
 
-If the project inspires someone else to learn software development, then it has already been a success.
+If this project inspires someone else to begin learning software development, then it has already been a success.
 
 ---
 
@@ -37,7 +37,7 @@ A Raspberry Pi connected to speakers that allows users to:
 - Resume playback after power loss
 - Be managed entirely through a web browser
 
-MasjidPi is designed to run comfortably on hardware as small as the Raspberry Pi Zero 2 W while remaining extensible for future features.
+MasjidPi is designed to run comfortably on hardware as small as the Raspberry Pi Zero while remaining extensible for future features.
 
 ---
 
@@ -52,169 +52,150 @@ MasjidPi follows a few simple principles.
 - Prefer simple, maintainable code over clever code.
 - Keep the application fully self-contained whenever practical.
 - Minimise external dependencies.
+- Build incrementally and test every feature.
 
 ---
 
 # Current Features
 
-- Web-based player interface
+- Responsive web-based player interface
 - Live playback status
-- Current stream name and relay URL
 - Volume control (0–125%)
-- MPV audio playback
-- Local JSON stream catalogue
+- MPV-based audio playback
+- Local stream catalogue
 - Automatic catalogue generation from LiveMasjid
-- One-click catalogue update
-- Hot reload of the catalogue without restarting
-- Automatically generated relay URLs
+- Preserve LiveMasjid stream ordering
+- Generate relay URLs automatically
 - Play streams by catalogue selection
 - Remember the last selected stream
-- Automatically wait and reconnect when a selected stream is temporarily unavailable
 - Optional automatic playback on startup
-- Responsive mobile-friendly interface
+- Runtime catalogue updates without restarting
+- Installable as a Linux systemd service
+- Automatic startup on boot
+- Installer self-test
 
 ---
 
 # Planned Features
 
-- Detect offline streams
-- Gracefully handle unavailable streams
-- Searchable catalogue
+- Automatic application updates
+- Searchable stream catalogue
 - Favourite masājid
+- Graceful handling of offline streams
 - OLED display support
 - Push-button controls
 - Audio equaliser
 - Multi-language interface
+- Read-only Raspberry Pi mode
+
+---
+
+# Requirements
+
+Currently MasjidPi supports:
+
+- Linux
+- Go 1.26 or newer
+- MPV
+- Git
+
+Supported hardware currently includes:
+
+- Raspberry Pi Zero
+- Raspberry Pi Zero 2 W
+- Raspberry Pi 3
+- Raspberry Pi 4
+- Raspberry Pi 5
+- Standard Linux PCs (development)
 
 ---
 
 # Installation
 
-MasjidPi provides an automated installer that downloads all required dependencies, installs Go (if necessary), builds the application, and performs a self-test.
-
-## Supported Platforms
-
-The installer currently supports:
-
-- Debian 12+
-- Ubuntu 24.04+
-- Raspberry Pi OS Bookworm
-
-Additional Linux distributions may work but have not yet been officially tested.
-
----
-
-## Clone the repository
+Clone the repository:
 
 ```bash
 git clone https://github.com/X-Calibre/MasjidPi.git
 cd MasjidPi
 ```
 
----
-
-## Run the installer
-
-The installer requires sudo privileges to install system packages.
+Run the installer:
 
 ```bash
-chmod +x install.sh
-./install.sh
+sudo ./scripts/install.sh
 ```
 
-The installer will automatically:
+The installer automatically:
 
-- Detect your operating system
-- Install all required system packages
-- Install Go (if it is not already installed)
-- Build MasjidPi
-- Verify the installation by running a self-test
-- Confirm that audio playback is available
-
-A successful installation will end with output similar to:
-
-```text
-[ OK ] Dependencies installed.
-[ OK ] Go 1.26.5 installed.
-[ OK ] Build complete.
-[ OK ] Application started successfully.
-[ OK ] Audio device detected.
-[ OK ] Installation completed.
-```
+- Detects your operating system
+- Installs missing dependencies
+- Installs Go (if required)
+- Builds MasjidPi
+- Installs the runtime
+- Installs the systemd service
+- Enables automatic startup
+- Performs a self-test to verify the installation
 
 ---
 
-## Running MasjidPi
+# Runtime Layout
 
-After installation, start the application from the project directory:
+MasjidPi installs into:
+
+```
+/opt/masjidpi
+├── bin
+│   └── masjidpi
+├── configs
+│   └── default.yaml
+├── data
+│   └── catalogue.json
+└── frontend
+    ├── index.html
+    ├── app.js
+    └── style.css
+```
+
+The application runs as a Linux systemd service and automatically starts during boot.
+
+---
+
+# Development
+
+To run directly from the source tree:
 
 ```bash
 make run
 ```
 
-or manually:
+or
 
 ```bash
 cd backend
-./masjidpi
-```
-
-When MasjidPi starts successfully you should see:
-
-```text
-Starting application
-Configuration loaded
-Loaded stream catalogue
-Connected to MPV
-Starting HTTP server
+go run ./cmd/masjidpi
 ```
 
 ---
 
-## Open the Web Interface
+# Web Interface
 
-Open your web browser and navigate to:
+After installation, open your browser and navigate to:
 
 ```
 http://localhost:8080
 ```
 
-If MasjidPi is running on another computer or Raspberry Pi, replace `localhost` with its IP address.
-
-For example:
-
-```
-http://192.168.1.100:8080
-```
----
-
-# Updating the Stream Catalogue
-
-MasjidPi builds its local catalogue directly from the LiveMasjid website.
-
-To refresh the catalogue:
-
-1. Open the web interface.
-2. Click **Update Catalogue**.
-3. MasjidPi downloads the latest catalogue from LiveMasjid.
-4. The local catalogue is regenerated and reloaded automatically.
-5. No application restart is required.
+If MasjidPi is running on another computer or Raspberry Pi, replace `localhost` with the IP address of that machine.
 
 ---
 
-# Playback Behaviour
+# Updating the Catalogue
 
-MasjidPi now treats Play as "listen to this masjid" rather than "play this URL once".
+MasjidPi downloads and parses the latest stream catalogue from LiveMasjid.
 
-If the selected stream is offline, MasjidPi keeps the masjid selected and waits before trying again. If playback disconnects unexpectedly, MasjidPi waits briefly and then reconnects automatically.
+The catalogue can currently be updated from the web interface using the **Update Catalogue** button.
 
----
-
-# Current Limitations
-
-MasjidPi uses MPV playback state to detect stream availability.
-
-More detailed user-friendly playback error messages are still under development.
+Future releases will include scheduled automatic updates.
 
 ---
 
@@ -222,9 +203,24 @@ More detailed user-friendly playback error messages are still under development.
 
 MasjidPi is currently in active development.
 
-The application is already suitable for everyday listening, while additional reliability improvements and Raspberry Pi-specific features continue to be added.
+The following components are complete:
 
-Breaking changes may still occur before the first stable release.
+- Core player
+- Stream catalogue
+- Catalogue updater
+- Installer
+- Runtime environment
+- Systemd integration
+
+Current development is focused on:
+
+- Automatic application updates
+- Playback reliability
+- Search
+- Favourites
+- Raspberry Pi optimisation
+
+Breaking changes may still occur before version 1.0.
 
 ---
 

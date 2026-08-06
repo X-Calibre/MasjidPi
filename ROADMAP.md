@@ -40,34 +40,61 @@ Stream catalogue
 
 Catalogue updater
 
+### Completed
+
 - Download LiveMasjid catalogue
 - Parse LiveMasjid HTML
 - Generate local catalogue
 - Preserve LiveMasjid stream order
 - Generate relay URLs automatically
 - Normalise stream names and locations
-- Reload catalogue without restarting the application
+- Reload catalogue without restarting
 - Catalogue update API
-- Update Catalogue button in the web UI
+- Update Catalogue button in the web interface
 
 ---
 
-## 🚧 Milestone 0.5
+## ✅ Milestone 0.5
 
-Playback improvements
+Installer & Runtime
 
-### Playback reliability
+### Completed
 
-- Detect streams that are offline
+- Runtime directory layout
+- Runtime path abstraction
+- Automatic dependency installation
+- Go installation
+- Build automation
+- Runtime installation
+- systemd service installation
+- Automatic startup on boot
+- Installer self-test
+
+---
+
+## 🚧 Milestone 0.6
+
+Update mechanism
+
+### Remaining
+
+- Detect newer versions
+- Automatic repository updates
+- Restart service after update
+- Preserve local configuration
+- End-user installer (future)
+
+---
+
+## 🚧 Milestone 0.7
+
+Playback reliability
+
+- Detect offline streams
 - Gracefully handle unavailable streams
-- Display playback errors in the UI
+- Display playback errors
 - Prevent endless reconnect attempts
-
-### Stream information
-
-- Display current stream name and relay URL
-- Show whether a stream is online or offline
-- Indicate buffering and reconnecting states
+- Automatic recovery after temporary failures
 
 ---
 
@@ -87,7 +114,7 @@ Playback improvements
 ### Hardware
 
 - OLED display
-- Push buttons
+- Push-button controls
 
 ### Audio
 
@@ -97,13 +124,11 @@ Playback improvements
 ### Raspberry Pi
 
 - Kiosk mode
-- Read-only filesystem
-- Automatic startup
-- Systemd service
+- Read-only mode
+- Automatic updates
 
-### Settings
+### User Experience
 
-- Persist application settings
-- Remember volume
-- Remember autoplay
-- Remember last selected stream
+- Multi-language interface
+- First-run setup wizard
+- Web-based configuration

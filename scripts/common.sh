@@ -5,6 +5,9 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+INSTALL_DIR="/opt/masjidpi"
+SERVICE_NAME="masjidpi"
+
 RED="\033[31m"
 GREEN="\033[32m"
 YELLOW="\033[33m"

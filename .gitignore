@@ -33,3 +33,4 @@ Thumbs.db
 # Temporary files
 backend/data/livemasjid.js
 backend/data/*.html
+backend/build/

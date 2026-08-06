@@ -23,10 +23,11 @@ func New(
 	logger *slog.Logger,
 	playback *playback.Manager,
 	streams *stream.Store,
+	frontend string,
 ) *Server {
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("../frontend"))
+	fileServer := http.FileServer(http.Dir(frontend))
 
 	server := &Server{
 		logger:   logger,

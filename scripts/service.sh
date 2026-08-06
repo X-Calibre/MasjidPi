@@ -13,6 +13,7 @@ install_service() {
     systemctl daemon-reload
 
     systemctl enable masjidpi
+    systemctl restart masjidpi
 
-    success "Systemd service installed."
+    success "Systemd service installed and started."
 }

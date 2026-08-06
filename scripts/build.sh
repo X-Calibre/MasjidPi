@@ -6,7 +6,9 @@ build_project() {
 
     cd "$PROJECT_ROOT/backend"
 
-    go build -o masjidpi ./cmd/masjidpi
+    mkdir -p build
+
+    go build -o build/masjidpi ./cmd/masjidpi
 
     success "Build complete."
 }

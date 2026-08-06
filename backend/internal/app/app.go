@@ -25,14 +25,19 @@ func Run() error {
 		"version", version.Version,
 	)
 
-	cfg, err := config.Load("configs/default.yaml")
+	paths, err := config.RuntimePaths()
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.Load(paths.Config)
 	if err != nil {
 		return err
 	}
 
 	log.Info("Configuration loaded")
 
-	streamStore, err := stream.New("data/catalogue.json")
+	streamStore, err := stream.New(paths.Catalogue)
 	if err != nil {
 		return err
 	}
@@ -101,6 +106,7 @@ func Run() error {
 		log,
 		playbackManager,
 		streamStore,
+		paths.Frontend,
 	)
 
 	go func() {

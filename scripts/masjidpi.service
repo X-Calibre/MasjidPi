@@ -1,0 +1,20 @@
+[Unit]
+Description=MasjidPi Internet Radio
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+User=root
+WorkingDirectory=/opt/masjidpi
+
+Environment=MASJIDPI_HOME=/opt/masjidpi
+
+ExecStart=/opt/masjidpi/bin/masjidpi
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

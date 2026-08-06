@@ -126,20 +126,6 @@ async function updateCatalogue() {
     return response.json();
 }
 
-async function loadVersion() {
-
-    const response = await fetch("/api/version");
-
-    if (!response.ok) {
-        return;
-    }
-
-    const version = await response.json();
-
-    document.getElementById("version").textContent =
-        version.version;
-}
-
 // ---------- Helpers ----------
 
 function findStreamByURL(url) {
@@ -153,6 +139,9 @@ async function refreshStatus() {
     try {
 
         const status = await getStatus();
+
+        document.getElementById("version").textContent =
+            "MasjidPi " + status.version;
 
         state.textContent = status.state.toUpperCase();
 
@@ -310,8 +299,6 @@ async function initialize() {
     await loadStreams();
 
     await refreshStatus();
-
-    await loadVersion();
 
     autoplay.checked =
         localStorage.getItem("autoplay") === "true";

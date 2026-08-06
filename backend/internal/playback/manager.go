@@ -7,6 +7,7 @@ import (
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
 const (
@@ -91,7 +92,8 @@ func New(player Player, cfg Config) *Manager {
 		wake:           make(chan struct{}, 1),
 		state:          StateIdle,
 		status: Status{
-			State: string(StateIdle),
+			Version: version.Version,
+			State:   string(StateIdle),
 		},
 	}
 }
@@ -272,7 +274,6 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 	}
 
 	if playerStatus != nil {
-		status.Version = playerStatus.Version
 		status.URL = playerStatus.URL
 		status.Volume = playerStatus.Volume
 		status.Paused = playerStatus.Paused

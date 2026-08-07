@@ -1,4 +1,12 @@
+#!/usr/bin/env bash
+
 get_version() {
-    sed -n 's/.*Version = "\(.*\)"/\1/p' \
-        "$PROJECT_ROOT/backend/internal/version/version.go"
+
+    local version_file="$PROJECT_ROOT/version.json"
+
+    if [[ -f "$version_file" ]]; then
+        jq -r '.version' "$version_file"
+    else
+        echo "development"
+    fi
 }

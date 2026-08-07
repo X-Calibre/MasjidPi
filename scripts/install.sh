@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 source "$SCRIPT_DIR/common.sh"
 source "$SCRIPT_DIR/os.sh"
+source "$SCRIPT_DIR/version.sh"
 source "$SCRIPT_DIR/packages.sh"
 source "$SCRIPT_DIR/go.sh"
 source "$SCRIPT_DIR/github.sh"

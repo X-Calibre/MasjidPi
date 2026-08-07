@@ -1,4 +1,5 @@
 let catalogue = [];
+let backendOnline = true;
 
 // ---------- DOM ----------
 
@@ -128,6 +129,63 @@ async function updateCatalogue() {
 
 // ---------- Helpers ----------
 
+function showToast(message, type = "success") {
+
+    const container =
+        document.getElementById("toastContainer");
+
+    const toast =
+        document.createElement("div");
+
+    toast.className =
+        "toast toast-" + type;
+
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+
+        toast.style.opacity = "0";
+        toast.style.transition = "opacity .3s";
+
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+
+    }, 3000);
+
+}
+
+function setBusy(button, busy, busyText, normalText) {
+
+    button.disabled = busy;
+
+    if (busy) {
+        button.dataset.label = normalText;
+        button.textContent = busyText;
+    } else {
+        button.textContent =
+            button.dataset.label || normalText;
+    }
+
+}
+
+function setOffline(offline) {
+
+    const banner =
+        document.getElementById("offlineBanner");
+
+    banner.classList.toggle("hidden", !offline);
+
+    playButton.disabled = offline;
+    stopButton.disabled = offline;
+    streamInput.disabled = offline;
+    volumeSlider.disabled = offline;
+    updateCatalogueButton.disabled = offline;
+
+}
+
 function findStreamByURL(url) {
     return catalogue.find(stream => stream.url === url);
 }
@@ -139,6 +197,19 @@ async function refreshStatus() {
     try {
 
         const status = await getStatus();
+
+        if (!backendOnline) {
+
+            backendOnline = true;
+
+            setOffline(false);
+
+            showToast(
+                "Connection to MasjidPi restored.",
+                "success"
+            );
+
+    }
 
         document.getElementById("version").textContent =
             "MasjidPi " + status.version;
@@ -180,6 +251,19 @@ async function refreshStatus() {
 
         console.error(err);
 
+        if (backendOnline) {
+
+            backendOnline = false;
+
+            setOffline(true);
+
+            showToast(
+                "Connection to MasjidPi lost.",
+                "error"
+            );
+
+        }
+
     }
 }
 
@@ -197,9 +281,16 @@ streamInput.addEventListener("change", () => {
 playButton.addEventListener("click", async () => {
 
     if (!streamInput.value) {
-        alert("Please select a masjid");
+        showToast("Please select a masjid.", "warning");
         return;
     }
+
+    setBusy(
+        playButton,
+        true,
+        "Playing...",
+        "▶ Play"
+    );
 
     try {
 
@@ -209,13 +300,29 @@ playButton.addEventListener("click", async () => {
 
     } catch (err) {
 
-        alert(err.message);
+        showToast(err.message, "error");
+
+    } finally {
+
+        setBusy(
+            playButton,
+            false,
+            "Playing...",
+            "▶ Play"
+        );
 
     }
 
 });
 
 stopButton.addEventListener("click", async () => {
+
+    setBusy(
+        stopButton,
+        true,
+        "Stopping...",
+        "■ Stop"
+    );
 
     try {
 
@@ -225,7 +332,16 @@ stopButton.addEventListener("click", async () => {
 
     } catch (err) {
 
-        alert(err.message);
+        showToast(err.message, "error");
+
+    } finally {
+
+        setBusy(
+            stopButton,
+            false,
+            "Stopping...",
+            "■ Stop"
+        );
 
     }
 
@@ -270,23 +386,31 @@ updateCatalogueButton.addEventListener("click", async () => {
 
     try {
 
-        updateCatalogueButton.disabled = true;
-        updateCatalogueButton.textContent = "Updating...";
+        setBusy(
+            updateCatalogueButton,
+            true,
+            "Updating...",
+            "🔄 Update Catalogue"
+        );
 
         await updateCatalogue();
         await loadStreams();
         await refreshStatus();
 
-        alert("Catalogue updated successfully.");
+        showToast("Catalogue updated successfully.", "success");
 
     } catch (err) {
 
-        alert(err.message);
+        showToast(err.message, "error");
 
     } finally {
 
-        updateCatalogueButton.disabled = false;
-        updateCatalogueButton.textContent = "🔄 Update Catalogue";
+        setBusy(
+            updateCatalogueButton,
+            false,
+            "Updating...",
+            "🔄 Update Catalogue"
+        );
 
     }
 

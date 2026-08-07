@@ -15,16 +15,28 @@
         "url": "https://relay.livemasjid.com:8443/activetakbeer"
     },
     {
-        "id": "hamidiya",
-        "name": "Hamidiya Musalla, Leicester, UK",
-        "location": "11 Abbotsford Rd, Rowlatts Hill, Leicester LE5 4DA, UK",
-        "url": "https://relay.livemasjid.com:8443/hamidiya"
+        "id": "saadiqeen",
+        "name": "Darul Uloom Madrasatus Saadiqeen, Jhb, RSA",
+        "location": "33 Kindon Road, Robertsham, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/saadiqeen"
     },
     {
-        "id": "nui",
-        "name": "Noor Ul Islam - United Kingdom",
-        "location": "713 High Rd Leyton, London E10 5AB, UK",
-        "url": "https://relay.livemasjid.com:8443/nui"
+        "id": "umarzambia",
+        "name": "Masjid Umar Al Farooq - Lusaka, Zambia",
+        "location": "Plot 16837 Chakwala Road Kamwala Lusaka",
+        "url": "https://relay.livemasjid.com:8443/umarzambia"
+    },
+    {
+        "id": "muhajireen",
+        "name": "Masjid al Muhajireen wal Ansar",
+        "location": "10 Concord Pl, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/muhajireen"
+    },
+    {
+        "id": "letlhkane",
+        "name": "Masjid ul Firdous, Letlhkane, Botswana",
+        "location": "JH3J+Q97, Letlhakane, Botswana",
+        "url": "https://relay.livemasjid.com:8443/letlhkane"
     },
     {
         "id": "makkah",
@@ -346,12 +358,6 @@
         "url": "https://relay.livemasjid.com:8443/duh"
     },
     {
-        "id": "saadiqeen",
-        "name": "Darul Uloom Madrasatus Saadiqeen, Jhb, RSA",
-        "location": "33 Kindon Road, Robertsham, Johannesburg, Gauteng, South Africa",
-        "url": "https://relay.livemasjid.com:8443/saadiqeen"
-    },
-    {
         "id": "dumf",
         "name": "Darul Uloom Miftahul Falaah, Port Shepstone, Kzn, RSA",
         "location": "2 Boundary Rd, Oslo Beach, Port Shepstone, South Africa",
@@ -443,6 +449,12 @@
         "name": "Hafiz Qaasim Paruk, Pietermaritzburg, Kzn, RSA",
         "location": "5 Wallace Road, Manor, Pietermaritzburg, Kwazulu Natal, South Africa",
         "url": "https://relay.livemasjid.com:8443/hafizqaasim"
+    },
+    {
+        "id": "hamidiya",
+        "name": "Hamidiya Musalla, Leicester, UK",
+        "location": "11 Abbotsford Rd, Rowlatts Hill, Leicester LE5 4DA, UK",
+        "url": "https://relay.livemasjid.com:8443/hamidiya"
     },
     {
         "id": "harding",
@@ -1206,6 +1218,11 @@
         "url": "https://relay.livemasjid.com:8443/ibaadurrahmaanuitenhage"
     },
     {
+        "id": "mozibrahim",
+        "name": "Masjid Ibrahim A.S, Maputo, Mozambique",
+        "url": "https://relay.livemasjid.com:8443/mozibrahim"
+    },
+    {
         "id": "masjidibrahim",
         "name": "Masjid Ibrahim, Perth, Australia",
         "location": "1526 Leslie St, Southern River WA 6110, Australia",
@@ -1442,12 +1459,6 @@
         "url": "https://relay.livemasjid.com:8443/delmas"
     },
     {
-        "id": "umarzambia",
-        "name": "Masjid Umar Al Farooq - Lusaka, Zambia",
-        "location": "Plot 16837 Chakwala Road Kamwala Lusaka",
-        "url": "https://relay.livemasjid.com:8443/umarzambia"
-    },
-    {
         "id": "mozumar",
         "name": "Masjid Umar Coop, Maputo, Mozambique",
         "url": "https://relay.livemasjid.com:8443/mozumar"
@@ -1520,12 +1531,6 @@
         "name": "Masjid al Kawthar, Fourways, Jhb, RSA",
         "location": "1 Osprey Avenue, Fourways, Johannesburg, Gauteng, South Africa",
         "url": "https://relay.livemasjid.com:8443/fourways"
-    },
-    {
-        "id": "muhajireen",
-        "name": "Masjid al Muhajireen wal Ansar",
-        "location": "10 Concord Pl, Lenasia, 1821, South Africa",
-        "url": "https://relay.livemasjid.com:8443/muhajireen"
     },
     {
         "id": "reigerpark",
@@ -1622,12 +1627,6 @@
         "name": "Masjid ul Firdaus, Polokwane, Limpopo, RSA",
         "location": "266 Orient Drive, Nirvana X1, Polokwane, Limpopo, 0699",
         "url": "https://relay.livemasjid.com:8443/nirvanapolokwane"
-    },
-    {
-        "id": "letlhkane",
-        "name": "Masjid ul Firdous, Letlhkane, Botswana",
-        "location": "JH3J+Q97, Letlhakane, Botswana",
-        "url": "https://relay.livemasjid.com:8443/letlhkane"
     },
     {
         "id": "atholl",
@@ -2181,6 +2180,12 @@
         "url": "https://relay.livemasjid.com:8443/newtown"
     },
     {
+        "id": "nui",
+        "name": "Noor Ul Islam - United Kingdom",
+        "location": "713 High Rd Leyton, London E10 5AB, UK",
+        "url": "https://relay.livemasjid.com:8443/nui"
+    },
+    {
         "id": "fxbnoor",
         "name": "Noor-e-Taibah Masjid - Ficksburg",
         "location": "60 Bosch St, Ficksburg, 9730, South Africa",
@@ -2355,6 +2360,12 @@
         "name": "Selebi Phikwe Masjid - Botswana",
         "location": "Plot 5165 Independence Rd, Selebi Phikwe, Botswana",
         "url": "https://relay.livemasjid.com:8443/selebiphikwe"
+    },
+    {
+        "id": "shanulislam",
+        "name": "Shanul Islam Masjid, JHB",
+        "location": "2 Neon Ave, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/shanulislam"
     },
     {
         "id": "shellybeach",

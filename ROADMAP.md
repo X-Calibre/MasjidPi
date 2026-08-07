@@ -76,19 +76,25 @@ Installer & Runtime
 
 Update mechanism
 
-### Remaining
+### Planned
 
-- Detect newer versions
-- Automatic repository updates
-- Restart service after update
+- Runtime layout abstraction
+- Separate application from user data
+- Detect newer releases
+- Download release package
+- Install update
+- Restart service
 - Preserve local configuration
+- Preserve catalogue and user data
 - End-user installer (future)
 
 ---
 
-## 🚧 Milestone 0.7
+## ✅ Milestone 0.7
 
 Playback reliability
+
+### Completed
 
 - Detect offline streams
 - Gracefully handle unavailable streams

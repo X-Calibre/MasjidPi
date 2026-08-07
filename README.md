@@ -16,7 +16,7 @@ The project is intentionally lightweight and designed to run on low-powered Rasp
 
 MasjidPi has a unique story.
 
-It is being developed by someone with **no prior software development experience**. Every line of code has been written through an iterative collaboration with AI, while the project vision, feature decisions, testing, and overall direction remain human-driven.
+It is being developed by someone with **no prior software development experience**. Every line of code has been developed through an iterative collaboration with AI, while the project vision, feature decisions, testing, and overall direction remain human-driven.
 
 Rather than asking AI to generate an application in one step, every feature is designed, implemented, tested, refined and documented through many small iterations.
 
@@ -68,6 +68,7 @@ MasjidPi follows a few simple principles.
 - Generate relay URLs automatically
 - Play streams by catalogue selection
 - Remember the last selected stream
+- Automatic reconnection to selected masjid when broadcasts resume
 - Optional automatic playback on startup
 - Runtime catalogue updates without restarting
 - Installable as a Linux systemd service
@@ -76,12 +77,24 @@ MasjidPi follows a few simple principles.
 
 ---
 
+## Recent Improvements
+
+- Automatic LiveMasjid catalogue updates
+- Runtime path abstraction
+- Automatic recovery from offline streams
+- "Waiting for Masjid" playback state
+- Persistent frontend settings
+- Responsive web interface
+- Installation self-test
+- systemd service support
+
+---
+
 # Planned Features
 
 - Automatic application updates
 - Searchable stream catalogue
 - Favourite masājid
-- Graceful handling of offline streams
 - OLED display support
 - Push-button controls
 - Audio equaliser
@@ -158,6 +171,8 @@ MasjidPi installs into:
 
 The application runs as a Linux systemd service and automatically starts during boot.
 
+This runtime layout will evolve in future releases as the automatic update mechanism is introduced.
+
 ---
 
 # Development
@@ -215,7 +230,6 @@ The following components are complete:
 Current development is focused on:
 
 - Automatic application updates
-- Playback reliability
 - Search
 - Favourites
 - Raspberry Pi optimisation

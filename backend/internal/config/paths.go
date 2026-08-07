@@ -6,18 +6,26 @@ import (
 )
 
 type Paths struct {
-	Base      string
+	AppRoot    string
+	DataRoot   string
+	ConfigRoot string
+
 	Config    string
 	Catalogue string
 	Frontend  string
+	Version   string
 }
 
 func NewPaths(base string) Paths {
 	return Paths{
-		Base:      base,
-		Config:    filepath.Join(base, "configs", "default.yaml"),
-		Catalogue: filepath.Join(base, "data", "catalogue.json"),
+		AppRoot:    base,
+		DataRoot:   filepath.Join(base, "backend", "data"),
+		ConfigRoot: filepath.Join(base, "backend", "configs"),
+
+		Config:    filepath.Join(base, "backend", "configs", "default.yaml"),
+		Catalogue: filepath.Join(base, "backend", "data", "catalogue.json"),
 		Frontend:  filepath.Join(base, "frontend"),
+		Version:   filepath.Join(base, "version.json"),
 	}
 }
 
@@ -25,7 +33,17 @@ func RuntimePaths() (Paths, error) {
 
 	// Installed runtime
 	if home := os.Getenv("MASJIDPI_HOME"); home != "" {
-		return NewPaths(home), nil
+
+		return Paths{
+			AppRoot:    home,
+			DataRoot:   "/var/lib/masjidpi",
+			ConfigRoot: "/etc/masjidpi",
+
+			Config:    "/etc/masjidpi/config.yaml",
+			Catalogue: "/var/lib/masjidpi/catalogue.json",
+			Frontend:  filepath.Join(home, "frontend"),
+			Version:   filepath.Join(home, "version.json"),
+		}, nil
 	}
 
 	// Development runtime
@@ -36,12 +54,16 @@ func RuntimePaths() (Paths, error) {
 
 	projectRoot := filepath.Dir(wd)
 
-	paths := NewPaths(projectRoot)
+	paths := Paths{
+		AppRoot:    projectRoot,
+		DataRoot:   filepath.Join(projectRoot, "backend", "data"),
+		ConfigRoot: filepath.Join(projectRoot, "backend", "configs"),
 
-	// Development layout
-	paths.Config = filepath.Join(projectRoot, "backend", "configs", "default.yaml")
-	paths.Catalogue = filepath.Join(projectRoot, "backend", "data", "catalogue.json")
-	paths.Frontend = filepath.Join(projectRoot, "frontend")
+		Config:    filepath.Join(projectRoot, "backend", "configs", "default.yaml"),
+		Catalogue: filepath.Join(projectRoot, "backend", "data", "catalogue.json"),
+		Frontend:  filepath.Join(projectRoot, "frontend"),
+		Version:   filepath.Join(projectRoot, "version.json"),
+	}
 
 	return paths, nil
 }

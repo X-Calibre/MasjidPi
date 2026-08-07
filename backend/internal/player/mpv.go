@@ -153,14 +153,14 @@ func (m *MPV) Status() (*Status, error) {
 		return nil, fmt.Errorf("volume is %T (%v)", volumeValue, volumeValue)
 	}
 
-	idleValue, err := m.GetProperty("idle-active")
+	idleValue, err := m.GetProperty("core-idle")
 	if err != nil {
 		return nil, err
 	}
 
 	idle, ok := idleValue.(bool)
 	if !ok {
-		return nil, fmt.Errorf("idle-active is %T (%v)", idleValue, idleValue)
+		return nil, fmt.Errorf("core-idle is %T (%v)", idleValue, idleValue)
 	}
 
 	state := "playing"

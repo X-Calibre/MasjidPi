@@ -176,14 +176,27 @@ button {
 
 /* ---------- Status Badge ---------- */
 
-.status-playing,
-.status-stopped {
+.status-badge {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 999px;
     font-size: 14px;
     font-weight: bold;
-    text-transform: uppercase;
+}
+
+.status-idle {
+    background: rgba(160,160,160,.15);
+    color: #bbbbbb;
+}
+
+.status-waiting {
+    background: rgba(80,150,255,.15);
+    color: #66b3ff;
+}
+
+.status-connecting {
+    background: rgba(255,193,7,.15);
+    color: #ffc107;
 }
 
 .status-playing {
@@ -191,7 +204,12 @@ button {
     color: #32c36c;
 }
 
-.status-stopped {
+.status-retrying {
+    background: rgba(255,140,0,.15);
+    color: #ff9800;
+}
+
+.status-error {
     background: rgba(216,75,75,.15);
     color: #d84b4b;
 }
@@ -309,4 +327,12 @@ button {
 
 .hidden {
     display: none;
+}
+
+button:disabled,
+select:disabled,
+input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }

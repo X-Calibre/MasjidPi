@@ -15,28 +15,22 @@
         "url": "https://relay.livemasjid.com:8443/activetakbeer"
     },
     {
-        "id": "saadiqeen",
-        "name": "Darul Uloom Madrasatus Saadiqeen, Jhb, RSA",
-        "location": "33 Kindon Road, Robertsham, Johannesburg, Gauteng, South Africa",
-        "url": "https://relay.livemasjid.com:8443/saadiqeen"
-    },
-    {
-        "id": "umarzambia",
-        "name": "Masjid Umar Al Farooq - Lusaka, Zambia",
-        "location": "Plot 16837 Chakwala Road Kamwala Lusaka",
-        "url": "https://relay.livemasjid.com:8443/umarzambia"
-    },
-    {
-        "id": "muhajireen",
-        "name": "Masjid al Muhajireen wal Ansar",
-        "location": "10 Concord Pl, Lenasia, 1821, South Africa",
-        "url": "https://relay.livemasjid.com:8443/muhajireen"
+        "id": "alfalahmasjidcardiff",
+        "name": "Masjid al falah, Cardiff, United Kingdom",
+        "location": "58 Caerau Lane Cardiff CF5 5HW, United Kingdom",
+        "url": "https://relay.livemasjid.com:8443/alfalahmasjidcardiff"
     },
     {
         "id": "letlhkane",
         "name": "Masjid ul Firdous, Letlhkane, Botswana",
         "location": "JH3J+Q97, Letlhakane, Botswana",
         "url": "https://relay.livemasjid.com:8443/letlhkane"
+    },
+    {
+        "id": "nui",
+        "name": "Noor Ul Islam - United Kingdom",
+        "location": "713 High Rd Leyton, London E10 5AB, UK",
+        "url": "https://relay.livemasjid.com:8443/nui"
     },
     {
         "id": "makkah",
@@ -356,6 +350,12 @@
         "id": "duh",
         "name": "Darul Uloom Heidelberg, Gauteng, RSA",
         "url": "https://relay.livemasjid.com:8443/duh"
+    },
+    {
+        "id": "saadiqeen",
+        "name": "Darul Uloom Madrasatus Saadiqeen, Jhb, RSA",
+        "location": "33 Kindon Road, Robertsham, Johannesburg, Gauteng, South Africa",
+        "url": "https://relay.livemasjid.com:8443/saadiqeen"
     },
     {
         "id": "dumf",
@@ -1220,6 +1220,7 @@
     {
         "id": "mozibrahim",
         "name": "Masjid Ibrahim A.S, Maputo, Mozambique",
+        "location": "2HQ7+WC3, Av. 24 de Julho, Maputo, Mozambique",
         "url": "https://relay.livemasjid.com:8443/mozibrahim"
     },
     {
@@ -1459,6 +1460,12 @@
         "url": "https://relay.livemasjid.com:8443/delmas"
     },
     {
+        "id": "umarzambia",
+        "name": "Masjid Umar Al Farooq - Lusaka, Zambia",
+        "location": "Plot 16837 Chakwala Road Kamwala Lusaka",
+        "url": "https://relay.livemasjid.com:8443/umarzambia"
+    },
+    {
         "id": "mozumar",
         "name": "Masjid Umar Coop, Maputo, Mozambique",
         "url": "https://relay.livemasjid.com:8443/mozumar"
@@ -1533,16 +1540,16 @@
         "url": "https://relay.livemasjid.com:8443/fourways"
     },
     {
+        "id": "muhajireen",
+        "name": "Masjid al Muhajireen wal Ansar",
+        "location": "10 Concord Pl, Lenasia, 1821, South Africa",
+        "url": "https://relay.livemasjid.com:8443/muhajireen"
+    },
+    {
         "id": "reigerpark",
         "name": "Masjid al Noor - Boksburg",
         "location": "1 Goedehoop Ave, Reiger Park, Boksburg, 1459, South Africa",
         "url": "https://relay.livemasjid.com:8443/reigerpark"
-    },
-    {
-        "id": "alfalahmasjidcardiff",
-        "name": "Masjid al falah, Cardiff, United Kingdom",
-        "location": "58 Caerau Lane Cardiff CF5 5HW, United Kingdom",
-        "url": "https://relay.livemasjid.com:8443/alfalahmasjidcardiff"
     },
     {
         "id": "khair",
@@ -2178,12 +2185,6 @@
         "name": "Newtown Masjid, Newtown, Jhb",
         "location": "6 Jennings St, Newtown, Johannesburg, 2113, South Africa",
         "url": "https://relay.livemasjid.com:8443/newtown"
-    },
-    {
-        "id": "nui",
-        "name": "Noor Ul Islam - United Kingdom",
-        "location": "713 High Rd Leyton, London E10 5AB, UK",
-        "url": "https://relay.livemasjid.com:8443/nui"
     },
     {
         "id": "fxbnoor",

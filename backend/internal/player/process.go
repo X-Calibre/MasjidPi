@@ -17,6 +17,7 @@ func NewProcess(socket string) *Process {
 			"mpv",
 			"--idle=yes",
 			"--no-video",
+			"--no-ytdl",
 			"--input-ipc-server="+socket,
 		),
 	}

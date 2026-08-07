@@ -186,6 +186,30 @@ function setOffline(offline) {
 
 }
 
+function updateControls(status) {
+
+    const offline = !backendOnline;
+
+    if (offline) {
+        playButton.disabled = true;
+        stopButton.disabled = true;
+        streamInput.disabled = true;
+        volumeSlider.disabled = true;
+        updateCatalogueButton.disabled = true;
+        return;
+    }
+
+    const playing = status.state === "playing";
+
+    playButton.disabled = playing;
+    stopButton.disabled = !playing;
+
+    streamInput.disabled = false;
+    volumeSlider.disabled = false;
+    updateCatalogueButton.disabled = false;
+
+}
+
 function findStreamByURL(url) {
     return catalogue.find(stream => stream.url === url);
 }
@@ -214,17 +238,17 @@ async function refreshStatus() {
         document.getElementById("version").textContent =
             "MasjidPi " + status.version;
 
-        state.textContent = status.state.toUpperCase();
+        state.textContent = status.message;
 
         state.className =
-            status.state === "playing"
-                ? "status-playing"
-                : "status-stopped";
+            "status-badge status-" + status.state;
 
         volume.textContent = status.volume + "%";
 
         volumeSlider.value = status.volume;
         volumeValue.textContent = status.volume + "%";
+
+        updateControls(status);
 
         if (!status.url) {
 

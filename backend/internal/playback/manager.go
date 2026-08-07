@@ -62,6 +62,7 @@ type Manager struct {
 type Status struct {
 	Version    string `json:"version"`
 	State      string `json:"state"`
+	Message    string `json:"message"`
 	URL        string `json:"url"`
 	Volume     int    `json:"volume"`
 	Paused     bool   `json:"paused"`
@@ -220,7 +221,6 @@ func (m *Manager) monitor(ctx context.Context) (time.Duration, bool) {
 				m.setState(StateRetrying, err.Error(), nil)
 				return m.retryDelay(wasPlaying), true
 			}
-
 			if status.State == "stopped" {
 				m.setState(StateRetrying, "", status)
 				return m.retryDelay(wasPlaying), true
@@ -260,6 +260,30 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 	status := m.status
 
 	status.State = string(m.state)
+	switch m.state {
+
+	case StateIdle:
+		status.Message = "Idle"
+
+	case StateWaiting:
+		status.Message = "Waiting for stream"
+
+	case StateConnecting:
+		status.Message = "Connecting..."
+
+	case StatePlaying:
+		status.Message = "Playing"
+
+	case StateRetrying:
+		status.Message = "Waiting for masjid"
+
+	case StateError:
+		status.Message = "Playback error"
+
+	default:
+		status.Message = ""
+	}
+
 	status.Listening = m.listening
 	status.Error = m.lastError
 

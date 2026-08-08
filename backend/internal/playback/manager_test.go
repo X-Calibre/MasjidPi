@@ -95,6 +95,7 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 	manager := New(fake, Config{
 		RetryInterval:       10 * time.Millisecond,
 		ReconnectDelay:      10 * time.Millisecond,
+		StartupGracePeriod:  1 * time.Millisecond,
 		StatusCheckInterval: 10 * time.Millisecond,
 	})
 
@@ -103,6 +104,69 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 
 	manager.Start(ctx)
 	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+
+	waitFor(t, time.Second, func() bool {
+		return fake.playCount() >= 2
+	})
+}
+
+func TestManagerWaitsForLiveStatusBeforePlaying(t *testing.T) {
+	fake := &fakePlayer{}
+	manager := New(fake, Config{
+		StartupGracePeriod: 200 * time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+
+	waitFor(t, time.Second, func() bool {
+		return fake.playCount() == 1
+	})
+
+	if status := manager.Status(); status.State != string(StateConnecting) {
+		t.Fatalf("state = %q, want %q", status.State, StateConnecting)
+	}
+
+	waitFor(t, time.Second, func() bool {
+		return manager.Status().State == string(StatePlaying)
+	})
+
+	if got := fake.playCount(); got != 1 {
+		t.Fatalf("play calls = %d, want 1", got)
+	}
+}
+
+func TestManagerDoesNotRetryDuringStartupGracePeriod(t *testing.T) {
+	fake := &fakePlayer{
+		statuses: []*player.Status{
+			{State: "stopped", URL: "relay://one", Volume: 70},
+			{State: "stopped", URL: "relay://one", Volume: 70},
+		},
+	}
+
+	manager := New(fake, Config{
+		RetryInterval:       10 * time.Millisecond,
+		StartupGracePeriod:  100 * time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+
+	waitFor(t, 50*time.Millisecond, func() bool {
+		return manager.Status().State == string(StateConnecting)
+	})
+
+	if got := fake.playCount(); got != 1 {
+		t.Fatalf("play calls during grace period = %d, want 1", got)
+	}
 
 	waitFor(t, time.Second, func() bool {
 		return fake.playCount() >= 2

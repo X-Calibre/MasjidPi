@@ -14,6 +14,7 @@ const (
 	DefaultRetryInterval  = 30 * time.Second
 	DefaultReconnectDelay = 5 * time.Second
 	statusCheckInterval   = time.Second
+	stateLoopInterval     = 50 * time.Millisecond
 )
 
 type State string
@@ -34,6 +35,9 @@ type Player interface {
 	Status() (*player.Status, error)
 }
 
+// Availability supplies push-based stream availability information.
+// Implementations maintain the availability cache from LiveMasjid events;
+// the playback manager only reads that local cache and never polls LiveMasjid.
 type Availability interface {
 	IsAvailable(mount string) (available bool, known bool)
 	Events() <-chan string
@@ -94,8 +98,8 @@ func New(player Player, cfg Config) *Manager {
 		retryInterval:  cfg.RetryInterval,
 		reconnectDelay: cfg.ReconnectDelay,
 		statusInterval: cfg.StatusCheckInterval,
-		wake:           make(chan struct{}, 1),
-		state:          StateIdle,
+		wake:            make(chan struct{}, 1),
+		state:           StateIdle,
 		status: Status{
 			Version: version.Version,
 			State:   string(StateIdle),
@@ -152,145 +156,131 @@ func (m *Manager) Status() Status {
 }
 
 func (m *Manager) run(ctx context.Context) {
+	loop := time.NewTicker(stateLoopInterval)
+	defer loop.Stop()
+
+	statusTicker := time.NewTicker(m.statusInterval)
+	defer statusTicker.Stop()
+
 	active := false
+	playing := false
+	nextAttempt := time.Time{}
 
-	for {
-		selected, listening, availability := m.snapshot()
-
-		if ctx.Err() != nil {
-			if active {
-				_ = m.player.Stop()
-			}
-			return
-		}
-
-		if !listening || selected == nil {
-			if active {
-				_ = m.player.Stop()
-				active = false
-			}
-			m.setState(StateIdle, "", nil)
-			if !m.wait(ctx, 0) {
-				return
-			}
-			continue
-		}
-
-		if availability != nil {
-			available, known := availability.IsAvailable(selected.ID)
-			if !known || !available {
-				if active {
-					_ = m.player.Stop()
-					active = false
-				}
-				m.setState(StateWaiting, "", nil)
-				if !m.waitForAvailability(ctx, selected.ID, availability) {
-					return
-				}
-				continue
-			}
-		}
-
-		m.setState(StateConnecting, "", nil)
-		if err := m.player.Play(selected.URL); err != nil {
-			m.setState(StateRetrying, err.Error(), nil)
-			if !m.wait(ctx, m.retryInterval) {
-				return
-			}
-			continue
-		}
-
-		active = true
-		delay, ok := m.monitor(ctx, selected.ID, availability)
-		if !ok {
-			return
-		}
-		if delay > 0 && !m.wait(ctx, delay) {
-			return
-		}
-	}
-}
-
-func (m *Manager) monitor(ctx context.Context, mount string, availability Availability) (time.Duration, bool) {
-	ticker := time.NewTicker(m.statusInterval)
-	defer ticker.Stop()
-
-	wasPlaying := false
 	for {
 		select {
 		case <-ctx.Done():
-			_ = m.player.Stop()
-			return 0, false
+			if active {
+				_ = m.player.Stop()
+			}
+			return
 		case <-m.wake:
-			return 0, true
-		case <-ticker.C:
-			if availability != nil {
-				if available, known := availability.IsAvailable(mount); known && !available {
-					m.setState(StateWaiting, "", nil)
-					return 0, m.waitForAvailability(ctx, mount, availability)
-				}
+			m.step(ctx, &active, &playing, &nextAttempt, false)
+		case <-loop.C:
+			m.step(ctx, &active, &playing, &nextAttempt, false)
+		case <-statusTicker.C:
+			if active {
+				m.checkPlayerStatus(&active, &playing, &nextAttempt)
 			}
-
-			status, err := m.player.Status()
-			if err != nil {
-				m.setState(StateRetrying, err.Error(), nil)
-				return m.retryDelay(wasPlaying), true
-			}
-			if status.State == "stopped" {
-				if availability != nil {
-					if available, known := availability.IsAvailable(mount); known && !available {
-						m.setState(StateWaiting, "", status)
-						return 0, m.waitForAvailability(ctx, mount, availability)
-					}
-				}
-				m.setState(StateRetrying, "", status)
-				return m.retryDelay(wasPlaying), true
-			}
-
-			wasPlaying = true
-			m.setState(StatePlaying, "", status)
 		}
 	}
 }
 
-func (m *Manager) waitForAvailability(ctx context.Context, mount string, availability Availability) bool {
-	events := availability.Events()
-	check := func() bool {
-		available, known := availability.IsAvailable(mount)
-		return known && available
+func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *time.Time, force bool) {
+	selected, listening, availability := m.snapshot()
+	if ctx.Err() != nil {
+		return
 	}
 
-	for {
-		if check() {
-			return true
+	if !listening || selected == nil {
+		if *active {
+			_ = m.player.Stop()
+			*active = false
+			*playing = false
 		}
+		m.setState(StateIdle, "", nil)
+		return
+	}
 
-		// Events are the normal wake-up mechanism. The short local timer is
-		// only a safety net against a lost/coalesced event; it never contacts
-		// LiveMasjid or performs any network polling.
-		timer := time.NewTimer(100 * time.Millisecond)
-		select {
-		case <-ctx.Done():
-			timer.Stop()
-			return false
-		case eventMount, ok := <-events:
-			timer.Stop()
-			if !ok {
-				return false
+	available := true
+	known := false
+	if availability != nil {
+		available, known = availability.IsAvailable(selected.ID)
+		if !known || !available {
+			if *active {
+				_ = m.player.Stop()
+				*active = false
+				*playing = false
 			}
-			if eventMount == mount && check() {
-				return true
-			}
-		case <-timer.C:
+			m.setState(StateWaiting, "", nil)
+			return
 		}
 	}
+
+	if *active {
+		return
+	}
+	if !force && !nextAttempt.IsZero() && time.Now().Before(*nextAttempt) {
+		m.setState(StateRetrying, "", nil)
+		return
+	}
+
+	m.setState(StateConnecting, "", nil)
+	if err := m.player.Play(selected.URL); err != nil {
+		m.setState(StateRetrying, err.Error(), nil)
+		*nextAttempt = time.Now().Add(m.retryInterval)
+		return
+	}
+
+	*active = true
+	*playing = false
+	*nextAttempt = time.Time{}
+	m.setState(StatePlaying, "", nil)
+
+	_ = available
+	_ = known
 }
 
-func (m *Manager) retryDelay(wasPlaying bool) time.Duration {
-	if wasPlaying {
-		return m.reconnectDelay
+func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Time) {
+	if !*active {
+		return
 	}
-	return m.retryInterval
+
+	status, err := m.player.Status()
+	if err != nil {
+		m.setState(StateRetrying, err.Error(), nil)
+		_ = m.player.Stop()
+		*active = false
+		*playing = false
+		*nextAttempt = time.Now().Add(m.reconnectDelay)
+		return
+	}
+
+	selected, listening, availability := m.snapshot()
+	if !listening || selected == nil {
+		return
+	}
+	if availability != nil {
+		if available, known := availability.IsAvailable(selected.ID); known && !available {
+			_ = m.player.Stop()
+			*active = false
+			*playing = false
+			*nextAttempt = time.Time{}
+			m.setState(StateWaiting, "", status)
+			return
+		}
+	}
+
+	if status.State == "stopped" {
+		_ = m.player.Stop()
+		*active = false
+		*playing = false
+		*nextAttempt = time.Now().Add(m.reconnectDelay)
+		m.setState(StateRetrying, "", status)
+		return
+	}
+
+	*playing = true
+	m.setState(StatePlaying, "", status)
 }
 
 func (m *Manager) snapshot() (*stream.Stream, bool, Availability) {
@@ -349,27 +339,5 @@ func (m *Manager) notify() {
 	select {
 	case m.wake <- struct{}{}:
 	default:
-	}
-}
-
-func (m *Manager) wait(ctx context.Context, delay time.Duration) bool {
-	if delay <= 0 {
-		select {
-		case <-ctx.Done():
-			return false
-		case <-m.wake:
-			return true
-		}
-	}
-
-	timer := time.NewTimer(delay)
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
-		return false
-	case <-m.wake:
-		return true
-	case <-timer.C:
-		return true
 	}
 }

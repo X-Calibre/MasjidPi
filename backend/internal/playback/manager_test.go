@@ -113,7 +113,7 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 func TestManagerWaitsForLiveStatusBeforePlaying(t *testing.T) {
 	fake := &fakePlayer{}
 	manager := New(fake, Config{
-		StartupGracePeriod: 200 * time.Millisecond,
+		StartupGracePeriod:  200 * time.Millisecond,
 		StatusCheckInterval: 10 * time.Millisecond,
 	})
 
@@ -141,11 +141,13 @@ func TestManagerWaitsForLiveStatusBeforePlaying(t *testing.T) {
 }
 
 func TestManagerDoesNotRetryDuringStartupGracePeriod(t *testing.T) {
-	fake := &fakePlayer{
-		statuses: []*player.Status{
-			{State: "stopped", URL: "relay://one", Volume: 70},
-			{State: "stopped", URL: "relay://one", Volume: 70},
-		},
+	fake := &fakePlayer{}
+	for i := 0; i < 20; i++ {
+		fake.statuses = append(fake.statuses, &player.Status{
+			State:  "stopped",
+			URL:    "relay://one",
+			Volume: 70,
+		})
 	}
 
 	manager := New(fake, Config{

@@ -9,5 +9,5 @@ streams:
   refresh_interval: "6h"
 
 playback:
-  retry_interval: "30s"
+  retry_interval: "5s"
   reconnect_delay: "5s"

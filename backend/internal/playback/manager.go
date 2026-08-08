@@ -256,6 +256,7 @@ func (m *Manager) monitor(ctx context.Context, mount string, availability Availa
 }
 
 func (m *Manager) waitForAvailability(ctx context.Context, mount string, availability Availability) bool {
+	events := availability.Events()
 	for {
 		if available, known := availability.IsAvailable(mount); known && available {
 			return true
@@ -263,11 +264,17 @@ func (m *Manager) waitForAvailability(ctx context.Context, mount string, availab
 		select {
 		case <-ctx.Done():
 			return false
-		case eventMount := <-availability.Events():
-			if eventMount == mount {
-				if available, known := availability.IsAvailable(mount); known && available {
-					return true
-				}
+		case eventMount, ok := <-events:
+			if !ok {
+				return false
+			}
+			if eventMount != mount {
+				continue
+			}
+			// Re-read the state after the event. This avoids depending on
+			// event ordering between the status update and channel delivery.
+			if available, known := availability.IsAvailable(mount); known && available {
+				return true
 			}
 		}
 	}

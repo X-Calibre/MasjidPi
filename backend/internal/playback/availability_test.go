@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 )
 
@@ -36,9 +35,7 @@ func (f *fakeAvailability) set(available bool) {
 func TestManagerWaitsForLiveStatusBeforePlaying(t *testing.T) {
 	fake := &fakePlayer{}
 	availability := &fakeAvailability{events: make(chan string, 4)}
-	manager := New(fake, Config{
-		StatusCheckInterval: 10 * time.Millisecond,
-	})
+	manager := New(fake, Config{StatusCheckInterval: 10 * time.Millisecond})
 	manager.SetAvailability(availability)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -73,7 +70,6 @@ func TestManagerStopsRetryingWhenMountGoesOffline(t *testing.T) {
 	waitFor(t, time.Second, func() bool { return fake.playCount() >= 1 })
 	availability.set(false)
 
-	// Allow the monitor to observe the stopped state and enter waiting mode.
 	time.Sleep(80 * time.Millisecond)
 	plays := fake.playCount()
 	time.Sleep(80 * time.Millisecond)
@@ -81,6 +77,4 @@ func TestManagerStopsRetryingWhenMountGoesOffline(t *testing.T) {
 	if fake.playCount() != plays {
 		t.Fatalf("play calls increased while mount was offline: %d -> %d", plays, fake.playCount())
 	}
-
-	_ = player.Status{}
 }

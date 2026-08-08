@@ -34,8 +34,6 @@ type Player interface {
 	Status() (*player.Status, error)
 }
 
-// Availability supplies push-based stream availability information.
-// Implementations should not poll the stream server.
 type Availability interface {
 	IsAvailable(mount string) (available bool, known bool)
 	Events() <-chan string
@@ -51,7 +49,7 @@ type Manager struct {
 	mu        sync.Mutex
 	startOnce sync.Once
 
-	player      Player
+	player       Player
 	availability Availability
 
 	retryInterval  time.Duration
@@ -257,25 +255,33 @@ func (m *Manager) monitor(ctx context.Context, mount string, availability Availa
 
 func (m *Manager) waitForAvailability(ctx context.Context, mount string, availability Availability) bool {
 	events := availability.Events()
+	check := func() bool {
+		available, known := availability.IsAvailable(mount)
+		return known && available
+	}
+
 	for {
-		if available, known := availability.IsAvailable(mount); known && available {
+		if check() {
 			return true
 		}
+
+		// Events are the normal wake-up mechanism. The short local timer is
+		// only a safety net against a lost/coalesced event; it never contacts
+		// LiveMasjid or performs any network polling.
+		timer := time.NewTimer(100 * time.Millisecond)
 		select {
 		case <-ctx.Done():
+			timer.Stop()
 			return false
 		case eventMount, ok := <-events:
+			timer.Stop()
 			if !ok {
 				return false
 			}
-			if eventMount != mount {
-				continue
-			}
-			// Re-read the state after the event. This avoids depending on
-			// event ordering between the status update and channel delivery.
-			if available, known := availability.IsAvailable(mount); known && available {
+			if eventMount == mount && check() {
 				return true
 			}
+		case <-timer.C:
 		}
 	}
 }

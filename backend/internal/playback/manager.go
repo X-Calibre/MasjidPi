@@ -238,7 +238,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *
 	m.setState(StateConnecting, "", nil)
 	if err := m.player.Play(selected.URL); err != nil {
 		delay := backoffDelay(m.retryInterval, *retryAttempt)
-		*retryAttempt++
+		(*retryAttempt)++
 		*nextAttempt = time.Now().Add(delay)
 		m.setState(StateRetrying, err.Error(), nil)
 		m.logRetry(selected, "relay connection failed", err, delay)
@@ -261,7 +261,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 	status, err := m.player.Status()
 	if err != nil {
 		delay := backoffDelay(m.reconnectDelay, *reconnectAttempt)
-		*reconnectAttempt++
+		(*reconnectAttempt)++
 		_ = m.player.Stop()
 		*active = false
 		*playing = false
@@ -289,7 +289,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 
 	if status.State == "stopped" {
 		delay := backoffDelay(m.reconnectDelay, *reconnectAttempt)
-		*reconnectAttempt++
+		(*reconnectAttempt)++
 		_ = m.player.Stop()
 		*active = false
 		*playing = false

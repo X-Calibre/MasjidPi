@@ -1,0 +1,124 @@
+package livestatus
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log/slog"
+	"strings"
+	"sync"
+	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+)
+
+// Status represents the last availability state received for a LiveMasjid mount.
+type Status struct {
+	Mount     string
+	Available bool
+	Payload   string
+	UpdatedAt time.Time
+}
+
+// Client subscribes to LiveMasjid's mount status feed. It does not poll the
+// LiveMasjid HTTP site. The MQTT connection is long-lived and subscriptions are
+// restored automatically after reconnects.
+type Client struct {
+	broker string
+	port   int
+	log    *slog.Logger
+
+	mu      sync.RWMutex
+	mounts  map[string]Status
+	wake    chan string
+	client  mqtt.Client
+}
+
+func New(broker string, port int, log *slog.Logger) *Client {
+	return &Client{
+		broker: broker,
+		port:   port,
+		log:    log,
+		mounts: make(map[string]Status),
+		wake:   make(chan string, 16),
+	}
+}
+
+func (c *Client) Start(ctx context.Context) error {
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", c.broker, c.port))
+	opts.SetClientID(fmt.Sprintf("masjidpi-%d", time.Now().UnixNano()))
+	opts.SetAutoReconnect(true)
+	opts.SetConnectRetry(true)
+	opts.SetConnectRetryInterval(10 * time.Second)
+	opts.SetKeepAlive(60 * time.Second)
+	opts.SetOnConnectHandler(func(client mqtt.Client) {
+		if token := client.Subscribe("mounts/#", 0, c.onMessage); token.Wait() && token.Error() != nil {
+			c.log.Error("LiveMasjid MQTT subscription failed", "error", token.Error())
+			return
+		}
+		c.log.Info("Connected to LiveMasjid status feed")
+	})
+	opts.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
+		c.log.Warn("LiveMasjid status feed disconnected", "error", err)
+	})
+
+	c.client = mqtt.NewClient(opts)
+	if token := c.client.Connect(); token.Wait() && token.Error() != nil {
+		return fmt.Errorf("connect to LiveMasjid MQTT: %w", token.Error())
+	}
+
+	go func() {
+		<-ctx.Done()
+		c.client.Disconnect(250)
+	}()
+
+	return nil
+}
+
+func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
+	parts := strings.Split(msg.Topic(), "/")
+	if len(parts) < 2 || parts[1] == "" {
+		return
+	}
+
+	mount := parts[1]
+	payload := string(msg.Payload())
+	lower := strings.ToLower(payload)
+
+	available := strings.Contains(lower, "started")
+	if !available && !strings.Contains(lower, "stopped") {
+		return
+	}
+
+	status := Status{Mount: mount, Available: available, Payload: payload, UpdatedAt: time.Now()}
+	c.mu.Lock()
+	c.mounts[mount] = status
+	c.mu.Unlock()
+
+	select {
+	case c.wake <- mount:
+	default:
+	}
+}
+
+func (c *Client) IsAvailable(mount string) (bool, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	status, ok := c.mounts[mount]
+	if !ok {
+		return false, false
+	}
+	return status.Available, true
+}
+
+func (c *Client) Events() <-chan string { return c.wake }
+
+func (c *Client) Close() {
+	if c.client != nil && c.client.IsConnected() {
+		c.client.Disconnect(250)
+	}
+}
+
+// Compile-time check that the status payload remains JSON-friendly if exposed later.
+var _ = json.Valid

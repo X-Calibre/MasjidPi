@@ -9,6 +9,7 @@ import (
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/api"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
@@ -48,11 +49,9 @@ func Run() error {
 	)
 
 	mpv := player.New(cfg.Player.Socket)
-
 	if err := mpv.Start(); err != nil {
 		return err
 	}
-
 	defer func() {
 		log.Info("Stopping MPV")
 		_ = mpv.Close()
@@ -63,11 +62,7 @@ func Run() error {
 		return err
 	}
 
-	playbackManager := playback.New(
-		mpv,
-		playbackConfig,
-	)
-
+	playbackManager := playback.New(mpv, playbackConfig)
 	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
 		return err
 	}
@@ -82,15 +77,8 @@ func Run() error {
 		return err
 	}
 
-	log.Info(
-		"Player status",
-		"status", status,
-	)
-
-	log.Info(
-		"Connected to MPV",
-		"version", version,
-	)
+	log.Info("Player status", "status", status)
+	log.Info("Connected to MPV", "version", version)
 
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
@@ -98,6 +86,14 @@ func Run() error {
 		syscall.SIGTERM,
 	)
 	defer stop()
+
+	// LiveMasjid publishes mount start/stop events over MQTT. MasjidPi keeps
+	// this connection open instead of repeatedly polling the LiveMasjid site.
+	liveStatus := livestatus.New("livemasjid.com", 1883, log)
+	liveStatus.Start(ctx)
+	defer liveStatus.Close()
+	playbackManager.SetAvailability(liveStatus)
+	log.Info("LiveMasjid live-status monitor started")
 
 	playbackManager.Start(ctx)
 
@@ -111,7 +107,6 @@ func Run() error {
 
 	go func() {
 		<-ctx.Done()
-
 		log.Info("Shutdown requested")
 
 		shutdownCtx, cancel := context.WithTimeout(
@@ -121,11 +116,7 @@ func Run() error {
 		defer cancel()
 
 		if err := server.Shutdown(shutdownCtx); err != nil {
-			log.Error(
-				"HTTP shutdown failed",
-				"error",
-				err,
-			)
+			log.Error("HTTP shutdown failed", "error", err)
 		}
 	}()
 

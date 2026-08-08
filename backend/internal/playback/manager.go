@@ -186,7 +186,7 @@ func (m *Manager) run(ctx context.Context) {
 			m.step(ctx, &active, &playing, &nextAttempt, &retryAttempt, &reconnectAttempt)
 		case <-statusTicker.C:
 			if active {
-				m.checkPlayerStatus(&active, &playing, &nextAttempt, &reconnectAttempt)
+				m.checkPlayerStatus(&active, &playing, &nextAttempt, &retryAttempt, &reconnectAttempt)
 			}
 		}
 	}
@@ -248,20 +248,22 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *
 	*active = true
 	*playing = false
 	*nextAttempt = time.Time{}
-	*retryAttempt = 0
 	*reconnectAttempt = 0
+	// mpv accepts Play() asynchronously. Keep retryAttempt until Status()
+	// confirms actual playback, otherwise a refused relay would reset the
+	// counter and cause a fixed-rate retry loop.
 	m.setState(StatePlaying, "", nil)
 }
 
-func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Time, reconnectAttempt *int) {
+func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	if !*active {
 		return
 	}
 
 	status, err := m.player.Status()
 	if err != nil {
-		delay := backoffDelay(m.reconnectDelay, *reconnectAttempt)
-		(*reconnectAttempt)++
+		delay := backoffDelay(m.retryInterval, *retryAttempt)
+		(*retryAttempt)++
 		_ = m.player.Stop()
 		*active = false
 		*playing = false
@@ -281,6 +283,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 			*active = false
 			*playing = false
 			*nextAttempt = time.Time{}
+			*retryAttempt = 0
 			*reconnectAttempt = 0
 			m.setState(StateWaiting, "", status)
 			return
@@ -288,8 +291,8 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 	}
 
 	if status.State == "stopped" {
-		delay := backoffDelay(m.reconnectDelay, *reconnectAttempt)
-		(*reconnectAttempt)++
+		delay := backoffDelay(m.retryInterval, *retryAttempt)
+		(*retryAttempt)++
 		_ = m.player.Stop()
 		*active = false
 		*playing = false
@@ -300,6 +303,8 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 	}
 
 	*playing = true
+	*retryAttempt = 0
+	*reconnectAttempt = 0
 	m.setState(StatePlaying, "", status)
 }
 

@@ -2,7 +2,6 @@ package livestatus
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -28,10 +27,10 @@ type Client struct {
 	port   int
 	log    *slog.Logger
 
-	mu      sync.RWMutex
-	mounts  map[string]Status
-	wake    chan string
-	client  mqtt.Client
+	mu     sync.RWMutex
+	mounts map[string]Status
+	wake   chan string
+	client mqtt.Client
 }
 
 func New(broker string, port int, log *slog.Logger) *Client {
@@ -44,7 +43,7 @@ func New(broker string, port int, log *slog.Logger) *Client {
 	}
 }
 
-func (c *Client) Start(ctx context.Context) error {
+func (c *Client) Start(ctx context.Context) {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", c.broker, c.port))
 	opts.SetClientID(fmt.Sprintf("masjidpi-%d", time.Now().UnixNano()))
@@ -53,7 +52,8 @@ func (c *Client) Start(ctx context.Context) error {
 	opts.SetConnectRetryInterval(10 * time.Second)
 	opts.SetKeepAlive(60 * time.Second)
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
-		if token := client.Subscribe("mounts/#", 0, c.onMessage); token.Wait() && token.Error() != nil {
+		token := client.Subscribe("mounts/#", 0, c.onMessage)
+		if token.Wait() && token.Error() != nil {
 			c.log.Error("LiveMasjid MQTT subscription failed", "error", token.Error())
 			return
 		}
@@ -64,16 +64,16 @@ func (c *Client) Start(ctx context.Context) error {
 	})
 
 	c.client = mqtt.NewClient(opts)
-	if token := c.client.Connect(); token.Wait() && token.Error() != nil {
-		return fmt.Errorf("connect to LiveMasjid MQTT: %w", token.Error())
-	}
+	go func() {
+		if token := c.client.Connect(); token.Wait() && token.Error() != nil {
+			c.log.Warn("LiveMasjid MQTT connection unavailable; will retry", "error", token.Error())
+		}
+	}()
 
 	go func() {
 		<-ctx.Done()
-		c.client.Disconnect(250)
+		c.Close()
 	}()
-
-	return nil
 }
 
 func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
@@ -91,7 +91,13 @@ func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
 		return
 	}
 
-	status := Status{Mount: mount, Available: available, Payload: payload, UpdatedAt: time.Now()}
+	status := Status{
+		Mount:     mount,
+		Available: available,
+		Payload:   payload,
+		UpdatedAt: time.Now(),
+	}
+
 	c.mu.Lock()
 	c.mounts[mount] = status
 	c.mu.Unlock()
@@ -105,10 +111,12 @@ func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
 func (c *Client) IsAvailable(mount string) (bool, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
+
 	status, ok := c.mounts[mount]
 	if !ok {
 		return false, false
 	}
+
 	return status.Available, true
 }
 
@@ -119,6 +127,3 @@ func (c *Client) Close() {
 		c.client.Disconnect(250)
 	}
 }
-
-// Compile-time check that the status payload remains JSON-friendly if exposed later.
-var _ = json.Valid

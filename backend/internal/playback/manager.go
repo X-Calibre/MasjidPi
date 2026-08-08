@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	DefaultRetryInterval  = 5 * time.Second
-	DefaultReconnectDelay = 5 * time.Second
-	statusCheckInterval   = time.Second
-	stateLoopInterval     = 50 * time.Millisecond
-	maxRetryDelay         = 5 * time.Minute
+	DefaultRetryInterval      = 5 * time.Second
+	DefaultReconnectDelay     = 5 * time.Second
+	DefaultStartupGracePeriod = 10 * time.Second
+	statusCheckInterval       = time.Second
+	stateLoopInterval         = 50 * time.Millisecond
+	maxRetryDelay              = 5 * time.Minute
 )
 
 type State string
@@ -48,6 +49,7 @@ type Availability interface {
 type Config struct {
 	RetryInterval       time.Duration
 	ReconnectDelay      time.Duration
+	StartupGracePeriod  time.Duration
 	StatusCheckInterval time.Duration
 	Logger              *slog.Logger
 }
@@ -60,9 +62,10 @@ type Manager struct {
 	availability Availability
 	log          *slog.Logger
 
-	retryInterval  time.Duration
-	reconnectDelay time.Duration
-	statusInterval time.Duration
+	retryInterval      time.Duration
+	reconnectDelay     time.Duration
+	startupGracePeriod time.Duration
+	statusInterval     time.Duration
 
 	wake chan struct{}
 
@@ -93,18 +96,22 @@ func New(player Player, cfg Config) *Manager {
 	if cfg.ReconnectDelay == 0 {
 		cfg.ReconnectDelay = DefaultReconnectDelay
 	}
+	if cfg.StartupGracePeriod == 0 {
+		cfg.StartupGracePeriod = DefaultStartupGracePeriod
+	}
 	if cfg.StatusCheckInterval == 0 {
 		cfg.StatusCheckInterval = statusCheckInterval
 	}
 
 	return &Manager{
-		player:         player,
-		log:            cfg.Logger,
-		retryInterval:  cfg.RetryInterval,
-		reconnectDelay: cfg.ReconnectDelay,
-		statusInterval: cfg.StatusCheckInterval,
-		wake:           make(chan struct{}, 1),
-		state:          StateIdle,
+		player:             player,
+		log:                cfg.Logger,
+		retryInterval:      cfg.RetryInterval,
+		reconnectDelay:     cfg.ReconnectDelay,
+		startupGracePeriod: cfg.StartupGracePeriod,
+		statusInterval:     cfg.StatusCheckInterval,
+		wake:               make(chan struct{}, 1),
+		state:              StateIdle,
 		status: Status{
 			Version: version.Version,
 			State:   string(StateIdle),
@@ -169,6 +176,7 @@ func (m *Manager) run(ctx context.Context) {
 
 	active := false
 	playing := false
+	attemptStarted := time.Time{}
 	nextAttempt := time.Time{}
 	retryAttempt := 0
 	reconnectAttempt := 0
@@ -181,18 +189,18 @@ func (m *Manager) run(ctx context.Context) {
 			}
 			return
 		case <-m.wake:
-			m.step(ctx, &active, &playing, &nextAttempt, &retryAttempt, &reconnectAttempt)
+			m.step(ctx, &active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 		case <-loop.C:
-			m.step(ctx, &active, &playing, &nextAttempt, &retryAttempt, &reconnectAttempt)
+			m.step(ctx, &active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 		case <-statusTicker.C:
 			if active {
-				m.checkPlayerStatus(&active, &playing, &nextAttempt, &retryAttempt, &reconnectAttempt)
+				m.checkPlayerStatus(&active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 			}
 		}
 	}
 }
 
-func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	selected, listening, availability := m.snapshot()
 	if ctx.Err() != nil {
 		return
@@ -204,6 +212,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *
 			*active = false
 			*playing = false
 		}
+		*attemptStarted = time.Time{}
 		*nextAttempt = time.Time{}
 		*retryAttempt = 0
 		*reconnectAttempt = 0
@@ -219,6 +228,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *
 				*active = false
 				*playing = false
 			}
+			*attemptStarted = time.Time{}
 			*nextAttempt = time.Time{}
 			*retryAttempt = 0
 			*reconnectAttempt = 0
@@ -240,6 +250,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *
 		delay := backoffDelay(m.retryInterval, *retryAttempt)
 		(*retryAttempt)++
 		*nextAttempt = time.Now().Add(delay)
+		*attemptStarted = time.Time{}
 		m.setState(StateRetrying, err.Error(), nil)
 		m.logRetry(selected, "relay connection failed", err, delay)
 		return
@@ -247,15 +258,16 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, nextAttempt *
 
 	*active = true
 	*playing = false
+	*attemptStarted = time.Now()
 	*nextAttempt = time.Time{}
 	*reconnectAttempt = 0
-	// mpv accepts Play() asynchronously. Keep retryAttempt until Status()
-	// confirms actual playback, otherwise a refused relay would reset the
-	// counter and cause a fixed-rate retry loop.
-	m.setState(StatePlaying, "", nil)
+	// mpv accepts Play() asynchronously. Keep the manager in Connecting until
+	// Status() confirms playback, while allowing a short startup grace period
+	// for network streams that have not finished loading yet.
+	m.setState(StateConnecting, "", nil)
 }
 
-func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	if !*active {
 		return
 	}
@@ -267,6 +279,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 		_ = m.player.Stop()
 		*active = false
 		*playing = false
+		*attemptStarted = time.Time{}
 		*nextAttempt = time.Now().Add(delay)
 		m.setState(StateRetrying, err.Error(), nil)
 		m.logRetryFromStatus("player status failed", err, delay)
@@ -282,6 +295,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 			_ = m.player.Stop()
 			*active = false
 			*playing = false
+			*attemptStarted = time.Time{}
 			*nextAttempt = time.Time{}
 			*retryAttempt = 0
 			*reconnectAttempt = 0
@@ -291,11 +305,17 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 	}
 
 	if status.State == "stopped" {
+		if !attemptStarted.IsZero() && time.Since(*attemptStarted) < m.startupGracePeriod {
+			m.setState(StateConnecting, "Connecting to stream...", status)
+			return
+		}
+
 		delay := backoffDelay(m.retryInterval, *retryAttempt)
 		(*retryAttempt)++
 		_ = m.player.Stop()
 		*active = false
 		*playing = false
+		*attemptStarted = time.Time{}
 		*nextAttempt = time.Now().Add(delay)
 		m.setState(StateRetrying, "player stopped unexpectedly", status)
 		m.logRetryFromStatus("playback stopped unexpectedly", nil, delay)
@@ -303,6 +323,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, nextAttempt *time.Tim
 	}
 
 	*playing = true
+	*attemptStarted = time.Time{}
 	*retryAttempt = 0
 	*reconnectAttempt = 0
 	m.setState(StatePlaying, "", status)

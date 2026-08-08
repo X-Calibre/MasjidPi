@@ -61,6 +61,7 @@ func Run() error {
 	if err != nil {
 		return err
 	}
+	playbackConfig.Logger = log
 
 	playbackManager := playback.New(mpv, playbackConfig)
 	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {

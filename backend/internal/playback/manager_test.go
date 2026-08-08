@@ -109,6 +109,25 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 	})
 }
 
+func TestBackoffDelayDoublesAndCaps(t *testing.T) {
+	base := 5 * time.Second
+	want := []time.Duration{
+		5 * time.Second,
+		10 * time.Second,
+		20 * time.Second,
+		40 * time.Second,
+		80 * time.Second,
+		160 * time.Second,
+		5 * time.Minute,
+	}
+
+	for attempt, expected := range want {
+		if got := backoffDelay(base, attempt); got != expected {
+			t.Fatalf("attempt %d: delay = %s, want %s", attempt, got, expected)
+		}
+	}
+}
+
 func waitFor(t *testing.T, timeout time.Duration, ok func() bool) {
 	t.Helper()
 

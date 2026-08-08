@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DefaultRetryInterval  = 30 * time.Second
+	DefaultRetryInterval  = 5 * time.Second
 	DefaultReconnectDelay = 5 * time.Second
 	statusCheckInterval   = time.Second
 	stateLoopInterval     = 50 * time.Millisecond

@@ -124,18 +124,7 @@ Make common MasjidPi settings configurable without editing files manually.
 
 ---
 
-## 🔮 Phase 7 — Hardware Interface
-
-Turn MasjidPi into a dedicated physical radio appliance.
-
-- OLED display
-- Push-button controls
-- Hardware playback controls
-- Display current station and playback state
-
----
-
-## 🔮 Phase 8 — Appliance & Production Hardening
+## 🔮 Phase 7 — Appliance & Production Hardening
 
 Prepare MasjidPi for simple, unattended deployment on Raspberry Pi hardware.
 
@@ -145,6 +134,17 @@ Prepare MasjidPi for simple, unattended deployment on Raspberry Pi hardware.
 - Update/recovery safety
 - Production installation workflow
 - Raspberry Pi appliance image/workflow
+
+---
+
+## 🔮 v2.0.0 — Hardware Interface
+
+Hardware controls will be treated as a major future milestone rather than part of the v0.x roadmap.
+
+- OLED display
+- Push-button controls
+- Hardware playback controls
+- Display current station and playback state
 
 ---
 

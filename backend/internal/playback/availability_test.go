@@ -32,6 +32,13 @@ func (f *fakeAvailability) set(available bool) {
 	f.events <- "one"
 }
 
+func (f *fakeAvailability) setUnknown() {
+	f.mu.Lock()
+	f.known = false
+	f.mu.Unlock()
+	f.events <- "one"
+}
+
 func TestManagerRespondsToAvailabilityEvents(t *testing.T) {
 	fake := &fakePlayer{}
 	availability := &fakeAvailability{events: make(chan string, 4)}
@@ -76,5 +83,39 @@ func TestManagerStopsRetryingWhenMountGoesOffline(t *testing.T) {
 
 	if fake.playCount() != plays {
 		t.Fatalf("play calls increased while mount was offline: %d -> %d", plays, fake.playCount())
+	}
+}
+
+func TestManagerStopsPlaybackWhenAvailabilityBecomesUnknown(t *testing.T) {
+	fake := &fakePlayer{}
+	availability := &fakeAvailability{available: true, known: true, events: make(chan string, 4)}
+	manager := New(fake, Config{
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+	manager.SetAvailability(availability)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+
+	waitFor(t, time.Second, func() bool {
+		return manager.Status().State == string(StatePlaying)
+	})
+
+	availability.setUnknown()
+
+	waitFor(t, time.Second, func() bool {
+		return manager.Status().State == string(StateWaiting)
+	})
+
+	if fake.stopCalls != 1 {
+		t.Fatalf("stop calls = %d, want 1", fake.stopCalls)
+	}
+
+	plays := fake.playCount()
+	time.Sleep(50 * time.Millisecond)
+	if fake.playCount() != plays {
+		t.Fatalf("play calls increased while availability was unknown: %d -> %d", plays, fake.playCount())
 	}
 }

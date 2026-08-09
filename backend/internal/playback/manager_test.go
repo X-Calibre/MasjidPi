@@ -64,6 +64,13 @@ func (f *fakePlayer) playCount() int {
 	return len(f.playCalls)
 }
 
+func (f *fakePlayer) stopCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.stopCalls
+}
+
 func TestStopDisablesListeningAndKeepsSelectedStream(t *testing.T) {
 	manager := New(&fakePlayer{}, Config{})
 	selected := stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"}

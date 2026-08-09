@@ -13,6 +13,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
@@ -66,6 +67,24 @@ func Run() error {
 	playbackManager := playback.New(mpv, playbackConfig)
 	if err := playbackManager.Volume(cfg.Player.Volume); err != nil {
 		return err
+	}
+
+	playbackState := storage.NewPlayback(paths.PlaybackState)
+	playbackManager.SetPersistence(playbackState)
+
+	if streamID, ok, err := playbackState.Load(); err != nil {
+		log.Warn("Could not load last playback stream", "error", err)
+	} else if ok {
+		selected, err := streamStore.FindByID(streamID)
+		if err != nil {
+			log.Warn("Last playback stream is no longer in the catalogue", "stream_id", streamID)
+			if clearErr := playbackState.Clear(); clearErr != nil {
+				log.Warn("Could not clear invalid playback state", "error", clearErr)
+			}
+		} else {
+			log.Info("Resuming last playback stream", "stream_id", selected.ID, "stream_name", selected.Name)
+			playbackManager.Play(*selected)
+		}
 	}
 
 	version, err := mpv.Version()

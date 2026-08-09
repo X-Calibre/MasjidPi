@@ -20,6 +20,7 @@ func NewProcess(socket string) *Process {
 			"--no-ytdl",
 			"--really-quiet",
 			"--terminal=no",
+			"--ao=alsa",
 			"--input-ipc-server="+socket,
 		),
 	}

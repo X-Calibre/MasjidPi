@@ -98,13 +98,16 @@ The Raspberry Pi installation and runtime workflow is now functional and has bee
 - Persistent favourites
 - Quick access to favourite stations
 
-### Playback UI
+### Playback & Audio Controls
 
 - Clear current-stream display
 - Clear playing/reconnecting/error states
 - Improved playback controls
 - Better volume control
-- More useful playback feedback
+- **Select the audio output device from the Web UI**
+- Show the currently selected audio device
+- Persist the selected audio device
+- More useful playback and audio feedback
 
 ---
 
@@ -114,10 +117,10 @@ Make common MasjidPi settings configurable without editing files manually.
 
 - Web-based configuration
 - First-run setup
-- Audio device selection
 - Playback settings
 - Volume preferences
 - Persist user configuration
+- Additional user preferences
 
 ---
 
@@ -149,7 +152,7 @@ Prepare MasjidPi for simple, unattended deployment on Raspberry Pi hardware.
 
 **v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, and Raspberry Pi runtime foundations.
 
-The next target is **v0.6.0**, focused on Web UI improvements, stream discovery, and favourites.
+The next target is **v0.6.0**, focused on Web UI improvements, stream discovery, favourites, and user-facing audio controls.
 
 ---
 

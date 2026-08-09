@@ -38,6 +38,8 @@ main() {
 
     build_project
 
+    stop_service
+
     install_runtime
 
     install_service

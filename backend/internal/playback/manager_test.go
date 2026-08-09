@@ -71,6 +71,38 @@ func (f *fakePlayer) stopCount() int {
 	return f.stopCalls
 }
 
+type fakePersistence struct {
+	mu       sync.Mutex
+	saved    []string
+	cleared  int
+}
+
+func (f *fakePersistence) Save(streamID string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.saved = append(f.saved, streamID)
+	return nil
+}
+
+func (f *fakePersistence) Clear() error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.cleared++
+	return nil
+}
+
+func (f *fakePersistence) lastSaved() string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	if len(f.saved) == 0 {
+		return ""
+	}
+	return f.saved[len(f.saved)-1]
+}
+
 func TestStopDisablesListeningAndKeepsSelectedStream(t *testing.T) {
 	manager := New(&fakePlayer{}, Config{})
 	selected := stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"}
@@ -89,6 +121,23 @@ func TestStopDisablesListeningAndKeepsSelectedStream(t *testing.T) {
 
 	if status.StreamID != selected.ID {
 		t.Fatalf("stream ID = %q, want %q", status.StreamID, selected.ID)
+	}
+}
+
+func TestManagerPersistsPlayAndClearsStop(t *testing.T) {
+	persistence := &fakePersistence{}
+	manager := New(&fakePlayer{}, Config{})
+	manager.SetPersistence(persistence)
+	selected := stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"}
+
+	manager.Play(selected)
+	if got := persistence.lastSaved(); got != selected.ID {
+		t.Fatalf("saved stream ID = %q, want %q", got, selected.ID)
+	}
+
+	manager.Stop()
+	if persistence.cleared != 1 {
+		t.Fatalf("clear calls = %d, want 1", persistence.cleared)
 	}
 }
 

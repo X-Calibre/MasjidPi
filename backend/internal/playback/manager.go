@@ -46,6 +46,14 @@ type Availability interface {
 	Events() <-chan string
 }
 
+// Persistence stores the last stream selected for persistent listening.
+// A stored stream is resumed after application restart; clearing the store
+// disables automatic resume after an intentional Stop.
+type Persistence interface {
+	Save(streamID string) error
+	Clear() error
+}
+
 type Config struct {
 	RetryInterval       time.Duration
 	ReconnectDelay      time.Duration
@@ -60,6 +68,7 @@ type Manager struct {
 
 	player       Player
 	availability Availability
+	persistence  Persistence
 	log          *slog.Logger
 
 	retryInterval      time.Duration
@@ -126,6 +135,12 @@ func (m *Manager) SetAvailability(availability Availability) {
 	m.notify()
 }
 
+func (m *Manager) SetPersistence(persistence Persistence) {
+	m.mu.Lock()
+	m.persistence = persistence
+	m.mu.Unlock()
+}
+
 func (m *Manager) Start(ctx context.Context) {
 	m.startOnce.Do(func() { go m.run(ctx) })
 }
@@ -136,8 +151,16 @@ func (m *Manager) Play(selected stream.Stream) {
 	m.listening = true
 	m.state = StateWaiting
 	m.lastError = ""
+	persistence := m.persistence
 	m.updateStatusLocked(nil)
 	m.mu.Unlock()
+
+	if persistence != nil {
+		if err := persistence.Save(selected.ID); err != nil {
+			m.logPersistenceError("saving last playback stream", err)
+		}
+	}
+
 	m.notify()
 }
 
@@ -146,8 +169,16 @@ func (m *Manager) Stop() {
 	m.listening = false
 	m.state = StateIdle
 	m.lastError = ""
+	persistence := m.persistence
 	m.updateStatusLocked(nil)
 	m.mu.Unlock()
+
+	if persistence != nil {
+		if err := persistence.Clear(); err != nil {
+			m.logPersistenceError("clearing last playback stream", err)
+		}
+	}
+
 	m.notify()
 }
 
@@ -387,6 +418,12 @@ func (m *Manager) logRetryFromStatus(reason string, err error, delay time.Durati
 		args = append(args, "error", err)
 	}
 	m.log.Warn("Stream playback retry scheduled", args...)
+}
+
+func (m *Manager) logPersistenceError(action string, err error) {
+	if m.log != nil {
+		m.log.Warn("Playback persistence failed", "action", action, "error", err)
+	}
 }
 
 func (m *Manager) snapshot() (*stream.Stream, bool, Availability) {

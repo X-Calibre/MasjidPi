@@ -84,6 +84,14 @@ func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
 
 	mount := parts[1]
 	payload := string(msg.Payload())
+
+	c.log.Info(
+		"LiveMasjid MQTT event received",
+		"topic", msg.Topic(),
+		"mount", mount,
+		"payload", payload,
+	)
+
 	lower := strings.ToLower(payload)
 
 	available := strings.Contains(lower, "started")

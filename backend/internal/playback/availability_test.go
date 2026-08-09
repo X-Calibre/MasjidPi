@@ -32,7 +32,7 @@ func (f *fakeAvailability) set(available bool) {
 	f.events <- "one"
 }
 
-func TestManagerWaitsForLiveStatusBeforePlaying(t *testing.T) {
+func TestManagerRespondsToAvailabilityEvents(t *testing.T) {
 	fake := &fakePlayer{}
 	availability := &fakeAvailability{events: make(chan string, 4)}
 	manager := New(fake, Config{StatusCheckInterval: 10 * time.Millisecond})

@@ -17,7 +17,7 @@ const (
 	DefaultStartupGracePeriod = 10 * time.Second
 	statusCheckInterval       = time.Second
 	stateLoopInterval         = 50 * time.Millisecond
-	maxRetryDelay              = 5 * time.Minute
+	maxRetryDelay             = 5 * time.Minute
 )
 
 type State string

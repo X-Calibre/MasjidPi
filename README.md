@@ -68,8 +68,8 @@ MasjidPi follows a few simple principles.
 - Generate relay URLs automatically
 - Play streams by catalogue selection
 - Remember the last selected stream
+- Automatically resume the last playing stream after restart or reboot
 - Automatic reconnection to selected masjid when broadcasts resume
-- Optional automatic playback on startup
 - Runtime catalogue updates without restarting
 - Installable as a Linux systemd service
 - Automatic startup on boot
@@ -81,6 +81,7 @@ MasjidPi follows a few simple principles.
 
 - Automatic LiveMasjid catalogue updates
 - Runtime path abstraction
+- Persistent last-playback state across restarts
 - Automatic recovery from offline streams
 - "Waiting for Masjid" playback state
 - Persistent frontend settings
@@ -169,6 +170,14 @@ MasjidPi installs into:
     └── style.css
 ```
 
+Persistent playback state is stored separately in:
+
+```
+/var/lib/masjidpi/playback.json
+```
+
+The state contains only the selected stream ID. It is written when playback is selected and cleared when the user explicitly stops playback. A normal shutdown or reboot leaves the state intact so MasjidPi can resume the previous stream when it becomes available.
+
 The application runs as a Linux systemd service and automatically starts during boot.
 
 This runtime layout will evolve in future releases as the automatic update mechanism is introduced.
@@ -226,6 +235,7 @@ The following components are complete:
 - Installer
 - Runtime environment
 - Systemd integration
+- Persistent playback state
 
 Current development is focused on:
 

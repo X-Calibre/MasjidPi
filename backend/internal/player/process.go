@@ -18,24 +18,26 @@ func NewProcess(socket string) *Process {
 			"--idle=yes",
 			"--no-video",
 			"--no-ytdl",
+			"--really-quiet",
+			"--terminal=no",
 			"--input-ipc-server="+socket,
 		),
 	}
 }
 
 func (p *Process) Start() error {
-
 	// Remove any stale socket from a previous crash.
 	_ = os.Remove(p.socket)
 
-	p.cmd.Stdout = os.Stdout
-	p.cmd.Stderr = os.Stderr
+	// MPV runs as a background service. Do not forward its terminal/progress
+	// output to MasjidPi's stdout/stderr and therefore into journald.
+	p.cmd.Stdout = nil
+	p.cmd.Stderr = nil
 
 	return p.cmd.Start()
 }
 
 func (p *Process) Stop() error {
-
 	if p.cmd == nil || p.cmd.Process == nil {
 		return nil
 	}

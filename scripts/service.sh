@@ -13,16 +13,24 @@ install_service() {
     systemctl daemon-reload
 
     systemctl enable masjidpi
-    systemctl restart masjidpi
 
-    success "Systemd service installed and started."
+    success "Systemd service installed and enabled."
+}
+
+stop_service() {
+
+    if systemctl is-active --quiet masjidpi; then
+        info "Stopping MasjidPi service..."
+        systemctl stop masjidpi
+        success "MasjidPi service stopped."
+    fi
 }
 
 start_service() {
 
     info "Starting MasjidPi service..."
 
-    systemctl restart masjidpi
+    systemctl start masjidpi
 
     if systemctl is-active --quiet masjidpi; then
         success "MasjidPi service is running."

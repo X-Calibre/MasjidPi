@@ -23,7 +23,7 @@ func applyDefaults(cfg *Config) {
 	}
 
 	if cfg.Playback.RetryInterval == "" {
-		cfg.Playback.RetryInterval = "30s"
+		cfg.Playback.RetryInterval = "5s"
 	}
 
 	if cfg.Playback.ReconnectDelay == "" {

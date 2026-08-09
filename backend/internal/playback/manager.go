@@ -2,6 +2,7 @@ package playback
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -11,9 +12,12 @@ import (
 )
 
 const (
-	DefaultRetryInterval  = 30 * time.Second
-	DefaultReconnectDelay = 5 * time.Second
-	statusCheckInterval   = time.Second
+	DefaultRetryInterval      = 5 * time.Second
+	DefaultReconnectDelay     = 5 * time.Second
+	DefaultStartupGracePeriod = 10 * time.Second
+	statusCheckInterval       = time.Second
+	stateLoopInterval         = 50 * time.Millisecond
+	maxRetryDelay             = 5 * time.Minute
 )
 
 type State string
@@ -34,21 +38,34 @@ type Player interface {
 	Status() (*player.Status, error)
 }
 
+// Availability supplies push-based stream availability information.
+// Implementations maintain the availability cache from LiveMasjid events;
+// the playback manager only reads that local cache and never polls LiveMasjid.
+type Availability interface {
+	IsAvailable(mount string) (available bool, known bool)
+	Events() <-chan string
+}
+
 type Config struct {
 	RetryInterval       time.Duration
 	ReconnectDelay      time.Duration
+	StartupGracePeriod  time.Duration
 	StatusCheckInterval time.Duration
+	Logger              *slog.Logger
 }
 
 type Manager struct {
 	mu        sync.Mutex
 	startOnce sync.Once
 
-	player Player
+	player       Player
+	availability Availability
+	log          *slog.Logger
 
-	retryInterval  time.Duration
-	reconnectDelay time.Duration
-	statusInterval time.Duration
+	retryInterval      time.Duration
+	reconnectDelay     time.Duration
+	startupGracePeriod time.Duration
+	statusInterval     time.Duration
 
 	wake chan struct{}
 
@@ -76,22 +93,25 @@ func New(player Player, cfg Config) *Manager {
 	if cfg.RetryInterval == 0 {
 		cfg.RetryInterval = DefaultRetryInterval
 	}
-
 	if cfg.ReconnectDelay == 0 {
 		cfg.ReconnectDelay = DefaultReconnectDelay
 	}
-
+	if cfg.StartupGracePeriod == 0 {
+		cfg.StartupGracePeriod = DefaultStartupGracePeriod
+	}
 	if cfg.StatusCheckInterval == 0 {
 		cfg.StatusCheckInterval = statusCheckInterval
 	}
 
 	return &Manager{
-		player:         player,
-		retryInterval:  cfg.RetryInterval,
-		reconnectDelay: cfg.ReconnectDelay,
-		statusInterval: cfg.StatusCheckInterval,
-		wake:           make(chan struct{}, 1),
-		state:          StateIdle,
+		player:             player,
+		log:                cfg.Logger,
+		retryInterval:      cfg.RetryInterval,
+		reconnectDelay:     cfg.ReconnectDelay,
+		startupGracePeriod: cfg.StartupGracePeriod,
+		statusInterval:     cfg.StatusCheckInterval,
+		wake:               make(chan struct{}, 1),
+		state:              StateIdle,
 		status: Status{
 			Version: version.Version,
 			State:   string(StateIdle),
@@ -99,10 +119,15 @@ func New(player Player, cfg Config) *Manager {
 	}
 }
 
+func (m *Manager) SetAvailability(availability Availability) {
+	m.mu.Lock()
+	m.availability = availability
+	m.mu.Unlock()
+	m.notify()
+}
+
 func (m *Manager) Start(ctx context.Context) {
-	m.startOnce.Do(func() {
-		go m.run(ctx)
-	})
+	m.startOnce.Do(func() { go m.run(ctx) })
 }
 
 func (m *Manager) Play(selected stream.Stream) {
@@ -113,7 +138,6 @@ func (m *Manager) Play(selected stream.Stream) {
 	m.lastError = ""
 	m.updateStatusLocked(nil)
 	m.mu.Unlock()
-
 	m.notify()
 }
 
@@ -124,7 +148,6 @@ func (m *Manager) Stop() {
 	m.lastError = ""
 	m.updateStatusLocked(nil)
 	m.mu.Unlock()
-
 	m.notify()
 }
 
@@ -132,125 +155,249 @@ func (m *Manager) Volume(volume int) error {
 	if err := m.player.Volume(volume); err != nil {
 		return err
 	}
-
 	m.mu.Lock()
 	m.status.Volume = volume
 	m.mu.Unlock()
-
 	return nil
 }
 
 func (m *Manager) Status() Status {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
 	return m.status
 }
 
 func (m *Manager) run(ctx context.Context) {
+	loop := time.NewTicker(stateLoopInterval)
+	defer loop.Stop()
+
+	statusTicker := time.NewTicker(m.statusInterval)
+	defer statusTicker.Stop()
+
 	active := false
-
-	for {
-		selected, listening := m.snapshot()
-
-		if ctx.Err() != nil {
-			if active {
-				_ = m.player.Stop()
-			}
-			return
-		}
-
-		if !listening || selected == nil {
-			if active {
-				_ = m.player.Stop()
-				active = false
-			}
-
-			m.setState(StateIdle, "", nil)
-
-			if !m.wait(ctx, 0) {
-				return
-			}
-
-			continue
-		}
-
-		m.setState(StateConnecting, "", nil)
-
-		if err := m.player.Play(selected.URL); err != nil {
-			m.setState(StateRetrying, err.Error(), nil)
-
-			if !m.wait(ctx, m.retryInterval) {
-				return
-			}
-
-			continue
-		}
-
-		active = true
-
-		delay, ok := m.monitor(ctx)
-		if !ok {
-			return
-		}
-
-		if delay > 0 {
-			if !m.wait(ctx, delay) {
-				return
-			}
-		}
-	}
-}
-
-func (m *Manager) monitor(ctx context.Context) (time.Duration, bool) {
-	ticker := time.NewTicker(m.statusInterval)
-	defer ticker.Stop()
-
-	wasPlaying := false
+	playing := false
+	attemptStarted := time.Time{}
+	nextAttempt := time.Time{}
+	retryAttempt := 0
+	reconnectAttempt := 0
 
 	for {
 		select {
 		case <-ctx.Done():
-			_ = m.player.Stop()
-			return 0, false
+			if active {
+				_ = m.player.Stop()
+			}
+			return
 		case <-m.wake:
-			return 0, true
-		case <-ticker.C:
-			status, err := m.player.Status()
-			if err != nil {
-				m.setState(StateRetrying, err.Error(), nil)
-				return m.retryDelay(wasPlaying), true
+			m.step(ctx, &active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
+		case <-loop.C:
+			m.step(ctx, &active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
+		case <-statusTicker.C:
+			if active {
+				m.checkPlayerStatus(&active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 			}
-			if status.State == "stopped" {
-				m.setState(StateRetrying, "", status)
-				return m.retryDelay(wasPlaying), true
-			}
-
-			wasPlaying = true
-			m.setState(StatePlaying, "", status)
 		}
 	}
 }
 
-func (m *Manager) retryDelay(wasPlaying bool) time.Duration {
-	if wasPlaying {
-		return m.reconnectDelay
+func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+	selected, listening, availability := m.snapshot()
+	if ctx.Err() != nil {
+		return
 	}
 
-	return m.retryInterval
+	if !listening || selected == nil {
+		if *active {
+			_ = m.player.Stop()
+			*active = false
+			*playing = false
+		}
+		*attemptStarted = time.Time{}
+		*nextAttempt = time.Time{}
+		*retryAttempt = 0
+		*reconnectAttempt = 0
+		m.setState(StateIdle, "", nil)
+		return
+	}
+
+	if availability != nil {
+		available, known := availability.IsAvailable(selected.ID)
+		if !known || !available {
+			if *active {
+				_ = m.player.Stop()
+				*active = false
+				*playing = false
+			}
+			*attemptStarted = time.Time{}
+			*nextAttempt = time.Time{}
+			*retryAttempt = 0
+			*reconnectAttempt = 0
+			m.setState(StateWaiting, "", nil)
+			return
+		}
+	}
+
+	if *active {
+		return
+	}
+	if !nextAttempt.IsZero() && time.Now().Before(*nextAttempt) {
+		m.setState(StateRetrying, m.retryMessage(*nextAttempt), nil)
+		return
+	}
+
+	m.setState(StateConnecting, "", nil)
+	if err := m.player.Play(selected.URL); err != nil {
+		delay := backoffDelay(m.retryInterval, *retryAttempt)
+		(*retryAttempt)++
+		*nextAttempt = time.Now().Add(delay)
+		*attemptStarted = time.Time{}
+		m.setState(StateRetrying, err.Error(), nil)
+		m.logRetry(selected, "relay connection failed", err, delay)
+		return
+	}
+
+	*active = true
+	*playing = false
+	*attemptStarted = time.Now()
+	*nextAttempt = time.Time{}
+	*reconnectAttempt = 0
+	// mpv accepts Play() asynchronously. Keep the manager in Connecting until
+	// Status() confirms playback, while allowing a short startup grace period
+	// for network streams that have not finished loading yet.
+	m.setState(StateConnecting, "", nil)
 }
 
-func (m *Manager) snapshot() (*stream.Stream, bool) {
+func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+	if !*active {
+		return
+	}
+
+	status, err := m.player.Status()
+	if err != nil {
+		delay := backoffDelay(m.retryInterval, *retryAttempt)
+		(*retryAttempt)++
+		_ = m.player.Stop()
+		*active = false
+		*playing = false
+		*attemptStarted = time.Time{}
+		*nextAttempt = time.Now().Add(delay)
+		m.setState(StateRetrying, err.Error(), nil)
+		m.logRetryFromStatus("player status failed", err, delay)
+		return
+	}
+
+	selected, listening, availability := m.snapshot()
+	if !listening || selected == nil {
+		return
+	}
+	if availability != nil {
+		available, known := availability.IsAvailable(selected.ID)
+		if !known || !available {
+			_ = m.player.Stop()
+			*active = false
+			*playing = false
+			*attemptStarted = time.Time{}
+			*nextAttempt = time.Time{}
+			*retryAttempt = 0
+			*reconnectAttempt = 0
+			m.setState(StateWaiting, "", status)
+			return
+		}
+	}
+
+	if status.State == "stopped" {
+		if !attemptStarted.IsZero() && time.Since(*attemptStarted) < m.startupGracePeriod {
+			m.setState(StateConnecting, "Connecting to stream...", status)
+			return
+		}
+
+		delay := backoffDelay(m.retryInterval, *retryAttempt)
+		(*retryAttempt)++
+		_ = m.player.Stop()
+		*active = false
+		*playing = false
+		*attemptStarted = time.Time{}
+		*nextAttempt = time.Now().Add(delay)
+		m.setState(StateRetrying, "player stopped unexpectedly", status)
+		m.logRetryFromStatus("playback stopped unexpectedly", nil, delay)
+		return
+	}
+
+	*playing = true
+	*attemptStarted = time.Time{}
+	*retryAttempt = 0
+	*reconnectAttempt = 0
+	m.setState(StatePlaying, "", status)
+}
+
+func backoffDelay(base time.Duration, attempt int) time.Duration {
+	if base <= 0 {
+		base = DefaultRetryInterval
+	}
+	if attempt < 0 {
+		attempt = 0
+	}
+
+	delay := base
+	for i := 0; i < attempt && delay < maxRetryDelay; i++ {
+		if delay > maxRetryDelay/2 {
+			return maxRetryDelay
+		}
+		delay *= 2
+	}
+	if delay > maxRetryDelay {
+		return maxRetryDelay
+	}
+	return delay
+}
+
+func (m *Manager) retryMessage(nextAttempt time.Time) string {
+	remaining := time.Until(nextAttempt).Round(time.Second)
+	if remaining < 0 {
+		remaining = 0
+	}
+	return "Retrying in " + remaining.String()
+}
+
+func (m *Manager) logRetry(selected *stream.Stream, reason string, err error, delay time.Duration) {
+	if m.log == nil {
+		return
+	}
+	args := []any{
+		"stream_id", selected.ID,
+		"stream_name", selected.Name,
+		"retry_in", delay.String(),
+		"reason", reason,
+	}
+	if err != nil {
+		args = append(args, "error", err)
+	}
+	m.log.Warn("Stream playback retry scheduled", args...)
+}
+
+func (m *Manager) logRetryFromStatus(reason string, err error, delay time.Duration) {
+	if m.log == nil {
+		return
+	}
+	args := []any{
+		"retry_in", delay.String(),
+		"reason", reason,
+	}
+	if err != nil {
+		args = append(args, "error", err)
+	}
+	m.log.Warn("Stream playback retry scheduled", args...)
+}
+
+func (m *Manager) snapshot() (*stream.Stream, bool, Availability) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
-	return m.selected, m.listening
+	return m.selected, m.listening, m.availability
 }
 
 func (m *Manager) setState(state State, message string, playerStatus *player.Status) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
 	m.state = state
 	m.lastError = message
 	m.updateStatusLocked(playerStatus)
@@ -258,35 +405,25 @@ func (m *Manager) setState(state State, message string, playerStatus *player.Sta
 
 func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 	status := m.status
-
 	status.State = string(m.state)
 	switch m.state {
-
 	case StateIdle:
 		status.Message = "Idle"
-
 	case StateWaiting:
 		status.Message = "Waiting for stream"
-
 	case StateConnecting:
 		status.Message = "Connecting..."
-
 	case StatePlaying:
 		status.Message = "Playing"
-
 	case StateRetrying:
-		status.Message = "Waiting for masjid"
-
+		status.Message = "Reconnecting"
 	case StateError:
 		status.Message = "Playback error"
-
 	default:
 		status.Message = ""
 	}
-
 	status.Listening = m.listening
 	status.Error = m.lastError
-
 	if m.selected == nil {
 		status.StreamID = ""
 		status.StreamName = ""
@@ -296,13 +433,11 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 		status.StreamName = m.selected.Name
 		status.URL = m.selected.URL
 	}
-
 	if playerStatus != nil {
 		status.URL = playerStatus.URL
 		status.Volume = playerStatus.Volume
 		status.Paused = playerStatus.Paused
 	}
-
 	m.status = status
 }
 
@@ -310,28 +445,5 @@ func (m *Manager) notify() {
 	select {
 	case m.wake <- struct{}{}:
 	default:
-	}
-}
-
-func (m *Manager) wait(ctx context.Context, delay time.Duration) bool {
-	if delay <= 0 {
-		select {
-		case <-ctx.Done():
-			return false
-		case <-m.wake:
-			return true
-		}
-	}
-
-	timer := time.NewTimer(delay)
-	defer timer.Stop()
-
-	select {
-	case <-ctx.Done():
-		return false
-	case <-m.wake:
-		return true
-	case <-timer.C:
-		return true
 	}
 }

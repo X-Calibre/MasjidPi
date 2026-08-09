@@ -1,46 +1,29 @@
 # MasjidPi Roadmap
 
-## ✅ Milestone 0.1
+MasjidPi is being developed as a lightweight Raspberry Pi internet radio appliance for LiveMasjid streams.
 
-Project foundation
+The roadmap is organised by product phase rather than historical version numbers. Completed phases document what is already implemented and verified; upcoming phases describe the next product priorities.
 
-- Repository structure
-- Backend skeleton
-- Frontend skeleton
+---
+
+## ✅ Phase 1 — Core Player
+
+The core radio player and playback API are complete.
+
 - MPV integration
-
----
-
-## ✅ Milestone 0.2
-
-Player API
-
-- Play
-- Stop
-- Status
-- Volume
-- Responsive web UI
-
----
-
-## ✅ Milestone 0.3
-
-Stream catalogue
-
-- Stream model
-- Local catalogue
+- Stream catalogue and stream model
 - Play by stream ID
-- Stream API
-- Remember last stream
-- Auto play
+- Play, stop, status and volume controls
+- Responsive web interface
+- Local catalogue
+- Remember the last played stream
+- Resume the last stream after reboot
 
 ---
 
-## ✅ Milestone 0.4
+## ✅ Phase 2 — LiveMasjid Integration
 
-Catalogue updater
-
-### Completed
+LiveMasjid is now integrated directly into MasjidPi without requiring a separate scraping service.
 
 - Download LiveMasjid catalogue
 - Parse LiveMasjid HTML
@@ -48,93 +31,137 @@ Catalogue updater
 - Preserve LiveMasjid stream order
 - Generate relay URLs automatically
 - Normalise stream names and locations
-- Reload catalogue without restarting
+- Reload catalogue without restarting MasjidPi
 - Catalogue update API
 - Update Catalogue button in the web interface
+- LiveMasjid MQTT status feed
+- MQTT connection recovery
 
 ---
 
-## ✅ Milestone 0.5
+## ✅ Phase 3 — Playback Reliability
 
-Installer & Runtime
+Playback and network recovery have been implemented and tested on Raspberry Pi.
 
-### Completed
+- Detect playback failures
+- Gracefully handle unavailable streams
+- Display playback errors in the API/UI
+- Controlled playback retry and reconnect behaviour
+- Automatic recovery after temporary network failures
+- Recovery after Ethernet disconnect/reconnect
+- Recovery after extended network outages
+- MQTT disconnect/reconnect handling
+- MPV recovery
+- Preserve the selected stream during playback failures
+- Resume the last stream after a system reboot
+
+---
+
+## ✅ Phase 4 — Raspberry Pi Runtime
+
+The Raspberry Pi installation and runtime workflow is now functional and has been tested on real hardware.
 
 - Runtime directory layout
 - Runtime path abstraction
 - Automatic dependency installation
-- Go installation
+- Go installation/checking
 - Build automation
 - Runtime installation
 - systemd service installation
 - Automatic startup on boot
+- Service restart/stop handling during installation
 - Installer self-test
+- HTTP interface health check
+- Audio device detection
+- Clean repository/build-artifact handling
+- MPV journal output cleanup
+- ALSA audio selection for the appliance runtime
+- Installation and reboot verification
 
 ---
 
-## 🚧 Milestone 0.6
+## 🚧 Phase 5 — Web UI & Stream Discovery
 
-Update mechanism
+**Next major development phase.** The goal is to make MasjidPi feel like a simple radio rather than a technical streaming tool.
 
-### Planned
+### Stream Discovery
 
-- Runtime layout abstraction
-- Separate application from user data
-- Detect newer releases
-- Download release package
-- Install update
-- Restart service
-- Preserve local configuration
-- Preserve catalogue and user data
-- End-user installer (future)
-
----
-
-## ✅ Milestone 0.7
-
-Playback reliability
-
-### Completed
-
-- Detect offline streams
-- Gracefully handle unavailable streams
-- Display playback errors
-- Prevent endless reconnect attempts
-- Automatic recovery after temporary failures
-
----
-
-## Future
-
-### Search
-
-- Instant filtering
-- Search by mosque
+- Search streams instantly
+- Search by mosque name
 - Search by location
+- Filter the stream catalogue
+- Improve stream selection and browsing
 
 ### Favourites
 
 - Favourite stations
-- Quick access
+- Persistent favourites
+- Quick access to favourite stations
 
-### Hardware
+### Playback UI
+
+- Clear current-stream display
+- Clear playing/reconnecting/error states
+- Improved playback controls
+- Better volume control
+- More useful playback feedback
+
+---
+
+## 🚧 Phase 6 — Configuration & Personalisation
+
+Make common MasjidPi settings configurable without editing files manually.
+
+- Web-based configuration
+- First-run setup
+- Audio device selection
+- Playback settings
+- Volume preferences
+- Persist user configuration
+
+---
+
+## 🔮 Phase 7 — Hardware Interface
+
+Turn MasjidPi into a dedicated physical radio appliance.
 
 - OLED display
 - Push-button controls
+- Hardware playback controls
+- Display current station and playback state
 
-### Audio
+---
 
-- Equaliser
-- Presets
+## 🔮 Phase 8 — Appliance & Production Hardening
 
-### Raspberry Pi
+Prepare MasjidPi for simple, unattended deployment on Raspberry Pi hardware.
 
 - Kiosk mode
-- Read-only mode
-- Automatic updates
+- Read-only filesystem mode
+- Safe automatic updates
+- Update/recovery safety
+- Production installation workflow
+- Raspberry Pi appliance image/workflow
 
-### User Experience
+---
 
-- Multi-language interface
-- First-run setup wizard
-- Web-based configuration
+## Current Release
+
+**v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, and Raspberry Pi runtime foundations.
+
+The next target is **v0.6.0**, focused on Web UI improvements, stream discovery, and favourites.
+
+---
+
+## Project Principles
+
+MasjidPi should remain:
+
+- Lightweight enough for Raspberry Pi hardware
+- Simple to install and operate
+- Reliable during network interruptions
+- Usable without a separate server
+- Focused on listening to mosque streams
+- Easy to maintain and update
+
+The project should prioritise a reliable radio experience over unnecessary complexity.

@@ -39,12 +39,5 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(
-		w,
-		http.StatusOK,
-		map[string]any{
-			"status": "ok",
-			"volume": req.Volume,
-		},
-	)
+	writeJSON(w, http.StatusOK, s.playback.Status())
 }

@@ -109,8 +109,8 @@ func TestManagerStopsPlaybackWhenAvailabilityBecomesUnknown(t *testing.T) {
 		return manager.Status().State == string(StateWaiting)
 	})
 
-	if fake.stopCalls != 1 {
-		t.Fatalf("stop calls = %d, want 1", fake.stopCalls)
+	if got := fake.stopCount(); got != 1 {
+		t.Fatalf("stop calls = %d, want 1", got)
 	}
 
 	plays := fake.playCount()

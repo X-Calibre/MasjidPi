@@ -291,7 +291,8 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextA
 		return
 	}
 	if availability != nil {
-		if available, known := availability.IsAvailable(selected.ID); known && !available {
+		available, known := availability.IsAvailable(selected.ID)
+		if !known || !available {
 			_ = m.player.Stop()
 			*active = false
 			*playing = false

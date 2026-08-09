@@ -51,13 +51,7 @@ func (s *Server) play(w http.ResponseWriter, r *http.Request) {
 
 	s.playback.Play(*stream)
 
-	writeJSON(
-		w,
-		http.StatusOK,
-		map[string]string{
-			"status": "playing",
-		},
-	)
+	writeJSON(w, http.StatusOK, s.playback.Status())
 }
 
 func (s *Server) stop(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +66,5 @@ func (s *Server) stop(w http.ResponseWriter, r *http.Request) {
 
 	s.playback.Stop()
 
-	writeJSON(
-		w,
-		http.StatusOK,
-		map[string]string{
-			"status": "stopped",
-		},
-	)
+	writeJSON(w, http.StatusOK, s.playback.Status())
 }

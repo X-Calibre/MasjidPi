@@ -1,4 +1,7 @@
-.PHONY: run fmt tidy test
+.PHONY: build run fmt tidy test
+
+build:
+	cd backend && mkdir -p build && go build -o build/masjidpi ./cmd/masjidpi
 
 run:
 	cd backend && go run ./cmd/masjidpi

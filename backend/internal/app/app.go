@@ -55,7 +55,16 @@ func Run() error {
 	playbackConfig.Logger = log
 
 	playbackManager := playback.New(mpv, playbackConfig)
-	if err := playbackManager.Volume(cfg.Player.Volume); err != nil { return err }
+	volumeState := storage.NewVolume(paths.VolumeState)
+	initialVolume := cfg.Player.Volume
+	if volume, ok, err := volumeState.Load(); err != nil {
+		log.Warn("Could not load saved volume", "error", err)
+	} else if ok {
+		initialVolume = volume
+		log.Info("Restored volume", "volume", volume)
+	}
+	if err := playbackManager.Volume(initialVolume); err != nil { return err }
+	playbackManager.SetVolumePersistence(volumeState)
 
 	playbackState := storage.NewPlayback(paths.PlaybackState)
 	playbackManager.SetPersistence(playbackState)

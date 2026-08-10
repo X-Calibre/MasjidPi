@@ -1,19 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>MasjidPi</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="container">
-
     <header>
         <h1>MasjidPi</h1>
         <p>Masjid Audio Streaming</p>
@@ -24,63 +18,42 @@
     </div>
 
     <section class="card">
-
         <h2>Player Status</h2>
-
         <div class="status-row">
             <span>Status</span>
             <span id="state" class="status-badge">Unknown</span>
         </div>
-
         <div id="statusDetail" class="status-detail hidden"></div>
-
         <div class="status-row">
             <span>Volume</span>
             <span id="volume">0</span>
         </div>
-
         <label>Current Stream</label>
-
         <pre id="url"></pre>
-
     </section>
 
     <section class="card player-controls">
-
         <h2>Player Controls</h2>
 
         <label for="volumeSlider">Volume</label>
-
-        <input
-            id="volumeSlider"
-            type="range"
-            min="0"
-            max="125"
-            value="100">
-
+        <input id="volumeSlider" type="range" min="0" max="125" value="100">
         <div id="volumeValue">100%</div>
+        <small class="volume-note">Boost available up to 125%</small>
 
-        <small class="volume-note">
-            Boost available up to 125%
-        </small>
+        <label for="audioDevice">Audio Output</label>
+        <select id="audioDevice"></select>
+        <small class="volume-note">Select where MasjidPi plays audio.</small>
 
         <div class="buttons">
             <button id="play">▶ Play</button>
             <button id="stop">■ Stop</button>
         </div>
-
     </section>
 
     <section class="card">
-
         <h2>Find a Masjid</h2>
-
         <label for="streamSearch">Search</label>
-        <input
-            id="streamSearch"
-            type="search"
-            placeholder="Search by masjid name or location..."
-            autocomplete="off">
+        <input id="streamSearch" type="search" placeholder="Search by masjid name or location..." autocomplete="off">
         <div id="streamCount" class="stream-count"></div>
 
         <div id="favouritesSection" class="favourites-section hidden">
@@ -89,34 +62,25 @@
         </div>
 
         <label for="stream">Masjid</label>
-
         <select id="stream" size="8"></select>
 
         <div class="stream-actions">
-            <button id="favouriteButton" class="secondary" type="button">
-                ☆ Add to Favourites
-            </button>
-            <button id="updateCatalogueButton" class="secondary" type="button">
-                🔄 Update Catalogue
-            </button>
+            <button id="favouriteButton" class="secondary" type="button">☆ Add to Favourites</button>
+            <button id="updateCatalogueButton" class="secondary" type="button">🔄 Update Catalogue</button>
         </div>
 
         <label class="checkbox">
             <input type="checkbox" id="autoplay">
             Auto play on startup
         </label>
-
     </section>
 
     <footer class="footer">
         <span id="version">MasjidPi</span>
     </footer>
-
 </div>
 
 <div id="toastContainer" class="toast-container"></div>
-
 <script src="app.js"></script>
-
 </body>
 </html>

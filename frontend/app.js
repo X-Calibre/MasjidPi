@@ -1,4 +1,5 @@
 let catalogue = [];
+let filteredCatalogue = [];
 let backendOnline = true;
 
 const state = document.getElementById("state");
@@ -6,6 +7,8 @@ const statusDetail = document.getElementById("statusDetail");
 const volume = document.getElementById("volume");
 const stream = document.getElementById("url");
 const streamInput = document.getElementById("stream");
+const streamSearch = document.getElementById("streamSearch");
+const streamCount = document.getElementById("streamCount");
 const volumeSlider = document.getElementById("volumeSlider");
 const volumeValue = document.getElementById("volumeValue");
 const playButton = document.getElementById("play");
@@ -19,6 +22,39 @@ async function getStatus() {
     return response.json();
 }
 
+function renderStreams(preferredId = streamInput.value) {
+    const query = streamSearch.value.trim().toLowerCase();
+
+    filteredCatalogue = catalogue.filter(stream => {
+        if (!query) return true;
+
+        return [stream.name, stream.location, stream.id]
+            .filter(Boolean)
+            .some(value => value.toLowerCase().includes(query));
+    });
+
+    streamInput.innerHTML = "";
+
+    for (const stream of filteredCatalogue) {
+        const option = document.createElement("option");
+        option.value = stream.id;
+        option.textContent = stream.location
+            ? `${stream.name} — ${stream.location}`
+            : stream.name;
+        streamInput.appendChild(option);
+    }
+
+    if (preferredId && filteredCatalogue.some(item => item.id === preferredId)) {
+        streamInput.value = preferredId;
+    }
+
+    streamCount.textContent = query
+        ? `${filteredCatalogue.length} of ${catalogue.length} masjids`
+        : `${catalogue.length} masjids`;
+
+    streamCount.classList.toggle("hidden", catalogue.length === 0);
+}
+
 async function loadStreams() {
     const currentSelection = streamInput.value;
     const response = await fetch("/api/streams");
@@ -28,19 +64,9 @@ async function loadStreams() {
     }
 
     catalogue = await response.json();
-    streamInput.innerHTML = "";
-
-    for (const stream of catalogue) {
-        const option = document.createElement("option");
-        option.value = stream.id;
-        option.textContent = stream.name;
-        streamInput.appendChild(option);
-    }
 
     const preferred = currentSelection || localStorage.getItem("lastStream");
-    if (preferred && [...streamInput.options].some(option => option.value === preferred)) {
-        streamInput.value = preferred;
-    }
+    renderStreams(preferred);
 }
 
 async function playStream(id) {
@@ -102,6 +128,7 @@ function setOffline(offline) {
     playButton.disabled = offline;
     stopButton.disabled = offline;
     streamInput.disabled = offline;
+    streamSearch.disabled = offline;
     volumeSlider.disabled = offline;
     updateCatalogueButton.disabled = offline;
 }
@@ -116,6 +143,7 @@ function updateControls(status) {
     playButton.disabled = active;
     stopButton.disabled = !active;
     streamInput.disabled = false;
+    streamSearch.disabled = false;
     volumeSlider.disabled = false;
     updateCatalogueButton.disabled = false;
 }
@@ -155,7 +183,14 @@ async function refreshStatus() {
             stream.textContent = "No stream playing";
         } else {
             const current = findStreamByURL(status.url);
-            stream.textContent = current ? current.name + "\n" + current.url : status.url;
+            stream.textContent = current
+                ? current.name + (current.location ? " — " + current.location : "") + "\n" + current.url
+                : status.url;
+
+            if (current && streamInput.value !== current.id) {
+                const visible = filteredCatalogue.some(item => item.id === current.id);
+                if (visible) streamInput.value = current.id;
+            }
         }
     } catch (err) {
         console.error(err);
@@ -171,6 +206,10 @@ async function refreshStatus() {
         }
     }
 }
+
+streamSearch.addEventListener("input", () => {
+    renderStreams(streamInput.value);
+});
 
 streamInput.addEventListener("change", () => {
     localStorage.setItem("lastStream", streamInput.value);

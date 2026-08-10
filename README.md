@@ -6,6 +6,14 @@ The project is intentionally lightweight and designed to run on low-powered Rasp
 
 ---
 
+## Current Release
+
+**v0.5.0**
+
+MasjidPi v0.5 focuses on turning the core player into a practical Raspberry Pi appliance with reliable playback recovery, shared persistent settings and user-friendly stream discovery and audio controls.
+
+---
+
 ## Screenshot
 
 ![MasjidPi Web Interface](docs/images/masjidpi-ui.png)
@@ -33,6 +41,7 @@ A Raspberry Pi connected to speakers that allows users to:
 - Browse live masjid streams
 - Listen to live broadcasts
 - Save favourite masājid
+- Select the audio output device
 - Automatically reconnect after network outages
 - Resume playback after power loss
 - Be managed entirely through a web browser
@@ -58,55 +67,92 @@ MasjidPi follows a few simple principles:
 
 ## Current Features
 
+### Playback
+
 - Responsive web-based player interface
 - Live playback status
+- Play and Stop controls
 - Volume control (0–125%)
 - MPV-based audio playback
 - ALSA audio output
-- Local stream catalogue
+- Selectable audio output device
+- Automatic audio-device recovery when a selected device disappears and returns
+
+### Stream discovery
+
+- Local LiveMasjid stream catalogue
+- Search by masjid name or location
+- Instant stream filtering
+- Favourite masājid
+- Persistent favourites shared across devices
+- Runtime catalogue updates without restarting MasjidPi
 - LiveMasjid catalogue updates
 - Preserve LiveMasjid stream ordering
 - Generate relay URLs automatically
 - Play streams by catalogue selection
+
+### Persistent appliance state
+
+MasjidPi is designed so that persistent settings belong to the Raspberry Pi, not to an individual browser.
+
 - Remember the last selected stream
+- Remember the last playing stream
 - Automatically resume the last playing stream after restart or reboot
+- Persist volume across restarts and reboots
+- Persist the selected audio output device
+- Persist favourites
+- Settings are shared between phones, tablets and computers accessing the same MasjidPi
+- The Web UI does not need to be open for playback to resume after boot
+
+### Reliability
+
 - Automatically retry streams that stop unexpectedly
 - Automatically reconnect when a selected masjid broadcast becomes available again
 - MQTT LiveMasjid status monitoring with automatic reconnect/resubscribe
-- Runtime catalogue updates without restarting MasjidPi
-- Installable as a Linux systemd service
+- Recovery after temporary and extended network outages
+- systemd service installation
 - Automatic startup on boot
 - Installation self-test
 - Automated Go tests
 
 ---
 
-## Recent Improvements
+## Persistent State
 
-- Automatic LiveMasjid catalogue updates
-- Runtime path abstraction
-- Persistent last-playback state across restarts
-- Automatic recovery from offline streams
-- MQTT status-feed reconnect handling
-- "Waiting for Masjid" playback state
-- Persistent frontend settings
-- Responsive web interface
-- Installation self-test
-- systemd service support
-- Automated API and playback tests
+MasjidPi stores appliance state on the Raspberry Pi under `/var/lib/masjidpi` rather than relying on browser-local storage.
+
+The exact files may evolve as the storage implementation is cleaned up, but persistent state currently includes:
+
+- Playback/resume state
+- Volume
+- Audio output device
+- Favourites
+- Other MasjidPi preferences as they are introduced
+
+This means a user can open the same MasjidPi installation from a laptop, phone or tablet and see the same persistent settings.
+
+The browser is treated as a **remote control**, not the owner of MasjidPi configuration.
 
 ---
 
 ## Planned Features
 
+Near-term development is focused on finishing the Web UI and production hardening.
+
+Future features include:
+
 - Automatic application updates
-- Searchable stream catalogue
-- Favourite masājid
-- OLED display support
-- Push-button controls
-- Audio equaliser
-- Multi-language interface
-- Read-only Raspberry Pi mode
+- First-run configuration
+- Kiosk/appliance mode
+- Read-only filesystem support
+- Safer automatic update and recovery workflows
+
+Deferred to **v2.0.0** or later:
+
+- OLED display
+- Push-button hardware controls
+- Hardware playback controls
+- Audio equaliser / EQ processing
 
 ---
 
@@ -272,10 +318,13 @@ Persistent application data is stored under:
 ```text
 /var/lib/masjidpi
 ├── catalogue.json
-└── playback.json
+├── playback.json
+├── volume.json
+├── audio-device.json
+└── favourites.json
 ```
 
-`playback.json` contains the selected stream ID used to resume playback after a normal restart or reboot. Explicitly stopping playback clears the saved playback state.
+These files represent persistent appliance state and user data. They are not intended to be edited manually during normal operation.
 
 The systemd service runs the application from `/opt/masjidpi` and starts automatically at boot.
 
@@ -303,14 +352,32 @@ streams:
   refresh_interval: "6h"
 
 playback:
-  retry_interval: "5s"
+  retry_interval: "30s"
   reconnect_delay: "5s"
 ```
+
+The configured volume is used as the initial fallback for a new installation. Once the user changes the volume through the Web UI, the persisted volume takes precedence.
 
 Changes to the configuration generally require restarting the service:
 
 ```bash
 sudo systemctl restart masjidpi
+```
+
+---
+
+## Audio Output
+
+MasjidPi uses MPV with ALSA audio output in the packaged systemd service.
+
+The Web UI can discover and select available audio devices. The selected device is persisted on the Raspberry Pi and restored after reboot.
+
+MasjidPi also monitors the selected device. If a USB or other removable audio device disappears, MasjidPi can fall back while keeping the user's selected device preference. When the device becomes available again, MasjidPi automatically restores it without requiring the user to open the Web UI or restart the service.
+
+Check available Linux audio hardware with:
+
+```bash
+aplay -l
 ```
 
 ---
@@ -337,7 +404,9 @@ If a stream stops unexpectedly, the playback manager enters a retrying state and
 
 If a selected masjid is temporarily offline, MasjidPi waits for the stream to become available and automatically retries it.
 
-The selected stream is persisted so that a normal restart or Raspberry Pi reboot can resume the last stream. The stream is not resumed when the user explicitly presses Stop, because that action clears the saved playback state.
+The selected/last playing stream is persisted so that a normal restart or Raspberry Pi reboot can resume playback automatically. The Web UI does **not** need to be open for this to happen.
+
+Explicitly stopping playback clears the saved playback state, so a user who intentionally presses Stop will not unexpectedly start that stream again after reboot.
 
 ---
 
@@ -402,7 +471,9 @@ When accessing MasjidPi from another device, replace `localhost` with the Raspbe
 http://192.168.1.50:8080
 ```
 
-The Web UI provides stream selection, playback status and volume control.
+The Web UI provides stream selection, favourites, playback status, volume control and audio-output selection.
+
+Persistent MasjidPi settings are stored on the Raspberry Pi, so using a different phone or computer does not create a separate configuration.
 
 ---
 
@@ -461,7 +532,7 @@ Check that Linux detects an audio device:
 aplay -l
 ```
 
-MasjidPi uses MPV with ALSA audio output in the packaged systemd service.
+If a selected USB audio device has been unplugged, reconnect it and allow a few seconds for MasjidPi to detect and restore it.
 
 ---
 
@@ -469,24 +540,23 @@ MasjidPi uses MPV with ALSA audio output in the packaged systemd service.
 
 MasjidPi is currently in active development and is versioned below 1.0.
 
-The following components are complete:
+Completed foundations include:
 
 - Core player
-- Stream catalogue
-- Catalogue updater
-- Installer
-- Runtime environment
-- Systemd integration
+- Stream catalogue and LiveMasjid integration
+- Playback reliability and network recovery
+- Raspberry Pi runtime and systemd integration
+- Stream search and discovery
+- Persistent favourites
 - Persistent playback state
-- MQTT reconnect handling
+- Persistent volume
+- Persistent audio-device selection
+- Automatic audio-device recovery
 - Automated tests
 
-Current development is focused on:
+The current roadmap continues with configuration and personalisation, followed by appliance/production hardening.
 
-- Automatic application updates
-- Search
-- Favourites
-- Further Raspberry Pi optimisation
+See `ROADMAP.md` for the current product roadmap.
 
 Breaking changes may still occur before version 1.0.
 

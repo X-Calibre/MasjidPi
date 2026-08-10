@@ -232,7 +232,7 @@ func (m *Manager) run(ctx context.Context) {
 	}
 }
 
-func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, playing, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, playing *bool, attemptStarted *time.Time, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	selected, listening, availability := m.snapshot()
 	if ctx.Err() != nil {
 		return
@@ -316,7 +316,7 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 	m.setState(StateConnecting, "", nil)
 }
 
-func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bool, attemptStarted *time.Time, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	if !*active {
 		return
 	}

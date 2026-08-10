@@ -2,5 +2,6 @@ page.html
 livemasjid.js
 playback.json
 audio_device.json
+volume.json
 favourites.json
 preferences.json

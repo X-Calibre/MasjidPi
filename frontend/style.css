@@ -17,8 +17,19 @@ select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #444; 
 select option { padding: 9px 6px; }
 select:focus, input[type="search"]:focus { outline: 2px solid rgba(50,195,108,.45); outline-offset: 1px; }
 .stream-count { margin-top: 8px; color: #888; font-size: 13px; }
+.stream-actions { display: flex; gap: 10px; margin-top: 12px; }
+.stream-actions button { flex: 1; }
+.favourites-section { margin-top: 4px; }
+.favourites { display: flex; flex-direction: column; gap: 8px; }
+.favourite-item { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid #444; border-radius: 8px; background: #2b2b2b; color: #f5f5f5; text-align: left; font-size: 14px; }
+.favourite-item:hover { background: #353535; }
+.favourite-item > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.favourite-remove { flex: 0 0 auto; color: #bbbbbb; font-size: 20px; line-height: 1; }
+.favourite-remove:hover { color: #ff8a8a; }
 .buttons { display: flex; gap: 12px; margin-top: 20px; }
 button { flex: 1; border: none; border-radius: 8px; padding: 14px; cursor: pointer; font-size: 16px; font-weight: bold; transition: .2s; }
+button.secondary { background: #2b2b2b; color: #f5f5f5; border: 1px solid #444; }
+button.secondary:hover { background: #353535; }
 #play { background: #32c36c; color: white; }
 #play:hover { background: #28a95b; }
 #stop { background: #d84b4b; color: white; }
@@ -63,6 +74,7 @@ button:disabled, select:disabled, input:disabled { opacity: 0.5; cursor: not-all
     .card { padding: 18px; }
     header h1 { font-size: 34px; }
     select { font-size: 14px; }
+    .stream-actions { flex-direction: column; }
     .toast-container { left: 12px; right: 12px; bottom: 12px; }
     .toast { min-width: 0; max-width: none; }
 }

@@ -72,9 +72,9 @@ func (f *fakePlayer) stopCount() int {
 }
 
 type fakePersistence struct {
-	mu       sync.Mutex
-	saved    []string
-	cleared  int
+	mu      sync.Mutex
+	saved   []string
+	cleared int
 }
 
 func (f *fakePersistence) Save(streamID string) error {
@@ -138,6 +138,42 @@ func TestManagerPersistsPlayAndClearsStop(t *testing.T) {
 	manager.Stop()
 	if persistence.cleared != 1 {
 		t.Fatalf("clear calls = %d, want 1", persistence.cleared)
+	}
+}
+
+func TestManagerSwitchesStreamsDuringPlayback(t *testing.T) {
+	fake := &fakePlayer{}
+	manager := New(fake, Config{
+		StartupGracePeriod:  200 * time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+
+	waitFor(t, time.Second, func() bool {
+		return fake.playCount() == 1
+	})
+
+	manager.Play(stream.Stream{ID: "two", Name: "Masjid Two", URL: "relay://two"})
+
+	waitFor(t, time.Second, func() bool {
+		return fake.playCount() == 2
+	})
+
+	if got := fake.stopCount(); got != 1 {
+		t.Fatalf("stop calls = %d, want 1", got)
+	}
+
+	status := manager.Status()
+	if status.StreamID != "two" {
+		t.Fatalf("selected stream ID = %q, want %q", status.StreamID, "two")
+	}
+	if status.URL != "relay://two" {
+		t.Fatalf("selected stream URL = %q, want %q", status.URL, "relay://two")
 	}
 }
 

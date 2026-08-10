@@ -45,6 +45,32 @@
 
     </section>
 
+    <section class="card player-controls">
+
+        <h2>Player Controls</h2>
+
+        <label for="volumeSlider">Volume</label>
+
+        <input
+            id="volumeSlider"
+            type="range"
+            min="0"
+            max="125"
+            value="100">
+
+        <div id="volumeValue">100%</div>
+
+        <small class="volume-note">
+            Boost available up to 125%
+        </small>
+
+        <div class="buttons">
+            <button id="play">▶ Play</button>
+            <button id="stop">■ Stop</button>
+        </div>
+
+    </section>
+
     <section class="card">
 
         <h2>Find a Masjid</h2>
@@ -79,26 +105,6 @@
             <input type="checkbox" id="autoplay">
             Auto play on startup
         </label>
-
-        <label for="volumeSlider">Volume</label>
-
-        <input
-            id="volumeSlider"
-            type="range"
-            min="0"
-            max="125"
-            value="100">
-
-        <div id="volumeValue">100%</div>
-
-        <small class="volume-note">
-            Boost available up to 125%
-        </small>
-
-        <div class="buttons">
-            <button id="play">▶ Play</button>
-            <button id="stop">■ Stop</button>
-        </div>
 
     </section>
 

@@ -35,20 +35,16 @@ type Player interface {
 	Play(url string) error
 	Stop() error
 	Volume(volume int) error
+	AudioDevices() ([]player.AudioDevice, error)
+	AudioDevice(name string) error
 	Status() (*player.Status, error)
 }
 
-// Availability supplies push-based stream availability information.
-// Implementations maintain the availability cache from LiveMasjid events;
-// the playback manager only reads that local cache and never polls LiveMasjid.
 type Availability interface {
 	IsAvailable(mount string) (available bool, known bool)
 	Events() <-chan string
 }
 
-// Persistence stores the last stream selected for persistent listening.
-// A stored stream is resumed after application restart; clearing the store
-// disables automatic resume after an intentional Stop.
 type Persistence interface {
 	Save(streamID string) error
 	Clear() error
@@ -86,16 +82,17 @@ type Manager struct {
 }
 
 type Status struct {
-	Version    string `json:"version"`
-	State      string `json:"state"`
-	Message    string `json:"message"`
-	URL        string `json:"url"`
-	Volume     int    `json:"volume"`
-	Paused     bool   `json:"paused"`
-	Listening  bool   `json:"listening"`
-	StreamID   string `json:"stream_id,omitempty"`
-	StreamName string `json:"stream_name,omitempty"`
-	Error      string `json:"error,omitempty"`
+	Version     string `json:"version"`
+	State       string `json:"state"`
+	Message     string `json:"message"`
+	URL         string `json:"url"`
+	Volume      int    `json:"volume"`
+	Paused      bool   `json:"paused"`
+	AudioDevice string `json:"audio_device,omitempty"`
+	Listening   bool   `json:"listening"`
+	StreamID    string `json:"stream_id,omitempty"`
+	StreamName  string `json:"stream_name,omitempty"`
+	Error       string `json:"error,omitempty"`
 }
 
 func New(player Player, cfg Config) *Manager {
@@ -160,7 +157,6 @@ func (m *Manager) Play(selected stream.Stream) {
 			m.logPersistenceError("saving last playback stream", err)
 		}
 	}
-
 	m.notify()
 }
 
@@ -178,7 +174,6 @@ func (m *Manager) Stop() {
 			m.logPersistenceError("clearing last playback stream", err)
 		}
 	}
-
 	m.notify()
 }
 
@@ -192,6 +187,20 @@ func (m *Manager) Volume(volume int) error {
 	return nil
 }
 
+func (m *Manager) AudioDevices() ([]player.AudioDevice, error) {
+	return m.player.AudioDevices()
+}
+
+func (m *Manager) AudioDevice(name string) error {
+	if err := m.player.AudioDevice(name); err != nil {
+		return err
+	}
+	m.mu.Lock()
+	m.status.AudioDevice = name
+	m.mu.Unlock()
+	return nil
+}
+
 func (m *Manager) Status() Status {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -201,7 +210,6 @@ func (m *Manager) Status() Status {
 func (m *Manager) run(ctx context.Context) {
 	loop := time.NewTicker(stateLoopInterval)
 	defer loop.Stop()
-
 	statusTicker := time.NewTicker(m.statusInterval)
 	defer statusTicker.Stop()
 
@@ -237,7 +245,6 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 	if ctx.Err() != nil {
 		return
 	}
-
 	if !listening || selected == nil {
 		if *active {
 			_ = m.player.Stop()
@@ -252,7 +259,6 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 		m.setState(StateIdle, "", nil)
 		return
 	}
-
 	if availability != nil {
 		available, known := availability.IsAvailable(selected.ID)
 		if !known || !available {
@@ -270,10 +276,6 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 			return
 		}
 	}
-
-	// A new stream can be selected while another stream is active. Stop the
-	// current player first, then let the normal playback path start the newly
-	// selected stream without requiring the user to press Stop.
 	if *active && *activeURL != selected.URL {
 		_ = m.player.Stop()
 		*active = false
@@ -284,7 +286,6 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 		*retryAttempt = 0
 		*reconnectAttempt = 0
 	}
-
 	if *active {
 		return
 	}
@@ -292,7 +293,6 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 		m.setState(StateRetrying, m.retryMessage(*nextAttempt), nil)
 		return
 	}
-
 	m.setState(StateConnecting, "", nil)
 	if err := m.player.Play(selected.URL); err != nil {
 		delay := backoffDelay(m.retryInterval, *retryAttempt)
@@ -303,16 +303,12 @@ func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, pla
 		m.logRetry(selected, "relay connection failed", err, delay)
 		return
 	}
-
 	*active = true
 	*activeURL = selected.URL
 	*playing = false
 	*attemptStarted = time.Now()
 	*nextAttempt = time.Time{}
 	*reconnectAttempt = 0
-	// mpv accepts Play() asynchronously. Keep the manager in Connecting until
-	// Status() confirms playback, while allowing a short startup grace period
-	// for network streams that have not finished loading yet.
 	m.setState(StateConnecting, "", nil)
 }
 
@@ -320,7 +316,6 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 	if !*active {
 		return
 	}
-
 	status, err := m.player.Status()
 	if err != nil {
 		delay := backoffDelay(m.retryInterval, *retryAttempt)
@@ -335,7 +330,6 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 		m.logRetryFromStatus("player status failed", err, delay)
 		return
 	}
-
 	selected, listening, availability := m.snapshot()
 	if !listening || selected == nil {
 		return
@@ -355,13 +349,11 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 			return
 		}
 	}
-
 	if status.State == "stopped" {
 		if !attemptStarted.IsZero() && time.Since(*attemptStarted) < m.startupGracePeriod {
 			m.setState(StateConnecting, "Connecting to stream...", status)
 			return
 		}
-
 		delay := backoffDelay(m.retryInterval, *retryAttempt)
 		(*retryAttempt)++
 		_ = m.player.Stop()
@@ -374,7 +366,6 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 		m.logRetryFromStatus("playback stopped unexpectedly", nil, delay)
 		return
 	}
-
 	*playing = true
 	*attemptStarted = time.Time{}
 	*retryAttempt = 0
@@ -383,68 +374,39 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 }
 
 func backoffDelay(base time.Duration, attempt int) time.Duration {
-	if base <= 0 {
-		base = DefaultRetryInterval
-	}
-	if attempt < 0 {
-		attempt = 0
-	}
-
+	if base <= 0 { base = DefaultRetryInterval }
+	if attempt < 0 { attempt = 0 }
 	delay := base
 	for i := 0; i < attempt && delay < maxRetryDelay; i++ {
-		if delay > maxRetryDelay/2 {
-			return maxRetryDelay
-		}
+		if delay > maxRetryDelay/2 { return maxRetryDelay }
 		delay *= 2
 	}
-	if delay > maxRetryDelay {
-		return maxRetryDelay
-	}
+	if delay > maxRetryDelay { return maxRetryDelay }
 	return delay
 }
 
 func (m *Manager) retryMessage(nextAttempt time.Time) string {
 	remaining := time.Until(nextAttempt).Round(time.Second)
-	if remaining < 0 {
-		remaining = 0
-	}
+	if remaining < 0 { remaining = 0 }
 	return "Retrying in " + remaining.String()
 }
 
 func (m *Manager) logRetry(selected *stream.Stream, reason string, err error, delay time.Duration) {
-	if m.log == nil {
-		return
-	}
-	args := []any{
-		"stream_id", selected.ID,
-		"stream_name", selected.Name,
-		"retry_in", delay.String(),
-		"reason", reason,
-	}
-	if err != nil {
-		args = append(args, "error", err)
-	}
+	if m.log == nil { return }
+	args := []any{"stream_id", selected.ID, "stream_name", selected.Name, "retry_in", delay.String(), "reason", reason}
+	if err != nil { args = append(args, "error", err) }
 	m.log.Warn("Stream playback retry scheduled", args...)
 }
 
 func (m *Manager) logRetryFromStatus(reason string, err error, delay time.Duration) {
-	if m.log == nil {
-		return
-	}
-	args := []any{
-		"retry_in", delay.String(),
-		"reason", reason,
-	}
-	if err != nil {
-		args = append(args, "error", err)
-	}
+	if m.log == nil { return }
+	args := []any{"retry_in", delay.String(), "reason", reason}
+	if err != nil { args = append(args, "error", err) }
 	m.log.Warn("Stream playback retry scheduled", args...)
 }
 
 func (m *Manager) logPersistenceError(action string, err error) {
-	if m.log != nil {
-		m.log.Warn("Playback persistence failed", "action", action, "error", err)
-	}
+	if m.log != nil { m.log.Warn("Playback persistence failed", "action", action, "error", err) }
 }
 
 func (m *Manager) snapshot() (*stream.Stream, bool, Availability) {
@@ -465,20 +427,13 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 	status := m.status
 	status.State = string(m.state)
 	switch m.state {
-	case StateIdle:
-		status.Message = "Idle"
-	case StateWaiting:
-		status.Message = "Waiting for stream"
-	case StateConnecting:
-		status.Message = "Connecting..."
-	case StatePlaying:
-		status.Message = "Playing"
-	case StateRetrying:
-		status.Message = "Reconnecting"
-	case StateError:
-		status.Message = "Playback error"
-	default:
-		status.Message = ""
+	case StateIdle: status.Message = "Idle"
+	case StateWaiting: status.Message = "Waiting for stream"
+	case StateConnecting: status.Message = "Connecting..."
+	case StatePlaying: status.Message = "Playing"
+	case StateRetrying: status.Message = "Reconnecting"
+	case StateError: status.Message = "Playback error"
+	default: status.Message = ""
 	}
 	status.Listening = m.listening
 	status.Error = m.lastError
@@ -495,6 +450,7 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 		status.URL = playerStatus.URL
 		status.Volume = playerStatus.Volume
 		status.Paused = playerStatus.Paused
+		status.AudioDevice = playerStatus.AudioDevice
 	}
 	m.status = status
 }

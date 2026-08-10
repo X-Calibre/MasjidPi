@@ -3,6 +3,9 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 )
 
 type VolumeRequest struct {
@@ -35,6 +38,16 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 	if req.AudioDevice != "" {
 		if err := s.playback.AudioDevice(req.AudioDevice); err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		paths, err := config.RuntimePaths()
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if err := storage.NewAudioDeviceState(paths.AudioDeviceState).Save(req.AudioDevice); err != nil {
+			writeError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 	}

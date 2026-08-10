@@ -136,31 +136,36 @@ The following are intentionally **not** part of v0.x:
 
 ---
 
-## 🚧 Phase 6 — Configuration & Personalisation
+## 🚧 Phase 6 — Production Hardening
 
-Make common MasjidPi settings configurable without editing files manually.
+Phase 6 is now focused on making MasjidPi a dependable, unattended Raspberry Pi appliance rather than adding a large configuration system.
 
-- Web-based configuration
-- First-run setup
-- Playback settings
-- Volume preferences
-- Persist user configuration
-- Additional user preferences
+The core principle is to keep configuration simple and keep persistent state owned by the Raspberry Pi rather than by individual browsers.
 
-The principle for Phase 6 is that persistent MasjidPi configuration belongs to the Raspberry Pi, not to an individual browser.
+### Reliability & Recovery
 
----
+- Gracefully handle missing or corrupt persistent state
+- Validate configuration and recover from invalid values
+- Improve service recovery after unexpected failures
+- Improve diagnostics and useful error reporting
+- Continue strengthening unattended operation after reboot and network outages
 
-## 🔮 Phase 7 — Appliance & Production Hardening
+### Updates & Installation
 
-Prepare MasjidPi for simple, unattended deployment on Raspberry Pi hardware.
-
-- Kiosk mode
-- Read-only filesystem mode
 - Safe automatic updates
-- Update/recovery safety
+- Safer update/recovery workflow
+- Improve first-run installation experience
 - Production installation workflow
 - Raspberry Pi appliance image/workflow
+
+### Appliance Operation
+
+- Kiosk/appliance mode
+- Read-only filesystem support
+- Minimise maintenance required from the end user
+- Ensure the system can operate reliably without the Web UI being open
+
+Phase 6 should prioritise reliability and simplicity over adding configuration options that are not required for normal radio operation.
 
 ---
 
@@ -181,7 +186,7 @@ Hardware controls and advanced audio features will be treated as major future mi
 
 **v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, Raspberry Pi runtime foundations, stream discovery, favourites, and the initial audio-control experience.
 
-The next target is **v0.6.0**, focused on configuration and personalisation.
+The next target is **v0.6.0**, focused on production hardening and appliance reliability.
 
 ---
 

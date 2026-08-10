@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
@@ -20,25 +22,22 @@ type Server struct {
 	preferences *storage.Preferences
 }
 
-func New(
-	addr string,
-	logger *slog.Logger,
-	playback *playback.Manager,
-	streams *stream.Store,
-	favourites *storage.Favourites,
-	preferences *storage.Preferences,
-	frontend string,
-) *Server {
+func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend string) *Server {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir(frontend))
+
+	preferencesPath := "/var/lib/masjidpi/preferences.json"
+	if home := os.Getenv("MASJIDPI_HOME"); home != "" {
+		preferencesPath = filepath.Join(home, "backend", "data", "preferences.json")
+	}
 
 	server := &Server{
 		logger:      logger,
 		playback:    playback,
 		streams:     streams,
 		favourites:  favourites,
-		preferences: preferences,
-		httpServer: &http.Server{Addr: addr, Handler: mux},
+		preferences: storage.NewPreferences(preferencesPath),
+		httpServer:  &http.Server{Addr: addr, Handler: mux},
 	}
 
 	mux.HandleFunc("/api/player/play", server.play)
@@ -58,9 +57,7 @@ func New(
 func (s *Server) Start() error {
 	s.logger.Info("Starting HTTP server", "address", s.httpServer.Addr)
 	err := s.httpServer.ListenAndServe()
-	if err == http.ErrServerClosed {
-		return nil
-	}
+	if err == http.ErrServerClosed { return nil }
 	return err
 }
 

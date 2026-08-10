@@ -57,13 +57,23 @@
             autocomplete="off">
         <div id="streamCount" class="stream-count"></div>
 
+        <div id="favouritesSection" class="favourites-section hidden">
+            <label>Favourites</label>
+            <div id="favourites" class="favourites"></div>
+        </div>
+
         <label for="stream">Masjid</label>
 
         <select id="stream" size="8"></select>
 
-        <button id="updateCatalogueButton" class="secondary">
-            🔄 Update Catalogue
-        </button>
+        <div class="stream-actions">
+            <button id="favouriteButton" class="secondary" type="button">
+                ☆ Add to Favourites
+            </button>
+            <button id="updateCatalogueButton" class="secondary" type="button">
+                🔄 Update Catalogue
+            </button>
+        </div>
 
         <label class="checkbox">
             <input type="checkbox" id="autoplay">

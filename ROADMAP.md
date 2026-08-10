@@ -82,9 +82,9 @@ The Raspberry Pi installation and runtime workflow is now functional and has bee
 
 ## 🚧 Phase 5 — Web UI & Stream Discovery
 
-**Next major development phase.** The goal is to make MasjidPi feel like a simple radio rather than a technical streaming tool.
+**Current development phase.** The goal is to make MasjidPi feel like a simple radio rather than a technical streaming tool.
 
-### Stream Discovery
+### Stream Discovery — Complete
 
 - Search streams instantly
 - Search by mosque name
@@ -92,22 +92,33 @@ The Raspberry Pi installation and runtime workflow is now functional and has bee
 - Filter the stream catalogue
 - Improve stream selection and browsing
 
-### Favourites
+### Favourites — Complete
 
 - Favourite stations
 - Persistent favourites
 - Quick access to favourite stations
 
-### Playback & Audio Controls
+### Playback & Audio Controls — In Progress
 
 - Clear current-stream display
 - Clear playing/reconnecting/error states
 - Improved playback controls
 - Better volume control
 - **Select the audio output device from the Web UI**
-- Show the currently selected audio device
-- Persist the selected audio device
+- **Show the currently selected audio device**
+- **Persist the selected audio device**
 - More useful playback and audio feedback
+
+### Phase 5.3 — Audio Controls
+
+The current focus is completing the audio experience.
+
+- Audio output device discovery
+- Audio output device selection
+- Restore the selected device after reboot
+- Keep device selection available alongside playback controls
+- Improve audio-device error handling and feedback
+- Future: EQ/audio processing controls
 
 ---
 

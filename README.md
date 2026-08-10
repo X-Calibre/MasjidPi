@@ -34,13 +34,16 @@ The Web UI does not need to remain open for playback or automatic recovery to wo
 
 MasjidPi is designed for Linux and Raspberry Pi.
 
-Tested on:
+### Raspberry Pi testing
 
-- Raspberry Pi Zero
-- Raspberry Pi Zero 2 W
-- Raspberry Pi 3
-- Raspberry Pi 4
-- Raspberry Pi 5
+The following Raspberry Pi models have been tested:
+
+- **Raspberry Pi 3B — works**
+- **Raspberry Pi Zero W — does not work**
+
+The Raspberry Pi Zero W has been tested and is not supported because MasjidPi does not run reliably on that hardware.
+
+Other Raspberry Pi models and variants have **not yet been tested** and should not currently be considered officially supported.
 
 A Linux system with an ALSA-compatible audio device can also be used for development.
 

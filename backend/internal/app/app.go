@@ -18,22 +18,32 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
+const audioDeviceCheckInterval = 2 * time.Second
+
 func Run() error {
 	log := logger.New()
 	log.Info("Starting application", "name", version.AppName, "version", version.Version)
 
 	paths, err := config.RuntimePaths()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	cfg, err := config.Load(paths.Config)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	log.Info("Configuration loaded")
 
 	streamStore, err := stream.New(paths.Catalogue)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	log.Info("Loaded stream catalogue", "streams", len(streamStore.All()))
 
 	mpv := player.New(cfg.Player.Socket)
-	if err := mpv.Start(); err != nil { return err }
+	if err := mpv.Start(); err != nil {
+		return err
+	}
 	defer func() {
 		log.Info("Stopping MPV")
 		_ = mpv.Close()
@@ -51,7 +61,9 @@ func Run() error {
 	}
 
 	playbackConfig, err := newPlaybackConfig(cfg)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	playbackConfig.Logger = log
 
 	playbackManager := playback.New(mpv, playbackConfig)
@@ -63,7 +75,9 @@ func Run() error {
 		initialVolume = volume
 		log.Info("Restored volume", "volume", volume)
 	}
-	if err := playbackManager.Volume(initialVolume); err != nil { return err }
+	if err := playbackManager.Volume(initialVolume); err != nil {
+		return err
+	}
 	playbackManager.SetVolumePersistence(volumeState)
 
 	playbackState := storage.NewPlayback(paths.PlaybackState)
@@ -85,9 +99,13 @@ func Run() error {
 	}
 
 	mpvVersion, err := mpv.Version()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	status, err := mpv.Status()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	log.Info("Player status", "status", status)
 	log.Info("Connected to MPV", "version", mpvVersion)
 
@@ -101,6 +119,7 @@ func Run() error {
 	log.Info("LiveMasjid live-status monitor started")
 
 	playbackManager.Start(ctx)
+	go monitorAudioDevice(ctx, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
 	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend)
@@ -118,10 +137,79 @@ func Run() error {
 	return server.Start()
 }
 
+func monitorAudioDevice(ctx context.Context, mpv *player.MPV, state *storage.AudioDeviceState, log interface {
+	Warn(msg string, args ...any)
+}) {
+	ticker := time.NewTicker(audioDeviceCheckInterval)
+	defer ticker.Stop()
+
+	lastMode := ""
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			name, ok, err := state.Load()
+			if err != nil || !ok || name == "" {
+				continue
+			}
+
+			devices, err := mpv.AudioDevices()
+			if err != nil {
+				continue
+			}
+			available := false
+			for _, device := range devices {
+				if device.Name == name {
+					available = true
+					break
+				}
+			}
+
+			if available {
+				current, err := mpv.GetProperty("audio-device")
+				if err != nil {
+					continue
+				}
+			currentName, _ := current.(string)
+				if currentName != name {
+					if err := mpv.AudioDevice(name); err != nil {
+						continue
+					}
+					if lastMode != "restored" {
+						log.Warn("Restored audio device after it became available", "audio_device", name)
+						lastMode = "restored"
+					}
+				}
+				continue
+			}
+
+			current, err := mpv.GetProperty("audio-device")
+			if err != nil {
+				continue
+			}
+			currentName, _ := current.(string)
+			if currentName == name {
+				if err := mpv.AudioDevice("auto"); err != nil {
+					continue
+				}
+				if lastMode != "fallback" {
+					log.Warn("Audio device unavailable, falling back to automatic output", "audio_device", name)
+					lastMode = "fallback"
+				}
+			}
+		}
+	}
+}
+
 func newPlaybackConfig(cfg *config.Config) (playback.Config, error) {
 	retryInterval, err := time.ParseDuration(cfg.Playback.RetryInterval)
-	if err != nil { return playback.Config{}, err }
+	if err != nil {
+		return playback.Config{}, err
+	}
 	reconnectDelay, err := time.ParseDuration(cfg.Playback.ReconnectDelay)
-	if err != nil { return playback.Config{}, err }
+	if err != nil {
+		return playback.Config{}, err
+	}
 	return playback.Config{RetryInterval: retryInterval, ReconnectDelay: reconnectDelay}, nil
 }

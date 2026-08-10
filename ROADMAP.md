@@ -54,6 +54,7 @@ Playback and network recovery have been implemented and tested on Raspberry Pi.
 - MPV recovery
 - Preserve the selected stream during playback failures
 - Resume the last stream after a system reboot
+- Resume playback automatically without requiring the Web UI to be opened
 
 ---
 
@@ -80,9 +81,9 @@ The Raspberry Pi installation and runtime workflow is now functional and has bee
 
 ---
 
-## 🚧 Phase 5 — Web UI & Stream Discovery
+## ✅ Phase 5 — Web UI & Stream Discovery
 
-**Current development phase.** The goal is to make MasjidPi feel like a simple radio rather than a technical streaming tool.
+Phase 5 transformed MasjidPi from a functional streaming service into a more practical radio-style appliance.
 
 ### Stream Discovery — Complete
 
@@ -97,28 +98,41 @@ The Raspberry Pi installation and runtime workflow is now functional and has bee
 - Favourite stations
 - Persistent favourites
 - Quick access to favourite stations
+- Shared favourites across phones, tablets and computers
+- Favourites stored on the Raspberry Pi rather than in browser-local storage
 
-### Playback & Audio Controls — In Progress
+### Playback & Audio Controls — Complete
 
 - Clear current-stream display
 - Clear playing/reconnecting/error states
 - Improved playback controls
 - Better volume control
-- **Select the audio output device from the Web UI**
-- **Show the currently selected audio device**
-- **Persist the selected audio device**
-- More useful playback and audio feedback
+- Select the audio output device from the Web UI
+- Show the currently selected audio device
+- Persist the selected audio device
+- Persist volume across restarts and reboots
+- Share persistent audio settings across devices
+- Recover gracefully when an audio device disappears
+- Automatically restore a selected audio device when it becomes available again
+- Keep playback/resume independent of whether the Web UI is open
 
-### Phase 5.3 — Audio Controls
+### Phase 5.3 — Audio Controls — Complete
 
-The current focus is completing the audio experience.
+The audio-control work is complete for the v0.x product scope.
 
 - Audio output device discovery
 - Audio output device selection
 - Restore the selected device after reboot
 - Keep device selection available alongside playback controls
 - Improve audio-device error handling and feedback
-- Future: EQ/audio processing controls
+- Persist volume
+- Persist audio-device selection
+- Automatic audio-device disappearance/reappearance recovery
+
+The following are intentionally **not** part of v0.x:
+
+- Mute/unmute — Stop and Play provide the required control
+- EQ/audio processing — deferred to v2.0.0
 
 ---
 
@@ -132,6 +146,8 @@ Make common MasjidPi settings configurable without editing files manually.
 - Volume preferences
 - Persist user configuration
 - Additional user preferences
+
+The principle for Phase 6 is that persistent MasjidPi configuration belongs to the Raspberry Pi, not to an individual browser.
 
 ---
 
@@ -148,22 +164,24 @@ Prepare MasjidPi for simple, unattended deployment on Raspberry Pi hardware.
 
 ---
 
-## 🔮 v2.0.0 — Hardware Interface
+## 🔮 v2.0.0 — Hardware & Advanced Audio
 
-Hardware controls will be treated as a major future milestone rather than part of the v0.x roadmap.
+Hardware controls and advanced audio features will be treated as major future milestones rather than part of the v0.x roadmap.
 
 - OLED display
 - Push-button controls
 - Hardware playback controls
 - Display current station and playback state
+- Audio equaliser / EQ processing
+- Advanced audio controls
 
 ---
 
 ## Current Release
 
-**v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, and Raspberry Pi runtime foundations.
+**v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, Raspberry Pi runtime foundations, stream discovery, favourites, and the initial audio-control experience.
 
-The next target is **v0.6.0**, focused on Web UI improvements, stream discovery, favourites, and user-facing audio controls.
+The next target is **v0.6.0**, focused on configuration and personalisation.
 
 ---
 
@@ -177,5 +195,6 @@ MasjidPi should remain:
 - Usable without a separate server
 - Focused on listening to mosque streams
 - Easy to maintain and update
+- Independent of browser-local configuration
 
 The project should prioritise a reliable radio experience over unnecessary complexity.

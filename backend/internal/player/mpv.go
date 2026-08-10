@@ -21,18 +21,14 @@ func (m *MPV) Start() error {
 	if err := m.process.Start(); err != nil {
 		return err
 	}
-
 	deadline := time.Now().Add(3 * time.Second)
-
 	for {
 		if err := m.ipc.Connect(); err == nil {
 			return nil
 		}
-
 		if time.Now().After(deadline) {
 			return fmt.Errorf("wait for mpv ipc: timed out")
 		}
-
 		time.Sleep(100 * time.Millisecond)
 	}
 }
@@ -44,26 +40,21 @@ func (m *MPV) Stop() error {
 
 func (m *MPV) Close() error {
 	_ = m.ipc.Close()
-
 	return m.process.Stop()
 }
 
 func (m *MPV) execute(command ...any) (*Response, error) {
 	cmd := Command{Command: command}
-
 	if err := m.ipc.Send(cmd); err != nil {
 		return nil, err
 	}
-
 	var resp Response
 	if err := m.ipc.Receive(&resp); err != nil {
 		return nil, err
 	}
-
 	if resp.Error != "" && resp.Error != "success" {
 		return nil, fmt.Errorf("mpv: %s", resp.Error)
 	}
-
 	return &resp, nil
 }
 
@@ -85,7 +76,6 @@ func (m *MPV) Version() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	version, ok := value.(string)
 	if !ok {
 		return "", fmt.Errorf("mpv-version has type %T with value %#v", value, value)
@@ -110,31 +100,23 @@ func (m *MPV) AudioDevices() ([]AudioDevice, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	items, ok := value.([]any)
 	if !ok {
 		return nil, fmt.Errorf("audio-device-list is %T (%v)", value, value)
 	}
-
 	devices := make([]AudioDevice, 0, len(items))
 	for _, item := range items {
 		entry, ok := item.(map[string]any)
 		if !ok {
 			continue
 		}
-
 		name, _ := entry["name"].(string)
 		description, _ := entry["description"].(string)
 		if name == "" {
 			continue
 		}
-
-		devices = append(devices, AudioDevice{
-			Name:        name,
-			Description: description,
-		})
+		devices = append(devices, AudioDevice{Name: name, Description: description})
 	}
-
 	return devices, nil
 }
 
@@ -150,7 +132,6 @@ func (m *MPV) Status() (*Status, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	pausedValue, err := m.GetProperty("pause")
 	if err != nil {
 		return nil, err
@@ -159,7 +140,6 @@ func (m *MPV) Status() (*Status, error) {
 	if !ok {
 		return nil, fmt.Errorf("pause is %T (%v)", pausedValue, pausedValue)
 	}
-
 	volumeValue, err := m.GetProperty("volume")
 	if err != nil {
 		return nil, err
@@ -168,7 +148,6 @@ func (m *MPV) Status() (*Status, error) {
 	if !ok {
 		return nil, fmt.Errorf("volume is %T (%v)", volumeValue, volumeValue)
 	}
-
 	idleValue, err := m.GetProperty("core-idle")
 	if err != nil {
 		return nil, err
@@ -177,12 +156,10 @@ func (m *MPV) Status() (*Status, error) {
 	if !ok {
 		return nil, fmt.Errorf("core-idle is %T (%v)", idleValue, idleValue)
 	}
-
 	state := "playing"
 	if idle {
 		state = "stopped"
 	}
-
 	path := ""
 	pathValue, err := m.GetProperty("path")
 	if err == nil {
@@ -191,18 +168,21 @@ func (m *MPV) Status() (*Status, error) {
 			return nil, fmt.Errorf("path is %T (%v)", pathValue, pathValue)
 		}
 	}
-
 	audioDevice := ""
 	if value, err := m.GetProperty("audio-device"); err == nil {
 		audioDevice, _ = value.(string)
 	}
-
+	audioDevices, err := m.AudioDevices()
+	if err != nil {
+		return nil, err
+	}
 	return &Status{
-		Version:     version,
-		State:       state,
-		URL:         path,
-		Volume:      int(volumeFloat),
-		Paused:      paused,
+		Version: version,
+		State: state,
+		URL: path,
+		Volume: int(volumeFloat),
+		Paused: paused,
 		AudioDevice: audioDevice,
+		AudioDevices: audioDevices,
 	}, nil
 }

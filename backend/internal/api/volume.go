@@ -11,6 +11,16 @@ type VolumeRequest struct {
 }
 
 func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet && r.URL.Query().Get("devices") == "1" {
+		devices, err := s.playback.AudioDevices()
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusOK, devices)
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return

@@ -2,6 +2,7 @@ let catalogue = [];
 let filteredCatalogue = [];
 let backendOnline = true;
 let playerStatus = null;
+let favouriteIds = new Set(JSON.parse(localStorage.getItem("favourites") || "[]"));
 
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
@@ -10,6 +11,9 @@ const stream = document.getElementById("url");
 const streamInput = document.getElementById("stream");
 const streamSearch = document.getElementById("streamSearch");
 const streamCount = document.getElementById("streamCount");
+const favouritesSection = document.getElementById("favouritesSection");
+const favourites = document.getElementById("favourites");
+const favouriteButton = document.getElementById("favouriteButton");
 const volumeSlider = document.getElementById("volumeSlider");
 const volumeValue = document.getElementById("volumeValue");
 const playButton = document.getElementById("play");
@@ -23,30 +27,69 @@ async function getStatus() {
     return response.json();
 }
 
+function saveFavourites() {
+    localStorage.setItem("favourites", JSON.stringify([...favouriteIds]));
+}
+
+function streamMatchesQuery(item, query) {
+    if (!query) return true;
+
+    return [item.name, item.location, item.id]
+        .filter(Boolean)
+        .some(value => value.toLowerCase().includes(query));
+}
+
+function streamLabel(item) {
+    return item.location ? `${item.name} — ${item.location}` : item.name;
+}
+
+function renderFavourites(query) {
+    favourites.innerHTML = "";
+
+    const favouriteStreams = catalogue.filter(item =>
+        favouriteIds.has(item.id) && streamMatchesQuery(item, query)
+    );
+
+    favouritesSection.classList.toggle("hidden", favouriteStreams.length === 0);
+
+    for (const item of favouriteStreams) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "favourite-item";
+        button.dataset.id = item.id;
+
+        const label = document.createElement("span");
+        label.textContent = `★ ${streamLabel(item)}`;
+
+        const remove = document.createElement("span");
+        remove.className = "favourite-remove";
+        remove.textContent = "×";
+        remove.title = "Remove from favourites";
+        remove.setAttribute("aria-label", `Remove ${item.name} from favourites`);
+
+        button.append(label, remove);
+        favourites.appendChild(button);
+    }
+}
+
 function renderStreams(preferredId = streamInput.value) {
     const query = streamSearch.value.trim().toLowerCase();
 
-    filteredCatalogue = catalogue.filter(stream => {
-        if (!query) return true;
-
-        return [stream.name, stream.location, stream.id]
-            .filter(Boolean)
-            .some(value => value.toLowerCase().includes(query));
-    });
+    filteredCatalogue = catalogue.filter(item => streamMatchesQuery(item, query));
 
     streamInput.innerHTML = "";
 
-    for (const stream of filteredCatalogue) {
+    for (const item of filteredCatalogue) {
         const option = document.createElement("option");
-        option.value = stream.id;
-        option.textContent = stream.location
-            ? `${stream.name} — ${stream.location}`
-            : stream.name;
+        option.value = item.id;
+        option.textContent = streamLabel(item);
         streamInput.appendChild(option);
     }
 
     if (preferredId && filteredCatalogue.some(item => item.id === preferredId)) {
         streamInput.value = preferredId;
+    } else if (filteredCatalogue.length > 0 && !streamInput.value) {
+        streamInput.selectedIndex = 0;
     }
 
     streamCount.textContent = query
@@ -54,6 +97,8 @@ function renderStreams(preferredId = streamInput.value) {
         : `${catalogue.length} masjids`;
 
     streamCount.classList.toggle("hidden", catalogue.length === 0);
+    renderFavourites(query);
+    updateFavouriteButton();
 }
 
 async function loadStreams() {
@@ -130,8 +175,20 @@ function setOffline(offline) {
     stopButton.disabled = offline;
     streamInput.disabled = offline;
     streamSearch.disabled = offline;
+    favouriteButton.disabled = offline;
     volumeSlider.disabled = offline;
     updateCatalogueButton.disabled = offline;
+}
+
+function updateFavouriteButton() {
+    const selectedId = streamInput.value;
+    const selected = catalogue.find(item => item.id === selectedId);
+    const isFavourite = selected && favouriteIds.has(selected.id);
+
+    favouriteButton.disabled = !backendOnline || !selected;
+    favouriteButton.textContent = isFavourite
+        ? "★ Remove from Favourites"
+        : "☆ Add to Favourites";
 }
 
 function updateControls(status) {
@@ -149,6 +206,7 @@ function updateControls(status) {
     streamSearch.disabled = false;
     volumeSlider.disabled = false;
     updateCatalogueButton.disabled = false;
+    updateFavouriteButton();
 }
 
 function updateStatusDetail(status) {
@@ -213,6 +271,45 @@ streamSearch.addEventListener("input", () => {
 
 streamInput.addEventListener("change", () => {
     localStorage.setItem("lastStream", streamInput.value);
+    updateFavouriteButton();
+    if (playerStatus) updateControls(playerStatus);
+});
+
+favourites.addEventListener("click", event => {
+    const item = event.target.closest(".favourite-item");
+    if (!item) return;
+
+    const id = item.dataset.id;
+    if (event.target.closest(".favourite-remove")) {
+        favouriteIds.delete(id);
+        saveFavourites();
+        renderStreams(streamInput.value);
+        if (playerStatus) updateControls(playerStatus);
+        return;
+    }
+
+    if (catalogue.some(stream => stream.id === id)) {
+        streamInput.value = id;
+        localStorage.setItem("lastStream", id);
+        updateFavouriteButton();
+        if (playerStatus) updateControls(playerStatus);
+    }
+});
+
+favouriteButton.addEventListener("click", () => {
+    const id = streamInput.value;
+    if (!id) return;
+
+    if (favouriteIds.has(id)) {
+        favouriteIds.delete(id);
+        showToast("Removed from favourites.", "success");
+    } else {
+        favouriteIds.add(id);
+        showToast("Added to favourites.", "success");
+    }
+
+    saveFavourites();
+    renderStreams(id);
     if (playerStatus) updateControls(playerStatus);
 });
 

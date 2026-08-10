@@ -16,6 +16,7 @@ const favourites = document.getElementById("favourites");
 const favouriteButton = document.getElementById("favouriteButton");
 const volumeSlider = document.getElementById("volumeSlider");
 const volumeValue = document.getElementById("volumeValue");
+const audioDevice = document.getElementById("audioDevice");
 const playButton = document.getElementById("play");
 const stopButton = document.getElementById("stop");
 const updateCatalogueButton = document.getElementById("updateCatalogueButton");
@@ -27,13 +28,31 @@ async function getStatus() {
     return response.json();
 }
 
+async function getAudioDevices() {
+    const response = await fetch("/api/player/volume?devices=1");
+    if (!response.ok) throw new Error("Unable to get audio devices");
+    return response.json();
+}
+
+async function setAudioDevice(name) {
+    const response = await fetch("/api/player/volume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            volume: Number(volumeSlider.value),
+            audio_device: name
+        })
+    });
+    if (!response.ok) throw new Error("Unable to change audio device");
+    return response.json();
+}
+
 function saveFavourites() {
     localStorage.setItem("favourites", JSON.stringify([...favouriteIds]));
 }
 
 function streamMatchesQuery(item, query) {
     if (!query) return true;
-
     return [item.name, item.location, item.id]
         .filter(Boolean)
         .some(value => value.toLowerCase().includes(query));
@@ -45,11 +64,7 @@ function streamLabel(item) {
 
 function renderFavourites(query) {
     favourites.innerHTML = "";
-
-    const favouriteStreams = catalogue.filter(item =>
-        favouriteIds.has(item.id) && streamMatchesQuery(item, query)
-    );
-
+    const favouriteStreams = catalogue.filter(item => favouriteIds.has(item.id) && streamMatchesQuery(item, query));
     favouritesSection.classList.toggle("hidden", favouriteStreams.length === 0);
 
     for (const item of favouriteStreams) {
@@ -57,16 +72,13 @@ function renderFavourites(query) {
         button.type = "button";
         button.className = "favourite-item";
         button.dataset.id = item.id;
-
         const label = document.createElement("span");
         label.textContent = `★ ${streamLabel(item)}`;
-
         const remove = document.createElement("span");
         remove.className = "favourite-remove";
         remove.textContent = "×";
         remove.title = "Remove from favourites";
         remove.setAttribute("aria-label", `Remove ${item.name} from favourites`);
-
         button.append(label, remove);
         favourites.appendChild(button);
     }
@@ -74,9 +86,7 @@ function renderFavourites(query) {
 
 function renderStreams(preferredId = streamInput.value) {
     const query = streamSearch.value.trim().toLowerCase();
-
     filteredCatalogue = catalogue.filter(item => streamMatchesQuery(item, query));
-
     streamInput.innerHTML = "";
 
     for (const item of filteredCatalogue) {
@@ -92,10 +102,7 @@ function renderStreams(preferredId = streamInput.value) {
         streamInput.selectedIndex = 0;
     }
 
-    streamCount.textContent = query
-        ? `${filteredCatalogue.length} of ${catalogue.length} masjids`
-        : `${catalogue.length} masjids`;
-
+    streamCount.textContent = query ? `${filteredCatalogue.length} of ${catalogue.length} masjids` : `${catalogue.length} masjids`;
     streamCount.classList.toggle("hidden", catalogue.length === 0);
     renderFavourites(query);
     updateFavouriteButton();
@@ -108,11 +115,35 @@ async function loadStreams() {
         console.error("Unable to load streams");
         return;
     }
-
     catalogue = await response.json();
-
     const preferred = currentSelection || localStorage.getItem("lastStream");
     renderStreams(preferred);
+}
+
+async function loadAudioDevices(preferred = "") {
+    try {
+        const devices = await getAudioDevices();
+        audioDevice.innerHTML = "";
+        for (const device of devices) {
+            const option = document.createElement("option");
+            option.value = device.name;
+            option.textContent = device.description ? device.description : device.name;
+            audioDevice.appendChild(option);
+        }
+
+        const saved = preferred || localStorage.getItem("audioDevice");
+        if (saved && devices.some(device => device.name === saved)) {
+            audioDevice.value = saved;
+        }
+        audioDevice.disabled = !backendOnline || devices.length === 0;
+    } catch (err) {
+        console.error(err);
+        audioDevice.innerHTML = "";
+        const option = document.createElement("option");
+        option.textContent = "Unable to detect audio devices";
+        audioDevice.appendChild(option);
+        audioDevice.disabled = true;
+    }
 }
 
 async function playStream(id) {
@@ -150,7 +181,6 @@ function showToast(message, type = "success") {
     toast.className = "toast toast-" + type;
     toast.textContent = message;
     container.appendChild(toast);
-
     setTimeout(() => {
         toast.style.opacity = "0";
         toast.style.transition = "opacity .3s";
@@ -177,6 +207,7 @@ function setOffline(offline) {
     streamSearch.disabled = offline;
     favouriteButton.disabled = offline;
     volumeSlider.disabled = offline;
+    audioDevice.disabled = offline || audioDevice.options.length === 0;
     updateCatalogueButton.disabled = offline;
 }
 
@@ -184,11 +215,8 @@ function updateFavouriteButton() {
     const selectedId = streamInput.value;
     const selected = catalogue.find(item => item.id === selectedId);
     const isFavourite = selected && favouriteIds.has(selected.id);
-
     favouriteButton.disabled = !backendOnline || !selected;
-    favouriteButton.textContent = isFavourite
-        ? "★ Remove from Favourites"
-        : "☆ Add to Favourites";
+    favouriteButton.textContent = isFavourite ? "★ Remove from Favourites" : "☆ Add to Favourites";
 }
 
 function updateControls(status) {
@@ -196,15 +224,14 @@ function updateControls(status) {
         setOffline(true);
         return;
     }
-
     const active = ["waiting", "connecting", "playing", "retrying"].includes(status.state);
     const selectedCurrentStream = active && status.stream_id && streamInput.value === status.stream_id;
-
     playButton.disabled = selectedCurrentStream;
     stopButton.disabled = !active;
     streamInput.disabled = false;
     streamSearch.disabled = false;
     volumeSlider.disabled = false;
+    audioDevice.disabled = audioDevice.options.length === 0;
     updateCatalogueButton.disabled = false;
     updateFavouriteButton();
 }
@@ -212,9 +239,7 @@ function updateControls(status) {
 function updateStatusDetail(status) {
     const detail = status.error || "";
     statusDetail.textContent = detail;
-    statusDetail.className = detail
-        ? "status-detail status-detail-" + status.state
-        : "status-detail hidden";
+    statusDetail.className = detail ? "status-detail status-detail-" + status.state : "status-detail hidden";
 }
 
 function findStreamByURL(url) {
@@ -225,13 +250,11 @@ async function refreshStatus() {
     try {
         const status = await getStatus();
         playerStatus = status;
-
         if (!backendOnline) {
             backendOnline = true;
             setOffline(false);
             showToast("Connection to MasjidPi restored.", "success");
         }
-
         document.getElementById("version").textContent = "MasjidPi " + status.version;
         state.textContent = status.message || status.state;
         state.className = "status-badge status-" + status.state;
@@ -239,19 +262,19 @@ async function refreshStatus() {
         volume.textContent = status.volume + "%";
         volumeSlider.value = status.volume;
         volumeValue.textContent = status.volume + "%";
+        if (status.audio_device && [...audioDevice.options].some(option => option.value === status.audio_device)) {
+            audioDevice.value = status.audio_device;
+            localStorage.setItem("audioDevice", status.audio_device);
+        }
         updateControls(status);
-
         if (!status.url) {
             stream.textContent = "No stream playing";
         } else {
             const current = findStreamByURL(status.url);
-            stream.textContent = current
-                ? current.name + (current.location ? " — " + current.location : "") + "\n" + current.url
-                : status.url;
+            stream.textContent = current ? current.name + (current.location ? " — " + current.location : "") + "\n" + current.url : status.url;
         }
     } catch (err) {
         console.error(err);
-
         if (backendOnline) {
             backendOnline = false;
             setOffline(true);
@@ -278,7 +301,6 @@ streamInput.addEventListener("change", () => {
 favourites.addEventListener("click", event => {
     const item = event.target.closest(".favourite-item");
     if (!item) return;
-
     const id = item.dataset.id;
     if (event.target.closest(".favourite-remove")) {
         favouriteIds.delete(id);
@@ -287,7 +309,6 @@ favourites.addEventListener("click", event => {
         if (playerStatus) updateControls(playerStatus);
         return;
     }
-
     if (catalogue.some(stream => stream.id === id)) {
         streamInput.value = id;
         localStorage.setItem("lastStream", id);
@@ -299,7 +320,6 @@ favourites.addEventListener("click", event => {
 favouriteButton.addEventListener("click", () => {
     const id = streamInput.value;
     if (!id) return;
-
     if (favouriteIds.has(id)) {
         favouriteIds.delete(id);
         showToast("Removed from favourites.", "success");
@@ -307,7 +327,6 @@ favouriteButton.addEventListener("click", () => {
         favouriteIds.add(id);
         showToast("Added to favourites.", "success");
     }
-
     saveFavourites();
     renderStreams(id);
     if (playerStatus) updateControls(playerStatus);
@@ -318,7 +337,6 @@ playButton.addEventListener("click", async () => {
         showToast("Please select a masjid.", "warning");
         return;
     }
-
     setBusy(playButton, true, "Playing...", "▶ Play");
     try {
         await playStream(streamInput.value);
@@ -346,12 +364,28 @@ volumeSlider.addEventListener("input", async () => {
     const value = Number(volumeSlider.value);
     volumeValue.textContent = value + "%";
     volumeValue.style.color = value > 100 ? "#ffb347" : "#32c36c";
-
     try {
         await setVolume(value);
         await refreshStatus();
     } catch (err) {
         console.error(err);
+    }
+});
+
+audioDevice.addEventListener("change", async () => {
+    const selected = audioDevice.value;
+    if (!selected) return;
+    audioDevice.disabled = true;
+    try {
+        const status = await setAudioDevice(selected);
+        localStorage.setItem("audioDevice", selected);
+        playerStatus = status;
+        showToast("Audio output changed.", "success");
+    } catch (err) {
+        showToast(err.message, "error");
+        await loadAudioDevices(playerStatus?.audio_device || "");
+    } finally {
+        if (backendOnline) audioDevice.disabled = false;
     }
 });
 
@@ -375,8 +409,8 @@ updateCatalogueButton.addEventListener("click", async () => {
 
 async function initialize() {
     await loadStreams();
+    await loadAudioDevices();
     await refreshStatus();
-
     autoplay.checked = localStorage.getItem("autoplay") === "true";
     if (autoplay.checked && streamInput.value) {
         try {
@@ -386,7 +420,6 @@ async function initialize() {
             console.error(err);
         }
     }
-
     setInterval(refreshStatus, 1000);
 }
 

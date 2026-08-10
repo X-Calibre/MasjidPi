@@ -13,6 +13,7 @@ type Paths struct {
 	Catalogue        string
 	PlaybackState    string
 	AudioDeviceState string
+	VolumeState      string
 	FavouritesState  string
 	PreferencesState string
 	Frontend         string
@@ -28,6 +29,7 @@ func NewPaths(base string) Paths {
 		Catalogue:        filepath.Join(base, "backend", "data", "catalogue.json"),
 		PlaybackState:    filepath.Join(base, "backend", "data", "playback.json"),
 		AudioDeviceState: filepath.Join(base, "backend", "data", "audio_device.json"),
+		VolumeState:      filepath.Join(base, "backend", "data", "volume.json"),
 		FavouritesState:  filepath.Join(base, "backend", "data", "favourites.json"),
 		PreferencesState: filepath.Join(base, "backend", "data", "preferences.json"),
 		Frontend:         filepath.Join(base, "frontend"),
@@ -45,6 +47,7 @@ func RuntimePaths() (Paths, error) {
 			Catalogue:        "/var/lib/masjidpi/catalogue.json",
 			PlaybackState:    "/var/lib/masjidpi/playback.json",
 			AudioDeviceState: "/var/lib/masjidpi/audio_device.json",
+			VolumeState:      "/var/lib/masjidpi/volume.json",
 			FavouritesState:  "/var/lib/masjidpi/favourites.json",
 			PreferencesState: "/var/lib/masjidpi/preferences.json",
 			Frontend:         filepath.Join(home, "frontend"),

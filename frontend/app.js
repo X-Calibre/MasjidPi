@@ -1,6 +1,7 @@
 let catalogue = [];
 let filteredCatalogue = [];
 let backendOnline = true;
+let playerStatus = null;
 
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
@@ -140,7 +141,9 @@ function updateControls(status) {
     }
 
     const active = ["waiting", "connecting", "playing", "retrying"].includes(status.state);
-    playButton.disabled = active;
+    const selectedCurrentStream = active && status.stream_id && streamInput.value === status.stream_id;
+
+    playButton.disabled = selectedCurrentStream;
     stopButton.disabled = !active;
     streamInput.disabled = false;
     streamSearch.disabled = false;
@@ -163,6 +166,7 @@ function findStreamByURL(url) {
 async function refreshStatus() {
     try {
         const status = await getStatus();
+        playerStatus = status;
 
         if (!backendOnline) {
             backendOnline = true;
@@ -209,10 +213,12 @@ async function refreshStatus() {
 
 streamSearch.addEventListener("input", () => {
     renderStreams(streamInput.value);
+    if (playerStatus) updateControls(playerStatus);
 });
 
 streamInput.addEventListener("change", () => {
     localStorage.setItem("lastStream", streamInput.value);
+    if (playerStatus) updateControls(playerStatus);
 });
 
 playButton.addEventListener("click", async () => {

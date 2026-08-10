@@ -9,8 +9,13 @@
 <body>
 <div class="container">
     <header>
-        <h1>MasjidPi</h1>
-        <p>Masjid Audio Streaming</p>
+        <div class="header-row">
+            <div>
+                <h1>MasjidPi</h1>
+                <p>Masjid Audio Streaming</p>
+            </div>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
+        </div>
     </header>
 
     <div id="offlineBanner" class="offline-banner hidden">
@@ -79,5 +84,40 @@
 
 <div id="toastContainer" class="toast-container"></div>
 <script src="app.js"></script>
+<script>
+(() => {
+    const toggle = document.getElementById("themeToggle");
+    const key = "masjidpi-theme";
+    const validThemes = ["system", "light", "dark"];
+
+    function storedTheme() {
+        const value = localStorage.getItem(key);
+        return validThemes.includes(value) ? value : "system";
+    }
+
+    function applyTheme(theme) {
+        if (theme === "system") {
+            document.documentElement.removeAttribute("data-theme");
+        } else {
+            document.documentElement.dataset.theme = theme;
+        }
+        toggle.textContent = "Theme: " + theme.charAt(0).toUpperCase() + theme.slice(1);
+        toggle.setAttribute("aria-label", "Colour theme: " + theme + ". Click to change.");
+    }
+
+    function nextTheme(theme) {
+        return validThemes[(validThemes.indexOf(theme) + 1) % validThemes.length];
+    }
+
+    let theme = storedTheme();
+    applyTheme(theme);
+
+    toggle.addEventListener("click", () => {
+        theme = nextTheme(theme);
+        localStorage.setItem(key, theme);
+        applyTheme(theme);
+    });
+})();
+</script>
 </body>
 </html>

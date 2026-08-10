@@ -213,6 +213,14 @@ func (m *Manager) run(ctx context.Context) {
 	statusTicker := time.NewTicker(m.statusInterval)
 	defer statusTicker.Stop()
 
+	m.mu.Lock()
+	availability := m.availability
+	m.mu.Unlock()
+	var availabilityEvents <-chan string
+	if availability != nil {
+		availabilityEvents = availability.Events()
+	}
+
 	active := false
 	activeURL := ""
 	playing := false
@@ -229,6 +237,8 @@ func (m *Manager) run(ctx context.Context) {
 			}
 			return
 		case <-m.wake:
+			m.step(ctx, &active, &activeURL, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
+		case <-availabilityEvents:
 			m.step(ctx, &active, &activeURL, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 		case <-loop.C:
 			m.step(ctx, &active, &activeURL, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)

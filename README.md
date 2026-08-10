@@ -132,6 +132,14 @@ The next development phase focuses on production hardening and making MasjidPi a
 
 See [ROADMAP.md](ROADMAP.md) for the development roadmap.
 
+## Acknowledgements
+
+MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal). We gratefully acknowledge the eBilal contributors and the work they did to make a Raspberry Pi-based masjid audio receiver available as an open-source project.
+
+MasjidPi relies on [LiveMasjid](https://www.livemasjid.com/) for the live masjid streams and the related stream and status data that make the service possible. We gratefully acknowledge the LiveMasjid team for providing and maintaining this service.
+
+MasjidPi is an independent project and is not affiliated with or endorsed by eBilal or LiveMasjid.
+
 ## License
 
 MasjidPi is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).

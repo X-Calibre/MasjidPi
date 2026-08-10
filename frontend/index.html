@@ -47,9 +47,19 @@
 
     <section class="card">
 
+        <h2>Find a Masjid</h2>
+
+        <label for="streamSearch">Search</label>
+        <input
+            id="streamSearch"
+            type="search"
+            placeholder="Search by masjid name or location..."
+            autocomplete="off">
+        <div id="streamCount" class="stream-count"></div>
+
         <label for="stream">Masjid</label>
 
-        <select id="stream"></select>
+        <select id="stream" size="8"></select>
 
         <button id="updateCatalogueButton" class="secondary">
             🔄 Update Catalogue

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
+	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
@@ -15,6 +16,7 @@ type Server struct {
 	logger     *slog.Logger
 	playback   *playback.Manager
 	streams    *stream.Store
+	favourites *storage.Favourites
 }
 
 // New creates a new HTTP server.
@@ -23,6 +25,7 @@ func New(
 	logger *slog.Logger,
 	playback *playback.Manager,
 	streams *stream.Store,
+	favourites *storage.Favourites,
 	frontend string,
 ) *Server {
 	mux := http.NewServeMux()
@@ -30,9 +33,10 @@ func New(
 	fileServer := http.FileServer(http.Dir(frontend))
 
 	server := &Server{
-		logger:   logger,
-		playback: playback,
-		streams:  streams,
+		logger:     logger,
+		playback:   playback,
+		streams:    streams,
+		favourites: favourites,
 		httpServer: &http.Server{
 			Addr:    addr,
 			Handler: mux,
@@ -44,6 +48,7 @@ func New(
 	mux.HandleFunc("/api/player/status", server.status)
 	mux.HandleFunc("/api/player/volume", server.volume)
 	mux.HandleFunc("/api/streams", server.streamsList)
+	mux.HandleFunc("/api/favourites", server.favouritesHandler)
 	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
 	mux.HandleFunc("/api/version", server.version)
 

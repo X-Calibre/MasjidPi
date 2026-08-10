@@ -2,7 +2,7 @@ let catalogue = [];
 let filteredCatalogue = [];
 let backendOnline = true;
 let playerStatus = null;
-let favouriteIds = new Set(JSON.parse(localStorage.getItem("favourites") || "[]"));
+let favouriteIds = new Set();
 
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
@@ -47,8 +47,28 @@ async function setAudioDevice(name) {
     return response.json();
 }
 
-function saveFavourites() {
-    localStorage.setItem("favourites", JSON.stringify([...favouriteIds]));
+async function loadFavourites() {
+    const response = await fetch("/api/favourites");
+    if (!response.ok) throw new Error("Unable to load favourites");
+    const data = await response.json();
+    favouriteIds = new Set(data.ids || []);
+
+    // Migrate favourites saved by older versions of the UI into server storage.
+    const legacy = JSON.parse(localStorage.getItem("favourites") || "[]");
+    if (favouriteIds.size === 0 && legacy.length > 0) {
+        favouriteIds = new Set(legacy);
+        await saveFavourites();
+    }
+}
+
+async function saveFavourites() {
+    const response = await fetch("/api/favourites", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [...favouriteIds] })
+    });
+    if (!response.ok) throw new Error("Unable to save favourites");
+    localStorage.removeItem("favourites");
 }
 
 function streamMatchesQuery(item, query) {
@@ -298,13 +318,18 @@ streamInput.addEventListener("change", () => {
     if (playerStatus) updateControls(playerStatus);
 });
 
-favourites.addEventListener("click", event => {
+favourites.addEventListener("click", async event => {
     const item = event.target.closest(".favourite-item");
     if (!item) return;
     const id = item.dataset.id;
     if (event.target.closest(".favourite-remove")) {
         favouriteIds.delete(id);
-        saveFavourites();
+        try {
+            await saveFavourites();
+            showToast("Removed from favourites.", "success");
+        } catch (err) {
+            showToast(err.message, "error");
+        }
         renderStreams(streamInput.value);
         if (playerStatus) updateControls(playerStatus);
         return;
@@ -317,17 +342,22 @@ favourites.addEventListener("click", event => {
     }
 });
 
-favouriteButton.addEventListener("click", () => {
+favouriteButton.addEventListener("click", async () => {
     const id = streamInput.value;
     if (!id) return;
-    if (favouriteIds.has(id)) {
+    const wasFavourite = favouriteIds.has(id);
+    if (wasFavourite) {
         favouriteIds.delete(id);
-        showToast("Removed from favourites.", "success");
     } else {
         favouriteIds.add(id);
-        showToast("Added to favourites.", "success");
     }
-    saveFavourites();
+    try {
+        await saveFavourites();
+        showToast(wasFavourite ? "Removed from favourites." : "Added to favourites.", "success");
+    } catch (err) {
+        if (wasFavourite) favouriteIds.add(id); else favouriteIds.delete(id);
+        showToast(err.message, "error");
+    }
     renderStreams(id);
     if (playerStatus) updateControls(playerStatus);
 });
@@ -408,6 +438,12 @@ updateCatalogueButton.addEventListener("click", async () => {
 });
 
 async function initialize() {
+    try {
+        await loadFavourites();
+    } catch (err) {
+        console.error(err);
+        showToast("Unable to load favourites.", "error");
+    }
     await loadStreams();
     await loadAudioDevices();
     await refreshStatus();

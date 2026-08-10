@@ -206,6 +206,7 @@ func (m *Manager) run(ctx context.Context) {
 	defer statusTicker.Stop()
 
 	active := false
+	activeURL := ""
 	playing := false
 	attemptStarted := time.Time{}
 	nextAttempt := time.Time{}
@@ -220,18 +221,18 @@ func (m *Manager) run(ctx context.Context) {
 			}
 			return
 		case <-m.wake:
-			m.step(ctx, &active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
+			m.step(ctx, &active, &activeURL, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 		case <-loop.C:
-			m.step(ctx, &active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
+			m.step(ctx, &active, &activeURL, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 		case <-statusTicker.C:
 			if active {
-				m.checkPlayerStatus(&active, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
+				m.checkPlayerStatus(&active, &activeURL, &playing, &attemptStarted, &nextAttempt, &retryAttempt, &reconnectAttempt)
 			}
 		}
 	}
 }
 
-func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+func (m *Manager) step(ctx context.Context, active *bool, activeURL *string, playing, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	selected, listening, availability := m.snapshot()
 	if ctx.Err() != nil {
 		return
@@ -241,6 +242,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarte
 		if *active {
 			_ = m.player.Stop()
 			*active = false
+			*activeURL = ""
 			*playing = false
 		}
 		*attemptStarted = time.Time{}
@@ -257,6 +259,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarte
 			if *active {
 				_ = m.player.Stop()
 				*active = false
+				*activeURL = ""
 				*playing = false
 			}
 			*attemptStarted = time.Time{}
@@ -266,6 +269,20 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarte
 			m.setState(StateWaiting, "", nil)
 			return
 		}
+	}
+
+	// A new stream can be selected while another stream is active. Stop the
+	// current player first, then let the normal playback path start the newly
+	// selected stream without requiring the user to press Stop.
+	if *active && *activeURL != selected.URL {
+		_ = m.player.Stop()
+		*active = false
+		*activeURL = ""
+		*playing = false
+		*attemptStarted = time.Time{}
+		*nextAttempt = time.Time{}
+		*retryAttempt = 0
+		*reconnectAttempt = 0
 	}
 
 	if *active {
@@ -288,6 +305,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarte
 	}
 
 	*active = true
+	*activeURL = selected.URL
 	*playing = false
 	*attemptStarted = time.Now()
 	*nextAttempt = time.Time{}
@@ -298,7 +316,7 @@ func (m *Manager) step(ctx context.Context, active, playing *bool, attemptStarte
 	m.setState(StateConnecting, "", nil)
 }
 
-func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
+func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing, attemptStarted, nextAttempt *time.Time, retryAttempt, reconnectAttempt *int) {
 	if !*active {
 		return
 	}
@@ -309,6 +327,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextA
 		(*retryAttempt)++
 		_ = m.player.Stop()
 		*active = false
+		*activeURL = ""
 		*playing = false
 		*attemptStarted = time.Time{}
 		*nextAttempt = time.Now().Add(delay)
@@ -326,6 +345,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextA
 		if !known || !available {
 			_ = m.player.Stop()
 			*active = false
+			*activeURL = ""
 			*playing = false
 			*attemptStarted = time.Time{}
 			*nextAttempt = time.Time{}
@@ -346,6 +366,7 @@ func (m *Manager) checkPlayerStatus(active, playing *bool, attemptStarted, nextA
 		(*retryAttempt)++
 		_ = m.player.Stop()
 		*active = false
+		*activeURL = ""
 		*playing = false
 		*attemptStarted = time.Time{}
 		*nextAttempt = time.Now().Add(delay)

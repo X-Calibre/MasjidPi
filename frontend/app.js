@@ -190,11 +190,6 @@ async function refreshStatus() {
             stream.textContent = current
                 ? current.name + (current.location ? " — " + current.location : "") + "\n" + current.url
                 : status.url;
-
-            if (current && streamInput.value !== current.id) {
-                const visible = filteredCatalogue.some(item => item.id === current.id);
-                if (visible) streamInput.value = current.id;
-            }
         }
     } catch (err) {
         console.error(err);

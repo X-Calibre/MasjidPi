@@ -50,6 +50,10 @@ type Persistence interface {
 	Clear() error
 }
 
+type VolumePersistence interface {
+	Save(volume int) error
+}
+
 type Config struct {
 	RetryInterval       time.Duration
 	ReconnectDelay      time.Duration
@@ -65,6 +69,7 @@ type Manager struct {
 	player       Player
 	availability Availability
 	persistence  Persistence
+	volumeStore  VolumePersistence
 	log          *slog.Logger
 
 	retryInterval      time.Duration
@@ -138,6 +143,12 @@ func (m *Manager) SetPersistence(persistence Persistence) {
 	m.mu.Unlock()
 }
 
+func (m *Manager) SetVolumePersistence(persistence VolumePersistence) {
+	m.mu.Lock()
+	m.volumeStore = persistence
+	m.mu.Unlock()
+}
+
 func (m *Manager) Start(ctx context.Context) {
 	m.startOnce.Do(func() { go m.run(ctx) })
 }
@@ -183,7 +194,14 @@ func (m *Manager) Volume(volume int) error {
 	}
 	m.mu.Lock()
 	m.status.Volume = volume
+	volumeStore := m.volumeStore
 	m.mu.Unlock()
+	if volumeStore != nil {
+		if err := volumeStore.Save(volume); err != nil {
+			m.logPersistenceError("saving volume", err)
+			return err
+		}
+	}
 	return nil
 }
 

@@ -93,7 +93,8 @@ func Run() error {
 
 	playbackManager.Start(ctx)
 
-	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, paths.Frontend)
+	favourites := storage.NewFavourites(paths.FavouritesState)
+	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend)
 
 	go func() {
 		<-ctx.Done()

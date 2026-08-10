@@ -10,8 +10,13 @@ header p { color: #bbbbbb; margin-top: 8px; }
 .status-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
 label { display: block; margin-top: 18px; margin-bottom: 8px; color: #bbbbbb; }
 pre { background: #2b2b2b; padding: 12px; border-radius: 8px; overflow-wrap: anywhere; white-space: pre-wrap; }
-input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2b2b2b; color: white; font-size: 15px; }
+input[type="text"], input[type="search"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2b2b2b; color: white; font-size: 15px; }
+input[type="search"]::placeholder { color: #888; }
 input[type="range"] { width: 100%; padding: 0; margin-top: 8px; }
+select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #444; background: #2b2b2b; color: white; font-size: 15px; }
+select option { padding: 9px 6px; }
+select:focus, input[type="search"]:focus { outline: 2px solid rgba(50,195,108,.45); outline-offset: 1px; }
+.stream-count { margin-top: 8px; color: #888; font-size: 13px; }
 .buttons { display: flex; gap: 12px; margin-top: 20px; }
 button { flex: 1; border: none; border-radius: 8px; padding: 14px; cursor: pointer; font-size: 16px; font-weight: bold; transition: .2s; }
 #play { background: #32c36c; color: white; }
@@ -52,3 +57,12 @@ button { flex: 1; border: none; border-radius: 8px; padding: 14px; cursor: point
 .offline-banner { background: #d84b4b; color: white; padding: 14px; margin-bottom: 24px; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
 .hidden { display: none; }
 button:disabled, select:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+@media (max-width: 600px) {
+    body { padding: 20px 12px; }
+    .card { padding: 18px; }
+    header h1 { font-size: 34px; }
+    select { font-size: 14px; }
+    .toast-container { left: 12px; right: 12px; bottom: 12px; }
+    .toast { min-width: 0; max-width: none; }
+}

@@ -104,20 +104,15 @@ func (m *MPV) AudioDevices() ([]AudioDevice, error) {
 	if !ok {
 		return nil, fmt.Errorf("audio-device-list is %T (%v)", value, value)
 	}
-	devices := make([]AudioDevice, 0, len(items))
+
+	rawDevices := make([]map[string]any, 0, len(items))
 	for _, item := range items {
 		entry, ok := item.(map[string]any)
-		if !ok {
-			continue
+		if ok {
+			rawDevices = append(rawDevices, entry)
 		}
-		name, _ := entry["name"].(string)
-		description, _ := entry["description"].(string)
-		if name == "" {
-			continue
-		}
-		devices = append(devices, AudioDevice{Name: name, Description: description})
 	}
-	return devices, nil
+	return normalizeAudioDevices(rawDevices), nil
 }
 
 func (m *MPV) AudioDevice(name string) error {
@@ -177,12 +172,12 @@ func (m *MPV) Status() (*Status, error) {
 		return nil, err
 	}
 	return &Status{
-		Version: version,
-		State: state,
-		URL: path,
-		Volume: int(volumeFloat),
-		Paused: paused,
-		AudioDevice: audioDevice,
+		Version:      version,
+		State:        state,
+		URL:          path,
+		Volume:       int(volumeFloat),
+		Paused:       paused,
+		AudioDevice:  audioDevice,
 		AudioDevices: audioDevices,
 	}, nil
 }

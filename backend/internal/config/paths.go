@@ -6,17 +6,17 @@ import (
 )
 
 type Paths struct {
-	AppRoot          string
-	DataRoot         string
-	ConfigRoot       string
-
-	Config            string
-	Catalogue         string
-	PlaybackState     string
-	AudioDeviceState  string
-	FavouritesState   string
-	Frontend           string
-	Version            string
+	AppRoot         string
+	DataRoot        string
+	ConfigRoot      string
+	Config           string
+	Catalogue        string
+	PlaybackState    string
+	AudioDeviceState string
+	FavouritesState  string
+	PreferencesState string
+	Frontend         string
+	Version          string
 }
 
 func NewPaths(base string) Paths {
@@ -24,11 +24,12 @@ func NewPaths(base string) Paths {
 		AppRoot:          base,
 		DataRoot:         filepath.Join(base, "backend", "data"),
 		ConfigRoot:       filepath.Join(base, "backend", "configs"),
-		Config:            filepath.Join(base, "backend", "configs", "default.yaml"),
-		Catalogue:         filepath.Join(base, "backend", "data", "catalogue.json"),
+		Config:           filepath.Join(base, "backend", "configs", "default.yaml"),
+		Catalogue:        filepath.Join(base, "backend", "data", "catalogue.json"),
 		PlaybackState:    filepath.Join(base, "backend", "data", "playback.json"),
 		AudioDeviceState: filepath.Join(base, "backend", "data", "audio_device.json"),
 		FavouritesState:  filepath.Join(base, "backend", "data", "favourites.json"),
+		PreferencesState: filepath.Join(base, "backend", "data", "preferences.json"),
 		Frontend:         filepath.Join(base, "frontend"),
 		Version:          filepath.Join(base, "version.json"),
 	}
@@ -45,6 +46,7 @@ func RuntimePaths() (Paths, error) {
 			PlaybackState:    "/var/lib/masjidpi/playback.json",
 			AudioDeviceState: "/var/lib/masjidpi/audio_device.json",
 			FavouritesState:  "/var/lib/masjidpi/favourites.json",
+			PreferencesState: "/var/lib/masjidpi/preferences.json",
 			Frontend:         filepath.Join(home, "frontend"),
 			Version:          filepath.Join(home, "version.json"),
 		}, nil

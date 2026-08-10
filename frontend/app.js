@@ -2,6 +2,7 @@ let catalogue = [];
 let filteredCatalogue = [];
 let backendOnline = true;
 let playerStatus = null;
+let preferences = { last_stream_id: "", autoplay: false };
 let favouriteIds = new Set();
 
 const state = document.getElementById("state");
@@ -38,13 +39,27 @@ async function setAudioDevice(name) {
     const response = await fetch("/api/player/volume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            volume: Number(volumeSlider.value),
-            audio_device: name
-        })
+        body: JSON.stringify({ volume: Number(volumeSlider.value), audio_device: name })
     });
     if (!response.ok) throw new Error("Unable to change audio device");
     return response.json();
+}
+
+async function getPreferences() {
+    const response = await fetch("/api/preferences");
+    if (!response.ok) throw new Error("Unable to load preferences");
+    return response.json();
+}
+
+async function savePreferences(next) {
+    const updated = { ...preferences, ...next };
+    const response = await fetch("/api/preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated)
+    });
+    if (!response.ok) throw new Error("Unable to save preferences");
+    preferences = await response.json();
 }
 
 async function loadFavourites() {
@@ -52,13 +67,6 @@ async function loadFavourites() {
     if (!response.ok) throw new Error("Unable to load favourites");
     const data = await response.json();
     favouriteIds = new Set(data.ids || []);
-
-    // Migrate favourites saved by older versions of the UI into server storage.
-    const legacy = JSON.parse(localStorage.getItem("favourites") || "[]");
-    if (favouriteIds.size === 0 && legacy.length > 0) {
-        favouriteIds = new Set(legacy);
-        await saveFavourites();
-    }
 }
 
 async function saveFavourites() {
@@ -68,7 +76,6 @@ async function saveFavourites() {
         body: JSON.stringify({ ids: [...favouriteIds] })
     });
     if (!response.ok) throw new Error("Unable to save favourites");
-    localStorage.removeItem("favourites");
 }
 
 function streamMatchesQuery(item, query) {
@@ -136,11 +143,11 @@ async function loadStreams() {
         return;
     }
     catalogue = await response.json();
-    const preferred = currentSelection || localStorage.getItem("lastStream");
+    const preferred = currentSelection || preferences.last_stream_id;
     renderStreams(preferred);
 }
 
-async function loadAudioDevices(preferred = "") {
+async function loadAudioDevices() {
     try {
         const devices = await getAudioDevices();
         audioDevice.innerHTML = "";
@@ -149,11 +156,6 @@ async function loadAudioDevices(preferred = "") {
             option.value = device.name;
             option.textContent = device.description ? device.description : device.name;
             audioDevice.appendChild(option);
-        }
-
-        const saved = preferred || localStorage.getItem("audioDevice");
-        if (saved && devices.some(device => device.name === saved)) {
-            audioDevice.value = saved;
         }
         audioDevice.disabled = !backendOnline || devices.length === 0;
     } catch (err) {
@@ -284,7 +286,6 @@ async function refreshStatus() {
         volumeValue.textContent = status.volume + "%";
         if (status.audio_device && [...audioDevice.options].some(option => option.value === status.audio_device)) {
             audioDevice.value = status.audio_device;
-            localStorage.setItem("audioDevice", status.audio_device);
         }
         updateControls(status);
         if (!status.url) {
@@ -312,8 +313,14 @@ streamSearch.addEventListener("input", () => {
     if (playerStatus) updateControls(playerStatus);
 });
 
-streamInput.addEventListener("change", () => {
-    localStorage.setItem("lastStream", streamInput.value);
+streamInput.addEventListener("change", async () => {
+    const id = streamInput.value;
+    if (!id) return;
+    try {
+        await savePreferences({ last_stream_id: id });
+    } catch (err) {
+        showToast(err.message, "error");
+    }
     updateFavouriteButton();
     if (playerStatus) updateControls(playerStatus);
 });
@@ -336,7 +343,11 @@ favourites.addEventListener("click", async event => {
     }
     if (catalogue.some(stream => stream.id === id)) {
         streamInput.value = id;
-        localStorage.setItem("lastStream", id);
+        try {
+            await savePreferences({ last_stream_id: id });
+        } catch (err) {
+            showToast(err.message, "error");
+        }
         updateFavouriteButton();
         if (playerStatus) updateControls(playerStatus);
     }
@@ -408,19 +419,22 @@ audioDevice.addEventListener("change", async () => {
     audioDevice.disabled = true;
     try {
         const status = await setAudioDevice(selected);
-        localStorage.setItem("audioDevice", selected);
         playerStatus = status;
         showToast("Audio output changed.", "success");
     } catch (err) {
         showToast(err.message, "error");
-        await loadAudioDevices(playerStatus?.audio_device || "");
+        await loadAudioDevices();
     } finally {
         if (backendOnline) audioDevice.disabled = false;
     }
 });
 
-autoplay.addEventListener("change", () => {
-    localStorage.setItem("autoplay", autoplay.checked);
+autoplay.addEventListener("change", async () => {
+    try {
+        await savePreferences({ autoplay: autoplay.checked });
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 });
 
 updateCatalogueButton.addEventListener("click", async () => {
@@ -439,23 +453,17 @@ updateCatalogueButton.addEventListener("click", async () => {
 
 async function initialize() {
     try {
+        preferences = await getPreferences();
         await loadFavourites();
     } catch (err) {
         console.error(err);
-        showToast("Unable to load favourites.", "error");
+        showToast("Unable to load saved preferences.", "error");
     }
+
+    autoplay.checked = preferences.autoplay === true;
     await loadStreams();
     await loadAudioDevices();
     await refreshStatus();
-    autoplay.checked = localStorage.getItem("autoplay") === "true";
-    if (autoplay.checked && streamInput.value) {
-        try {
-            await playStream(streamInput.value);
-            await refreshStatus();
-        } catch (err) {
-            console.error(err);
-        }
-    }
     setInterval(refreshStatus, 1000);
 }
 

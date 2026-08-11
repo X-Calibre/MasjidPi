@@ -73,8 +73,6 @@ jobs:
           build_package arm64 arm64
           build_package amd64 amd64
 
-          # Generate checksums from inside dist so the manifest contains
-          # release asset filenames rather than local dist/ paths.
           (
             cd dist
             sha256sum *.tar.gz > SHA256SUMS

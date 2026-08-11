@@ -156,8 +156,6 @@ func (m *Manager) Volume(volume int) error {
 	if volume < 0 || volume > 100 { return errors.New("volume must be between 0 and 100") }
 	status, err := m.player.Status()
 	if err != nil { return err }
-	if !status.VolumeSupported { return player.ErrHardwareVolumeUnsupported }
-	if status.AudioDevice == "" { return errors.New("no audio device selected") }
 	if err := m.player.Volume(volume); err != nil { return err }
 
 	m.mu.Lock()
@@ -170,7 +168,7 @@ func (m *Manager) Volume(volume int) error {
 	m.status.AudioDevice = status.AudioDevice
 	volumeStore := m.volumeStore
 	m.mu.Unlock()
-	if volumeStore != nil { if err := volumeStore.Save(status.AudioDevice, volume); err != nil { m.logPersistenceError("saving volume", err); return err } }
+	if volumeStore != nil && status.AudioDevice != "" { if err := volumeStore.Save(status.AudioDevice, volume); err != nil { m.logPersistenceError("saving volume", err); return err } }
 	return nil
 }
 

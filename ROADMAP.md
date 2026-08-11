@@ -138,7 +138,7 @@ The following are intentionally **not** part of v0.x:
 
 ## 🚧 Phase 6 — Production Hardening
 
-Phase 6 is now focused on making MasjidPi a dependable, unattended Raspberry Pi appliance rather than adding a large configuration system.
+Phase 6 is focused on making MasjidPi a dependable, unattended Raspberry Pi appliance rather than adding a large configuration system.
 
 The core principle is to keep configuration simple and keep persistent state owned by the Raspberry Pi rather than by individual browsers.
 
@@ -149,6 +149,23 @@ The core principle is to keep configuration simple and keep persistent state own
 - Improve service recovery after unexpected failures
 - Improve diagnostics and useful error reporting
 - Continue strengthening unattended operation after reboot and network outages
+
+### Audio Hardware & Volume Reliability
+
+MasjidPi should use the selected audio device's hardware volume as the user-facing volume control rather than maintaining two independent volume stages.
+
+The intended audio path is:
+
+**Stream → MPV at 100% software gain → ALSA hardware mixer → Audio device**
+
+- Keep MPV software gain at 100%
+- Control the selected audio device's ALSA hardware volume from the MasjidPi UI where supported
+- Maintain a separate persistent volume level for each audio device
+- Use a newly discovered device's current hardware volume as its initial MasjidPi volume
+- Restore the saved volume when switching back to a previously configured device
+- Handle devices without a controllable hardware mixer gracefully
+- Keep hardware-volume state stored on the Raspberry Pi rather than in the browser
+- Verify reliable volume and device behaviour across USB, HDMI and other supported outputs
 
 ### Updates & Installation
 

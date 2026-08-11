@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,23 +27,23 @@ func Run() error {
 
 	paths, err := config.RuntimePaths()
 	if err != nil {
-		return err
+		return fmt.Errorf("resolve runtime paths: %w", err)
 	}
 	cfg, err := config.Load(paths.Config)
 	if err != nil {
-		return err
+		return fmt.Errorf("load configuration: %w", err)
 	}
 	log.Info("Configuration loaded")
 
 	streamStore, err := stream.New(paths.Catalogue)
 	if err != nil {
-		return err
+		return fmt.Errorf("load stream catalogue: %w", err)
 	}
 	log.Info("Loaded stream catalogue", "streams", len(streamStore.All()))
 
 	mpv := player.New(cfg.Player.Socket)
 	if err := mpv.Start(); err != nil {
-		return err
+		return fmt.Errorf("start MPV: %w", err)
 	}
 	defer func() {
 		log.Info("Stopping MPV")
@@ -62,7 +63,7 @@ func Run() error {
 
 	playbackConfig, err := newPlaybackConfig(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("create playback configuration: %w", err)
 	}
 	playbackConfig.Logger = log
 
@@ -76,7 +77,7 @@ func Run() error {
 		log.Info("Restored volume", "volume", volume)
 	}
 	if err := playbackManager.Volume(initialVolume); err != nil {
-		return err
+		return fmt.Errorf("set initial volume: %w", err)
 	}
 	playbackManager.SetVolumePersistence(volumeState)
 
@@ -100,11 +101,11 @@ func Run() error {
 
 	mpvVersion, err := mpv.Version()
 	if err != nil {
-		return err
+		return fmt.Errorf("get MPV version: %w", err)
 	}
 	status, err := mpv.Status()
 	if err != nil {
-		return err
+		return fmt.Errorf("get MPV status: %w", err)
 	}
 	log.Info("Player status", "status", status)
 	log.Info("Connected to MPV", "version", mpvVersion)
@@ -134,7 +135,10 @@ func Run() error {
 		}
 	}()
 
-	return server.Start()
+	if err := server.Start(); err != nil {
+		return fmt.Errorf("HTTP server stopped: %w", err)
+	}
+	return nil
 }
 
 func monitorAudioDevice(ctx context.Context, mpv *player.MPV, state *storage.AudioDeviceState, log interface {
@@ -171,7 +175,7 @@ func monitorAudioDevice(ctx context.Context, mpv *player.MPV, state *storage.Aud
 				if err != nil {
 					continue
 				}
-			currentName, _ := current.(string)
+				currentName, _ := current.(string)
 				if currentName != name {
 					if err := mpv.AudioDevice(name); err != nil {
 						continue

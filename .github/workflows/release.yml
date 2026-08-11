@@ -54,19 +54,21 @@ jobs:
 
             mkdir -p "$package_dir"
 
+            pushd backend >/dev/null
             if [[ -n "$goarm" ]]; then
               GOOS=linux GOARCH="$goarch" GOARM="$goarm" \
                 go build -trimpath \
                   -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
-                  -o "$binary" ./backend/cmd/masjidpi
+                  -o "../$binary" ./cmd/masjidpi
             else
               GOOS=linux GOARCH="$goarch" \
                 go build -trimpath \
                   -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
-                  -o "$binary" ./backend/cmd/masjidpi
+                  -o "../$binary" ./cmd/masjidpi
             fi
+            cp configs/default.yaml "../$package_dir/default.yaml"
+            popd >/dev/null
 
-            cp backend/configs/default.yaml "$package_dir/default.yaml"
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \

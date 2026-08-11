@@ -6,9 +6,9 @@ import (
 )
 
 type Paths struct {
-	AppRoot         string
-	DataRoot        string
-	ConfigRoot      string
+	AppRoot          string
+	DataRoot         string
+	ConfigRoot       string
 	Config           string
 	Catalogue        string
 	PlaybackState    string
@@ -53,6 +53,27 @@ func RuntimePaths() (Paths, error) {
 			Frontend:         filepath.Join(home, "frontend"),
 			Version:          filepath.Join(home, "version.json"),
 		}, nil
+	}
+
+	if executable, err := os.Executable(); err == nil {
+		executableDir := filepath.Dir(executable)
+		packagedConfig := filepath.Join(executableDir, "default.yaml")
+		if _, err := os.Stat(packagedConfig); err == nil {
+			return Paths{
+				AppRoot:          executableDir,
+				DataRoot:         "/var/lib/masjidpi",
+				ConfigRoot:       executableDir,
+				Config:           packagedConfig,
+				Catalogue:        "/var/lib/masjidpi/catalogue.json",
+				PlaybackState:    "/var/lib/masjidpi/playback.json",
+				AudioDeviceState: "/var/lib/masjidpi/audio_device.json",
+				VolumeState:      "/var/lib/masjidpi/volume.json",
+				FavouritesState:  "/var/lib/masjidpi/favourites.json",
+				PreferencesState: "/var/lib/masjidpi/preferences.json",
+				Frontend:         filepath.Join(executableDir, "frontend"),
+				Version:          filepath.Join(executableDir, "VERSION"),
+			}, nil
+		}
 	}
 
 	wd, err := os.Getwd()

@@ -24,6 +24,10 @@ func (p *apiTestPlayer) Volume(volume int) error {
 	p.volume = volume
 	return nil
 }
+func (p *apiTestPlayer) AudioDevices() ([]player.AudioDevice, error) {
+	return nil, nil
+}
+func (p *apiTestPlayer) AudioDevice(string) error { return nil }
 func (p *apiTestPlayer) Status() (*player.Status, error) {
 	return &player.Status{Volume: p.volume}, nil
 }

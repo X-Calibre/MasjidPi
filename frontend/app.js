@@ -8,6 +8,7 @@ let favouriteIds = new Set();
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
 const volume = document.getElementById("volume");
+const volumeNote = document.getElementById("volumeNote");
 const stream = document.getElementById("url");
 const streamInput = document.getElementById("stream");
 const streamSearch = document.getElementById("streamSearch");
@@ -39,7 +40,7 @@ async function setAudioDevice(name) {
     const response = await fetch("/api/player/volume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ volume: Number(volumeSlider.value), audio_device: name })
+        body: JSON.stringify({ audio_device: name })
     });
     if (!response.ok) throw new Error("Unable to change audio device");
     return response.json();
@@ -228,7 +229,7 @@ function setOffline(offline) {
     streamInput.disabled = offline;
     streamSearch.disabled = offline;
     favouriteButton.disabled = offline;
-    volumeSlider.disabled = offline;
+    volumeSlider.disabled = offline || !playerStatus?.volume_supported;
     audioDevice.disabled = offline || audioDevice.options.length === 0;
     updateCatalogueButton.disabled = offline;
 }
@@ -252,7 +253,10 @@ function updateControls(status) {
     stopButton.disabled = !active;
     streamInput.disabled = false;
     streamSearch.disabled = false;
-    volumeSlider.disabled = false;
+    volumeSlider.disabled = !status.volume_supported;
+    volumeNote.textContent = status.volume_supported
+        ? "Controls the selected audio device's hardware volume."
+        : "The selected audio device does not provide a controllable hardware mixer.";
     audioDevice.disabled = audioDevice.options.length === 0;
     updateCatalogueButton.disabled = false;
     updateFavouriteButton();
@@ -404,12 +408,12 @@ stopButton.addEventListener("click", async () => {
 volumeSlider.addEventListener("input", async () => {
     const value = Number(volumeSlider.value);
     volumeValue.textContent = value + "%";
-    volumeValue.style.color = value > 100 ? "#ffb347" : "#32c36c";
     try {
         await setVolume(value);
         await refreshStatus();
     } catch (err) {
         console.error(err);
+        await refreshStatus();
     }
 });
 
@@ -420,12 +424,12 @@ audioDevice.addEventListener("change", async () => {
     try {
         const status = await setAudioDevice(selected);
         playerStatus = status;
+        updateControls(status);
         showToast("Audio output changed.", "success");
     } catch (err) {
         showToast(err.message, "error");
         await loadAudioDevices();
-    } finally {
-        if (backendOnline) audioDevice.disabled = false;
+        await refreshStatus();
     }
 });
 

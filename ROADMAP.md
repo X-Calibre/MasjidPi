@@ -186,9 +186,11 @@ Phase 6 should prioritise reliability and simplicity over adding configuration o
 
 ---
 
-## 🔮 v2.0.0 — Hardware & Advanced Audio
+## 🔮 v2.0.0 — Hardware, Advanced Audio & Home Automation
 
-Hardware controls and advanced audio features will be treated as major future milestones rather than part of the v0.x roadmap.
+V2 will add capabilities that go beyond the core radio appliance while keeping the v0.x product simple and reliable.
+
+### Hardware & Advanced Audio
 
 - OLED display
 - Push-button controls
@@ -196,6 +198,27 @@ Hardware controls and advanced audio features will be treated as major future mi
 - Display current station and playback state
 - Audio equaliser / EQ processing
 - Advanced audio controls
+
+### Home Assistant Integration
+
+Allow MasjidPi to participate in Home Assistant automations and expose its playback state and controls to the home-automation system.
+
+Potential capabilities:
+
+- Home Assistant media-player entity
+- Play / stop control
+- Volume control
+- Current stream / mosque information
+- Playback state
+- Audio output device
+- Stream and playback status sensors
+- Events/triggers for stream started, stopped and changed
+- Events/triggers for playback failure and reconnection
+- Events/triggers for audio-device changes, loss and recovery
+- Local MQTT integration, building on MasjidPi's existing MQTT architecture
+- Option for a polished native Home Assistant integration in addition to MQTT
+
+Example automations could include turning on an amplifier when MasjidPi starts playing, turning equipment off when playback stops, or reacting to a particular stream being selected.
 
 ---
 

@@ -34,35 +34,104 @@ The Web UI does not need to remain open for playback or automatic recovery to wo
 
 MasjidPi is designed for Linux and Raspberry Pi.
 
+### Supported operating systems
+
+The installer currently supports:
+
+- Debian
+- Raspberry Pi OS / Raspbian
+- Ubuntu
+- Linux Mint
+
+The system must have an ALSA-compatible audio device and `systemd`.
+
+### Supported release architectures
+
+Official pre-built releases are provided for:
+
+- **Linux ARM64 (`aarch64`)** — recommended for 64-bit Raspberry Pi OS on Raspberry Pi 3B and newer
+- **Linux AMD64 (`x86_64`)** — suitable for standard 64-bit Intel/AMD Linux systems
+
+The official release packages are **ARM64 and AMD64 only**. ARMv7/ARMv6 release packages are not provided.
+
 ### Raspberry Pi testing
 
 The following Raspberry Pi models have been tested:
 
 - **Raspberry Pi 3B — works**
-- **Raspberry Pi Zero W — does not work**
+- **Raspberry Pi Zero W — not supported**
 
-The Raspberry Pi Zero W has been tested and is not supported because MasjidPi does not run reliably on that hardware.
+The Raspberry Pi Zero W has been tested and MasjidPi does not run reliably on that hardware. Do not use a Pi Zero W for a MasjidPi installation.
 
-Other Raspberry Pi models and variants have **not yet been tested** and should not currently be considered officially supported.
-
-A Linux system with an ALSA-compatible audio device can also be used for development.
+Other Raspberry Pi models and variants have not yet been fully tested and should not currently be considered officially supported.
 
 ## Installation
 
-Clone the repository:
+The recommended installation method is to use the repository installer. The installer installs the required system packages, builds MasjidPi, installs the runtime and frontend, creates the systemd service and runs a self-test.
+
+### 1. Check your architecture
+
+Before installing, check the architecture of the target system:
+
+```bash
+uname -m
+```
+
+For an ARM64 Raspberry Pi installation this should report:
+
+```text
+aarch64
+```
+
+For an AMD64 PC it should report:
+
+```text
+x86_64
+```
+
+### 2. Install Go
+
+The installer currently expects Go to already be installed.
+
+Check:
+
+```bash
+go version
+```
+
+MasjidPi is developed and built with Go 1.26.x.
+
+### 3. Clone MasjidPi
 
 ```bash
 git clone https://github.com/X-Calibre/MasjidPi.git
 cd MasjidPi
 ```
 
-Run the installer:
+### 4. Run the installer
 
 ```bash
 sudo ./scripts/install.sh
 ```
 
-Once installation is complete, open:
+The installer will:
+
+1. Detect the operating system and CPU architecture.
+2. Install required packages including MPV, FFmpeg and ALSA utilities.
+3. Build MasjidPi.
+4. Install the application under `/opt/masjidpi`.
+5. Install the configuration under `/etc/masjidpi`.
+6. Install the stream catalogue under `/var/lib/masjidpi`.
+7. Install the Web UI.
+8. Create and enable the `masjidpi.service` systemd service.
+9. Start the service.
+10. Run the MasjidPi self-test.
+
+The installer prints a summary when installation is complete.
+
+### 5. Open the Web UI
+
+From another computer, phone or tablet on the same network, open:
 
 ```text
 http://<raspberry-pi-ip>:8080
@@ -74,11 +143,57 @@ For example:
 http://192.168.1.50:8080
 ```
 
-MasjidPi will run automatically as a system service and start after reboot.
+The Web UI is a remote control. It does not need to remain open for MasjidPi to continue playing audio or recovering from stream/network interruptions.
+
+### 6. Verify the service
+
+```bash
+sudo systemctl status masjidpi --no-pager
+```
+
+A successful installation should show:
+
+```text
+Active: active (running)
+```
+
+You should also see both MasjidPi and MPV running under the service.
+
+Check the playback API:
+
+```bash
+curl -s http://127.0.0.1:8080/api/player/status
+```
+
+The response should contain the installed MasjidPi version and the current playback state.
+
+## Configuration
+
+The persistent configuration is stored at:
+
+```text
+/etc/masjidpi/config.yaml
+```
+
+The stream catalogue is stored at:
+
+```text
+/var/lib/masjidpi/catalogue.json
+```
+
+Application files are installed under:
+
+```text
+/opt/masjidpi
+```
+
+The Web UI is available from the same MasjidPi service on port `8080`.
+
+Configuration changes made through the Web UI are persistent and are shared across clients using the same MasjidPi installation.
 
 ## Updating
 
-From an existing installation:
+For an existing source-tree installation:
 
 ```bash
 cd ~/MasjidPi
@@ -86,14 +201,51 @@ git pull
 sudo ./scripts/install.sh
 ```
 
-The installer handles stopping the existing service, rebuilding MasjidPi and starting the updated version.
+The installer detects the existing installation and updates it in place. It stops the existing service, rebuilds MasjidPi, installs the updated runtime and frontend, and starts the service again.
+
+After updating, verify:
+
+```bash
+sudo systemctl status masjidpi --no-pager
+```
+
+and:
+
+```bash
+curl -s http://127.0.0.1:8080/api/player/status
+```
+
+## Release packages
+
+Each release includes pre-built archives for the supported architectures:
+
+```text
+masjidpi-vX.Y.Z-linux-arm64.tar.gz
+masjidpi-vX.Y.Z-linux-amd64.tar.gz
+```
+
+A `SHA256SUMS` file is provided with each release.
+
+To verify a downloaded ARM64 release archive:
+
+```bash
+sha256sum -c <(grep 'masjidpi-vX.Y.Z-linux-arm64.tar.gz' SHA256SUMS)
+```
+
+The result should be:
+
+```text
+masjidpi-vX.Y.Z-linux-arm64.tar.gz: OK
+```
+
+The release archives contain the MasjidPi executable, default configuration, frontend and version information. The repository installer remains the recommended method for a complete systemd-based installation.
 
 ## Useful Commands
 
 Check the service:
 
 ```bash
-sudo systemctl status masjidpi
+sudo systemctl status masjidpi --no-pager
 ```
 
 View the logs:
@@ -106,6 +258,18 @@ Restart MasjidPi:
 
 ```bash
 sudo systemctl restart masjidpi
+```
+
+Stop MasjidPi:
+
+```bash
+sudo systemctl stop masjidpi
+```
+
+Check playback status:
+
+```bash
+curl -s http://127.0.0.1:8080/api/player/status
 ```
 
 ## Development
@@ -126,9 +290,9 @@ make test
 
 MasjidPi is currently in active development.
 
-**Current version: v0.5.0**
+**Current version: v1.0.4**
 
-The next development phase focuses on production hardening and making MasjidPi a reliable, unattended Raspberry Pi appliance.
+v1.0.4 has been validated on a Raspberry Pi 3B running a 64-bit ARM64 Linux environment, including installation as a systemd service, MPV playback, the Web UI, persistent configuration and live masjid stream playback.
 
 See [ROADMAP.md](ROADMAP.md) for the development roadmap.
 

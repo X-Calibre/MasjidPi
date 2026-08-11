@@ -1,19 +1,22 @@
 package player
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
 
 type MPV struct {
-	process *Process
-	ipc     *IPC
+	process        *Process
+	ipc            *IPC
+	hardwareVolume *ALSAVolume
 }
 
 func New(socket string) *MPV {
 	return &MPV{
-		process: NewProcess(socket),
-		ipc:     NewIPC(socket),
+		process:        NewProcess(socket),
+		ipc:            NewIPC(socket),
+		hardwareVolume: NewALSAVolume(),
 	}
 }
 
@@ -25,7 +28,7 @@ func (m *MPV) Start() error {
 		_ = m.process.Stop()
 		return err
 	}
-	return nil
+	return m.setSoftwareVolume()
 }
 
 func (m *MPV) Restart() error {
@@ -33,7 +36,10 @@ func (m *MPV) Restart() error {
 	if err := m.process.Restart(); err != nil {
 		return err
 	}
-	return m.connectIPC()
+	if err := m.connectIPC(); err != nil {
+		return err
+	}
+	return m.setSoftwareVolume()
 }
 
 func (m *MPV) connectIPC() error {
@@ -110,10 +116,45 @@ func (m *MPV) Play(url string) error {
 }
 
 func (m *MPV) Volume(volume int) error {
-	if volume < 0 || volume > 125 {
-		return fmt.Errorf("volume must be between 0 and 125")
+	if volume < 0 || volume > 100 {
+		return fmt.Errorf("volume must be between 0 and 100")
 	}
-	return m.SetProperty("volume", volume)
+	device, err := m.currentAudioDevice()
+	if err != nil {
+		return err
+	}
+	supported, err := m.hardwareVolume.Set(device, volume)
+	if err != nil {
+		return err
+	}
+	if !supported {
+		return ErrHardwareVolumeUnsupported
+	}
+	return m.setSoftwareVolume()
+}
+
+func (m *MPV) HardwareVolume() (int, bool, error) {
+	device, err := m.currentAudioDevice()
+	if err != nil {
+		return 100, false, err
+	}
+	return m.hardwareVolume.Get(device)
+}
+
+func (m *MPV) setSoftwareVolume() error {
+	return m.SetProperty("volume", 100)
+}
+
+func (m *MPV) currentAudioDevice() (string, error) {
+	value, err := m.GetProperty("audio-device")
+	if err != nil {
+		return "", err
+	}
+	device, ok := value.(string)
+	if !ok || device == "" {
+		return "", fmt.Errorf("audio-device is %T (%v)", value, value)
+	}
+	return device, nil
 }
 
 func (m *MPV) AudioDevices() ([]AudioDevice, error) {
@@ -140,7 +181,10 @@ func (m *MPV) AudioDevice(name string) error {
 	if name == "" {
 		return fmt.Errorf("audio device cannot be empty")
 	}
-	return m.SetProperty("audio-device", name)
+	if err := m.SetProperty("audio-device", name); err != nil {
+		return err
+	}
+	return m.setSoftwareVolume()
 }
 
 func (m *MPV) Status() (*Status, error) {
@@ -158,14 +202,6 @@ func (m *MPV) Status() (*Status, error) {
 	paused, ok := pausedValue.(bool)
 	if !ok {
 		return nil, fmt.Errorf("pause is %T (%v)", pausedValue, pausedValue)
-	}
-	volumeValue, err := m.GetProperty("volume")
-	if err != nil {
-		return nil, err
-	}
-	volumeFloat, ok := volumeValue.(float64)
-	if !ok {
-		return nil, fmt.Errorf("volume is %T (%v)", volumeValue, volumeValue)
 	}
 	idleValue, err := m.GetProperty("core-idle")
 	if err != nil {
@@ -191,17 +227,26 @@ func (m *MPV) Status() (*Status, error) {
 	if value, err := m.GetProperty("audio-device"); err == nil {
 		audioDevice, _ = value.(string)
 	}
+	volume, volumeSupported, volumeErr := m.HardwareVolume()
+	if volumeErr != nil && !errors.Is(volumeErr, ErrHardwareVolumeUnsupported) {
+		return nil, volumeErr
+	}
+	if errors.Is(volumeErr, ErrHardwareVolumeUnsupported) {
+		volume = 100
+		volumeSupported = false
+	}
 	audioDevices, err := m.AudioDevices()
 	if err != nil {
 		return nil, err
 	}
 	return &Status{
-		Version:      version,
-		State:        state,
-		URL:          path,
-		Volume:       int(volumeFloat),
-		Paused:       paused,
-		AudioDevice:  audioDevice,
-		AudioDevices: audioDevices,
+		Version:         version,
+		State:           state,
+		URL:             path,
+		Volume:          volume,
+		VolumeSupported: volumeSupported,
+		Paused:          paused,
+		AudioDevice:     audioDevice,
+		AudioDevices:    audioDevices,
 	}, nil
 }

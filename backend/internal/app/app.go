@@ -69,17 +69,10 @@ func Run() error {
 
 	playbackManager := playback.New(mpv, playbackConfig)
 	volumeState := storage.NewVolume(paths.VolumeState)
-	initialVolume := cfg.Player.Volume
-	if volume, ok, err := volumeState.Load(); err != nil {
-		log.Warn("Could not load saved volume", "error", err)
-	} else if ok {
-		initialVolume = volume
-		log.Info("Restored volume", "volume", volume)
-	}
-	if err := playbackManager.Volume(initialVolume); err != nil {
-		return fmt.Errorf("set initial volume: %w", err)
-	}
 	playbackManager.SetVolumePersistence(volumeState)
+	if err := playbackManager.InitializeVolume(); err != nil {
+		return fmt.Errorf("initialize hardware volume: %w", err)
+	}
 
 	playbackState := storage.NewPlayback(paths.PlaybackState)
 	playbackManager.SetPersistence(playbackState)
@@ -120,7 +113,7 @@ func Run() error {
 	log.Info("LiveMasjid live-status monitor started")
 
 	playbackManager.Start(ctx)
-	go monitorAudioDevice(ctx, mpv, audioDeviceState, log)
+	go monitorAudioDevice(ctx, playbackManager, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
 	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend)
@@ -141,7 +134,7 @@ func Run() error {
 	return nil
 }
 
-func monitorAudioDevice(ctx context.Context, mpv *player.MPV, state *storage.AudioDeviceState, log interface {
+func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *player.MPV, state *storage.AudioDeviceState, log interface {
 	Warn(msg string, args ...any)
 }) {
 	ticker := time.NewTicker(audioDeviceCheckInterval)
@@ -177,7 +170,7 @@ func monitorAudioDevice(ctx context.Context, mpv *player.MPV, state *storage.Aud
 				}
 				currentName, _ := current.(string)
 				if currentName != name {
-					if err := mpv.AudioDevice(name); err != nil {
+					if err := manager.AudioDevice(name); err != nil {
 						continue
 					}
 					if lastMode != "restored" {
@@ -194,7 +187,7 @@ func monitorAudioDevice(ctx context.Context, mpv *player.MPV, state *storage.Aud
 			}
 			currentName, _ := current.(string)
 			if currentName == name {
-				if err := mpv.AudioDevice("auto"); err != nil {
+				if err := manager.AudioDevice("auto"); err != nil {
 					continue
 				}
 				if lastMode != "fallback" {

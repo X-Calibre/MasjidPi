@@ -78,7 +78,12 @@ jobs:
           build_package armv7 arm 7
           build_package arm64 arm64
 
-          sha256sum dist/*.tar.gz > dist/SHA256SUMS
+          # Generate checksums from inside dist so the manifest contains
+          # release asset filenames rather than local dist/ paths.
+          (
+            cd dist
+            sha256sum *.tar.gz > SHA256SUMS
+          )
 
           echo "Release artifacts:"
           ls -lh dist/*.tar.gz dist/SHA256SUMS

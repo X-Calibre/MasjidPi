@@ -1,35 +1,60 @@
 package storage
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
-func TestVolumeSaveLoad(t *testing.T) {
+func TestVolumeSaveLoadPerDevice(t *testing.T) {
 	path := t.TempDir() + "/volume.json"
 	state := NewVolume(path)
 
-	if err := state.Save(85); err != nil {
+	if err := state.Save("alsa/plughw:CARD=USB,DEV=0", 85); err != nil {
 		t.Fatalf("save volume: %v", err)
 	}
+	if err := state.Save("alsa/plughw:CARD=HDMI,DEV=0", 40); err != nil {
+		t.Fatalf("save second volume: %v", err)
+	}
 
-	volume, ok, err := state.Load()
-	if err != nil {
-		t.Fatalf("load volume: %v", err)
+	volume, ok, err := state.Load("alsa/plughw:CARD=USB,DEV=0")
+	if err != nil || !ok || volume != 85 {
+		t.Fatalf("expected USB volume 85, got volume=%d ok=%v err=%v", volume, ok, err)
 	}
-	if !ok {
-		t.Fatal("expected saved volume to be present")
-	}
-	if volume != 85 {
-		t.Fatalf("expected volume 85, got %d", volume)
+
+	volume, ok, err = state.Load("alsa/plughw:CARD=HDMI,DEV=0")
+	if err != nil || !ok || volume != 40 {
+		t.Fatalf("expected HDMI volume 40, got volume=%d ok=%v err=%v", volume, ok, err)
 	}
 }
 
 func TestVolumeLoadMissing(t *testing.T) {
 	state := NewVolume(t.TempDir() + "/volume.json")
 
-	volume, ok, err := state.Load()
+	volume, ok, err := state.Load("alsa/plughw:CARD=USB,DEV=0")
 	if err != nil {
 		t.Fatalf("load missing volume: %v", err)
 	}
 	if ok || volume != 0 {
 		t.Fatalf("expected no saved volume, got volume=%d ok=%v", volume, ok)
+	}
+}
+
+func TestVolumeMigratesLegacyState(t *testing.T) {
+	path := t.TempDir() + "/volume.json"
+	if err := os.WriteFile(path, []byte(`{"volume":30}`), 0600); err != nil {
+		t.Fatalf("write legacy state: %v", err)
+	}
+
+	state := NewVolume(path)
+	volume, ok, err := state.Load("alsa/plughw:CARD=USB,DEV=0")
+	if err != nil || !ok || volume != 30 {
+		t.Fatalf("expected legacy volume 30, got volume=%d ok=%v err=%v", volume, ok, err)
+	}
+}
+
+func TestVolumeRejectsOutOfRange(t *testing.T) {
+	state := NewVolume(t.TempDir() + "/volume.json")
+	if err := state.Save("alsa/plughw:CARD=USB,DEV=0", 101); err == nil {
+		t.Fatal("expected out-of-range volume to fail")
 	}
 }

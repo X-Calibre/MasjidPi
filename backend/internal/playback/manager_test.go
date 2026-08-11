@@ -50,7 +50,7 @@ func (f *fakePlayer) Status() (*player.Status, error) {
 	defer f.mu.Unlock()
 
 	if len(f.statuses) == 0 {
-		return &player.Status{State: "playing", URL: "relay://one", Volume: 70}, nil
+		return &player.Status{State: "playing", URL: "relay://one", Volume: 70, VolumeSupported: true, AudioDevice: "auto"}, nil
 	}
 
 	status := f.statuses[0]
@@ -214,8 +214,8 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 func TestManagerRestoresVolumeAfterPlayerRecovery(t *testing.T) {
 	fake := &fakePlayer{
 		statuses: []*player.Status{
-			{State: "stopped", URL: "relay://one", Volume: 38},
-			{State: "playing", URL: "relay://one", Volume: 100},
+			{State: "stopped", URL: "relay://one", Volume: 38, VolumeSupported: true, AudioDevice: "auto"},
+			{State: "playing", URL: "relay://one", Volume: 100, VolumeSupported: true, AudioDevice: "auto"},
 		},
 	}
 

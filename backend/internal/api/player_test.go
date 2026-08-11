@@ -29,7 +29,7 @@ func (p *apiTestPlayer) AudioDevices() ([]player.AudioDevice, error) {
 }
 func (p *apiTestPlayer) AudioDevice(string) error { return nil }
 func (p *apiTestPlayer) Status() (*player.Status, error) {
-	return &player.Status{Volume: p.volume}, nil
+	return &player.Status{Volume: p.volume, VolumeSupported: true, AudioDevice: "auto"}, nil
 }
 
 func newAPITestServer(t *testing.T) *Server {

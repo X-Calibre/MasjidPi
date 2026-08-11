@@ -48,24 +48,16 @@ jobs:
           build_package() {
             local arch="$1"
             local goarch="$2"
-            local goarm="${3:-}"
             local package_dir="dist/${PACKAGE_NAME}-linux-${arch}"
             local binary="${package_dir}/masjidpi"
 
             mkdir -p "$package_dir"
 
             pushd backend >/dev/null
-            if [[ -n "$goarm" ]]; then
-              GOOS=linux GOARCH="$goarch" GOARM="$goarm" \
-                go build -trimpath \
-                  -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
-                  -o "../$binary" ./cmd/masjidpi
-            else
-              GOOS=linux GOARCH="$goarch" \
-                go build -trimpath \
-                  -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
-                  -o "../$binary" ./cmd/masjidpi
-            fi
+            GOOS=linux GOARCH="$goarch" \
+              go build -trimpath \
+                -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
+                -o "../$binary" ./cmd/masjidpi
             cp configs/default.yaml "../$package_dir/default.yaml"
             popd >/dev/null
 
@@ -75,8 +67,11 @@ jobs:
               "${PACKAGE_NAME}-linux-${arch}"
           }
 
-          build_package armv7 arm 7
+          # Official release targets:
+          # - arm64: Raspberry Pi 3A/B, 4, 5 and Zero 2W
+          # - amd64: 64-bit x86 Linux systems
           build_package arm64 arm64
+          build_package amd64 amd64
 
           # Generate checksums from inside dist so the manifest contains
           # release asset filenames rather than local dist/ paths.
@@ -96,8 +91,8 @@ jobs:
           VERSION: ${{ github.ref_name }}
         run: |
           gh release create "$VERSION" \
-            dist/masjidpi-${VERSION}-linux-armv7.tar.gz \
             dist/masjidpi-${VERSION}-linux-arm64.tar.gz \
+            dist/masjidpi-${VERSION}-linux-amd64.tar.gz \
             dist/SHA256SUMS \
             --title "$VERSION" \
             --generate-notes

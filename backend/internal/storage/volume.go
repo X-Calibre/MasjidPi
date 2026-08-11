@@ -8,7 +8,9 @@ import (
 )
 
 type VolumeState struct {
-	Volume int `json:"volume"`
+	Volumes map[string]int `json:"volumes,omitempty"`
+	// Volume is retained for migration from the pre-Phase-6 single-volume format.
+	Volume *int `json:"volume,omitempty"`
 }
 
 type Volume struct {
@@ -19,7 +21,7 @@ func NewVolume(path string) *Volume {
 	return &Volume{path: path}
 }
 
-func (v *Volume) Load() (int, bool, error) {
+func (v *Volume) Load(device string) (int, bool, error) {
 	data, err := os.ReadFile(v.path)
 	if errors.Is(err, os.ErrNotExist) {
 		return 0, false, nil
@@ -32,21 +34,48 @@ func (v *Volume) Load() (int, bool, error) {
 	if err := json.Unmarshal(data, &state); err != nil {
 		return 0, false, err
 	}
-	if state.Volume < 0 || state.Volume > 125 {
-		return 0, false, nil
+
+	if state.Volumes != nil {
+		volume, ok := state.Volumes[device]
+		if ok && volume >= 0 && volume <= 100 {
+			return volume, true, nil
+		}
 	}
-	return state.Volume, true, nil
+
+	if state.Volume != nil && *state.Volume >= 0 && *state.Volume <= 100 {
+		return *state.Volume, true, nil
+	}
+
+	return 0, false, nil
 }
 
-func (v *Volume) Save(volume int) error {
-	if volume < 0 || volume > 125 {
-		return errors.New("volume must be between 0 and 125")
+func (v *Volume) Save(device string, volume int) error {
+	if device == "" {
+		return errors.New("audio device cannot be empty")
+	}
+	if volume < 0 || volume > 100 {
+		return errors.New("volume must be between 0 and 100")
 	}
 	if err := os.MkdirAll(filepath.Dir(v.path), 0755); err != nil {
 		return err
 	}
 
-	data, err := json.Marshal(VolumeState{Volume: volume})
+	state := VolumeState{Volumes: map[string]int{}}
+	if data, err := os.ReadFile(v.path); err == nil {
+		var existing VolumeState
+		if json.Unmarshal(data, &existing) == nil {
+			state.Volumes = existing.Volumes
+			if state.Volumes == nil {
+				state.Volumes = make(map[string]int)
+			}
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	state.Volumes[device] = volume
+	state.Volume = nil
+
+	data, err := json.Marshal(state)
 	if err != nil {
 		return err
 	}

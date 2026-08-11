@@ -9,7 +9,7 @@ import (
 )
 
 type VolumeRequest struct {
-	Volume      int    `json:"volume"`
+	Volume      *int   `json:"volume,omitempty"`
 	AudioDevice string `json:"audio_device,omitempty"`
 }
 
@@ -52,9 +52,11 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := s.playback.Volume(req.Volume); err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
-		return
+	if req.Volume != nil {
+		if err := s.playback.Volume(*req.Volume); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 
 	writeJSON(w, http.StatusOK, s.playback.Status())

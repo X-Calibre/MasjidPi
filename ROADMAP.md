@@ -186,7 +186,7 @@ Phase 6 should prioritise reliability and simplicity over adding configuration o
 
 ---
 
-## 🔮 v2.0.0 — Hardware, Advanced Audio & Home Automation
+## 🔮 v2.0.0 — Hardware, Advanced Audio, MasjidBoard & Home Automation
 
 V2 will add capabilities that go beyond the core radio appliance while keeping the v0.x product simple and reliable.
 
@@ -198,6 +198,38 @@ V2 will add capabilities that go beyond the core radio appliance while keeping t
 - Display current station and playback state
 - Audio equaliser / EQ processing
 - Advanced audio controls
+
+### MasjidBoard Integration
+
+MasjidPi should be able to associate the selected mosque with its MasjidBoard Live listing and display the mosque's prayer information alongside the audio experience.
+
+MasjidBoard must remain a **separate subsystem from audio streaming and playback**. The audio player must continue to operate normally if MasjidBoard Live is unavailable, changes its interface, or cannot be reached.
+
+Potential capabilities:
+
+- Search MasjidBoard Live for a mosque
+- Select and persist the corresponding masjid
+- Display daily prayer times
+- Display Jumu'ah times
+- Display the next prayer and relevant countdown information
+- Display current masjid information alongside the selected audio stream
+- Cache prayer information locally on the Raspberry Pi
+- Continue displaying the last known valid prayer information during temporary network outages
+- Periodically refresh MasjidBoard data without affecting audio playback
+- Expose masjid and prayer information through the MasjidPi API
+- Display prayer information in the Web UI
+- Support a future OLED/hardware display for prayer information
+- Investigate a reliable machine-readable MasjidBoard data/API interface rather than depending unnecessarily on HTML scraping
+
+The intended architecture is:
+
+**MasjidBoard subsystem → Masjid/application layer → Web UI/display**
+
+and independently:
+
+**Stream catalogue → Playback subsystem → MPV → Audio device**
+
+The application layer may combine information from both subsystems, for example by showing the next prayer alongside the currently playing mosque, but MasjidBoard should not directly control MPV or the playback subsystem.
 
 ### Home Assistant Integration
 
@@ -217,8 +249,10 @@ Potential capabilities:
 - Events/triggers for audio-device changes, loss and recovery
 - Local MQTT integration, building on MasjidPi's existing MQTT architecture
 - Option for a polished native Home Assistant integration in addition to MQTT
+- Prayer-time and masjid information as optional Home Assistant sensors
+- Events/triggers related to upcoming prayer times where appropriate
 
-Example automations could include turning on an amplifier when MasjidPi starts playing, turning equipment off when playback stops, or reacting to a particular stream being selected.
+Example automations could include turning on an amplifier when MasjidPi starts playing, turning equipment off when playback stops, reacting to a particular stream being selected, or using prayer-time information to control other home-automation devices.
 
 ---
 
@@ -227,6 +261,8 @@ Example automations could include turning on an amplifier when MasjidPi starts p
 **v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, Raspberry Pi runtime foundations, stream discovery, favourites, and the initial audio-control experience.
 
 The next target is **v0.6.0**, focused on production hardening and appliance reliability.
+
+MasjidBoard integration is planned for **v2.0.0** and is intentionally not part of the v0.x scope.
 
 ---
 
@@ -241,5 +277,7 @@ MasjidPi should remain:
 - Focused on listening to mosque streams
 - Easy to maintain and update
 - Independent of browser-local configuration
+- Modular, with external services such as MasjidBoard isolated from core playback
+- Resilient when optional external services are unavailable
 
 The project should prioritise a reliable radio experience over unnecessary complexity.

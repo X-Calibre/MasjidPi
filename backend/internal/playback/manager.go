@@ -2,6 +2,7 @@ package playback
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"sync"
 	"time"
@@ -46,7 +47,10 @@ type Availability interface {
 }
 
 type Persistence interface { Save(streamID string) error; Clear() error }
-type VolumePersistence interface { Save(volume int) error }
+type VolumePersistence interface {
+	Load(device string) (int, bool, error)
+	Save(device string, volume int) error
+}
 
 type Config struct {
 	RetryInterval time.Duration
@@ -76,6 +80,8 @@ type Manager struct {
 	status Status
 	volume int
 	volumeSet bool
+	volumeDevice string
+	volumeSupported bool
 }
 
 type Status struct {
@@ -84,6 +90,7 @@ type Status struct {
 	Message string `json:"message"`
 	URL string `json:"url"`
 	Volume int `json:"volume"`
+	VolumeSupported bool `json:"volume_supported"`
 	Paused bool `json:"paused"`
 	AudioDevice string `json:"audio_device,omitempty"`
 	Listening bool `json:"listening"`
@@ -97,13 +104,41 @@ func New(player Player, cfg Config) *Manager {
 	if cfg.ReconnectDelay == 0 { cfg.ReconnectDelay = DefaultReconnectDelay }
 	if cfg.StartupGracePeriod == 0 { cfg.StartupGracePeriod = DefaultStartupGracePeriod }
 	if cfg.StatusCheckInterval == 0 { cfg.StatusCheckInterval = statusCheckInterval }
-	return &Manager{player: player, log: cfg.Logger, retryInterval: cfg.RetryInterval, reconnectDelay: cfg.ReconnectDelay, startupGracePeriod: cfg.StartupGracePeriod, statusInterval: cfg.StatusCheckInterval, wake: make(chan struct{}, 1), state: StateIdle, status: Status{Version: version.Version, State: string(StateIdle)}}
+	return &Manager{player: player, log: cfg.Logger, retryInterval: cfg.RetryInterval, reconnectDelay: cfg.ReconnectDelay, startupGracePeriod: cfg.StartupGracePeriod, statusInterval: cfg.StatusCheckInterval, wake: make(chan struct{}, 1), state: StateIdle, status: Status{Version: version.Version, State: string(StateIdle), Volume: 100}}
 }
 
 func (m *Manager) SetAvailability(availability Availability) { m.mu.Lock(); m.availability = availability; m.mu.Unlock(); m.notify() }
 func (m *Manager) SetPersistence(persistence Persistence) { m.mu.Lock(); m.persistence = persistence; m.mu.Unlock() }
 func (m *Manager) SetVolumePersistence(persistence VolumePersistence) { m.mu.Lock(); m.volumeStore = persistence; m.mu.Unlock() }
 func (m *Manager) Start(ctx context.Context) { m.startOnce.Do(func() { go m.run(ctx) }) }
+
+func (m *Manager) InitializeVolume() error {
+	status, err := m.player.Status()
+	if err != nil { return err }
+	volume := status.Volume
+	if !status.VolumeSupported { volume = 100 }
+
+	m.mu.Lock()
+	m.volume = volume
+	m.volumeSet = true
+	m.volumeDevice = status.AudioDevice
+	m.volumeSupported = status.VolumeSupported
+	volumeStore := m.volumeStore
+	m.mu.Unlock()
+
+	if volumeStore == nil || status.AudioDevice == "" || !status.VolumeSupported { return nil }
+	if saved, ok, err := volumeStore.Load(status.AudioDevice); err != nil {
+		m.logPersistenceError("loading volume", err)
+		return nil
+	} else if ok {
+		if err := m.player.Volume(saved); err != nil { return err }
+		m.mu.Lock()
+		m.volume = saved
+		m.status.Volume = saved
+		m.mu.Unlock()
+	}
+	return nil
+}
 
 func (m *Manager) Play(selected stream.Stream) {
 	m.mu.Lock(); m.selected = &selected; m.listening = true; m.state = StateWaiting; m.lastError = ""; persistence := m.persistence; m.updateStatusLocked(nil); m.mu.Unlock()
@@ -118,13 +153,65 @@ func (m *Manager) Stop() {
 }
 
 func (m *Manager) Volume(volume int) error {
+	if volume < 0 || volume > 100 { return errors.New("volume must be between 0 and 100") }
+	status, err := m.player.Status()
+	if err != nil { return err }
+	if !status.VolumeSupported { return player.ErrHardwareVolumeUnsupported }
+	if status.AudioDevice == "" { return errors.New("no audio device selected") }
 	if err := m.player.Volume(volume); err != nil { return err }
-	m.mu.Lock(); m.volume = volume; m.volumeSet = true; m.status.Volume = volume; volumeStore := m.volumeStore; m.mu.Unlock()
-	if volumeStore != nil { if err := volumeStore.Save(volume); err != nil { m.logPersistenceError("saving volume", err); return err } }
+
+	m.mu.Lock()
+	m.volume = volume
+	m.volumeSet = true
+	m.volumeDevice = status.AudioDevice
+	m.volumeSupported = true
+	m.status.Volume = volume
+	m.status.VolumeSupported = true
+	m.status.AudioDevice = status.AudioDevice
+	volumeStore := m.volumeStore
+	m.mu.Unlock()
+	if volumeStore != nil { if err := volumeStore.Save(status.AudioDevice, volume); err != nil { m.logPersistenceError("saving volume", err); return err } }
 	return nil
 }
+
 func (m *Manager) AudioDevices() ([]player.AudioDevice, error) { return m.player.AudioDevices() }
-func (m *Manager) AudioDevice(name string) error { if err := m.player.AudioDevice(name); err != nil { return err }; m.mu.Lock(); m.status.AudioDevice = name; m.mu.Unlock(); return nil }
+
+func (m *Manager) AudioDevice(name string) error {
+	if err := m.player.AudioDevice(name); err != nil { return err }
+	status, err := m.player.Status()
+	if err != nil { return err }
+	return m.applyAudioDeviceVolume(status)
+}
+
+func (m *Manager) applyAudioDeviceVolume(status *player.Status) error {
+	volume := status.Volume
+	volumeSupported := status.VolumeSupported
+	if !volumeSupported { volume = 100 }
+
+	m.mu.Lock()
+	volumeStore := m.volumeStore
+	m.mu.Unlock()
+	if volumeStore != nil && status.AudioDevice != "" && volumeSupported {
+		if saved, ok, err := volumeStore.Load(status.AudioDevice); err != nil {
+			m.logPersistenceError("loading volume", err)
+		} else if ok {
+			if err := m.player.Volume(saved); err != nil { return err }
+			volume = saved
+		}
+	}
+
+	m.mu.Lock()
+	m.volume = volume
+	m.volumeSet = true
+	m.volumeDevice = status.AudioDevice
+	m.volumeSupported = volumeSupported
+	m.status.Volume = volume
+	m.status.VolumeSupported = volumeSupported
+	m.status.AudioDevice = status.AudioDevice
+	m.mu.Unlock()
+	return nil
+}
+
 func (m *Manager) Status() Status { m.mu.Lock(); defer m.mu.Unlock(); return m.status }
 
 func (m *Manager) run(ctx context.Context) {
@@ -183,6 +270,14 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 			_ = m.player.Stop(); *active = false; *activeURL = ""; *playing = false; *attemptStarted = time.Time{}; *nextAttempt = time.Time{}; *retryAttempt = 0; *reconnectAttempt = 0; m.setState(StateWaiting, "", status); return
 		}
 	}
+	if status.AudioDevice != "" {
+		m.mu.Lock(); deviceChanged := m.volumeDevice != status.AudioDevice; m.mu.Unlock()
+		if deviceChanged {
+			if err := m.applyAudioDeviceVolume(status); err != nil {
+				delay := backoffDelay(m.retryInterval, *retryAttempt); (*retryAttempt)++; _ = m.player.Stop(); *active = false; *activeURL = ""; *playing = false; *attemptStarted = time.Time{}; *nextAttempt = time.Now().Add(delay); m.setState(StateRetrying, err.Error(), status); m.logRetryFromStatus("restoring volume for audio device", err, delay); return
+			}
+		}
+	}
 	if status.State == "stopped" {
 		if !attemptStarted.IsZero() && time.Since(*attemptStarted) < m.startupGracePeriod { m.setState(StateConnecting, "Connecting to stream...", status); return }
 		delay := backoffDelay(m.retryInterval, *retryAttempt); (*retryAttempt)++; _ = m.player.Stop(); *active = false; *activeURL = ""; *playing = false; *attemptStarted = time.Time{}; *nextAttempt = time.Now().Add(delay); m.setState(StateRetrying, "player stopped unexpectedly", status); m.logRetryFromStatus("playback stopped unexpectedly", nil, delay); return
@@ -195,10 +290,11 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 }
 
 func (m *Manager) restoreVolume(playerVolume *int) error {
-	m.mu.Lock(); volume := m.volume; volumeSet := m.volumeSet; m.mu.Unlock()
-	if !volumeSet || *playerVolume == volume { return nil }
+	m.mu.Lock(); volume := m.volume; volumeSet := m.volumeSet; supported := m.volumeSupported; m.mu.Unlock()
+	if !volumeSet || !supported || *playerVolume == volume { return nil }
 	if err := m.player.Volume(volume); err != nil { return err }
-	*playerVolume = volume; return nil
+	*playerVolume = volume
+	return nil
 }
 
 func backoffDelay(base time.Duration, attempt int) time.Duration {
@@ -218,7 +314,7 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 	switch m.state { case StateIdle: status.Message = "Idle"; case StateWaiting: status.Message = "Waiting for stream"; case StateConnecting: status.Message = "Connecting..."; case StatePlaying: status.Message = "Playing"; case StateRetrying: status.Message = "Reconnecting"; case StateError: status.Message = "Playback error"; default: status.Message = "" }
 	status.Listening = m.listening; status.Error = m.lastError
 	if m.selected == nil { status.StreamID = ""; status.StreamName = ""; status.URL = "" } else { status.StreamID = m.selected.ID; status.StreamName = m.selected.Name; status.URL = m.selected.URL }
-	if playerStatus != nil { status.Volume = playerStatus.Volume; status.Paused = playerStatus.Paused; status.AudioDevice = playerStatus.AudioDevice }
+	if playerStatus != nil { status.Volume = playerStatus.Volume; status.VolumeSupported = playerStatus.VolumeSupported; status.Paused = playerStatus.Paused; status.AudioDevice = playerStatus.AudioDevice }
 	m.status = status
 }
 

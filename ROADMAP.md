@@ -51,10 +51,12 @@ Playback and network recovery have been implemented and tested on Raspberry Pi.
 - Recovery after Ethernet disconnect/reconnect
 - Recovery after extended network outages
 - MQTT disconnect/reconnect handling
-- MPV recovery
+- MPV stream/playback recovery
 - Preserve the selected stream during playback failures
 - Resume the last stream after a system reboot
 - Resume playback automatically without requiring the Web UI to be opened
+
+MPV **process lifecycle recovery** is being hardened separately in Phase 6. A Phase 6 failure test confirmed that killing the MPV process leaves MasjidPi connected to a dead IPC socket unless the MPV process is recreated.
 
 ---
 
@@ -149,6 +151,7 @@ The core principle is to keep configuration simple and keep persistent state own
 - Improve service recovery after unexpected failures
 - Improve diagnostics and useful error reporting
 - Continue strengthening unattended operation after reboot and network outages
+- **MPV process lifecycle recovery — Phase 6 failure confirmed:** killing MPV leaves MasjidPi running but retrying against the dead `/tmp/masjidpi.sock`; MasjidPi must recreate the MPV process, recreate the IPC connection, and resume playback without restarting the MasjidPi service
 
 ### Audio Hardware & Volume Reliability
 

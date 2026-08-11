@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate release tag
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release tag: $GITHUB_REF_NAME"
+            exit 1
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Build release artifacts
+        shell: bash
+        env:
+          VERSION: ${{ github.ref_name }}
+          PACKAGE_NAME: masjidpi-${{ github.ref_name }}
+        run: |
+          set -Eeuo pipefail
+
+          rm -rf dist
+          mkdir -p dist
+
+          build_package() {
+            local arch="$1"
+            local goarch="$2"
+            local goarm="${3:-}"
+            local package_dir="dist/${PACKAGE_NAME}-linux-${arch}"
+            local binary="${package_dir}/masjidpi"
+
+            mkdir -p "$package_dir"
+
+            pushd backend >/dev/null
+            if [[ -n "$goarm" ]]; then
+              GOOS=linux GOARCH="$goarch" GOARM="$goarm" \
+                go build -trimpath \
+                  -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
+                  -o "../$binary" ./cmd/masjidpi
+            else
+              GOOS=linux GOARCH="$goarch" \
+                go build -trimpath \
+                  -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
+                  -o "../$binary" ./cmd/masjidpi
+            fi
+            cp configs/default.yaml "../$package_dir/default.yaml"
+            popd >/dev/null
+
+            printf '%s\n' "$VERSION" > "$package_dir/VERSION"
+
+            tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \
+              "${PACKAGE_NAME}-linux-${arch}"
+          }
+
+          build_package armv7 arm 7
+          build_package arm64 arm64
+
+          sha256sum dist/*.tar.gz > dist/SHA256SUMS
+
+          echo "Release artifacts:"
+          ls -lh dist/*.tar.gz dist/SHA256SUMS
+          echo
+          cat dist/SHA256SUMS
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          gh release create "$VERSION" \
+            dist/masjidpi-${VERSION}-linux-armv7.tar.gz \
+            dist/masjidpi-${VERSION}-linux-arm64.tar.gz \
+            dist/SHA256SUMS \
+            --title "$VERSION" \
+            --generate-notes

@@ -15,6 +15,7 @@ install_packages() {
         jq \
         mpv \
         ffmpeg \
+        alsa-utils \
         build-essential \
         ca-certificates \
         tar

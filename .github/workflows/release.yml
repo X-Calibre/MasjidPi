@@ -61,7 +61,18 @@ jobs:
             cp configs/default.yaml "../$package_dir/default.yaml"
             popd >/dev/null
 
+            # The HTTP server serves the embedded release frontend from the
+            # directory next to the executable. Keep the complete frontend in
+            # every release package so / serves index.html and its assets.
+            cp -R frontend "$package_dir/frontend"
+
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
+
+            test -x "$binary"
+            test -f "$package_dir/default.yaml"
+            test -f "$package_dir/VERSION"
+            test -f "$package_dir/frontend/index.html"
+            test -f "$package_dir/frontend/app.js"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \
               "${PACKAGE_NAME}-linux-${arch}"

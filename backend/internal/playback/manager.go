@@ -84,6 +84,8 @@ type Manager struct {
 	state     State
 	lastError string
 	status    Status
+	volume    int
+	volumeSet bool
 }
 
 type Status struct {
@@ -193,6 +195,8 @@ func (m *Manager) Volume(volume int) error {
 		return err
 	}
 	m.mu.Lock()
+	m.volume = volume
+	m.volumeSet = true
 	m.status.Volume = volume
 	volumeStore := m.volumeStore
 	m.mu.Unlock()
@@ -398,7 +402,37 @@ func (m *Manager) checkPlayerStatus(active *bool, activeURL *string, playing *bo
 	*attemptStarted = time.Time{}
 	*retryAttempt = 0
 	*reconnectAttempt = 0
+
+	if err := m.restoreVolume(&status.Volume); err != nil {
+		delay := backoffDelay(m.retryInterval, *retryAttempt)
+		(*retryAttempt)++
+		_ = m.player.Stop()
+		*active = false
+		*activeURL = ""
+		*playing = false
+		*attemptStarted = time.Time{}
+		*nextAttempt = time.Now().Add(delay)
+		m.setState(StateRetrying, err.Error(), status)
+		m.logRetryFromStatus("restoring volume after player recovery", err, delay)
+		return
+	}
+
 	m.setState(StatePlaying, "", status)
+}
+
+func (m *Manager) restoreVolume(playerVolume *int) error {
+	m.mu.Lock()
+	volume := m.volume
+	volumeSet := m.volumeSet
+	m.mu.Unlock()
+	if !volumeSet || *playerVolume == volume {
+		return nil
+	}
+	if err := m.player.Volume(volume); err != nil {
+		return err
+	}
+	*playerVolume = volume
+	return nil
 }
 
 func backoffDelay(base time.Duration, attempt int) time.Duration {

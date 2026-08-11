@@ -13,10 +13,11 @@ import (
 type fakePlayer struct {
 	mu sync.Mutex
 
-	playCalls []string
-	stopCalls int
-	volume    int
-	statuses  []*player.Status
+	playCalls  []string
+	stopCalls  int
+	volume     int
+	volumeCalls []int
+	statuses   []*player.Status
 }
 
 func (f *fakePlayer) Play(url string) error {
@@ -40,6 +41,7 @@ func (f *fakePlayer) Volume(volume int) error {
 	defer f.mu.Unlock()
 
 	f.volume = volume
+	f.volumeCalls = append(f.volumeCalls, volume)
 	return nil
 }
 
@@ -69,6 +71,13 @@ func (f *fakePlayer) stopCount() int {
 	defer f.mu.Unlock()
 
 	return f.stopCalls
+}
+
+func (f *fakePlayer) volumeCallsSnapshot() []int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return append([]int(nil), f.volumeCalls...)
 }
 
 type fakePersistence struct {
@@ -200,6 +209,46 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 	waitFor(t, time.Second, func() bool {
 		return fake.playCount() >= 2
 	})
+}
+
+func TestManagerRestoresVolumeAfterPlayerRecovery(t *testing.T) {
+	fake := &fakePlayer{
+		statuses: []*player.Status{
+			{State: "stopped", URL: "relay://one", Volume: 38},
+			{State: "playing", URL: "relay://one", Volume: 100},
+		},
+	}
+
+	manager := New(fake, Config{
+		RetryInterval:       10 * time.Millisecond,
+		ReconnectDelay:      10 * time.Millisecond,
+		StartupGracePeriod:  1 * time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+
+	if err := manager.Volume(38); err != nil {
+		t.Fatalf("set volume: %v", err)
+	}
+	fake.mu.Lock()
+	fake.volumeCalls = nil
+	fake.volume = 0
+	fake.mu.Unlock()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+
+	waitFor(t, time.Second, func() bool {
+		calls := fake.volumeCallsSnapshot()
+		return len(calls) > 0 && calls[len(calls)-1] == 38
+	})
+
+	status := manager.Status()
+	if status.Volume != 38 {
+		t.Fatalf("manager volume = %d, want 38", status.Volume)
+	}
 }
 
 func TestManagerWaitsForLiveStatusBeforePlaying(t *testing.T) {

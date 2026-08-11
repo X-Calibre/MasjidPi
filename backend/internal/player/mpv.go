@@ -21,6 +21,22 @@ func (m *MPV) Start() error {
 	if err := m.process.Start(); err != nil {
 		return err
 	}
+	if err := m.connectIPC(); err != nil {
+		_ = m.process.Stop()
+		return err
+	}
+	return nil
+}
+
+func (m *MPV) Restart() error {
+	_ = m.ipc.Close()
+	if err := m.process.Restart(); err != nil {
+		return err
+	}
+	return m.connectIPC()
+}
+
+func (m *MPV) connectIPC() error {
 	deadline := time.Now().Add(3 * time.Second)
 	for {
 		if err := m.ipc.Connect(); err == nil {
@@ -84,6 +100,11 @@ func (m *MPV) Version() (string, error) {
 }
 
 func (m *MPV) Play(url string) error {
+	if m.process.Exited() {
+		if err := m.Restart(); err != nil {
+			return err
+		}
+	}
 	_, err := m.execute("loadfile", url)
 	return err
 }
@@ -123,6 +144,9 @@ func (m *MPV) AudioDevice(name string) error {
 }
 
 func (m *MPV) Status() (*Status, error) {
+	if m.process.Exited() {
+		return nil, fmt.Errorf("mpv process exited")
+	}
 	version, err := m.Version()
 	if err != nil {
 		return nil, err

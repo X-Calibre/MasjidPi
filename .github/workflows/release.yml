@@ -59,6 +59,7 @@ jobs:
                 -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
                 -o "../$binary" ./cmd/masjidpi
             cp configs/default.yaml "../$package_dir/default.yaml"
+            cp data/catalogue.json "../$package_dir/catalogue.json"
             popd >/dev/null
 
             # The HTTP server serves the embedded release frontend from the
@@ -66,13 +67,21 @@ jobs:
             # every release package so / serves index.html and its assets.
             cp -R frontend "$package_dir/frontend"
 
+            # Include the installer modules so a downloaded release can be
+            # installed without cloning the source repository.
+            mkdir -p "$package_dir/scripts"
+            cp scripts/*.sh "$package_dir/scripts/"
+
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
 
             test -x "$binary"
             test -f "$package_dir/default.yaml"
+            test -f "$package_dir/catalogue.json"
             test -f "$package_dir/VERSION"
             test -f "$package_dir/frontend/index.html"
             test -f "$package_dir/frontend/app.js"
+            test -f "$package_dir/scripts/install.sh"
+            test -f "$package_dir/scripts/masjidpi.service"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \
               "${PACKAGE_NAME}-linux-${arch}"

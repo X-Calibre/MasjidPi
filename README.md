@@ -116,28 +116,6 @@ http://192.168.1.50:8080
 
 The Web UI is a remote control. It does not need to remain open for MasjidPi to continue playing audio or recovering from stream/network interruptions.
 
-### 4. Verify the service
-
-```bash
-sudo systemctl status masjidpi --no-pager
-```
-
-A successful installation should show:
-
-```text
-Active: active (running)
-```
-
-You should also see both MasjidPi and MPV running under the service.
-
-Check the playback API:
-
-```bash
-curl -s http://127.0.0.1:8080/api/player/status
-```
-
-The response should contain the installed MasjidPi version and the current playback state.
-
 ## Configuration
 
 The persistent configuration is stored at:

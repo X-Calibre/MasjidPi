@@ -36,8 +36,10 @@ LiveMasjid is integrated directly into MasjidPi without requiring a separate scr
 - Update Catalogue button in the web interface
 - LiveMasjid MQTT status feed
 - MQTT connection recovery
+- Catalogue updater uses the same runtime paths as the installed application
+- Web UI catalogue updates write to and reload the active `/var/lib/masjidpi` catalogue
 
-**Known remaining integration fix:** the catalogue updater must use the same runtime catalogue path as the installed application rather than its legacy relative `data/` paths.
+The LiveMasjid catalogue runtime-path issue was fixed and verified in v1.0.5.
 
 ---
 
@@ -161,13 +163,10 @@ The following are considered complete and require no further work at this stage:
 - Per-device persistent volume
 - Hardware verification
 - Reliable operation without the Web UI being open
+- LiveMasjid catalogue runtime-path integration
+- Web UI catalogue updates against the active `/var/lib/masjidpi` catalogue
 
 ### Remaining Work
-
-#### LiveMasjid Catalogue Runtime Path
-
-- Fix the catalogue updater so that downloads and generated catalogue data use the same runtime paths as the installed application
-- Ensure the Web UI catalogue-update workflow updates the active `/var/lib/masjidpi` catalogue rather than legacy relative `data/` paths
 
 #### Updates & Recovery
 
@@ -257,12 +256,13 @@ Potential capabilities:
 
 ## Current Project Status
 
+**v1.0.5 has been released and verified on Raspberry Pi hardware.** The release includes the LiveMasjid catalogue runtime-path fix, and the Web UI catalogue update workflow has been verified against the active `/var/lib/masjidpi` catalogue.
+
 The original v0.x roadmap has been substantially completed. The core radio player, LiveMasjid integration, playback reliability, Raspberry Pi runtime, Web UI, stream discovery, favourites and audio hardware controls are implemented and verified.
 
-The remaining pre-v2 work is limited to:
+The remaining pre-v2 work is now limited to:
 
-1. Fixing the LiveMasjid catalogue updater runtime-path integration.
-2. Building a safe update/recovery workflow, including rollback handling for failed updates.
+1. Building a safe update/recovery workflow, including validation of newly installed versions and rollback handling for failed updates.
 
 The following previously proposed Phase 6 items are explicitly considered complete and require no further work:
 
@@ -270,6 +270,7 @@ The following previously proposed Phase 6 items are explicitly considered comple
 - Configuration validation
 - Service recovery
 - Audio hardware and volume reliability
+- LiveMasjid catalogue runtime-path integration
 
 The following are no longer planned as standalone features:
 

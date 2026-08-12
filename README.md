@@ -9,6 +9,7 @@ It provides a simple web interface for finding masājid, selecting streams, mana
 ## Features
 
 - Browse and search live masjid streams
+- Update the LiveMasjid stream catalogue from the Web UI
 - Save favourite masājid
 - Play and stop streams
 - Select an audio output device
@@ -123,7 +124,7 @@ The persistent configuration is stored at:
 /etc/masjidpi/config.yaml
 ```
 
-The stream catalogue is stored at:
+The active stream catalogue is stored at:
 
 ```text
 /var/lib/masjidpi/catalogue.json
@@ -139,7 +140,17 @@ The Web UI is available from the same MasjidPi service on port `8080`.
 
 Configuration changes made through the Web UI are persistent and are shared across clients using the same MasjidPi installation.
 
-## Updating
+### Updating the LiveMasjid catalogue
+
+The Web UI includes an **Update Catalogue** button. The catalogue updater downloads the latest LiveMasjid data and writes the generated catalogue to the active runtime location:
+
+```text
+/var/lib/masjidpi/catalogue.json
+```
+
+The Web UI reloads the updated catalogue after a successful update. The updater does not use the legacy relative `data/` catalogue path for an installed deployment.
+
+## Updating MasjidPi
 
 For an existing source-tree installation:
 
@@ -150,6 +161,8 @@ sudo ./scripts/install.sh
 ```
 
 The installer detects the existing installation and updates it in place. It stops the existing service, rebuilds MasjidPi, installs the updated runtime and frontend, and starts the service again.
+
+For an official release, download the appropriate release archive from the GitHub Releases page and install the included executable and frontend into the existing `/opt/masjidpi` installation. Preserve `/etc/masjidpi` and `/var/lib/masjidpi`, as these contain the persistent configuration and runtime catalogue.
 
 ## Release packages
 
@@ -226,9 +239,9 @@ make test
 
 MasjidPi is currently in active development.
 
-**Current version: v1.0.4**
+**Current version: v1.0.5**
 
-v1.0.4 has been validated on a Raspberry Pi 3B running a 64-bit ARM64 Linux environment, including installation as a systemd service, MPV playback, the Web UI, persistent configuration and live masjid stream playback.
+v1.0.5 is the current stable release and has been validated on a Raspberry Pi 3B running a 64-bit ARM64 Linux environment. Validation includes installation as a systemd service, MPV playback, the Web UI, persistent configuration, live masjid stream playback and successful LiveMasjid catalogue updates using the installed `/var/lib/masjidpi` runtime path.
 
 See [ROADMAP.md](ROADMAP.md) for the development roadmap.
 

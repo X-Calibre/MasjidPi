@@ -75,8 +75,11 @@ prepare_release() {
     [[ -x "$RELEASE_DIR/masjidpi" ]] || die "Release binary is missing."
     [[ -f "$RELEASE_DIR/default.yaml" ]] || die "Release configuration is missing."
     [[ -f "$RELEASE_DIR/VERSION" ]] || die "Release version file is missing."
-    [[ -f "$RELEASE_DIR/catalogue.json" ]] || die "Release catalogue is missing."
     [[ -f "$RELEASE_DIR/frontend/index.html" ]] || die "Release frontend is missing."
+
+    if [[ ! -f "$RELEASE_DIR/catalogue.json" ]]; then
+        warn "Release does not contain a bundled catalogue. Existing runtime catalogue will be preserved."
+    fi
 
     success "MasjidPi ${RELEASE_VERSION} downloaded and verified."
 }

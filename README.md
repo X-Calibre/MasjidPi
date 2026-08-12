@@ -152,18 +152,6 @@ sudo ./scripts/install.sh
 
 The installer detects the existing installation and updates it in place. It stops the existing service, rebuilds MasjidPi, installs the updated runtime and frontend, and starts the service again.
 
-After updating, verify:
-
-```bash
-sudo systemctl status masjidpi --no-pager
-```
-
-and:
-
-```bash
-curl -s http://127.0.0.1:8080/api/player/status
-```
-
 ## Release packages
 
 Each release includes pre-built archives for the supported architectures:

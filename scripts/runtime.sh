@@ -8,19 +8,48 @@ install_runtime() {
     mkdir -p /etc/masjidpi
     mkdir -p /var/lib/masjidpi
 
-    cp "$PROJECT_ROOT/backend/build/masjidpi" \
-        "$INSTALL_DIR/bin/"
+    if $SOURCE_MODE; then
+        cp "$PROJECT_ROOT/backend/build/masjidpi" \
+            "$INSTALL_DIR/bin/"
 
-    cp "$PROJECT_ROOT/backend/configs/default.yaml" \
-        "/etc/masjidpi/config.yaml"
+        if [[ ! -f /etc/masjidpi/config.yaml ]]; then
+            cp "$PROJECT_ROOT/backend/configs/default.yaml" \
+                "/etc/masjidpi/config.yaml"
+        else
+            info "Keeping existing configuration."
+        fi
 
-    cp "$PROJECT_ROOT/backend/data/catalogue.json" \
-        "/var/lib/masjidpi/catalogue.json"
+        if [[ ! -f /var/lib/masjidpi/catalogue.json ]]; then
+            cp "$PROJECT_ROOT/backend/data/catalogue.json" \
+                "/var/lib/masjidpi/catalogue.json"
+        else
+            info "Keeping existing catalogue."
+        fi
 
-    rm -rf "$INSTALL_DIR/frontend"
+        rm -rf "$INSTALL_DIR/frontend"
+        cp -R "$PROJECT_ROOT/frontend" "$INSTALL_DIR/"
+    else
+        cp "$RELEASE_DIR/masjidpi" "$INSTALL_DIR/bin/"
 
-    cp -R "$PROJECT_ROOT/frontend" \
-        "$INSTALL_DIR/"
+        if [[ ! -f /etc/masjidpi/config.yaml ]]; then
+            cp "$RELEASE_DIR/default.yaml" "/etc/masjidpi/config.yaml"
+        else
+            info "Keeping existing configuration."
+        fi
+
+        if [[ ! -f /var/lib/masjidpi/catalogue.json ]]; then
+            cp "$RELEASE_DIR/catalogue.json" "/var/lib/masjidpi/catalogue.json"
+        else
+            info "Keeping existing catalogue."
+        fi
+
+        rm -rf "$INSTALL_DIR/frontend"
+        cp -R "$RELEASE_DIR/frontend" "$INSTALL_DIR/"
+
+        cp "$RELEASE_DIR/VERSION" "$INSTALL_DIR/VERSION"
+    fi
+
+    chmod +x "$INSTALL_DIR/bin/masjidpi"
 
     success "Runtime installed."
 }

@@ -1,8 +1,8 @@
 # MasjidPi Roadmap
 
-MasjidPi is being developed as a lightweight Raspberry Pi internet radio appliance for LiveMasjid streams.
+MasjidPi is a lightweight Raspberry Pi internet radio appliance for LiveMasjid streams.
 
-The roadmap is organised by product phase rather than historical version numbers. Completed phases document what is already implemented and verified; upcoming phases describe the next product priorities.
+The roadmap is organised by product phase. Completed phases describe functionality that is implemented and verified. Current work focuses only on remaining production-hardening tasks; future features are intentionally deferred to v2.
 
 ---
 
@@ -23,7 +23,7 @@ The core radio player and playback API are complete.
 
 ## ✅ Phase 2 — LiveMasjid Integration
 
-LiveMasjid is now integrated directly into MasjidPi without requiring a separate scraping service.
+LiveMasjid is integrated directly into MasjidPi without requiring a separate scraping service.
 
 - Download LiveMasjid catalogue
 - Parse LiveMasjid HTML
@@ -37,11 +37,13 @@ LiveMasjid is now integrated directly into MasjidPi without requiring a separate
 - LiveMasjid MQTT status feed
 - MQTT connection recovery
 
+**Known remaining integration fix:** the catalogue updater must use the same runtime catalogue path as the installed application rather than its legacy relative `data/` paths.
+
 ---
 
 ## ✅ Phase 3 — Playback Reliability
 
-Playback and network recovery have been implemented and tested on Raspberry Pi.
+Playback and network recovery are implemented and tested on Raspberry Pi.
 
 - Detect playback failures
 - Gracefully handle unavailable streams
@@ -52,17 +54,18 @@ Playback and network recovery have been implemented and tested on Raspberry Pi.
 - Recovery after extended network outages
 - MQTT disconnect/reconnect handling
 - MPV stream/playback recovery
+- MPV process lifecycle recovery and recreation after unexpected MPV exit
 - Preserve the selected stream during playback failures
 - Resume the last stream after a system reboot
 - Resume playback automatically without requiring the Web UI to be opened
 
-MPV **process lifecycle recovery** is being hardened separately in Phase 6. A Phase 6 failure test confirmed that killing the MPV process leaves MasjidPi connected to a dead IPC socket unless the MPV process is recreated.
+MPV process recovery is implemented in the player process layer and includes restart handling after an unexpected MPV exit.
 
 ---
 
 ## ✅ Phase 4 — Raspberry Pi Runtime
 
-The Raspberry Pi installation and runtime workflow is now functional and has been tested on real hardware.
+The Raspberry Pi installation and runtime workflow is functional and has been tested on real hardware.
 
 - Runtime directory layout
 - Runtime path abstraction
@@ -85,7 +88,7 @@ The Raspberry Pi installation and runtime workflow is now functional and has bee
 
 ## ✅ Phase 5 — Web UI & Stream Discovery
 
-Phase 5 transformed MasjidPi from a functional streaming service into a more practical radio-style appliance.
+Phase 5 transformed MasjidPi from a functional streaming service into a practical radio-style appliance.
 
 ### Stream Discovery — Complete
 
@@ -108,7 +111,6 @@ Phase 5 transformed MasjidPi from a functional streaming service into a more pra
 - Clear current-stream display
 - Clear playing/reconnecting/error states
 - Improved playback controls
-- Better volume control
 - Select the audio output device from the Web UI
 - Show the currently selected audio device
 - Persist the selected audio device
@@ -120,78 +122,74 @@ Phase 5 transformed MasjidPi from a functional streaming service into a more pra
 
 ### Phase 5.3 — Audio Controls — Complete
 
-The audio-control work is complete for the v0.x product scope.
+The audio-control work is complete for the current product scope.
 
 - Audio output device discovery
 - Audio output device selection
 - Restore the selected device after reboot
-- Keep device selection available alongside playback controls
-- Improve audio-device error handling and feedback
 - Persist volume
 - Persist audio-device selection
 - Automatic audio-device disappearance/reappearance recovery
+- ALSA hardware-volume control where supported
+- Separate persistent volume level for each audio device
+- MPV software gain kept at 100%
+- Graceful handling of devices without a controllable hardware mixer
+- Hardware verification across the supported USB/HDMI audio configurations is complete
 
-The following are intentionally **not** part of v0.x:
+The following are intentionally not part of the current product scope:
 
 - Mute/unmute — Stop and Play provide the required control
-- EQ/audio processing — deferred to v2.0.0
+- EQ/audio processing — deferred to v2
 
 ---
 
 ## 🚧 Phase 6 — Production Hardening
 
-Phase 6 is focused on making MasjidPi a dependable, unattended Raspberry Pi appliance rather than adding a large configuration system.
+Phase 6 is now intentionally small. The core player, runtime, Web UI, recovery behaviour and audio hardware handling are considered complete and reliable enough for the current product scope.
 
-The core principle is to keep configuration simple and keep persistent state owned by the Raspberry Pi rather than by individual browsers.
+### Completed Hardening
 
-### Reliability & Recovery
+The following are considered complete and require no further work at this stage:
 
-- Gracefully handle missing or corrupt persistent state
-- Validate configuration and recover from invalid values
-- Improve service recovery after unexpected failures
-- Improve diagnostics and useful error reporting
-- Continue strengthening unattended operation after reboot and network outages
-- **MPV process lifecycle recovery — Phase 6 failure confirmed:** killing MPV leaves MasjidPi running but retrying against the dead `/tmp/masjidpi.sock`; MasjidPi must recreate the MPV process, recreate the IPC connection, and resume playback without restarting the MasjidPi service
+- Persistent-state handling
+- Configuration validation
+- Service recovery
+- Network recovery
+- MPV process recovery
+- Audio-device recovery
+- ALSA hardware-volume handling
+- Per-device persistent volume
+- Hardware verification
+- Reliable operation without the Web UI being open
 
-### Audio Hardware & Volume Reliability
+### Remaining Work
 
-MasjidPi should use the selected audio device's hardware volume as the user-facing volume control rather than maintaining two independent volume stages.
+#### LiveMasjid Catalogue Runtime Path
 
-The intended audio path is:
+- Fix the catalogue updater so that downloads and generated catalogue data use the same runtime paths as the installed application
+- Ensure the Web UI catalogue-update workflow updates the active `/var/lib/masjidpi` catalogue rather than legacy relative `data/` paths
 
-**Stream → MPV at 100% software gain → ALSA hardware mixer → Audio device**
+#### Updates & Recovery
 
-- Keep MPV software gain at 100%
-- Control the selected audio device's ALSA hardware volume from the MasjidPi UI where supported
-- Maintain a separate persistent volume level for each audio device
-- Use a newly discovered device's current hardware volume as its initial MasjidPi volume
-- Restore the saved volume when switching back to a previously configured device
-- Handle devices without a controllable hardware mixer gracefully
-- Keep hardware-volume state stored on the Raspberry Pi rather than in the browser
-- Verify reliable volume and device behaviour across USB, HDMI and other supported outputs
-
-### Updates & Installation
-
-- Safe automatic updates
-- Safer update/recovery workflow
-- Improve first-run installation experience
-- Production installation workflow
-- Raspberry Pi appliance image/workflow
-
-### Appliance Operation
-
-- Kiosk/appliance mode
-- Read-only filesystem support
-- Minimise maintenance required from the end user
-- Ensure the system can operate reliably without the Web UI being open
+- Safe update workflow
+- Safer update/recovery behaviour
+- Validate a newly installed version before considering an update successful
+- Provide a recovery/rollback path if an update fails
+- Improve the first-run/production installation workflow where required
 
 Phase 6 should prioritise reliability and simplicity over adding configuration options that are not required for normal radio operation.
 
 ---
 
-## 🔮 v2.0.0 — Hardware, Advanced Audio, MasjidBoard & Home Automation
+## 🔮 v2 — Future Platform & Advanced Features
 
-V2 will add capabilities that go beyond the core radio appliance while keeping the v0.x product simple and reliable.
+Features outside the current radio-appliance scope are deferred to v2.
+
+### Raspberry Pi Appliance Image
+
+- Build and maintain a deployable Raspberry Pi appliance image/workflow
+- Preconfigure the operating environment for MasjidPi
+- Provide a repeatable image-based installation path
 
 ### Hardware & Advanced Audio
 
@@ -255,17 +253,30 @@ Potential capabilities:
 - Prayer-time and masjid information as optional Home Assistant sensors
 - Events/triggers related to upcoming prayer times where appropriate
 
-Example automations could include turning on an amplifier when MasjidPi starts playing, turning equipment off when playback stops, reacting to a particular stream being selected, or using prayer-time information to control other home-automation devices.
-
 ---
 
-## Current Release
+## Current Project Status
 
-**v0.5.0** represents the completion of the core player, LiveMasjid integration, playback reliability, Raspberry Pi runtime foundations, stream discovery, favourites, and the initial audio-control experience.
+The original v0.x roadmap has been substantially completed. The core radio player, LiveMasjid integration, playback reliability, Raspberry Pi runtime, Web UI, stream discovery, favourites and audio hardware controls are implemented and verified.
 
-The next target is **v0.6.0**, focused on production hardening and appliance reliability.
+The remaining pre-v2 work is limited to:
 
-MasjidBoard integration is planned for **v2.0.0** and is intentionally not part of the v0.x scope.
+1. Fixing the LiveMasjid catalogue updater runtime-path integration.
+2. Building a safe update/recovery workflow, including rollback handling for failed updates.
+
+The following previously proposed Phase 6 items are explicitly considered complete and require no further work:
+
+- Persistent-state hardening
+- Configuration validation
+- Service recovery
+- Audio hardware and volume reliability
+
+The following are no longer planned as standalone features:
+
+- Kiosk/appliance mode
+- Read-only filesystem support
+
+The Raspberry Pi appliance image is moved to **v2**.
 
 ---
 

@@ -72,8 +72,8 @@ The Raspberry Pi installation and runtime workflow is functional and has been te
 - Runtime directory layout
 - Runtime path abstraction
 - Automatic dependency installation
-- Go installation/checking
-- Build automation
+- Go installation/checking for source builds
+- Build automation for source builds
 - Runtime installation
 - systemd service installation
 - Automatic startup on boot
@@ -85,6 +85,13 @@ The Raspberry Pi installation and runtime workflow is functional and has been te
 - MPV journal output cleanup
 - ALSA audio selection for the appliance runtime
 - Installation and reboot verification
+- Pre-built release packaging for ARM64 and AMD64
+- Release package checksum verification
+- Bundled release installer
+- Release installation without Git or Go
+- Upgrade installation preserving persistent configuration and runtime data
+
+The release-first installation workflow was introduced and verified in v1.0.6 on a Raspberry Pi 3B.
 
 ---
 
@@ -147,7 +154,7 @@ The following are intentionally not part of the current product scope:
 
 ## 🚧 Phase 6 — Production Hardening
 
-Phase 6 is now intentionally small. The core player, runtime, Web UI, recovery behaviour and audio hardware handling are considered complete and reliable enough for the current product scope.
+Phase 6 is now intentionally small. The core player, runtime, Web UI, recovery behaviour, audio hardware handling and release installation workflow are considered complete and reliable enough for the current product scope.
 
 ### Completed Hardening
 
@@ -165,6 +172,12 @@ The following are considered complete and require no further work at this stage:
 - Reliable operation without the Web UI being open
 - LiveMasjid catalogue runtime-path integration
 - Web UI catalogue updates against the active `/var/lib/masjidpi` catalogue
+- Pre-built ARM64/AMD64 release packages
+- Release checksum verification
+- Bundled release installer
+- Release installation without Git or Go
+- Upgrade installation preserving persistent configuration and runtime data
+- v1.0.6 release installation and validation on Raspberry Pi 3B
 
 ### Remaining Work
 
@@ -256,9 +269,9 @@ Potential capabilities:
 
 ## Current Project Status
 
-**v1.0.5 has been released and verified on Raspberry Pi hardware.** The release includes the LiveMasjid catalogue runtime-path fix, and the Web UI catalogue update workflow has been verified against the active `/var/lib/masjidpi` catalogue.
+**v1.0.6 has been released and verified on Raspberry Pi hardware.** The release-first installation workflow has been validated using the official ARM64 release package and its bundled installer. The Web UI catalogue update workflow has also been verified against the active `/var/lib/masjidpi` catalogue.
 
-The original v0.x roadmap has been substantially completed. The core radio player, LiveMasjid integration, playback reliability, Raspberry Pi runtime, Web UI, stream discovery, favourites and audio hardware controls are implemented and verified.
+The original v0.x roadmap has been substantially completed. The core radio player, LiveMasjid integration, playback reliability, Raspberry Pi runtime, Web UI, stream discovery, favourites, audio hardware controls and release installation workflow are implemented and verified.
 
 The remaining pre-v2 work is now limited to:
 
@@ -271,6 +284,7 @@ The following previously proposed Phase 6 items are explicitly considered comple
 - Service recovery
 - Audio hardware and volume reliability
 - LiveMasjid catalogue runtime-path integration
+- Release packaging and bundled installation workflow
 
 The following are no longer planned as standalone features:
 

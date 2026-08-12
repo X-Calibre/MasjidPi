@@ -2,39 +2,28 @@
 
 install_packages() {
 
-    info "Updating package lists..."
+    local mode="${1:-release}"
 
+    info "Updating package lists..."
     apt-get update
 
-    info "Installing dependencies..."
+    info "Installing runtime dependencies..."
 
     apt-get install -y \
-        git \
         curl \
-        wget \
         jq \
         mpv \
         ffmpeg \
         alsa-utils \
-        build-essential \
         ca-certificates \
         tar
 
-    success "Dependencies installed."
-}
-
-install_go() {
-
-    if command -v go >/dev/null; then
-
-        success "Go already installed."
-
-        return
+    if [[ "$mode" == "source" ]]; then
+        info "Installing source-build dependencies..."
+        apt-get install -y \
+            git \
+            build-essential
     fi
 
-    die "Go is not installed.
-
-Please install Go manually for now.
-
-Automatic Go installation will be added in the next version."
+    success "Dependencies installed."
 }

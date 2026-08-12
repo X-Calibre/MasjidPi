@@ -14,13 +14,13 @@ import (
 )
 
 type Server struct {
-	httpServer       *http.Server
-	logger           *slog.Logger
-	playback         *playback.Manager
-	streams          *stream.Store
-	favourites       *storage.Favourites
-	preferences      *storage.Preferences
-	catalogueFile    string
+	httpServer        *http.Server
+	logger            *slog.Logger
+	playback          *playback.Manager
+	streams           *stream.Store
+	favourites        *storage.Favourites
+	preferences       *storage.Preferences
+	catalogueFile     string
 	catalogueDataRoot string
 }
 

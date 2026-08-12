@@ -67,10 +67,11 @@ jobs:
             # every release package so / serves index.html and its assets.
             cp -R frontend "$package_dir/frontend"
 
-            # Include the installer modules so a downloaded release can be
+            # Include the complete installer so a downloaded release can be
             # installed without cloning the source repository.
             mkdir -p "$package_dir/scripts"
             cp scripts/*.sh "$package_dir/scripts/"
+            cp scripts/masjidpi.service "$package_dir/scripts/"
 
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
 

@@ -67,38 +67,18 @@ Other Raspberry Pi models and variants have not yet been fully tested and should
 
 ## Installation
 
-The recommended installation method is to use the repository installer. The installer installs the required system packages, **installs or upgrades Go automatically if necessary**, builds MasjidPi, installs the runtime and frontend, creates the systemd service and runs a self-test.
+The recommended installation method is to use the repository installer. The installer automatically detects the operating system and CPU architecture, installs the required dependencies including Go, builds MasjidPi, installs the runtime and frontend, creates the systemd service and runs a self-test.
 
-You **do not need to install Go manually** before running the installer.
+You **do not need to install Go manually or check your architecture manually** before running the installer.
 
-### 1. Check your architecture
-
-Before installing, check the architecture of the target system:
-
-```bash
-uname -m
-```
-
-For an ARM64 Raspberry Pi installation this should report:
-
-```text
-aarch64
-```
-
-For an AMD64 PC it should report:
-
-```text
-x86_64
-```
-
-### 2. Clone MasjidPi
+### 1. Clone MasjidPi
 
 ```bash
 git clone https://github.com/X-Calibre/MasjidPi.git
 cd MasjidPi
 ```
 
-### 3. Run the installer
+### 2. Run the installer
 
 ```bash
 sudo ./scripts/install.sh
@@ -120,7 +100,7 @@ The installer will:
 
 The installer prints a summary when installation is complete.
 
-### 4. Open the Web UI
+### 3. Open the Web UI
 
 From another computer, phone or tablet on the same network, open:
 
@@ -136,7 +116,7 @@ http://192.168.1.50:8080
 
 The Web UI is a remote control. It does not need to remain open for MasjidPi to continue playing audio or recovering from stream/network interruptions.
 
-### 5. Verify the service
+### 4. Verify the service
 
 ```bash
 sudo systemctl status masjidpi --no-pager

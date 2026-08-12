@@ -57,7 +57,7 @@ func Run() error {
 		if err := mpv.AudioDevice(name); err != nil {
 			log.Warn("Could not restore saved audio device", "audio_device", name, "error", err)
 		} else {
-			log.Info("Restored audio device", "audio_device", name)
+			log.Info("Restored saved audio device", "audio_device", name)
 		}
 	}
 
@@ -116,7 +116,7 @@ func Run() error {
 	go monitorAudioDevice(ctx, playbackManager, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
-	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend)
+	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
 
 	go func() {
 		<-ctx.Done()
@@ -181,32 +181,18 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 				continue
 			}
 
-			current, err := mpv.GetProperty("audio-device")
-			if err != nil {
-				continue
-			}
-			currentName, _ := current.(string)
-			if currentName == name {
-				if err := manager.AudioDevice("auto"); err != nil {
-					continue
-				}
-				if lastMode != "fallback" {
-					log.Warn("Audio device unavailable, falling back to automatic output", "audio_device", name)
-					lastMode = "fallback"
-				}
+			if lastMode != "waiting" {
+				log.Warn("Saved audio device is not currently available", "audio_device", name)
+				lastMode = "waiting"
 			}
 		}
 	}
 }
 
-func newPlaybackConfig(cfg *config.Config) (playback.Config, error) {
-	retryInterval, err := time.ParseDuration(cfg.Playback.RetryInterval)
-	if err != nil {
-		return playback.Config{}, err
-	}
-	reconnectDelay, err := time.ParseDuration(cfg.Playback.ReconnectDelay)
-	if err != nil {
-		return playback.Config{}, err
-	}
-	return playback.Config{RetryInterval: retryInterval, ReconnectDelay: reconnectDelay}, nil
+func newPlaybackConfig(cfg config.Config) (playback.Config, error) {
+	return playback.Config{
+		RetryInterval:    cfg.Playback.RetryInterval,
+		ReconnectDelay:   cfg.Playback.ReconnectDelay,
+		AvailabilityWait: cfg.Playback.AvailabilityWait,
+	}, nil
 }

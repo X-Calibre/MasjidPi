@@ -67,40 +67,41 @@ Other Raspberry Pi models and variants have not yet been fully tested and should
 
 ## Installation
 
-The recommended installation method is to use the repository installer. The installer automatically detects the operating system and CPU architecture, installs the required dependencies including Go, builds MasjidPi, installs the runtime and frontend, creates the systemd service and runs a self-test.
+### Recommended: install the latest release
 
-You **do not need to install Go manually or check your architecture manually** before running the installer.
+For normal users, the recommended installation method is to use the **pre-built release package**. You do not need Git, Go or the MasjidPi source repository.
 
-### 1. Clone MasjidPi
+Download the latest ARM64 or AMD64 release archive from the [MasjidPi GitHub Releases page](https://github.com/X-Calibre/MasjidPi/releases), then extract it.
 
-```bash
-git clone https://github.com/X-Calibre/MasjidPi.git
-cd MasjidPi
-```
-
-### 2. Run the installer
+For example, on an ARM64 Raspberry Pi:
 
 ```bash
+cd /tmp
+tar -xzf masjidpi-vX.Y.Z-linux-arm64.tar.gz
+cd masjidpi-vX.Y.Z-linux-arm64
 sudo ./scripts/install.sh
 ```
+
+The release package contains the MasjidPi executable, default configuration, catalogue, Web UI and complete installer. The installer automatically detects the operating system and architecture, installs the required runtime dependencies, installs MasjidPi and its systemd service, starts the service and runs a self-test.
+
+You **do not need to install Go manually or build MasjidPi yourself** when installing an official release.
 
 The installer will:
 
 1. Detect the operating system and CPU architecture.
-2. Install required system packages including MPV, FFmpeg and ALSA utilities.
-3. Install Go automatically if it is not installed, or upgrade it if the installed version is older than Go 1.26.
-4. Build MasjidPi.
-5. Install the application under `/opt/masjidpi`.
-6. Install the configuration under `/etc/masjidpi`.
-7. Install the stream catalogue under `/var/lib/masjidpi`.
-8. Install the Web UI.
-9. Create and enable the `masjidpi.service` systemd service.
-10. Start the service.
-11. Run the MasjidPi self-test.
+2. Install required runtime packages including MPV, FFmpeg and ALSA utilities.
+3. Download and verify the latest release when running the repository installer, or use the bundled release when running from a release package.
+4. Install the MasjidPi executable under `/opt/masjidpi`.
+5. Install the configuration under `/etc/masjidpi`.
+6. Install the stream catalogue under `/var/lib/masjidpi` on a fresh installation.
+7. Install the Web UI.
+8. Create and enable the `masjidpi.service` systemd service.
+9. Start the service.
+10. Run the MasjidPi self-test.
 
-The installer prints a summary when installation is complete.
+Existing configuration and persistent runtime data are preserved during upgrades.
 
-### 3. Open the Web UI
+### Open the Web UI
 
 From another computer, phone or tablet on the same network, open:
 
@@ -152,17 +153,44 @@ The Web UI reloads the updated catalogue after a successful update. The updater 
 
 ## Updating MasjidPi
 
-For an existing source-tree installation:
+For an installed release, download the new release archive for your architecture, extract it and run the bundled installer:
 
 ```bash
-cd ~/MasjidPi
-git pull
+cd /tmp
+tar -xzf masjidpi-vX.Y.Z-linux-arm64.tar.gz
+cd masjidpi-vX.Y.Z-linux-arm64
 sudo ./scripts/install.sh
 ```
 
-The installer detects the existing installation and updates it in place. It stops the existing service, rebuilds MasjidPi, installs the updated runtime and frontend, and starts the service again.
+Replace `arm64` with `amd64` when installing on a 64-bit x86 Linux system.
 
-For an official release, download the appropriate release archive from the GitHub Releases page and install the included executable and frontend into the existing `/opt/masjidpi` installation. Preserve `/etc/masjidpi` and `/var/lib/masjidpi`, as these contain the persistent configuration and runtime catalogue.
+The installer detects the existing installation and updates it in place. It replaces the application binary and Web UI while preserving `/etc/masjidpi` and `/var/lib/masjidpi`.
+
+The release installer verifies the downloaded release archive using the accompanying `SHA256SUMS` file before installation. You can also verify an archive manually:
+
+```bash
+sha256sum -c <(grep 'masjidpi-vX.Y.Z-linux-arm64.tar.gz' SHA256SUMS)
+```
+
+The result should be:
+
+```text
+masjidpi-vX.Y.Z-linux-arm64.tar.gz: OK
+```
+
+### Installing from source
+
+Source installation is intended for development and testing rather than normal users.
+
+Clone the repository and run the installer with `--source`:
+
+```bash
+git clone https://github.com/X-Calibre/MasjidPi.git
+cd MasjidPi
+sudo ./scripts/install.sh --source
+```
+
+Source installation builds MasjidPi locally using Go. It is useful when testing unreleased changes or developing MasjidPi.
 
 ## Release packages
 
@@ -175,19 +203,14 @@ masjidpi-vX.Y.Z-linux-amd64.tar.gz
 
 A `SHA256SUMS` file is provided with each release.
 
-To verify a downloaded ARM64 release archive:
+Release archives contain:
 
-```bash
-sha256sum -c <(grep 'masjidpi-vX.Y.Z-linux-arm64.tar.gz' SHA256SUMS)
-```
-
-The result should be:
-
-```text
-masjidpi-vX.Y.Z-linux-arm64.tar.gz: OK
-```
-
-The release archives contain the MasjidPi executable, default configuration, frontend and version information. The repository installer remains the recommended method for a complete systemd-based installation.
+- MasjidPi executable
+- Default configuration
+- Initial stream catalogue
+- Web UI
+- Version information
+- Complete installer scripts
 
 ## Useful Commands
 
@@ -239,9 +262,11 @@ make test
 
 MasjidPi is currently in active development.
 
-**Current version: v1.0.5**
+**Current stable release: v1.0.5**
 
 v1.0.5 is the current stable release and has been validated on a Raspberry Pi 3B running a 64-bit ARM64 Linux environment. Validation includes installation as a systemd service, MPV playback, the Web UI, persistent configuration, live masjid stream playback and successful LiveMasjid catalogue updates using the installed `/var/lib/masjidpi` runtime path.
+
+The next release will introduce the release-first installer workflow, allowing normal users to install MasjidPi from a pre-built release without cloning the source repository or installing Go. Source installation remains available for developers with `--source`.
 
 See [ROADMAP.md](ROADMAP.md) for the development roadmap.
 

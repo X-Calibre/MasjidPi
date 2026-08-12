@@ -52,13 +52,22 @@ prepare_release() {
     esac
 
     local archive_name="masjidpi-${RELEASE_VERSION}-linux-${RELEASE_ARCH}.tar.gz"
-    local url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_VERSION}/${archive_name}"
+    local base_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_VERSION}"
+    local url="${base_url}/${archive_name}"
+    local checksums_url="${base_url}/SHA256SUMS"
     local download_dir="$(mktemp -d /tmp/masjidpi-release.XXXXXX)"
 
     RELEASE_DIR="$download_dir/masjidpi-${RELEASE_VERSION}-linux-${RELEASE_ARCH}"
 
     info "Downloading MasjidPi ${RELEASE_VERSION} (${RELEASE_ARCH})..."
     curl -fL --retry 3 "$url" -o "$download_dir/$archive_name"
+    curl -fsSL --retry 3 "$checksums_url" -o "$download_dir/SHA256SUMS"
+
+    info "Verifying release checksum..."
+    (
+        cd "$download_dir"
+        grep -F "  $archive_name" SHA256SUMS | sha256sum -c -
+    ) || die "Release checksum verification failed."
 
     info "Extracting release..."
     tar -xzf "$download_dir/$archive_name" -C "$download_dir"
@@ -69,5 +78,5 @@ prepare_release() {
     [[ -f "$RELEASE_DIR/catalogue.json" ]] || die "Release catalogue is missing."
     [[ -f "$RELEASE_DIR/frontend/index.html" ]] || die "Release frontend is missing."
 
-    success "MasjidPi ${RELEASE_VERSION} downloaded."
+    success "MasjidPi ${RELEASE_VERSION} downloaded and verified."
 }

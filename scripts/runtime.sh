@@ -28,6 +28,7 @@ install_runtime() {
 
         rm -rf "$INSTALL_DIR/frontend"
         cp -R "$PROJECT_ROOT/frontend" "$INSTALL_DIR/"
+        rm -f "$INSTALL_DIR/VERSION"
     else
         cp "$RELEASE_DIR/masjidpi" "$INSTALL_DIR/bin/"
 

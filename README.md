@@ -11,7 +11,6 @@ It provides a simple web interface for finding masājid, selecting streams, mana
 - Browse and search live masjid streams
 - Save favourite masājid
 - Play and stop streams
-- Volume control up to 125%
 - Select an audio output device
 - Automatically recover when an audio device is disconnected
 - Automatically reconnect when a stream or network connection is interrupted

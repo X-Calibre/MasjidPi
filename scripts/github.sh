@@ -1,20 +1,73 @@
 #!/usr/bin/env bash
 
-REPO_URL="https://github.com/X-Calibre/MasjidPi.git"
+REPO_OWNER="X-Calibre"
+REPO_NAME="MasjidPi"
+REPO_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}.git"
+RELEASE_API="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
 
 update_repository() {
 
     if [[ ! -d "$PROJECT_ROOT/.git" ]]; then
-
         info "Cloning MasjidPi..."
-
         git clone "$REPO_URL" "$PROJECT_ROOT"
-
         success "Repository cloned."
-
         return
     fi
 
     info "Using local development repository."
+}
 
+prepare_release() {
+
+    local local_version_file="$PROJECT_ROOT/VERSION"
+
+    if [[ -x "$PROJECT_ROOT/masjidpi" && -f "$local_version_file" ]]; then
+        RELEASE_DIR="$PROJECT_ROOT"
+        RELEASE_VERSION="$(cat "$local_version_file")"
+        info "Using bundled MasjidPi release $RELEASE_VERSION."
+        return
+    fi
+
+    local latest_tag
+    latest_tag="$(curl -fsSL "$RELEASE_API" | jq -r '.tag_name')"
+
+    [[ "$latest_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+        || die "Unable to determine a valid latest MasjidPi release."
+
+    RELEASE_VERSION="$latest_tag"
+
+    case "$ARCH" in
+        x86_64)
+            RELEASE_ARCH="amd64"
+            ;;
+        aarch64)
+            RELEASE_ARCH="arm64"
+            ;;
+        armv7l)
+            die "No official MasjidPi release is available for armv7l. Use --source instead."
+            ;;
+        *)
+            die "Unsupported release architecture: $ARCH"
+            ;;
+    esac
+
+    local archive_name="masjidpi-${RELEASE_VERSION}-linux-${RELEASE_ARCH}.tar.gz"
+    local url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_VERSION}/${archive_name}"
+    local download_dir="$(mktemp -d /tmp/masjidpi-release.XXXXXX)"
+
+    RELEASE_DIR="$download_dir/masjidpi-${RELEASE_VERSION}-linux-${RELEASE_ARCH}"
+
+    info "Downloading MasjidPi ${RELEASE_VERSION} (${RELEASE_ARCH})..."
+    curl -fL --retry 3 "$url" -o "$download_dir/$archive_name"
+
+    info "Extracting release..."
+    tar -xzf "$download_dir/$archive_name" -C "$download_dir"
+
+    [[ -x "$RELEASE_DIR/masjidpi" ]] || die "Release binary is missing."
+    [[ -f "$RELEASE_DIR/default.yaml" ]] || die "Release configuration is missing."
+    [[ -f "$RELEASE_DIR/VERSION" ]] || die "Release version file is missing."
+    [[ -f "$RELEASE_DIR/catalogue.json" ]] || die "Release catalogue is missing."
+    [[ -f "$RELEASE_DIR/frontend/index.html" ]] || die "Release frontend is missing."
+
+    success "MasjidPi ${RELEASE_VERSION} downloaded."
 }

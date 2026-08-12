@@ -67,7 +67,9 @@ Other Raspberry Pi models and variants have not yet been fully tested and should
 
 ## Installation
 
-The recommended installation method is to use the repository installer. The installer installs the required system packages, builds MasjidPi, installs the runtime and frontend, creates the systemd service and runs a self-test.
+The recommended installation method is to use the repository installer. The installer installs the required system packages, **installs or upgrades Go automatically if necessary**, builds MasjidPi, installs the runtime and frontend, creates the systemd service and runs a self-test.
+
+You **do not need to install Go manually** before running the installer.
 
 ### 1. Check your architecture
 
@@ -89,26 +91,14 @@ For an AMD64 PC it should report:
 x86_64
 ```
 
-### 2. Install Go
-
-The installer currently expects Go to already be installed.
-
-Check:
-
-```bash
-go version
-```
-
-MasjidPi is developed and built with Go 1.26.x.
-
-### 3. Clone MasjidPi
+### 2. Clone MasjidPi
 
 ```bash
 git clone https://github.com/X-Calibre/MasjidPi.git
 cd MasjidPi
 ```
 
-### 4. Run the installer
+### 3. Run the installer
 
 ```bash
 sudo ./scripts/install.sh
@@ -117,19 +107,20 @@ sudo ./scripts/install.sh
 The installer will:
 
 1. Detect the operating system and CPU architecture.
-2. Install required packages including MPV, FFmpeg and ALSA utilities.
-3. Build MasjidPi.
-4. Install the application under `/opt/masjidpi`.
-5. Install the configuration under `/etc/masjidpi`.
-6. Install the stream catalogue under `/var/lib/masjidpi`.
-7. Install the Web UI.
-8. Create and enable the `masjidpi.service` systemd service.
-9. Start the service.
-10. Run the MasjidPi self-test.
+2. Install required system packages including MPV, FFmpeg and ALSA utilities.
+3. Install Go automatically if it is not installed, or upgrade it if the installed version is older than Go 1.26.
+4. Build MasjidPi.
+5. Install the application under `/opt/masjidpi`.
+6. Install the configuration under `/etc/masjidpi`.
+7. Install the stream catalogue under `/var/lib/masjidpi`.
+8. Install the Web UI.
+9. Create and enable the `masjidpi.service` systemd service.
+10. Start the service.
+11. Run the MasjidPi self-test.
 
 The installer prints a summary when installation is complete.
 
-### 5. Open the Web UI
+### 4. Open the Web UI
 
 From another computer, phone or tablet on the same network, open:
 
@@ -145,7 +136,7 @@ http://192.168.1.50:8080
 
 The Web UI is a remote control. It does not need to remain open for MasjidPi to continue playing audio or recovering from stream/network interruptions.
 
-### 6. Verify the service
+### 5. Verify the service
 
 ```bash
 sudo systemctl status masjidpi --no-pager

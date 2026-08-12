@@ -1,28 +1,22 @@
 package catalogue
 
-const (
-	PageURL       = "https://www.livemasjid.com"
-	PageFile      = "data/page.html"
-	CatalogueFile = "data/catalogue.json"
-)
+const LiveMasjidPageURL = "https://www.livemasjid.com"
 
-// Update downloads the latest LiveMasjid catalogue,
-// parses it and writes catalogue.json.
-
-func Update() error {
-
+// Update downloads the latest LiveMasjid catalogue, parses it and writes the
+// generated catalogue to the supplied runtime paths.
+func Update(pageFile, catalogueFile string) error {
 	client := NewClient()
 
-	if err := client.Download(PageURL, PageFile); err != nil {
+	if err := client.Download(LiveMasjidPageURL, pageFile); err != nil {
 		return err
 	}
 
-	streams, err := ParseHTML(PageFile)
+	streams, err := ParseHTML(pageFile)
 	if err != nil {
 		return err
 	}
 
-	if err := WriteCatalogue(CatalogueFile, streams); err != nil {
+	if err := WriteCatalogue(catalogueFile, streams); err != nil {
 		return err
 	}
 

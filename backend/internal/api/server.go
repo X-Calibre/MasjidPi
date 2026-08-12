@@ -14,15 +14,17 @@ import (
 )
 
 type Server struct {
-	httpServer  *http.Server
-	logger      *slog.Logger
-	playback    *playback.Manager
-	streams     *stream.Store
-	favourites  *storage.Favourites
-	preferences *storage.Preferences
+	httpServer        *http.Server
+	logger            *slog.Logger
+	playback          *playback.Manager
+	streams           *stream.Store
+	favourites        *storage.Favourites
+	preferences       *storage.Preferences
+	catalogueFile     string
+	catalogueDataRoot string
 }
 
-func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend string) *Server {
+func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir(frontend))
 
@@ -32,12 +34,14 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	}
 
 	server := &Server{
-		logger:      logger,
-		playback:    playback,
-		streams:     streams,
-		favourites:  favourites,
-		preferences: storage.NewPreferences(preferencesPath),
-		httpServer:  &http.Server{Addr: addr, Handler: mux},
+		logger:            logger,
+		playback:          playback,
+		streams:           streams,
+		favourites:        favourites,
+		preferences:       storage.NewPreferences(preferencesPath),
+		catalogueFile:     catalogueFile,
+		catalogueDataRoot: catalogueDataRoot,
+		httpServer:        &http.Server{Addr: addr, Handler: mux},
 	}
 
 	mux.HandleFunc("/api/player/play", server.play)
@@ -57,7 +61,9 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 func (s *Server) Start() error {
 	s.logger.Info("Starting HTTP server", "address", s.httpServer.Addr)
 	err := s.httpServer.ListenAndServe()
-	if err == http.ErrServerClosed { return nil }
+	if err == http.ErrServerClosed {
+		return nil
+	}
 	return err
 }
 

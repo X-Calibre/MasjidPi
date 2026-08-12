@@ -116,7 +116,7 @@ func Run() error {
 	go monitorAudioDevice(ctx, playbackManager, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
-	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend)
+	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
 
 	go func() {
 		<-ctx.Done()

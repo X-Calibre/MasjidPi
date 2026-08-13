@@ -4,7 +4,7 @@ MasjidPi is a lightweight internet radio for Raspberry Pi, designed for listenin
 
 It provides a simple web interface for finding masājid, selecting streams, managing favourites and controlling playback.
 
-![MasjidPi Web Interface](docs/images/Updated-UI.png)
+![MasjidPi Web Interface](docs/images/Updated-UI-v1.0.7.png)
 
 ## Features
 

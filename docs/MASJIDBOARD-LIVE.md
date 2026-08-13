@@ -60,62 +60,106 @@ Determine how text, rich content, links, posters, images, ordering, visibility, 
 
 Determine refresh intervals and what should be cached. Define behaviour for network loss, service failure, malformed data, failed images, stale data, and reboot without connectivity.
 
-## Findings
+## Verified Findings
 
-### Live board is data-rich and varies by masjid
+### 2026-08-13 — HAR/network capture
 
-Inspection of multiple current Premium boards shows that the content is substantially broader than the five daily prayers. Examples include:
+A Firefox HAR capture of a live Premium board was analysed. The captured board was:
 
-- Daily Salah Adhan/Iqamah times.
-- Suhur, Fajr start, Sunrise, Ishraq, Duha, Istiwa, Zuhr start, multiple Asr calculations, Sunset, and Isha start.
-- Next Salah / upcoming change information.
-- Jumu'ah with fields such as Adhan, Sunan, Lecture, Khutbah, Salah, and Khateeb; not every masjid supplies every field.
-- Daily Ayah and Hadith.
-- Sunnah content on some boards.
-- Community broadcasts and general announcements.
-- Weekly programmes.
-- Masjid notices.
-- Nikah announcements.
-- Masjid contribution/bank information.
-- Du'a after Adhan.
-- Special notices such as Ramadan/Eid material and New Moon information.
-- Images/posters.
+```text
+https://premium.masjidboardlive.com/v2/?mid=erasmia-aaisha
+```
 
-Current live boards demonstrate that content availability differs between masjids. This means the MasjidPi data model must support optional sections rather than assuming every board has identical content. citeturn0search4turn0search5turn0search6
+The browser made the following MasjidBoard-specific requests:
 
-### Masjid identifier
+```text
+GET https://api.masjidboardlive.com/mblfileapi
+GET https://api.masjidboardlive.com/mblapi?id=1asEQ0Ju83TPqBFHw7NbBAihAxMt5JQ2bJkbaWnwKf7k
+GET https://api.masjidboardlive.com/imageproxy?id=<image-id>
+```
 
-The Premium board URL uses a masjid-specific `mid` query parameter, for example `?mid=cravenby-estate-husami`, `?mid=ridgeway-quba`, and `?mid=zeerust-jaamiah`. MasjidPi will therefore need to retain the MasjidBoard Live masjid identifier as part of its configuration. citeturn0search4turn0search5turn0search6
+The important discovery is that **a structured JSON endpoint exists**. The response from `mblapi` was `application/json` and contained 29 top-level arrays. The same data was also embedded directly in the HTML page as the JavaScript variable `theInfo`.
 
-### MasjidBoard Live is intended to be remotely updated
+The page also embeds:
 
-MasjidBoard Live's own site describes remote editing/updating from a mobile device or computer and specifically mentions short-notice announcements and unexpected Salah-time changes. It also describes suburb-based synchronisation of community and funeral notices. This means our integration needs to treat board content as mutable rather than a static daily schedule. citeturn0search0turn0search11
+```javascript
+let boardId = "1asEQ0Ju83TPqBFHw7NbBAihAxMt5JQ2bJkbaWnwKf7k";
+let mblVersion = "14";
+```
 
-### Full-HD is the native Premium target
+The `boardId` value is the identifier used by `mblapi` in this capture. This is distinct from the public masjid URL identifier (`mid=erasmia-aaisha`).
 
-MasjidBoard Live's published Premium hardware requirements specify a Full HD 1920×1080 monitor. This aligns directly with our planned HDMI target and gives us a sensible primary display resolution for MasjidPi. citeturn0search0
+The HAR confirmed that the `mblapi` response and the embedded `theInfo` value are identical for this board. This means MasjidPi can potentially consume the structured endpoint without scraping the rendered board page.
 
-### Slide-based display model
+### `mblapi` response structure
 
-MasjidBoard Live's FAQ describes the Premium display as a carousel and says slides can be hidden, except for the Ayah slide. It also documents dedicated behaviour for some slides, such as Du'a after Adhan displaying for five minutes and a cellphone reminder displaying for five minutes before Iqamah. Scheduled notices and custom slides are also supported. This is important for MasjidPi: the display should be modelled as a scheduler/carousel rather than one fixed dashboard. citeturn0search10
+The response is currently **not a self-describing JSON object**. It is a positional array-of-arrays. The first-level array contains 29 rows, with each row containing positional fields whose meaning is defined by the MasjidBoard Live frontend.
 
-### Existing third-party programmatic integration uses HTML scraping
+Examples observed in the capture include:
 
-A public Home Assistant integration exists and provides useful evidence about the current board's HTML structure. It fetches the configured board URL and parses the returned HTML with BeautifulSoup rather than calling a documented JSON API. It extracts the masjid name from an element with ID `masjidName2`, and extracts the five daily prayers using IDs following the pattern `<prayer>Athan` and `<prayer>Jamaah`, where the prayer IDs are `fajr`, `zuhr`, `asr`, `maghrib`, and `esha`. fileciteturn23file0L2-L2
+- Row 0: default/empty values.
+- Row 1: Jumu'ah-related values including `Adhān`, `Sunan`, `Khutbah`, and associated times.
+- Row 2: date, astronomical/moon-related values, masjid ID, city, timezone, language, and Islamic-time display settings.
+- Row 3: daily Salah Adhan/Jamaah values for Fajr, Zuhr, Asr, Maghrib and Esha, plus additional settings.
+- Row 6: English/Arabic masjid naming and Islamic calendar/settings values.
+- Rows 7–9: Ayah, Hadith and Sunnah configuration/content indicators.
+- Row 12: banking information and multiple configurable announcement/programme headings and HTML content.
+- Row 14: Nikah-related information.
+- Row 15: funeral-related information.
+- Row 16: other programme/activity information.
+- Row 17: poster/image identifiers and visibility flags.
+- Row 18: an additional event/notice block.
+- Row 20: contribution information.
+- Row 21: configurable name/heading fields.
+- Rows 22–23: additional daily time data and Arabic masjid names.
+- Row 24: poster/image identifiers and visibility flags.
+- Row 25: another image identifier/visibility block.
+- Row 27: carousel/translation/display configuration.
+- Row 28: translation setting names.
 
-The same integration uses a configurable polling interval with a default of 600 seconds (10 minutes). This is useful evidence for a conservative initial refresh interval, but it is not evidence that 10 minutes is the correct interval for every MasjidBoard content type. fileciteturn25file0L2-L2
+These row mappings are **observed from one live board and are not yet a stable MasjidPi schema**. The frontend's `handleResults(theInfo)` function and related code need to be studied to map every field reliably.
 
-The integration is explicitly limited to Adhan/Jamaah sensors for the five daily prayers, so it is not sufficient for MasjidPi's full-board requirements. fileciteturn22file0L2-L2
+### Images/media
 
-### No documented public API established yet
+The board requests images through:
 
-The investigation has **not yet established a documented/public JSON API** that can be relied upon for the complete board. Search results for `api.masjidboardlive.com` did not provide a verifiable public API specification, and the existing third-party integration we inspected does not use one.
+```text
+https://api.masjidboardlive.com/imageproxy?id=<image-id>
+```
 
-This is important: we should not design the MasjidPi provider around an assumed API. We need direct inspection of the live application's network requests and JavaScript assets to determine whether a structured backend endpoint exists.
+The HAR contains successful PNG and JPEG responses from this endpoint. At least some board content therefore references media by opaque image IDs rather than direct public filenames.
 
-### Dynamic content
+### Static/client code
 
-The live board presents loading placeholders and then populated content, which indicates that the application has a dynamic data-loading mechanism. The exact underlying requests still need to be identified.
+The page loads:
+
+```text
+https://api.masjidboardlive.com/mblfileapi
+```
+
+as a JavaScript `<script>` resource. The captured response is a large JavaScript resource containing client-side translations/configuration. The main page then calls:
+
+```javascript
+handleResults(theInfo);
+startMBL();
+```
+
+and loads `functions_uo_latest.js?109`.
+
+The captured `functions_uo_latest.js` response was served from cache in the HAR, so its body was not available in the capture. Its source still needs to be obtained to map the positional `theInfo` array completely.
+
+### Important architectural conclusion
+
+The previous assumption that MasjidBoard Live might require HTML scraping is no longer correct for this board. A structured `mblapi` endpoint is demonstrably used by the live application.
+
+However, the endpoint's response schema is an opaque positional array rather than a clean public API model. We should therefore **not expose this structure directly to the MasjidPi application**. The eventual provider should translate it into a normalised MasjidPi data model.
+
+## Initial Findings
+
+- The public board uses a masjid-specific `mid` value in its URL.
+- Live boards contain loading placeholders and subsequently populate board content, indicating that data is loaded dynamically.
+- Live boards expose separate areas for prayer information, announcements, daily Ayah, Hadith, community broadcasts, Du'a, images, and New Moon information.
+- Initial inspection has also shown Jumu'ah/Khateeb information, Nikah notices, weekly programmes, masjid information, and contribution information.
 
 ## Decisions
 
@@ -128,42 +172,37 @@ The live board presents loading placeholders and then populated content, which i
 | Local caching is required | Confirmed | Reliable appliance/offline behaviour. |
 | Data-provider abstraction | Proposed | Allows another source later without redesigning the display layer. |
 | Native MasjidPi display rather than a browser wrapper | Proposed | Better control of offline behaviour, resources, layout, and integration. |
-| Do not assume an undocumented API exists | Confirmed | No verifiable public API specification has been established. |
-| Primary display target is 1920×1080 | Confirmed | Matches MasjidBoard Live's published Premium requirement. |
-| Display architecture should support scheduled slides | Confirmed | MasjidBoard Live itself uses a configurable carousel/slide model. |
+| Consume structured `mblapi` data rather than scrape rendered HTML | Proposed | HAR evidence shows a structured endpoint is used by the live application. |
+| Normalise MasjidBoard Live's positional schema inside the provider | Proposed | Keeps the opaque upstream schema out of the rest of MasjidPi. |
 
 ## Open Questions
 
-- What exact network requests does the live board make after loading?
-- Is there a structured JSON/API endpoint behind the board?
-- Does the board use one endpoint or several endpoints for different content categories?
-- What authentication, tokens, cookies, or headers are required?
-- What is the complete response/data schema?
-- How are content schedules and expiry represented?
-- How are images and posters delivered?
-- How are prayer-time changes represented?
-- How is time zone information represented?
-- How are multiple Jumu'ah services represented?
-- What refresh intervals are expected for each content type?
-- What data should be cached permanently versus temporarily?
-- Can the current board be reproduced from structured data without rendering the website?
-- What terms/usage restrictions apply to programmatic consumption of MasjidBoard Live data?
+- How is the public `mid` mapped to the internal `boardId`?
+- Is `boardId` stable for a masjid?
+- Can `mblapi?id=<boardId>` be requested directly without first loading the Premium page?
+- What authentication, rate limits, or access restrictions apply to `mblapi`?
+- What exact versioning guarantees exist for `mblVersion` and the positional schema?
+- What exact field mapping is implemented by `handleResults()` / `functions_uo_latest.js`?
+- How are Ayah, Hadith, Sunnah and Du'a content populated?
+- How are announcement schedules and expiry represented?
+- How are Jumu'ah services represented when there are multiple services?
+- How are posters and images associated with individual content items?
+- What is the exact meaning of every row and field in `theInfo`?
+- How frequently does the live application refresh `mblapi`?
+- Does the board make additional requests after the initial load that were not captured in this HAR?
+- Which data is generated/calculated by the client rather than supplied by `mblapi`?
+- Can the current board be reproduced completely from `mblapi` plus the referenced media assets?
 
-## Next Investigation Step
+## Next Investigation Steps
 
-The remaining high-value investigation requires inspecting the live application's actual browser network traffic and JavaScript assets. Web search can confirm rendered content and external documentation, but it cannot reliably expose the browser's complete runtime request sequence.
-
-The next capture should use several representative boards and identify the requests made for:
-
-1. Masjid metadata.
-2. Daily prayer times.
-3. Jumu'ah.
-4. Announcements and notices.
-5. Religious content.
-6. Images/media.
-7. Special dates/events.
-
-Record the exact endpoints, request parameters, response structures, and update behaviour here before designing the MasjidPi internal data model.
+1. Obtain and inspect the actual `functions_uo_latest.js` source used by the board.
+2. Map every `theInfo` row/field to its semantic meaning using the frontend code.
+3. Test `mblapi` against several different masjids/board IDs to establish which fields are optional and how the schema varies.
+4. Determine how a public `mid` is resolved to a `boardId`.
+5. Test direct access to `mblapi` and `imageproxy`, including behaviour without browser session state.
+6. Determine refresh/polling behaviour.
+7. Build a draft normalised MasjidPi data model from the verified field mapping.
+8. Only then begin production MasjidBoard module implementation.
 
 ## Implementation Guardrail
 
@@ -172,7 +211,7 @@ Do not implement the production MasjidBoard module until the core API/data inves
 The eventual implementation should separate:
 
 ```text
-Data provider
+MasjidBoard Live provider
     -> Normalised board data
         -> Persistent cache
             -> Board state / scheduler
@@ -188,10 +227,10 @@ Data provider
 - Confirmed external HDMI display is the target.
 - Confirmed MasjidBoard Live is the primary data source.
 - Confirmed MasjidBoard must remain independent from audio playback.
-- Investigated multiple current Premium boards and confirmed substantial variation and a much broader content set than the daily prayer times.
-- Confirmed the masjid-specific `mid` identifier used by the Premium board URLs.
-- Confirmed MasjidBoard Live's published Premium target is Full HD 1920×1080.
-- Confirmed the Premium board is carousel/slide based and supports slide-specific timing and scheduling.
-- Inspected an existing public Home Assistant integration and confirmed it currently obtains prayer data by parsing HTML rather than a documented JSON API.
-- Confirmed that integration uses a default 10-minute polling interval and extracts the masjid name plus five daily Adhan/Jamaah pairs.
-- Did not find sufficient evidence to claim a documented public JSON API; direct browser network/JavaScript inspection remains the next step.
+- Established that API/data investigation should precede production implementation.
+- Analysed a Firefox HAR capture from a live Premium board.
+- Confirmed the structured `https://api.masjidboardlive.com/mblapi?id=<boardId>` endpoint.
+- Confirmed the endpoint returns JSON containing the same 29-row `theInfo` structure embedded in the page.
+- Confirmed the page exposes `boardId` and `mblVersion` values.
+- Confirmed `imageproxy?id=<image-id>` is used for referenced media.
+- Established that the next priority is mapping the positional schema through the frontend JavaScript.

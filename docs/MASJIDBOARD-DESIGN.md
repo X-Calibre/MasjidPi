@@ -1,6 +1,6 @@
 # MasjidBoard Application Design
 
-**Status:** Design — proposed for review
+**Status:** Design — agreed
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
@@ -98,6 +98,15 @@ No MasjidBoard Live-specific field names or positional indexes should leak into 
 
 Persists the normalised board data and downloaded media.
 
+The agreed initial cache location is:
+
+```text
+/var/lib/masjidpi/masjidboard/
+├── board.json
+├── metadata.json
+└── media/
+```
+
 The cache provides resilience when MasjidBoard Live is unavailable.
 
 It should distinguish at least:
@@ -107,6 +116,8 @@ It should distinguish at least:
 - no usable cached data
 
 The cache should not require the renderer to understand the upstream API.
+
+The normalised model is the primary runtime cache representation. The raw upstream response may optionally be retained for diagnostics, but it is not the application's primary runtime data format.
 
 ### `scheduler`
 
@@ -122,6 +133,8 @@ Inputs include:
 
 The scheduler should produce presentation state rather than drawing anything itself.
 
+Prayer times form the primary scheduler context. Optional content is scheduled around the core prayer-time presentation rather than being a prerequisite for board operation.
+
 ### `display`
 
 Defines the rendering boundary.
@@ -134,7 +147,11 @@ The display layer must not fetch MasjidBoard Live data.
 
 Initial concrete renderer/output implementation for the Raspberry Pi HDMI display.
 
-The exact graphics technology is intentionally not fixed yet. The key requirement is that it should be substantially lighter than running a full browser simply to display the MasjidBoard webpage.
+The renderer will be native rather than browser-based. A lightweight graphics implementation will be used for the initial prototype; **SDL2 is the preferred candidate**, but the core display interface must not depend on SDL2 so that it can be replaced if target-hardware testing identifies a better option.
+
+The display target is initially **1920×1080 landscape**.
+
+The renderer must be substantially lighter than running a full browser simply to display the MasjidBoard webpage.
 
 ## Domain Model
 
@@ -163,7 +180,7 @@ The five prayers are the primary purpose of the board.
 
 ### Prayer model
 
-Each prayer should be represented semantically, for example:
+Each prayer is represented semantically:
 
 ```text
 PrayerTime
@@ -172,9 +189,24 @@ PrayerTime
 └── Jamaah
 ```
 
-The exact Go representation is still to be finalised, but the model must not require callers to understand upstream row/column positions.
+The five daily prayers use a fixed semantic structure rather than a generic map so that the application's core purpose is explicit and cannot be accidentally omitted.
 
-If a source supplies additional prayer-related information, it should be represented as an extension of the semantic model rather than as an opaque source field.
+Adhan and Jamaah are individually optional values because the upstream source may not provide both.
+
+Actual prayer times will use Go `time.Time` values internally with explicit timezone/date context. The provider converts MasjidBoard Live's source strings into these values; the rest of the application must not manipulate prayer times as arbitrary strings.
+
+### Date context
+
+Prayer schedules are date-specific. The board model therefore includes explicit date context containing at least:
+
+```text
+DateContext
+├── Gregorian date
+├── Islamic date
+└── Location / timezone
+```
+
+A cached schedule for a previous Gregorian date must not silently be presented as the current day's prayer schedule after a date boundary. If the current date has no valid prayer schedule, the application must enter an explicit no-valid-data/recovery state rather than masquerading yesterday's schedule as today's.
 
 ### Optional enrichment
 
@@ -240,11 +272,13 @@ type Cache interface {
 }
 ```
 
-The exact interface and storage format are not yet fixed.
+The exact implementation is not yet fixed, but the agreed initial storage is normalised JSON under `/var/lib/masjidpi/masjidboard/` plus locally cached media.
 
 A cached board should include freshness metadata so that the application can tell the difference between current and stale data.
 
 The cache should preserve the last known valid **core prayer schedule** even if a later refresh fails.
+
+Media should be cached independently enough that a failed optional media download cannot invalidate the core board.
 
 ## Scheduler Interface
 
@@ -348,17 +382,21 @@ If no cache exists and the provider is unavailable, the application should enter
 
 These are independent concerns.
 
-For example:
+The initial provider refresh interval is **10 minutes**, but it should be configurable internally rather than hard-coded throughout the provider.
+
+The local display clock and countdown must not depend on this refresh interval.
+
+Conceptually:
 
 ```text
-Provider refresh       periodically
+Provider refresh       every ~10 minutes initially
 Media refresh          when changed/required
 Scheduler evaluation   continuously/as required
 Clock/countdown        approximately once per second
 Slide rotation         according to presentation rules
 ```
 
-The exact intervals are not yet fixed.
+The exact user-configurable refresh options can be considered later.
 
 A slow upstream refresh interval must not make the on-screen clock or prayer countdown appear frozen.
 
@@ -369,10 +407,15 @@ Images/posters are first-class board content.
 The provider/cache side should:
 
 1. Discover media references from MasjidBoard Live.
-2. Download media when required.
-3. Store it locally.
-4. Associate it with the normalised `Media` model.
-5. Allow the scheduler/renderer to use the local copy.
+2. Determine whether the referenced content is already cached.
+3. Download media when required.
+4. Store it locally.
+5. Associate it with the normalised `Media` model.
+6. Allow the scheduler/renderer to use the local copy.
+
+Media identity should use available upstream identifiers and/or content hashes so unchanged media is not unnecessarily downloaded again.
+
+The cache should retain enough metadata to support later cleanup of obsolete media. Exact garbage-collection rules are deferred until implementation/testing.
 
 The renderer should not need a live Internet connection to display already-cached media.
 
@@ -380,7 +423,7 @@ Failed optional media downloads should not invalidate the core prayer schedule.
 
 ## Stale Data Behaviour
 
-MasjidBoard must distinguish between **stale but usable** and **invalid/unavailable**.
+MasjidBoard must distinguish between **fresh**, **stale but usable**, and **no valid data**.
 
 If MasjidBoard Live is temporarily unreachable:
 
@@ -396,7 +439,9 @@ Status indicates stale data internally / where appropriate
 
 The application should never discard valid cached prayer data merely because optional content could not be refreshed.
 
-The exact user-facing stale-data indicator will be decided during display design.
+Stale cached prayer data may continue to be displayed while it remains trustworthy, but a cached schedule from a previous date must not be used as though it were today's schedule.
+
+The initial implementation should keep the stale indication subtle rather than placing a large warning over the primary prayer display. The exact user-facing indicator will be decided during display design.
 
 ## Failure Isolation
 
@@ -450,6 +495,44 @@ MasjidBoard configuration should eventually cover at least:
 
 Configuration should not be embedded in the provider implementation.
 
+## API Boundary
+
+MasjidBoard will have its own application/API boundary rather than being coupled to the existing audio API.
+
+The initial API surface should remain deliberately small and should only expose functionality needed by the MasjidBoard application and MasjidPi UI. Candidate endpoints include:
+
+```text
+/api/masjidboard/status
+/api/masjidboard/board
+/api/masjidboard/display
+```
+
+A refresh endpoint may be added later if required:
+
+```text
+/api/masjidboard/refresh
+```
+
+These endpoints are not required before the core provider/model/cache/scheduler path is working.
+
+## Executable and Service
+
+The agreed conceptual executable and service names are:
+
+```text
+masjidboard
+masjidboard.service
+```
+
+alongside the existing MasjidPi audio application/service:
+
+```text
+masjidpi
+masjidpi.service
+```
+
+Both must be independently startable, stoppable and recoverable.
+
 ## Testing Strategy
 
 The design should allow most MasjidBoard logic to be tested without a Raspberry Pi or HDMI display.
@@ -472,6 +555,7 @@ Verify:
 - freshness metadata
 - preservation of last known valid prayer data
 - optional content absence
+- date-boundary behaviour
 
 ### Scheduler tests
 
@@ -484,6 +568,7 @@ Given a fixed board and timestamp, verify:
 - optional slide selection
 - missing optional content
 - stale data behaviour
+- previous-date cached data is not treated as today's schedule
 
 ### Renderer tests
 
@@ -546,18 +631,22 @@ The first implementation will not attempt to:
 - support every possible upstream field before the core board works
 - couple MasjidBoard to MPV/audio playback
 
-## Open Design Questions
+## Settled Design Decisions
 
-These remain to be decided during implementation/design review:
+The following questions have been reviewed and settled for the initial implementation:
 
-1. Exact Go types for the semantic model.
-2. Cache storage format and location.
-3. Exact renderer technology.
-4. Exact display slide layouts.
-5. Exact provider refresh interval.
-6. Exact media refresh/cache policy.
-7. User-facing stale-data indication.
-8. Whether MasjidBoard should expose its own HTTP/API endpoints or share selected MasjidPi infrastructure.
-9. Exact service/executable naming.
+1. **Exact Go model:** explicit semantic structs and enums; no generic maps for the core domain model.
+2. **Prayer representation:** fixed five-prayer structure with `PrayerTime` values containing Adhan and Jamaah where available.
+3. **Time representation:** Go `time.Time` internally with explicit date/timezone context.
+4. **Cache location:** `/var/lib/masjidpi/masjidboard/`.
+5. **Cache format:** normalised JSON plus locally cached media; raw upstream data is optional diagnostics only.
+6. **Renderer:** native graphics; SDL2 is the preferred initial candidate, behind a renderer interface.
+7. **Display target:** 1920×1080 landscape initially.
+8. **Browser:** no full browser dependency.
+9. **Provider refresh:** 10 minutes initially, with the implementation keeping the interval configurable internally.
+10. **Media caching:** local cache using available source identity and/or content hash to avoid unnecessary downloads; exact garbage collection deferred.
+11. **Stale data:** last known valid prayer data may continue to display while trustworthy; stale status is tracked; previous-date data cannot masquerade as today's schedule.
+12. **API boundary:** MasjidBoard has its own small API boundary; exact endpoints can evolve as implementation requires.
+13. **Executable/service:** `masjidboard` / `masjidboard.service`.
 
-These questions do not change the core architectural boundaries already agreed.
+These decisions are now the working baseline for implementation. Changes should be recorded explicitly if later testing demonstrates that a decision needs to change.

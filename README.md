@@ -56,7 +56,7 @@ The browser is only a remote control. It does not need to remain open for Masjid
 Official pre-built releases currently support:
 
 - **Linux ARM64 (`aarch64`)**
-- **Linux AMD64 (`x86_64`)
+- **Linux AMD64 (`x86_64`)**
 
 ### Raspberry Pi
 

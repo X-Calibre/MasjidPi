@@ -54,16 +54,17 @@
 
     <section class="card">
         <h2>Find a Masjid</h2>
-        <label for="streamSearch">Search</label>
-        <input id="streamSearch" type="search" placeholder="Search by masjid name or location..." autocomplete="off">
-        <div id="streamCount" class="stream-count"></div>
 
         <div id="favouritesSection" class="favourites-section hidden">
             <label>Favourites</label>
             <div id="favourites" class="favourites"></div>
         </div>
 
-        <label for="stream">Masjid</label>
+        <label for="streamSearch">Search</label>
+        <input id="streamSearch" type="search" placeholder="Search by masjid name or location..." autocomplete="off">
+        <div id="streamCount" class="stream-count"></div>
+
+        <label for="stream">Masjid Catalogue</label>
         <select id="stream" size="8"></select>
 
         <div class="stream-actions">
@@ -84,6 +85,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 <script src="app.js"></script>
+<script src="masjid-selector.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

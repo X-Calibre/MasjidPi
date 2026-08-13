@@ -54,7 +54,7 @@ Determine how multiple Jumu'ah services and their Adhan, Sunan, lecture, Khutbah
 
 ### Content and media
 
-Determine how text, rich content, links, posters, images, ordering, visibility, scheduling, and expiry are represented and delivered.
+Determine how text, rich text, links, posters, images, ordering, visibility, scheduling, and expiry are represented and delivered.
 
 ### Refresh and offline behaviour
 
@@ -148,6 +148,22 @@ and loads `functions_uo_latest.js?109`.
 
 The captured `functions_uo_latest.js` response was served from cache in the HAR, so its body was not available in the capture. Its source still needs to be obtained to map the positional `theInfo` array completely.
 
+### Client behaviour / display model
+
+MasjidBoard Live is not simply a static page. The frontend loads board data, processes it through client-side JavaScript, and then starts the board presentation. The board supports multiple content areas/slides and configurable display behaviour.
+
+This means the MasjidPi display should be treated as a **scheduled presentation of structured board content**, not as one fixed dashboard containing every field at once.
+
+The exact scheduling rules still need to be determined from the frontend implementation.
+
+### Existing third-party integration
+
+An existing Home Assistant integration for MasjidBoard Live was also reviewed as supporting evidence. It retrieves the public board page and extracts the five daily Adhan/Jamaah pairs. Its default polling interval is 600 seconds (10 minutes).
+
+This is useful evidence that the public board data can be consumed programmatically, but it is **not sufficient as the MasjidPi integration model** because it only exposes a small subset of the information required by MasjidPi.
+
+The integration's scraping approach should therefore not be adopted unless later investigation establishes that particular data cannot be obtained from the structured endpoint.
+
 ### Important architectural conclusion
 
 The previous assumption that MasjidBoard Live might require HTML scraping is no longer correct for this board. A structured `mblapi` endpoint is demonstrably used by the live application.
@@ -174,6 +190,7 @@ However, the endpoint's response schema is an opaque positional array rather tha
 | Native MasjidPi display rather than a browser wrapper | Proposed | Better control of offline behaviour, resources, layout, and integration. |
 | Consume structured `mblapi` data rather than scrape rendered HTML | Proposed | HAR evidence shows a structured endpoint is used by the live application. |
 | Normalise MasjidBoard Live's positional schema inside the provider | Proposed | Keeps the opaque upstream schema out of the rest of MasjidPi. |
+| Treat the HDMI board as a scheduled presentation | Proposed | The live board is a dynamic multi-content presentation rather than a single fixed panel. |
 
 ## Open Questions
 
@@ -192,6 +209,7 @@ However, the endpoint's response schema is an opaque positional array rather tha
 - Does the board make additional requests after the initial load that were not captured in this HAR?
 - Which data is generated/calculated by the client rather than supplied by `mblapi`?
 - Can the current board be reproduced completely from `mblapi` plus the referenced media assets?
+- What are the exact carousel/slide rules used by the current MasjidBoard Live frontend?
 
 ## Next Investigation Steps
 
@@ -201,8 +219,9 @@ However, the endpoint's response schema is an opaque positional array rather tha
 4. Determine how a public `mid` is resolved to a `boardId`.
 5. Test direct access to `mblapi` and `imageproxy`, including behaviour without browser session state.
 6. Determine refresh/polling behaviour.
-7. Build a draft normalised MasjidPi data model from the verified field mapping.
-8. Only then begin production MasjidBoard module implementation.
+7. Determine the frontend's carousel/slide scheduling rules and identify which settings are supplied by `mblapi` versus calculated locally.
+8. Build a draft normalised MasjidPi data model from the verified field mapping.
+9. Only then begin production MasjidBoard module implementation.
 
 ## Implementation Guardrail
 
@@ -233,4 +252,6 @@ MasjidBoard Live provider
 - Confirmed the endpoint returns JSON containing the same 29-row `theInfo` structure embedded in the page.
 - Confirmed the page exposes `boardId` and `mblVersion` values.
 - Confirmed `imageproxy?id=<image-id>` is used for referenced media.
-- Established that the next priority is mapping the positional schema through the frontend JavaScript.
+- Confirmed the live board is a dynamic, multi-content presentation rather than a static HTML page.
+- Reviewed an existing Home Assistant integration as supporting evidence; it polls every 600 seconds and exposes only the five daily prayer Adhan/Jamaah pairs.
+- Established that the next priority is mapping the positional schema through the frontend JavaScript and testing the schema against multiple boards.

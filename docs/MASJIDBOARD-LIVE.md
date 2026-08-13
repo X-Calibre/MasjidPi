@@ -81,23 +81,37 @@ Inspection of multiple current Premium boards shows that the content is substant
 - Special notices such as Ramadan/Eid material and New Moon information.
 - Images/posters.
 
-Examples: the Gateway Musallah board exposes the full perpetual-time section and a Nikah announcement; the Musjidus Salaam board exposes announcements, multiple Nikah announcements, a weekly programme and contribution information; and the Husami Masjid board exposes Jumu'ah, several change/notice headings, weekly programmes, contribution information, and a Nikah announcement. citeturn0search1turn0search2turn0search5
+Current live boards demonstrate that content availability differs between masjids. This means the MasjidPi data model must support optional sections rather than assuming every board has identical content. citeturn0search4turn0search5turn0search6
 
 ### Masjid identifier
 
-The Premium board URL uses a masjid-specific `mid` query parameter, for example `?mid=umhlanga-gateway` or `?mid=cravenby-estate-husami`. This confirms that MasjidPi will need to retain a MasjidBoard Live masjid identifier as part of its configuration. citeturn0search1turn0search5
+The Premium board URL uses a masjid-specific `mid` query parameter, for example `?mid=cravenby-estate-husami`, `?mid=ridgeway-quba`, and `?mid=zeerust-jaamiah`. MasjidPi will therefore need to retain the MasjidBoard Live masjid identifier as part of its configuration. citeturn0search4turn0search5turn0search6
+
+### MasjidBoard Live is intended to be remotely updated
+
+MasjidBoard Live's own site describes remote editing/updating from a mobile device or computer and specifically mentions short-notice announcements and unexpected Salah-time changes. It also describes suburb-based synchronisation of community and funeral notices. This means our integration needs to treat board content as mutable rather than a static daily schedule. citeturn0search0turn0search11
+
+### Full-HD is the native Premium target
+
+MasjidBoard Live's published Premium hardware requirements specify a Full HD 1920×1080 monitor. This aligns directly with our planned HDMI target and gives us a sensible primary display resolution for MasjidPi. citeturn0search0
+
+### Slide-based display model
+
+MasjidBoard Live's FAQ describes the Premium display as a carousel and says slides can be hidden, except for the Ayah slide. It also documents dedicated behaviour for some slides, such as Du'a after Adhan displaying for five minutes and a cellphone reminder displaying for five minutes before Iqamah. Scheduled notices and custom slides are also supported. This is important for MasjidPi: the display should be modelled as a scheduler/carousel rather than one fixed dashboard. citeturn0search10
+
+### Existing third-party programmatic integration uses HTML scraping
+
+A public Home Assistant integration exists and provides useful evidence about the current board's HTML structure. It fetches the configured board URL and parses the returned HTML with BeautifulSoup rather than calling a documented JSON API. It extracts the masjid name from an element with ID `masjidName2`, and extracts the five daily prayers using IDs following the pattern `<prayer>Athan` and `<prayer>Jamaah`, where the prayer IDs are `fajr`, `zuhr`, `asr`, `maghrib`, and `esha`. fileciteturn23file0L2-L2
+
+The same integration uses a configurable polling interval with a default of 600 seconds (10 minutes). This is useful evidence for a conservative initial refresh interval, but it is not evidence that 10 minutes is the correct interval for every MasjidBoard content type. fileciteturn25file0L2-L2
+
+The integration is explicitly limited to Adhan/Jamaah sensors for the five daily prayers, so it is not sufficient for MasjidPi's full-board requirements. fileciteturn22file0L2-L2
 
 ### No documented public API established yet
 
-The investigation has **not yet established a documented/public JSON API** that can be relied upon for the complete board. Search results for `api.masjidboardlive.com` did not provide a verifiable public API specification, and the current evidence is insufficient to claim that such an API exists.
+The investigation has **not yet established a documented/public JSON API** that can be relied upon for the complete board. Search results for `api.masjidboardlive.com` did not provide a verifiable public API specification, and the existing third-party integration we inspected does not use one.
 
-This is important: we should not design the MasjidPi provider around an assumed API. The next technical investigation should inspect the live application's actual network requests and/or its JavaScript assets to determine whether a structured backend endpoint exists.
-
-### Existing third-party integration
-
-A third-party Home Assistant integration for MasjidBoard Live exists and is useful as corroborating evidence. It retrieves prayer information from the online board, but its scope is limited to the five daily prayers and therefore does **not** satisfy MasjidPi's full-board requirement.
-
-This means it is useful as a reference for programmatic access, but not as the implementation basis for MasjidPi's complete MasjidBoard integration.
+This is important: we should not design the MasjidPi provider around an assumed API. We need direct inspection of the live application's network requests and JavaScript assets to determine whether a structured backend endpoint exists.
 
 ### Dynamic content
 
@@ -115,6 +129,8 @@ The live board presents loading placeholders and then populated content, which i
 | Data-provider abstraction | Proposed | Allows another source later without redesigning the display layer. |
 | Native MasjidPi display rather than a browser wrapper | Proposed | Better control of offline behaviour, resources, layout, and integration. |
 | Do not assume an undocumented API exists | Confirmed | No verifiable public API specification has been established. |
+| Primary display target is 1920×1080 | Confirmed | Matches MasjidBoard Live's published Premium requirement. |
+| Display architecture should support scheduled slides | Confirmed | MasjidBoard Live itself uses a configurable carousel/slide model. |
 
 ## Open Questions
 
@@ -128,14 +144,16 @@ The live board presents loading placeholders and then populated content, which i
 - How are prayer-time changes represented?
 - How is time zone information represented?
 - How are multiple Jumu'ah services represented?
-- What refresh intervals are expected?
+- What refresh intervals are expected for each content type?
 - What data should be cached permanently versus temporarily?
 - Can the current board be reproduced from structured data without rendering the website?
 - What terms/usage restrictions apply to programmatic consumption of MasjidBoard Live data?
 
 ## Next Investigation Step
 
-Inspect the live MasjidBoard application's JavaScript/network behaviour directly. Use several representative boards and identify the actual requests made for:
+The remaining high-value investigation requires inspecting the live application's actual browser network traffic and JavaScript assets. Web search can confirm rendered content and external documentation, but it cannot reliably expose the browser's complete runtime request sequence.
+
+The next capture should use several representative boards and identify the requests made for:
 
 1. Masjid metadata.
 2. Daily prayer times.
@@ -170,7 +188,10 @@ Data provider
 - Confirmed external HDMI display is the target.
 - Confirmed MasjidBoard Live is the primary data source.
 - Confirmed MasjidBoard must remain independent from audio playback.
-- Established that API/data investigation should precede production implementation.
 - Investigated multiple current Premium boards and confirmed substantial variation and a much broader content set than the daily prayer times.
 - Confirmed the masjid-specific `mid` identifier used by the Premium board URLs.
-- Did not find sufficient evidence to claim a documented public JSON API; direct network/JavaScript inspection is the next step.
+- Confirmed MasjidBoard Live's published Premium target is Full HD 1920×1080.
+- Confirmed the Premium board is carousel/slide based and supports slide-specific timing and scheduling.
+- Inspected an existing public Home Assistant integration and confirmed it currently obtains prayer data by parsing HTML rather than a documented JSON API.
+- Confirmed that integration uses a default 10-minute polling interval and extracts the masjid name plus five daily Adhan/Jamaah pairs.
+- Did not find sufficient evidence to claim a documented public JSON API; direct browser network/JavaScript inspection remains the next step.

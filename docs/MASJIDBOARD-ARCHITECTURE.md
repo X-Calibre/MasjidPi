@@ -162,13 +162,13 @@ The upstream MasjidBoard Live positional API schema must remain isolated inside 
 
 The internal model should be **semantic and collection-oriented**, rather than reproducing MasjidBoard Live's positional spreadsheet/API rows. The upstream provider is responsible for translating the opaque upstream structure into this model.
 
-The initial model should cover the following areas.
+The model deliberately distinguishes **core board data** from **optional enrichment**. Masjid identity and the five daily prayer times are required for a usable board dataset. All other content is optional and may legitimately be absent for a particular masjid or day.
 
 ### Board / Masjid
 
 ```text
 Board
-├── Masjid identity
+├── Masjid identity              REQUIRED
 ├── English name
 ├── Arabic name
 ├── Location
@@ -180,20 +180,24 @@ Board
 
 The model should retain the source board identifier and public masjid identifier where useful for diagnostics and refresh operations.
 
-### Daily prayer times
+### Daily prayer times — core board data
+
+Prayer times are the **primary purpose of MasjidBoard** and are therefore required core data rather than optional content.
 
 ```text
-PrayerTimes[]
-├── Fajr
-├── Zuhr
-├── Asr
-├── Maghrib
-└── Esha
+PrayerTimes                    REQUIRED
+├── Fajr                         REQUIRED
+├── Zuhr                         REQUIRED
+├── Asr                          REQUIRED
+├── Maghrib                      REQUIRED
+└── Esha                         REQUIRED
 ```
 
 Each prayer should be represented semantically rather than as separate upstream fields, with Adhan and Jamaah values where supplied.
 
-### Perpetual / astronomical times
+A board dataset should be considered usable only when it has a valid masjid identity and a usable schedule for the five daily prayers. Temporary upstream failures should not invalidate an existing cached schedule; the cache may continue to provide the last known valid prayer data while marking it as stale.
+
+### Perpetual / astronomical times — optional
 
 ```text
 AstronomicalTimes
@@ -210,9 +214,9 @@ AstronomicalTimes
 └── Esha start
 ```
 
-Where MasjidBoard Live supplies additional related times, the model should be extensible without changing the basic prayer model.
+Where MasjidBoard Live supplies additional related times, the model should be extensible without changing the basic prayer model. These times enrich the board but are not required for the board to be considered usable.
 
-### Jumu'ah
+### Jumu'ah — optional
 
 ```text
 JumuahServices[]
@@ -226,7 +230,7 @@ JumuahServices[]
 
 Multiple services must be supported. The model must not assume a single Jumu'ah.
 
-### Announcements and programmes
+### Announcements and programmes — optional
 
 ```text
 Announcements[]
@@ -245,7 +249,7 @@ This covers, as applicable:
 - Community notices
 - Other activities
 
-### Notices
+### Notices — optional
 
 The initial model should support distinct semantic notice types where this improves rendering or scheduling, including:
 
@@ -257,7 +261,7 @@ The initial model should support distinct semantic notice types where this impro
 
 The provider should not force every upstream notice into a rigid subtype if the source does not provide enough information to distinguish it reliably.
 
-### Media
+### Media — optional
 
 ```text
 Media[]
@@ -271,7 +275,7 @@ Media[]
 
 Posters and images are first-class board content. Media should be cached locally so that display operation is not dependent on repeatedly downloading remote assets.
 
-### Banking / contribution information
+### Banking / contribution information — optional
 
 ```text
 Banking
@@ -280,7 +284,7 @@ ContributionInformation
 
 These should remain semantic data rather than being tied to a particular upstream field position.
 
-### New Moon / lunar information
+### New Moon / lunar information — optional
 
 ```text
 NewMoon
@@ -288,7 +292,7 @@ NewMoon
 
 The model should allow the upstream source's New Moon information to be represented without assuming that every board has populated it.
 
-### Deferred religious content
+### Deferred religious content — optional and deferred
 
 Ayah, Hadith and Sunnah are **not required for the initial implementation**.
 
@@ -306,12 +310,13 @@ No further upstream investigation of these content types is required before begi
 
 ## Data Model Principles
 
-1. **Semantic over positional** — the application must not expose MasjidBoard Live's row/column structure outside the provider.
-2. **Optional by default** — different masjids enable different content, so absence of content must be normal rather than an error.
-3. **Collections for repeated content** — announcements, programmes, Jumu'ah services and media must support multiple entries.
-4. **Source metadata retained where useful** — source IDs and identifiers should be retained where they help refresh, cache, diagnose or reproduce content.
-5. **Display metadata is separate from content** — content should describe what exists; scheduling/rendering determines how and when it appears.
-6. **Extensible** — future MasjidBoard Live fields and deferred content must be addable without redesigning the entire model.
+1. **Core versus enrichment** — masjid identity and the five daily prayer times are required core data; all other content is optional enrichment.
+2. **Semantic over positional** — the application must not expose MasjidBoard Live's row/column structure outside the provider.
+3. **Graceful degradation** — optional content may be absent without making the board invalid; cached core prayer data may be used when the upstream source is temporarily unavailable.
+4. **Collections for repeated content** — announcements, programmes, Jumu'ah services and media must support multiple entries.
+5. **Source metadata retained where useful** — source IDs and identifiers should be retained where they help refresh, cache, diagnose or reproduce content.
+6. **Display metadata is separate from content** — content should describe what exists; scheduling/rendering determines how and when it appears.
+7. **Extensible** — future MasjidBoard Live fields and deferred content must be addable without redesigning the entire model.
 
 ## Data Provider Boundary
 
@@ -343,6 +348,8 @@ The provider should also expose enough information for the cache layer to distin
 - failed media downloads
 - invalid/unusable upstream responses
 
+The provider must treat missing optional enrichment differently from missing required prayer data. Missing optional content is normal; missing a usable five-prayer schedule is a data/recovery condition.
+
 ## Cache Boundary
 
 The cache should persist the **normalised model and required media**, rather than only the raw upstream response.
@@ -350,6 +357,8 @@ The cache should persist the **normalised model and required media**, rather tha
 This allows the display system to operate without MasjidBoard Live being reachable and keeps the display layer independent from upstream schema changes.
 
 The raw upstream response may optionally be retained for diagnostics, but it should not be the application's primary runtime data representation.
+
+The last known valid core prayer schedule should remain available in the cache when possible, even when a subsequent refresh fails. Cached data should carry enough metadata to determine its freshness/staleness.
 
 ## Scheduler / Board State
 
@@ -374,6 +383,8 @@ Current slide/state
 ```
 
 The scheduler should not need to know how the upstream API is structured.
+
+Prayer times should form the primary scheduler context. Optional content is scheduled around the core prayer-time presentation rather than being a prerequisite for board operation.
 
 ## Renderer
 
@@ -411,6 +422,7 @@ rather than coupling the display directly to MasjidBoard Live.
 - The display is not dependent on the MasjidBoard Live website implementation.
 - The MasjidBoard application can evolve independently while remaining part of the MasjidPi project.
 - The internal data model remains independent of MasjidBoard Live's positional schema.
+- Prayer times remain available as the core purpose of the board even when optional enrichment is absent.
 - Deferred content such as Ayah/Hadith/Sunnah can be added later without redesigning the provider/display architecture.
 
 ### Trade-offs

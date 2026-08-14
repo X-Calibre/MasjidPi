@@ -17,15 +17,13 @@ import (
 const (
 	rowJumuah = 1
 	rowSalah  = 3
-	rowMasjid = 6
 	rowClock  = 2
+	rowMasjid = 6
 )
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
-// The provider deliberately fails when the required identity, timezone, or
-// five-prayer data cannot be established. Optional rows are parsed only when
-// their values are required by the current model and can be identified
-// without guessing at undocumented semantics.
+// Optional board content is deliberately left out until its source mappings
+// are implemented and tested against captured responses.
 func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, error) {
 	if boardID == "" {
 		return model.Board{}, fmt.Errorf("masjidboardlive: board ID is required")
@@ -47,7 +45,7 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		return model.Board{}, fmt.Errorf("masjidboardlive: clock row has no timezone")
 	}
 
-	loc, err := parseTimezone(clock.Timezone, clock.OffsetMilliseconds)
+	loc, err := parseTimezone(clock.Timezone, masjid.OffsetMS)
 	if err != nil {
 		return model.Board{}, err
 	}
@@ -63,11 +61,11 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 			SourceBoardID: boardID,
 			MasjidID:      clock.MasjidID,
 			EnglishName:   masjid.Name1,
-			ArabicName:    masjid.Name2,
+			ArabicName:    "",
+			Location:      clock.Location,
 		},
 		DateContext: model.DateContext{
 			GregorianDate: dateOnly(localNow, loc),
-			IslamicDate:   clock.IslamicDate,
 			Timezone:      clock.Timezone,
 		},
 		PrayerTimes: prayers,
@@ -104,10 +102,9 @@ func parseMasjidRow(raw json.RawMessage) (masjidRow, error) {
 }
 
 type clockRow struct {
-	IslamicDate       string
-	MasjidID          string
-	Timezone          string
-	OffsetMilliseconds int64
+	MasjidID string
+	Location string
+	Timezone string
 }
 
 func parseClockRow(raw json.RawMessage) (clockRow, error) {
@@ -119,19 +116,10 @@ func parseClockRow(raw json.RawMessage) (clockRow, error) {
 		return clockRow{}, fmt.Errorf("masjidboardlive: row 2 has %d fields, need at least 16", len(values))
 	}
 
-	offset := int64(0)
-	if value := stringValue(values, 15); value != "" {
-		offset, err = parseGMTOffset(value)
-		if err != nil {
-			return clockRow{}, err
-		}
-	}
-
 	return clockRow{
-		IslamicDate:       stringValue(values, 10),
-		MasjidID:          stringValue(values, 12),
-		Timezone:          stringValue(values, 15),
-		OffsetMilliseconds: offset,
+		MasjidID: stringValue(values, 12),
+		Location: stringValue(values, 14),
+		Timezone: stringValue(values, 15),
 	}, nil
 }
 
@@ -191,9 +179,7 @@ func parseSalahRow(raw json.RawMessage, date time.Time, loc *time.Location) (mod
 		fields[i] = parsed
 	}
 
-	// Row 3 columns 0..9 are verified by functions_uo_latest.js:
-	// Fajr Adhan/Jamaah, Zuhr Adhan/Jamaah, Asr Adhan/Jamaah,
-	// Maghrib Adhan/Jamaah, Esha Adhan/Jamaah.
+	// Row 3 columns 0..9 are the verified five daily prayer pairs.
 	return model.PrayerTimes{
 		Fajr:    model.PrayerTime{Adhan: fields[0], Jamaah: fields[1]},
 		Zuhr:    model.PrayerTime{Adhan: fields[2], Jamaah: fields[3]},
@@ -250,7 +236,4 @@ func dateOnly(t time.Time, loc *time.Location) time.Time {
 	return time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, loc)
 }
 
-// Keep the Jumuah row index named here while its full optional mapping is
-// deferred. This documents the verified 29-row source layout without making
-// unverified assumptions about optional display semantics.
 var _ = rowJumuah

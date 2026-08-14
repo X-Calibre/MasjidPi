@@ -15,15 +15,16 @@ import (
 // inside this package so the rest of MasjidBoard never depends on the source
 // layout.
 const (
-	rowJumuah = 1
-	rowSalah  = 3
-	rowClock  = 2
-	rowMasjid = 6
+	rowJumuah       = 1
+	rowClock        = 2
+	rowSalah        = 3
+	rowAstronomical = 5
+	rowMasjid       = 6
 )
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
-// Optional board content is deliberately left out until its source mappings
-// are implemented and tested against captured responses.
+// Optional board content is only added when its source semantics are verified
+// and represented by the domain model.
 func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, error) {
 	if boardID == "" {
 		return model.Board{}, fmt.Errorf("masjidboardlive: board ID is required")
@@ -56,12 +57,17 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		return model.Board{}, err
 	}
 
-	return model.Board{
+	astronomical, err := parseAstronomicalRow(rows[rowAstronomical], localNow, loc)
+	if err != nil {
+		return model.Board{}, err
+	}
+
+	board := model.Board{
 		Identity: model.Identity{
 			SourceBoardID: boardID,
 			MasjidID:      clock.MasjidID,
 			EnglishName:   masjid.Name1,
-			ArabicName:    "",
+			ArabicName:    masjid.Name2,
 			Location:      clock.Location,
 		},
 		DateContext: model.DateContext{
@@ -69,7 +75,13 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 			Timezone:      clock.Timezone,
 		},
 		PrayerTimes: prayers,
-	}, nil
+	}
+
+	if astronomical != nil {
+		board.AstronomicalTimes = astronomical
+	}
+
+	return board, nil
 }
 
 type masjidRow struct {
@@ -179,7 +191,6 @@ func parseSalahRow(raw json.RawMessage, date time.Time, loc *time.Location) (mod
 		fields[i] = parsed
 	}
 
-	// Row 3 columns 0..9 are the verified five daily prayer pairs.
 	return model.PrayerTimes{
 		Fajr:    model.PrayerTime{Adhan: fields[0], Jamaah: fields[1]},
 		Zuhr:    model.PrayerTime{Adhan: fields[2], Jamaah: fields[3]},
@@ -187,6 +198,47 @@ func parseSalahRow(raw json.RawMessage, date time.Time, loc *time.Location) (mod
 		Maghrib: model.PrayerTime{Adhan: fields[6], Jamaah: fields[7]},
 		Esha:    model.PrayerTime{Adhan: fields[8], Jamaah: fields[9]},
 	}, nil
+}
+
+func parseAstronomicalRow(raw json.RawMessage, date time.Time, loc *time.Location) (*model.AstronomicalTimes, error) {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: parse row 5: %w", err)
+	}
+	if len(values) < 9 {
+		return nil, fmt.Errorf("masjidboardlive: row 5 has %d fields, need at least 9", len(values))
+	}
+
+	parsed := make([]*time.Time, 9)
+	for i := range parsed {
+		value := stringValue(values, i)
+		if value == "" || value == "-" {
+			continue
+		}
+		valueTime, err := parseLocalTime(value, date, loc)
+		if err != nil {
+			return nil, fmt.Errorf("masjidboardlive: row 5 column %d value %q: %w", i, value, err)
+		}
+		parsed[i] = valueTime
+	}
+
+	for _, value := range parsed {
+		if value != nil {
+			return &model.AstronomicalTimes{
+				Suhur:     parsed[0],
+				FajrStart: parsed[1],
+				Sunrise:   parsed[2],
+				Ishraaq:   parsed[3],
+				Duha:      parsed[4],
+				AsrShafii: parsed[5],
+				AsrHanafi: parsed[6],
+				Sunset:    parsed[7],
+				EshaStart: parsed[8],
+			}, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func rowValues(raw json.RawMessage) ([]json.RawMessage, error) {

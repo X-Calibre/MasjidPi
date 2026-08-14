@@ -97,6 +97,20 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	assertTime("AsrHanafi", board.AstronomicalTimes.AsrHanafi, 16, 13)
 	assertTime("Sunset", board.AstronomicalTimes.Sunset, 17, 49)
 	assertTime("EshaStart", board.AstronomicalTimes.EshaStart, 19, 7)
+
+	if len(board.JumuahServices) != 1 {
+		t.Fatalf("JumuahServices = %d, want 1", len(board.JumuahServices))
+	}
+	jumuah := board.JumuahServices[0]
+	if jumuah.Title != "Jumu'ah" {
+		t.Fatalf("Jumuah title = %q", jumuah.Title)
+	}
+	assertTime("Jumuah Lecture", jumuah.Lecture, 12, 15)
+	assertTime("Jumuah Adhan", jumuah.Adhan, 12, 45)
+	assertTime("Jumuah Khutbah", jumuah.Khutbah, 12, 55)
+	if jumuah.Salah != nil {
+		t.Fatalf("Jumuah Salah = %v, want nil because no Salah-labelled value is present", jumuah.Salah)
+	}
 }
 
 func TestParseRejectsIncomplete29RowResponse(t *testing.T) {
@@ -128,5 +142,24 @@ func TestParseAllowsMissingPrayerValue(t *testing.T) {
 	}
 	if board.PrayerTimes.Maghrib.Adhan == nil || board.PrayerTimes.Maghrib.Jamaah != nil {
 		t.Fatal("expected Maghrib Adhan only")
+	}
+}
+
+func TestParseJumuahAllowsOptionalFields(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowJumuah] = json.RawMessage(`["Lecture","12:15","Adhān","","Khutbah","12:55"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.JumuahServices) != 1 {
+		t.Fatalf("JumuahServices = %d, want 1", len(board.JumuahServices))
+	}
+	if board.JumuahServices[0].Lecture == nil || board.JumuahServices[0].Khutbah == nil {
+		t.Fatal("expected Lecture and Khutbah")
+	}
+	if board.JumuahServices[0].Adhan != nil {
+		t.Fatal("expected missing Adhan to remain nil")
 	}
 }

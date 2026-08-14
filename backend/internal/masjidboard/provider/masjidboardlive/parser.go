@@ -62,6 +62,11 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		return model.Board{}, err
 	}
 
+	jumuah, err := parseJumuahRow(rows[rowJumuah], localNow, loc)
+	if err != nil {
+		return model.Board{}, err
+	}
+
 	board := model.Board{
 		Identity: model.Identity{
 			SourceBoardID: boardID,
@@ -79,6 +84,9 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 
 	if astronomical != nil {
 		board.AstronomicalTimes = astronomical
+	}
+	if len(jumuah) > 0 {
+		board.JumuahServices = jumuah
 	}
 
 	return board, nil
@@ -200,6 +208,59 @@ func parseSalahRow(raw json.RawMessage, date time.Time, loc *time.Location) (mod
 	}, nil
 }
 
+// parseJumuahRow handles the portion of row 1 whose semantics are explicitly
+// labelled by the upstream response. In the captured response the first
+// service is represented as alternating labels and times:
+//
+//   Lecture -> 12:15
+//   Adhan   -> 12:45
+//   Khutbah -> 12:55
+//
+// Later row-1 values are intentionally not interpreted here. The upstream
+// response contains additional values, but their semantics have not yet been
+// verified well enough to map them into the domain model without guessing.
+func parseJumuahRow(raw json.RawMessage, date time.Time, loc *time.Location) ([]model.JumuahService, error) {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: parse row 1: %w", err)
+	}
+	if len(values) < 6 {
+		return nil, fmt.Errorf("masjidboardlive: row 1 has %d fields, need at least 6", len(values))
+	}
+
+	lecture, err := parseOptionalLocalTime(stringValue(values, 1), date, loc)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: row 1 lecture time: %w", err)
+	}
+	adhan, err := parseOptionalLocalTime(stringValue(values, 3), date, loc)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: row 1 adhan time: %w", err)
+	}
+	khutbah, err := parseOptionalLocalTime(stringValue(values, 5), date, loc)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: row 1 khutbah time: %w", err)
+	}
+
+	if lecture == nil && adhan == nil && khutbah == nil {
+		return nil, nil
+	}
+
+	return []model.JumuahService{{
+		Title:   "Jumu'ah",
+		Adhan:   adhan,
+		Lecture: lecture,
+		Khutbah: khutbah,
+	}}, nil
+}
+
+func parseOptionalLocalTime(value string, date time.Time, loc *time.Location) (*time.Time, error) {
+	value = strings.TrimSpace(value)
+	if value == "" || value == "-" {
+		return nil, nil
+	}
+	return parseLocalTime(value, date, loc)
+}
+
 func parseAstronomicalRow(raw json.RawMessage, date time.Time, loc *time.Location) (*model.AstronomicalTimes, error) {
 	values, err := rowValues(raw)
 	if err != nil {
@@ -287,5 +348,3 @@ func dateOnly(t time.Time, loc *time.Location) time.Time {
 	local := t.In(loc)
 	return time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, loc)
 }
-
-var _ = rowJumuah

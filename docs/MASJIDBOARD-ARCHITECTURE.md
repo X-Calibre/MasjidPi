@@ -180,6 +180,8 @@ Board
 
 The model should retain the source board identifier and public masjid identifier where useful for diagnostics and refresh operations.
 
+**Current upstream finding:** the captured MasjidBoard Live response provides the Gregorian date directly in row 2 and provides an Islamic calendar year (`١٤٤٨`) in row 6, but it does **not yet provide a verified complete Islamic date** that can safely populate `DateContext.IslamicDate`. The row-2 values labelled around “Islamic Time” are display/configuration settings rather than a complete Islamic date. We therefore leave `IslamicDate` empty until its upstream source and semantics are verified. We must not derive or guess the Islamic date from the Gregorian date merely to populate this field.
+
 ### Daily prayer times — core board data
 
 Prayer times are the **primary purpose of MasjidBoard** and are therefore required core data rather than optional content.
@@ -317,6 +319,7 @@ No further upstream investigation of these content types is required before begi
 5. **Source metadata retained where useful** — source IDs and identifiers should be retained where they help refresh, cache, diagnose or reproduce content.
 6. **Display metadata is separate from content** — content should describe what exists; scheduling/rendering determines how and when it appears.
 7. **Extensible** — future MasjidBoard Live fields and deferred content must be addable without redesigning the entire model.
+8. **Do not infer unsupported upstream semantics** — if a value is not demonstrably a complete semantic field, leave the corresponding optional model field absent rather than deriving or guessing it.
 
 ## Data Provider Boundary
 

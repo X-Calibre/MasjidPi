@@ -45,6 +45,9 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	if board.Identity.EnglishName != "Azaadville" {
 		t.Fatalf("EnglishName = %q", board.Identity.EnglishName)
 	}
+	if board.Identity.ArabicName != "Madrasah Arabia Islamia" {
+		t.Fatalf("ArabicName = %q", board.Identity.ArabicName)
+	}
 	if board.Identity.Location != "Johannesburg" {
 		t.Fatalf("Location = %q", board.Identity.Location)
 	}
@@ -81,6 +84,19 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	}
 	assertTime("Esha Adhan", board.PrayerTimes.Esha.Adhan, 19, 15)
 	assertTime("Esha Jamaah", board.PrayerTimes.Esha.Jamaah, 19, 30)
+
+	if board.AstronomicalTimes == nil {
+		t.Fatal("AstronomicalTimes is nil")
+	}
+	assertTime("Suhur", board.AstronomicalTimes.Suhur, 5, 19)
+	assertTime("FajrStart", board.AstronomicalTimes.FajrStart, 5, 19)
+	assertTime("Sunrise", board.AstronomicalTimes.Sunrise, 6, 37)
+	assertTime("Ishraaq", board.AstronomicalTimes.Ishraaq, 6, 52)
+	assertTime("Duha", board.AstronomicalTimes.Duha, 9, 25)
+	assertTime("AsrShafii", board.AstronomicalTimes.AsrShafii, 15, 25)
+	assertTime("AsrHanafi", board.AstronomicalTimes.AsrHanafi, 16, 13)
+	assertTime("Sunset", board.AstronomicalTimes.Sunset, 17, 49)
+	assertTime("EshaStart", board.AstronomicalTimes.EshaStart, 19, 7)
 }
 
 func TestParseRejectsIncomplete29RowResponse(t *testing.T) {

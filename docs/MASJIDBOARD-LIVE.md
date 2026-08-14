@@ -36,6 +36,142 @@ This list is provisional and must be expanded if the underlying data reveals add
 
 ## Verified Findings
 
+### 2026-08-14 — Public `mid` and API `boardId` relationship resolved
+
+The relationship between the public MasjidBoard URL identifier and the identifier used by `mblapi` has now been established from the generated board HTML.
+
+A Premium board URL has the form:
+
+```text
+https://premium.masjidboardlive.com/v2/?mid=<public-mid>
+```
+
+For example:
+
+```text
+https://premium.masjidboardlive.com/v2/?mid=fawkner-masjid
+```
+
+The generated HTML contains a server-supplied JavaScript variable:
+
+```javascript
+let boardId = "170sRYVcxfOC-l3IGK0FeqWX8D8rM35afyl7nyL2SWHI";
+let mblVersion = "15";
+```
+
+The same HTML contains the complete board data as:
+
+```javascript
+let theInfo = [...];
+```
+
+and then invokes:
+
+```javascript
+handleResults(theInfo);
+startMBL();
+```
+
+The captured page therefore establishes the following flow:
+
+```text
+public mid
+    |
+    | GET /v2/?mid=<mid>
+    v
+server-generated board HTML
+    |
+    +--> boardId
+    |
+    +--> theInfo[29 rows]
+    |
+    v
+functions_uo_latest.js
+    |
+    +--> handleResults(theInfo)
+    |
+    +--> getAPI(boardId)
+              |
+              v
+        /mblapi?id=<boardId>
+```
+
+The important architectural conclusion is that **`boardId` is an opaque, server-supplied identifier**. It is not derived by the frontend JavaScript from the public `mid`.
+
+Therefore MasjidPi must **not attempt to calculate or transform a public `mid` into an API ID**.
+
+The public `mid` should remain the stable board identifier used by our MasjidBoard catalogue/provider configuration. The opaque `boardId` should be treated as a MasjidBoard Live implementation detail discovered from the generated board page.
+
+### Confirmed board mappings
+
+The following mappings were verified directly from the corresponding Premium board pages/network requests:
+
+| Public `mid` | MasjidBoard Live `boardId` |
+|---|---|
+| `fawkner-masjid` | `170sRYVcxfOC-l3IGK0FeqWX8D8rM35afyl7nyL2SWHI` |
+| `zakariyya-park-duzak` | `1GcUzmzuO3XM-xXblab-Mq0lE2ddp_qGZ0w-eeMYwlK8` |
+| `erasmia-aaisha` | `1asEQ0Ju83TPqBFHw7NbBAihAxMt5JQ2bJkbaWnwKf7k` |
+| `brits-taqwa` | `1ZK8NtqROdU3Ww4THcHkHyDJN2gu98HC1ovBbGO7iooY` |
+| `brits-jamia` | `1lTEEzl7sefO4W72c9iKxcUkB1ZReHhtZt9DFmCFfT_0` |
+| `azaadville-darul-uloom` | `1Zpg5LKfd_ZoEQsA0rsyWNBrUgY6QVaHnGdPfuKHF24A` |
+
+Earlier captured JSON files were temporarily associated with the wrong board names because the opaque IDs had been assigned to filenames without verifying the corresponding generated page. Those filename associations must not be treated as authoritative. The identity contained in the generated board data and the directly observed page/request relationship are authoritative.
+
+### 2026-08-14 — `theInfo` is available directly in generated HTML
+
+The generated Premium page contains the same 29-row board data that is subsequently consumed by `handleResults()`.
+
+This is significant for the provider design because it gives us a reliable acquisition path based on the public `mid`:
+
+```text
+GET /v2/?mid=<public-mid>
+        |
+        +--> boardId
+        |
+        +--> theInfo
+```
+
+The provider does not need to know the opaque API ID in advance. It can obtain it from the page if it subsequently needs to use `mblapi` for refreshes.
+
+For initial board discovery and association, the generated HTML is preferable to maintaining a separate hard-coded `mid -> boardId` catalogue.
+
+### Provider acquisition decision
+
+**Decision:** The MasjidBoard Live provider should use the public `mid` as its external board identifier and treat the generated board page as the authoritative mechanism for resolving the current `boardId` and obtaining the initial `theInfo` payload.
+
+The provider should conceptually operate as:
+
+```text
+MasjidBoard public mid
+        |
+        v
+GET /v2/?mid=<mid>
+        |
+        +--> extract boardId
+        |
+        +--> extract theInfo
+        |
+        v
+parse theInfo
+        |
+        v
+Normalised MasjidBoard data
+```
+
+If the provider subsequently uses `/mblapi`, it should use the `boardId` obtained from the generated page rather than a hard-coded value.
+
+### Source-code caveat
+
+The captured `functions_uo_latest.js` confirms that `getAPI(url)` calls:
+
+```text
+https://api.masjidboardlive.com/mblapi?id=<url>
+```
+
+and the application passes `boardId` to `getAPI()`.
+
+The source therefore confirms the API relationship, but the provider should not depend on frontend implementation details beyond the externally observed page/API contract unless necessary.
+
 ### 2026-08-13 — HAR/network capture
 
 A Firefox HAR capture of a live Premium board was analysed. The captured board was:
@@ -146,7 +282,7 @@ This confirms that Jumu'ah is not limited to one service or one simple time valu
 #### Row 4 — display/theme/time configuration
 
 | Column | Variable | Meaning |
-|---:|---|---|
+---:|---|---|
 | 0 | `istiwaCaution` | Istiwa caution value |
 | 1 | `zawaalEnd` | Zawaal end |
 | 2 | `theme` | Board theme |
@@ -311,8 +447,6 @@ oldTotalPosterDuration
 bigPosterSecondScreen
 ```
 
-This confirms that poster presentation is configurable rather than simply a single image.
-
 #### Row 20 — refresh and banking
 
 | Column | Variable | Meaning |
@@ -356,179 +490,66 @@ asrShafiI
 asrHanafiI
 ```
 
-It also contains ticker timing and translated/secondary values:
+It also contains ticker timing and translated/secondary values. The exact complete mapping of the remaining columns is still subject to verification.
 
-```text
-tickerSpeed
-tsehriEnds
-tfajrStarts
-tsunrise
-tishraaq
-tduha
-tisiwaCaution
-tistiwa
-tzuhrStarts
-tasrShafi
-tasrHanafi
-tsunset
-teshaStarts
-```
+#### Row 23 — alternate-language Salah values
 
-#### Row 23 — alternate-language daily Salah and masjid names
+This row contains alternate-language versions of the daily Salah/related values, including Maghrib Adhan and Jamaah and other time fields. The exact complete mapping should be verified against the full `handleResults()` source before it is exposed in the normalised model.
 
-| Column | Variable | Meaning |
-|---:|---|---|
-| 0 | `maghribAthanI` | Alternate-language Maghrib Adhan |
-| 1 | `maghribJamaahI` | Alternate-language Maghrib Jamaah |
-| 2 | `eshaAthanI` | Alternate-language Esha Adhan |
-| 3 | `eshaJamaahI` | Alternate-language Esha Jamaah |
-| 4 | `fajrAthanI` | Alternate-language Fajr Adhan |
-| 5 | `fajrJamaahI` | Alternate-language Fajr Jamaah |
-| 6 | `dhuhrAthanI` | Alternate-language Zuhr/Dhuhr Adhan |
-| 7 | `dhuhrJamaahI` | Alternate-language Zuhr/Dhuhr Jamaah |
-| 8 | `asrAthanI` | Alternate-language Asr Adhan |
-| 9 | `asrJamaahI` | Alternate-language Asr Jamaah |
-| 10 | `masjidName1I` | Alternate-language masjid name 1 |
-| 11 | `masjidName2I` | Alternate-language masjid name 2 |
-| 12 | `masjidNameLanguage` | Masjid-name language setting |
-| 13 | `masjidNameOnTop` | Masjid-name-on-top setting |
+#### Row 24 onward — remaining configuration/data
 
-#### Row 24 — not read by `handleResults()`
+Rows 24–28 contain additional board configuration, translation, ticker, poster, and display settings. These require no assumption-driven modelling at this stage. Only fields whose semantics are verified from the source and/or multiple live boards should be promoted into the normalised MasjidBoard model.
 
-The supplied `functions_uo_latest.js` contains no `spreadsheetArray[24]` access in `handleResults()`. The row exists in the 29-row API response but its semantics remain unresolved.
+## Architectural Decisions
 
-#### Row 25 — configurable secondary/continuous large posters
+### MasjidBoard is a separate application capability
 
-Ten additional poster image identifiers, visibility flags, and durations are mapped:
+MasjidBoard must be capable of operating as a separate application from MasjidPi audio playback. An end user should ultimately be able to run:
 
-```text
-cBigPosterImage0..9
-cBigPosterTrueFalse0..9
-cBigPosterDuration0..9
-```
+- audio only;
+- MasjidBoard display only; or
+- both together.
 
-#### Rows 26–28 — not read by `handleResults()`
+The MasjidBoard display must not depend on the audio subsystem being active.
 
-The supplied `functions_uo_latest.js` contains no `spreadsheetArray[26]`, `[27]`, or `[28]` accesses in `handleResults()`. Their exact purpose therefore remains unresolved from this source alone. They may be reserved, consumed by another code path, or represent data that is not currently used by the main client mapping.
+### MasjidBoard Live supplies data; MasjidPi renders the board
 
-## API polling behaviour
+MasjidBoard Live is the primary data source. MasjidPi will **render the board itself** rather than embedding the MasjidBoard Live webpage.
 
-The captured source shows the client requesting:
+This gives us control over the display, allows MasjidBoard to run as a standalone application, and avoids making the HDMI display dependent on a full web browser rendering the upstream site.
 
-```text
-https://api.masjidboardlive.com/mblapi?id=${boardId}
-```
+### Fundamental data is mandatory; other content is optional
 
-The JSON response is passed to `handleResults()`, then `checkForChange()`, and the client schedules another `getAPI(boardId)` using `sheetRefreshRate`.
+The only mandatory board content is:
 
-This confirms that MasjidPi should support periodic synchronisation and should not assume that one daily download is sufficient.
+- fundamental board identity; and
+- daily prayer times.
 
-The exact unit/value used by `sheetRefreshRate` should be verified against an actual API response before choosing the MasjidPi default polling interval.
+Everything else must be capable of being absent without making the board invalid. Optional content includes Jumu'ah, astronomical information, announcements, programmes, Eid, Nikah, funeral notices, posters, banking/contributions, moon information, Ayah/Hadith/Sunnah, and other board-specific content.
 
-## Images/media
+### Do not mirror the 29-row structure in the domain model
 
-The board requests referenced images through:
+The 29-row response is an upstream transport/configuration format. It should not become the MasjidPi domain model.
 
-```text
-https://api.masjidboardlive.com/imageproxy?id=<image-id>
-```
+The provider should parse the upstream response into a normalised model containing semantically verified fields. Unknown or insufficiently understood upstream fields should remain outside the domain model until their meaning is established.
 
-The JavaScript source also constructs image-proxy URLs from the opaque image identifiers stored in the board data. MasjidPi should therefore treat image IDs as upstream media references and cache the resulting assets locally.
+### Ayah/Hadith/Sunnah are deferred from the initial implementation
 
-## Client behaviour / display model
+Ayah, Hadith and Sunnah are not critical to the initial implementation. Their provider mappings can remain under investigation while the core board is implemented.
 
-The source confirms that MasjidBoard Live is a dynamic multi-content presentation with configurable slides, durations, poster visibility, large-poster durations, language/time settings, and special content sections.
+## Current Status
 
-MasjidPi should therefore model the board as **structured content plus display configuration**, followed by its own display scheduler. It should not reproduce the upstream positional array throughout the application and should not simply render a static prayer-time dashboard.
+The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The next implementation work should focus on completing the normalised model for verified optional content and then building the provider/cache/display layers.
 
-## Important architectural conclusions
+## Next Step
 
-1. **A structured upstream data source is available.** MasjidPi does not need to scrape the rendered HTML for the core board data.
-2. **The upstream schema is positional and opaque.** The provider must translate it into a normalised MasjidPi model.
-3. **The provider should preserve optional/configurable content.** A masjid may use only a subset of the available fields.
-4. **Display configuration is data.** Slide duration, poster visibility, language, RTL, time-formatting, and related settings are part of the upstream board state.
-5. **The MasjidPi display should remain independent from the upstream presentation implementation.** We should reproduce the information and functionality, but not copy the JavaScript UI architecture.
-6. **Local caching remains required.** The board depends on remote data and media, while the Raspberry Pi should continue displaying the last known valid state when connectivity is lost.
+Before adding further parser fields, capture the generated HTML (`View Source`) for the selected representative boards and use the page's embedded `boardId` + `theInfo` together as the authoritative fixture. This avoids the earlier problem of associating an opaque API response with the wrong public board.
 
-## Decisions
+Then:
 
-| Decision | Status | Reason |
-|---|---|---|
-| MasjidBoard is independent from audio playback | Confirmed | Audio must continue if MasjidBoard is unavailable. |
-| MasjidBoard Live is the primary initial data source | Confirmed | User requirement. |
-| HDMI external display is the target | Confirmed | User requirement. |
-| Full MasjidBoard content is in scope | Confirmed | User requirement. |
-| Local caching is required | Confirmed | Reliable appliance/offline behaviour. |
-| Data-provider abstraction | Proposed | Allows another source later without redesigning the display layer. |
-| Native MasjidPi display rather than a browser wrapper | Proposed | Better control of offline behaviour, resources, layout, and integration. |
-| Consume structured `mblapi` data rather than scrape rendered HTML | Confirmed by investigation | HAR and frontend source show the live application itself consumes this endpoint. |
-| Normalise MasjidBoard Live's positional schema inside the provider | Proposed | Keeps the opaque upstream schema out of the rest of MasjidPi. |
-| Treat the HDMI board as a scheduled presentation | Proposed | The live board is a dynamic multi-content presentation with configurable slide behaviour. |
-
-## Open Questions
-
-- How is the public `mid` mapped to the internal `boardId`?
-- Is `boardId` stable for a masjid?
-- Can `mblapi?id=<boardId>` be requested directly without first loading the Premium page?
-- What authentication, rate limits, or access restrictions apply to `mblapi`?
-- What exact versioning guarantees exist for `mblVersion` and the positional schema?
-- What is the exact semantic meaning of rows 24 and 26–28?
-- Where are the actual Ayah/Hadith/Sunnah text values populated?
-- Where is announcement slot 1 populated?
-- How are announcement schedules and expiry represented?
-- How are Jumu'ah services represented when there are multiple services?
-- How are posters and images associated with individual content items?
-- What is the exact unit of `sheetRefreshRate` and what values are normally supplied?
-- Which data is generated/calculated by the client rather than supplied by `mblapi`?
-- What are the exact carousel/slide rules used by the current MasjidBoard Live frontend?
-- How does the board handle date changes, Ramadan/Eid changes, and other special-day transitions?
-- What data should be cached indefinitely versus refreshed frequently?
-
-## Next Investigation Steps
-
-1. Obtain the API response for several different masjids/board IDs and compare the 29-row schema.
-2. Determine how a public `mid` is resolved to a `boardId`.
-3. Test direct access to `mblapi` and `imageproxy`, including behaviour without browser session state.
-4. Trace the remaining frontend functions that populate Ayah, Hadith, Sunnah, announcements, and other content not assigned directly by `handleResults()`.
-5. Investigate rows 24 and 26–28.
-6. Determine the exact refresh interval/value semantics from multiple boards.
-7. Determine the frontend carousel/slide scheduling rules.
-8. Build a draft normalised MasjidPi data model from the verified field mapping.
-9. Only then begin production MasjidBoard module implementation.
-
-## Implementation Guardrail
-
-Do not implement the production MasjidBoard module until the core API/data investigation is complete enough to define a stable internal data model.
-
-The eventual implementation should separate:
-
-```text
-MasjidBoard Live provider
-    -> Normalised board data
-        -> Persistent cache
-            -> Board state / scheduler
-                -> HDMI display
-```
-
-## Research Log
-
-### 2026-08-13
-
-- Created `research/masjidboard-live` from `main`.
-- Confirmed full MasjidBoard content is required.
-- Confirmed external HDMI display is the target.
-- Confirmed MasjidBoard Live is the primary data source.
-- Confirmed MasjidBoard must remain independent from audio playback.
-- Established that API/data investigation should precede production implementation.
-- Analysed a Firefox HAR capture from a live Premium board.
-- Confirmed the structured `https://api.masjidboardlive.com/mblapi?id=<boardId>` endpoint.
-- Confirmed the endpoint returns JSON containing the same 29-row `theInfo` structure embedded in the page.
-- Confirmed the page exposes `boardId` and `mblVersion` values.
-- Confirmed `imageproxy?id=<image-id>` is used for referenced media.
-- Confirmed the live board is a dynamic, multi-content presentation rather than a static HTML page.
-- Reviewed an existing Home Assistant integration as supporting evidence; it polls every 600 seconds and exposes only the five daily prayer Adhan/Jamaah pairs.
-- Captured and inspected `functions_uo_latest.js`.
-- Verified the `handleResults()` mapping for rows 0–23 and 25.
-- Confirmed the client schedules subsequent API requests using the board-supplied `sheetRefreshRate`.
-- Identified unresolved rows 24 and 26–28 and content populated outside the main `handleResults()` mapping.
-- Established that the next priority is comparing the schema across multiple boards and tracing the remaining frontend content paths.
+1. Verify the remaining `theInfo` mappings against multiple boards where the same feature is populated.
+2. Freeze the normalised provider model around verified semantics.
+3. Add parser fixtures/tests using complete generated-page data for representative boards.
+4. Implement the MasjidBoard Live provider using the public `mid`, resolving `boardId` from the generated page rather than hard-coding it.
+5. Implement last-known-good local caching and refresh/recovery behaviour.
+6. Build the standalone HDMI display application against the normalised model.

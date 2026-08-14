@@ -3,6 +3,8 @@ package masjidboardlive
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +18,7 @@ const (
 	rowJumuah = 1
 	rowSalah  = 3
 	rowMasjid = 6
+	rowClock  = 2
 )
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
@@ -35,13 +38,18 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 	if err != nil {
 		return model.Board{}, err
 	}
-	if masjid.Timezone == "" {
-		return model.Board{}, fmt.Errorf("masjidboardlive: masjid row has no timezone")
+
+	clock, err := parseClockRow(rows[rowClock])
+	if err != nil {
+		return model.Board{}, err
+	}
+	if clock.Timezone == "" {
+		return model.Board{}, fmt.Errorf("masjidboardlive: clock row has no timezone")
 	}
 
-	loc, err := time.LoadLocation(masjid.Timezone)
+	loc, err := parseTimezone(clock.Timezone, clock.OffsetMilliseconds)
 	if err != nil {
-		return model.Board{}, fmt.Errorf("masjidboardlive: load timezone %q: %w", masjid.Timezone, err)
+		return model.Board{}, err
 	}
 
 	localNow := now.In(loc)
@@ -53,13 +61,14 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 	return model.Board{
 		Identity: model.Identity{
 			SourceBoardID: boardID,
-			MasjidID:      boardID,
+			MasjidID:      clock.MasjidID,
 			EnglishName:   masjid.Name1,
 			ArabicName:    masjid.Name2,
 		},
 		DateContext: model.DateContext{
 			GregorianDate: dateOnly(localNow, loc),
-			Timezone:      masjid.Timezone,
+			IslamicDate:   clock.IslamicDate,
+			Timezone:      clock.Timezone,
 		},
 		PrayerTimes: prayers,
 	}, nil
@@ -69,7 +78,7 @@ type masjidRow struct {
 	Name1    string
 	Name2    string
 	URL      string
-	Timezone string
+	OffsetMS int64
 }
 
 func parseMasjidRow(raw json.RawMessage) (masjidRow, error) {
@@ -77,16 +86,87 @@ func parseMasjidRow(raw json.RawMessage) (masjidRow, error) {
 	if err != nil {
 		return masjidRow{}, fmt.Errorf("masjidboardlive: parse row 6: %w", err)
 	}
-	if len(values) < 4 {
-		return masjidRow{}, fmt.Errorf("masjidboardlive: row 6 has %d fields, need at least 4", len(values))
+	if len(values) < 5 {
+		return masjidRow{}, fmt.Errorf("masjidboardlive: row 6 has %d fields, need at least 5", len(values))
+	}
+
+	offset, err := strconv.ParseInt(stringValue(values, 4), 10, 64)
+	if err != nil {
+		return masjidRow{}, fmt.Errorf("masjidboardlive: invalid row 6 timezone offset %q: %w", stringValue(values, 4), err)
 	}
 
 	return masjidRow{
 		Name1:    stringValue(values, 0),
 		Name2:    stringValue(values, 1),
 		URL:      stringValue(values, 2),
-		Timezone: stringValue(values, 3),
+		OffsetMS: offset,
 	}, nil
+}
+
+type clockRow struct {
+	IslamicDate       string
+	MasjidID          string
+	Timezone          string
+	OffsetMilliseconds int64
+}
+
+func parseClockRow(raw json.RawMessage) (clockRow, error) {
+	values, err := rowValues(raw)
+	if err != nil {
+		return clockRow{}, fmt.Errorf("masjidboardlive: parse row 2: %w", err)
+	}
+	if len(values) < 16 {
+		return clockRow{}, fmt.Errorf("masjidboardlive: row 2 has %d fields, need at least 16", len(values))
+	}
+
+	offset := int64(0)
+	if value := stringValue(values, 15); value != "" {
+		offset, err = parseGMTOffset(value)
+		if err != nil {
+			return clockRow{}, err
+		}
+	}
+
+	return clockRow{
+		IslamicDate:       stringValue(values, 10),
+		MasjidID:          stringValue(values, 12),
+		Timezone:          stringValue(values, 15),
+		OffsetMilliseconds: offset,
+	}, nil
+}
+
+var gmtOffsetRE = regexp.MustCompile(`^GMT([+-])(\d{2})(?::?(\d{2}))?$`)
+
+func parseGMTOffset(value string) (int64, error) {
+	match := gmtOffsetRE.FindStringSubmatch(strings.TrimSpace(value))
+	if match == nil {
+		return 0, fmt.Errorf("masjidboardlive: unsupported timezone %q", value)
+	}
+	hours, _ := strconv.Atoi(match[2])
+	minutes := 0
+	if match[3] != "" {
+		minutes, _ = strconv.Atoi(match[3])
+	}
+	seconds := hours*3600 + minutes*60
+	if match[1] == "-" {
+		seconds = -seconds
+	}
+	return int64(seconds) * 1000, nil
+}
+
+func parseTimezone(label string, offsetMS int64) (*time.Location, error) {
+	label = strings.TrimSpace(label)
+	if label == "" {
+		return nil, fmt.Errorf("masjidboardlive: timezone is empty")
+	}
+	if offsetMS == 0 {
+		parsed, err := parseGMTOffset(label)
+		if err != nil {
+			return nil, err
+		}
+		offsetMS = parsed
+	}
+	return time.FixedZone(label, int(offsetMS/1000)), nil
 }
 
 func parseSalahRow(raw json.RawMessage, date time.Time, loc *time.Location) (model.PrayerTimes, error) {
@@ -113,7 +193,7 @@ func parseSalahRow(raw json.RawMessage, date time.Time, loc *time.Location) (mod
 
 	// Row 3 columns 0..9 are verified by functions_uo_latest.js:
 	// Fajr Adhan/Jamaah, Zuhr Adhan/Jamaah, Asr Adhan/Jamaah,
-	// Maghrib/Iftar, Maghrib Jamaah, Esha Adhan/Jamaah.
+	// Maghrib Adhan/Jamaah, Esha Adhan/Jamaah.
 	return model.PrayerTimes{
 		Fajr:    model.PrayerTime{Adhan: fields[0], Jamaah: fields[1]},
 		Zuhr:    model.PrayerTime{Adhan: fields[2], Jamaah: fields[3]},
@@ -170,7 +250,7 @@ func dateOnly(t time.Time, loc *time.Location) time.Time {
 	return time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, loc)
 }
 
-// Keep the Jumuah row index named here even while its full optional mapping is
+// Keep the Jumuah row index named here while its full optional mapping is
 // deferred. This documents the verified 29-row source layout without making
 // unverified assumptions about optional display semantics.
 var _ = rowJumuah

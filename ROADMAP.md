@@ -1,6 +1,6 @@
 # MasjidPi Roadmap
 
-MasjidPi is a lightweight Raspberry Pi internet radio appliance for LiveMasjid streams.
+MasjidPi is a lightweight Raspberry Pi home appliance that keeps people connected to their masjid through live audio and masjid information.
 
 The roadmap focuses on the current product, remaining production work, and planned future features.
 
@@ -44,6 +44,82 @@ The remaining work should prioritise reliability and simplicity rather than unne
 
 ---
 
+## Planned Architecture
+
+### MasjidPi Core / Listen / Board
+
+MasjidPi v2 will evolve from the current audio-focused application into a modular home appliance built around a shared MasjidPi core and independent product capabilities.
+
+The repository will remain a single MasjidPi repository initially, with the code organised conceptually as:
+
+```text
+MasjidPi/
+├── core/
+├── listen/
+├── board/
+├── cmd/
+├── frontend/
+├── configs/
+├── hardware/
+├── scripts/
+└── docs/
+```
+
+#### MasjidPi Core
+
+Core will contain functionality shared by Listen and Board, such as:
+
+- Configuration
+- Persistent state
+- Masjid selection and shared masjid data
+- Catalogue and shared data access
+- Networking and common service behaviour
+- Common API/client functionality
+- Shared Raspberry Pi/platform integration where appropriate
+
+Core should provide reusable foundations rather than becoming a general-purpose dumping ground for unrelated code.
+
+#### MasjidPi Listen
+
+Listen will contain the audio-specific functionality:
+
+- Stream playback
+- MPV integration
+- Volume control
+- Audio-device handling
+- Playback recovery and reconnection
+- Audio-specific UI and controls
+
+#### MasjidPi Board
+
+Board will contain the MasjidBoard-specific functionality:
+
+- Prayer times
+- Jumu'ah times
+- Next-prayer and countdown information
+- MasjidBoard data retrieval and caching
+- Display-oriented UI
+- External HDMI display support
+- Future display/hardware integration
+
+Listen and Board must remain independent capabilities. Neither subsystem should require the other to operate. In particular, audio playback must continue operating if MasjidBoard is unavailable.
+
+The intended high-level architecture is:
+
+**MasjidPi Core → Listen**
+
+and independently:
+
+**MasjidPi Core → Board**
+
+The application/UI layer may combine information from both capabilities, but Board must not directly control Listen or playback.
+
+The initial implementation should remain a single repository. Core should only be extracted into a separate repository if a future technical need justifies doing so.
+
+This restructuring is a v2 architectural target and should not unnecessarily disrupt the stable v1.x release.
+
+---
+
 ## Planned Features
 
 ### Raspberry Pi Appliance Image
@@ -78,6 +154,7 @@ Potential capabilities:
 - Expose masjid and prayer information through the MasjidPi API
 - Display prayer information in the Web UI
 - Support future OLED/hardware displays
+- Support an external HDMI display connected to the Raspberry Pi
 
 MasjidBoard must remain independent of the playback subsystem. Audio playback must continue operating if MasjidBoard is unavailable.
 
@@ -115,14 +192,15 @@ Potential capabilities:
 
 MasjidPi should remain:
 
+- A simple home appliance for people who want to stay connected to their masjid
 - Lightweight enough for Raspberry Pi hardware
 - Simple to install and operate
 - Reliable during network interruptions
 - Usable without a separate server
-- Focused on listening to mosque streams
+- Focused on listening to mosque streams while expanding to masjid information
 - Easy to maintain and update
 - Independent of browser-local configuration
-- Modular, with external services isolated from core playback
+- Modular, with Listen and Board capabilities separated from shared Core functionality
 - Resilient when optional external services are unavailable
 
-The project should prioritise a reliable radio experience over unnecessary complexity.
+The project should prioritise a reliable home appliance experience over unnecessary complexity.

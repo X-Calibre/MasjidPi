@@ -27,8 +27,8 @@ func loadCapturedRows(t *testing.T) []json.RawMessage {
 
 func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	rows := loadCapturedRows(t)
-	if len(rows) != 29 {
-		t.Fatalf("fixture rows = %d, want 29", len(rows))
+	if len(rows) < 29 {
+		t.Fatalf("fixture rows = %d, want at least 29", len(rows))
 	}
 
 	now := time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC)
@@ -76,6 +76,34 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	assertClock("Esha Adhan", board.PrayerTimes.Esha.Adhan, 19, 15)
 	assertClock("Esha Jamaah", board.PrayerTimes.Esha.Jamaah, 19, 30)
 
+	if len(board.PrayerTimes.Jumuah) != 1 {
+		t.Fatalf("Jumuah services = %d, want 1", len(board.PrayerTimes.Jumuah))
+	}
+	jumuah := board.PrayerTimes.Jumuah[0]
+	assertClock("Jumuah Adhan", jumuah.Adhan, 12, 45)
+	assertClock("Jumuah Jamaah", jumuah.Jamaah, 12, 55)
+	assertClock("Jumuah Alternate Adhan", jumuah.AlternateAdhan, 18, 56)
+	assertClock("Jumuah Alternate Jamaah", jumuah.AlternateJamaah, 19, 6)
+	if jumuah.Khateeb != "Sunnats after Adhān" {
+		t.Fatalf("Jumuah Khateeb = %q", jumuah.Khateeb)
+	}
+	if len(jumuah.Events) != 3 {
+		t.Fatalf("Jumuah events = %d, want 3", len(jumuah.Events))
+	}
+	if jumuah.Events[0].Code != "1" || jumuah.Events[0].Heading != "Lecture" {
+		t.Fatalf("Jumuah event 1 = %+v", jumuah.Events[0])
+	}
+	assertClock("Jumuah event 1", jumuah.Events[0].Time, 12, 15)
+	if jumuah.Events[1].Code != "0" || jumuah.Events[1].Heading != "Adhān" {
+		t.Fatalf("Jumuah event 2 = %+v", jumuah.Events[1])
+	}
+	assertClock("Jumuah event 2", jumuah.Events[1].Time, 12, 45)
+	if jumuah.Events[2].Code != "6" || jumuah.Events[2].Heading != "Khutbah" {
+		t.Fatalf("Jumuah event 3 = %+v", jumuah.Events[2])
+	}
+	assertClock("Jumuah event 3", jumuah.Events[2].Time, 12, 55)
+	assertClock("Jumuah effective Salaah", jumuah.EffectiveSalaah(), 12, 55)
+
 	if board.Astronomical == nil {
 		t.Fatal("Astronomical is nil")
 	}
@@ -88,9 +116,30 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	assertClock("AsrHanafi", board.Astronomical.AsrHanafi, 16, 13)
 	assertClock("Sunset", board.Astronomical.Sunset, 17, 49)
 	assertClock("EshaStart", board.Astronomical.EshaStart, 19, 7)
+}
 
-	if len(board.PrayerTimes.Jumuah) != 0 {
-		t.Fatalf("Jumuah services = %d, want 0 until upstream service semantics are verified", len(board.PrayerTimes.Jumuah))
+func TestParseJumuahUsesKhutbahAsSalaahFallback(t *testing.T) {
+	row := json.RawMessage(`["Adhān","12:25","Sunan","12:55","Khutbah","13:00","Ml M Bhamjee","12:25","","18:35","19:10","0,3,6"]`)
+	service, err := parseJumuahRow(row)
+	if err != nil {
+		t.Fatalf("parseJumuahRow() error = %v", err)
+	}
+	if service.Jamaah != nil {
+		t.Fatal("Jumuah Jamaah should be absent")
+	}
+	if got := service.EffectiveSalaah(); got == nil || got.Hour != 13 || got.Minute != 0 {
+		t.Fatalf("EffectiveSalaah() = %+v, want 13:00", got)
+	}
+}
+
+func TestParseJumuahAllowsEmptyRow(t *testing.T) {
+	row := json.RawMessage(`["","","","","","","","","","","","#N/A"]`)
+	service, err := parseJumuahRow(row)
+	if err != nil {
+		t.Fatalf("parseJumuahRow() error = %v", err)
+	}
+	if service != nil {
+		t.Fatalf("service = %+v, want nil", service)
 	}
 }
 

@@ -58,13 +58,47 @@ type PrayerTime struct {
 	Jamaah *ClockTime
 }
 
-// JumuahService represents one Friday congregational service. Multiple
-// services are supported. Individual fields may be absent.
+// JumuahService represents one Friday congregational service.
+//
+// MasjidBoard Live supplies three configurable heading/time pairs in addition
+// to dedicated Jumu'ah Adhan, Jamaah, alternate-language and Khateeb fields.
+// The event heading and source code are preserved so presentation-specific
+// translation can be applied later without losing the upstream value.
 type JumuahService struct {
-	Label   string
-	Adhan   *ClockTime
-	Jamaah  *ClockTime
-	Khateeb string
+	Adhan          *ClockTime
+	Jamaah         *ClockTime
+	AlternateAdhan *ClockTime
+	AlternateJamaah *ClockTime
+	Khateeb        string
+	Events         []JumuahEvent
+}
+
+// JumuahEvent is one of the three detailed Friday heading/time pairs supplied
+// by MasjidBoard Live. Code is the source jumuahHeadingsArray value; Heading
+// is the human-readable heading present in the board data.
+type JumuahEvent struct {
+	Code    string
+	Heading string
+	Time    *ClockTime
+}
+
+// EffectiveSalaah returns the Jumu'ah Jamaah/Salaah time when supplied. If the
+// source does not provide it, the Khutbah event is used as the agreed fallback
+// for the standard five-prayer timetable.
+func (s JumuahService) EffectiveSalaah() *ClockTime {
+	if s.Jamaah != nil {
+		return s.Jamaah
+	}
+	for _, event := range s.Events {
+		if event.Time != nil && equalHeading(event.Heading, "Khutbah") {
+			return event.Time
+		}
+	}
+	return nil
+}
+
+func equalHeading(value, wanted string) bool {
+	return value == wanted
 }
 
 type AstronomicalTimes struct {

@@ -1,62 +1,58 @@
 package model
 
-import (
-	"testing"
-	"time"
-)
+import "testing"
 
-func TestPrayerTimesHaveFiveCorePrayers(t *testing.T) {
-	location := time.FixedZone("SAST", 2*60*60)
-	date := time.Date(2026, 8, 13, 0, 0, 0, 0, location)
-	prayer := func(hour, minute int) *time.Time {
-		v := time.Date(2026, 8, 13, hour, minute, 0, 0, location)
-		return &v
-	}
-
+func TestPrayerTimesUseLocalClockValues(t *testing.T) {
 	board := Board{
-		Identity: Identity{MasjidID: "test-masjid", EnglishName: "Test Masjid"},
-		DateContext: DateContext{
-			GregorianDate: date,
-			Timezone:      "Africa/Johannesburg",
+		Identity: BoardIdentity{
+			ID:            "test-masjid",
+			Name:          "Test Masjid",
+			AlternateName: "Test Alt",
+			TimeZone:      "GMT+02",
 		},
 		PrayerTimes: PrayerTimes{
-			Fajr:    PrayerTime{Adhan: prayer(5, 0)},
-			Zuhr:    PrayerTime{Adhan: prayer(12, 30)},
-			Asr:     PrayerTime{Adhan: prayer(16, 0)},
-			Maghrib: PrayerTime{Adhan: prayer(17, 45)},
-			Esha:    PrayerTime{Adhan: prayer(19, 0)},
+			Fajr:  PrayerTime{Adhan: &ClockTime{Hour: 5, Minute: 0}},
+			Dhuhr: PrayerTime{Adhan: &ClockTime{Hour: 12, Minute: 30}},
+			Asr:  PrayerTime{Adhan: &ClockTime{Hour: 16, Minute: 0}},
+			Maghrib: PrayerTime{Adhan: &ClockTime{Hour: 17, Minute: 45}},
+			Esha: PrayerTime{Adhan: &ClockTime{Hour: 19, Minute: 0}},
 		},
 	}
 
-	if board.Identity.MasjidID == "" {
-		t.Fatal("expected masjid identity")
+	if board.Identity.ID == "" || board.Identity.Name == "" || board.Identity.TimeZone == "" {
+		t.Fatal("expected fundamental board identity")
 	}
-	if board.PrayerTimes.Fajr.Adhan == nil ||
-		board.PrayerTimes.Zuhr.Adhan == nil ||
-		board.PrayerTimes.Asr.Adhan == nil ||
-		board.PrayerTimes.Maghrib.Adhan == nil ||
-		board.PrayerTimes.Esha.Adhan == nil {
-		t.Fatal("expected all five core prayer times")
+	if board.PrayerTimes.Fajr.Adhan.Hour != 5 || board.PrayerTimes.Fajr.Adhan.Minute != 0 {
+		t.Fatal("expected local wall-clock Fajr time")
+	}
+	if board.PrayerTimes.Dhuhr.Adhan.Hour != 12 || board.PrayerTimes.Dhuhr.Adhan.Minute != 30 {
+		t.Fatal("expected local wall-clock Dhuhr time")
+	}
+}
+
+func TestJumuahBelongsToPrayerTimes(t *testing.T) {
+	board := Board{PrayerTimes: PrayerTimes{
+		Jumuah: []JumuahService{{
+			Label:  "Jumu'ah",
+			Adhan:  &ClockTime{Hour: 12, Minute: 45},
+			Jamaah: &ClockTime{Hour: 13, Minute: 0},
+		}},
+	}}
+
+	if len(board.PrayerTimes.Jumuah) != 1 {
+		t.Fatalf("Jumuah services = %d, want 1", len(board.PrayerTimes.Jumuah))
+	}
+	if board.PrayerTimes.Jumuah[0].Jamaah.Hour != 13 || board.PrayerTimes.Jumuah[0].Jamaah.Minute != 0 {
+		t.Fatal("expected Jumuah Jamaah time")
 	}
 }
 
 func TestOptionalContentCanBeAbsent(t *testing.T) {
-	board := Board{
-		Identity:    Identity{MasjidID: "test-masjid"},
-		DateContext: DateContext{GregorianDate: time.Now()},
-		PrayerTimes: PrayerTimes{
-			Fajr:    PrayerTime{},
-			Zuhr:    PrayerTime{},
-			Asr:     PrayerTime{},
-			Maghrib: PrayerTime{},
-			Esha:    PrayerTime{},
-		},
-	}
-
-	if board.AstronomicalTimes != nil || board.Banking != nil || board.NewMoon != nil {
+	board := Board{}
+	if board.Astronomical != nil || board.Banking != nil || board.NewMoon != nil {
 		t.Fatal("expected optional singular content to be absent")
 	}
-	if board.JumuahServices != nil || board.Announcements != nil || board.Programmes != nil || board.Media != nil {
+	if board.Announcements != nil || board.Programmes != nil || board.Media != nil {
 		t.Fatal("expected optional collections to be absent")
 	}
 }

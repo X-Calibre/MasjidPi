@@ -11,11 +11,11 @@ func TestPrayerTimesUseLocalClockValues(t *testing.T) {
 			TimeZone:      "GMT+02",
 		},
 		PrayerTimes: PrayerTimes{
-			Fajr:  PrayerTime{Adhan: &ClockTime{Hour: 5, Minute: 0}},
-			Dhuhr: PrayerTime{Adhan: &ClockTime{Hour: 12, Minute: 30}},
-			Asr:  PrayerTime{Adhan: &ClockTime{Hour: 16, Minute: 0}},
+			Fajr:    PrayerTime{Adhan: &ClockTime{Hour: 5, Minute: 0}},
+			Dhuhr:   PrayerTime{Adhan: &ClockTime{Hour: 12, Minute: 30}},
+			Asr:     PrayerTime{Adhan: &ClockTime{Hour: 16, Minute: 0}},
 			Maghrib: PrayerTime{Adhan: &ClockTime{Hour: 17, Minute: 45}},
-			Esha: PrayerTime{Adhan: &ClockTime{Hour: 19, Minute: 0}},
+			Esha:    PrayerTime{Adhan: &ClockTime{Hour: 19, Minute: 0}},
 		},
 	}
 
@@ -33,7 +33,6 @@ func TestPrayerTimesUseLocalClockValues(t *testing.T) {
 func TestJumuahBelongsToPrayerTimes(t *testing.T) {
 	board := Board{PrayerTimes: PrayerTimes{
 		Jumuah: []JumuahService{{
-			Label:  "Jumu'ah",
 			Adhan:  &ClockTime{Hour: 12, Minute: 45},
 			Jamaah: &ClockTime{Hour: 13, Minute: 0},
 		}},

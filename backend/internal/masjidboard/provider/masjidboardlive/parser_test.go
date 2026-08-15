@@ -80,29 +80,29 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 		t.Fatalf("Jumuah services = %d, want 1", len(board.PrayerTimes.Jumuah))
 	}
 	jumuah := board.PrayerTimes.Jumuah[0]
-	assertClock("Jumuah Adhan", jumuah.Adhan, 12, 25)
-	assertClock("Jumuah Jamaah", jumuah.Jamaah, 13, 0)
-	assertClock("Jumuah Alternate Adhan", jumuah.AlternateAdhan, 18, 35)
-	assertClock("Jumuah Alternate Jamaah", jumuah.AlternateJamaah, 19, 10)
-	if jumuah.Khateeb != "Ml M Bhamjee" {
+	assertClock("Jumuah Adhan", jumuah.Adhan, 12, 45)
+	assertClock("Jumuah Jamaah", jumuah.Jamaah, 12, 55)
+	assertClock("Jumuah Alternate Adhan", jumuah.AlternateAdhan, 18, 56)
+	assertClock("Jumuah Alternate Jamaah", jumuah.AlternateJamaah, 19, 6)
+	if jumuah.Khateeb != "Sunnats after Adhān" {
 		t.Fatalf("Jumuah Khateeb = %q", jumuah.Khateeb)
 	}
 	if len(jumuah.Events) != 3 {
 		t.Fatalf("Jumuah events = %d, want 3", len(jumuah.Events))
 	}
-	if jumuah.Events[0].Code != "0" || jumuah.Events[0].Heading != "Adhān" {
+	if jumuah.Events[0].Code != "1" || jumuah.Events[0].Heading != "Lecture" {
 		t.Fatalf("Jumuah event 1 = %+v", jumuah.Events[0])
 	}
-	assertClock("Jumuah event 1", jumuah.Events[0].Time, 12, 25)
-	if jumuah.Events[1].Code != "3" || jumuah.Events[1].Heading != "Sunan" {
+	assertClock("Jumuah event 1", jumuah.Events[0].Time, 12, 15)
+	if jumuah.Events[1].Code != "0" || jumuah.Events[1].Heading != "Adhān" {
 		t.Fatalf("Jumuah event 2 = %+v", jumuah.Events[1])
 	}
-	assertClock("Jumuah event 2", jumuah.Events[1].Time, 12, 55)
+	assertClock("Jumuah event 2", jumuah.Events[1].Time, 12, 45)
 	if jumuah.Events[2].Code != "6" || jumuah.Events[2].Heading != "Khutbah" {
 		t.Fatalf("Jumuah event 3 = %+v", jumuah.Events[2])
 	}
-	assertClock("Jumuah event 3", jumuah.Events[2].Time, 13, 0)
-	assertClock("Jumuah effective Salaah", jumuah.EffectiveSalaah(), 13, 0)
+	assertClock("Jumuah event 3", jumuah.Events[2].Time, 12, 55)
+	assertClock("Jumuah effective Salaah", jumuah.EffectiveSalaah(), 12, 55)
 
 	if board.Astronomical == nil {
 		t.Fatal("Astronomical is nil")

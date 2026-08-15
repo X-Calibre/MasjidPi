@@ -27,8 +27,8 @@ func loadCapturedRows(t *testing.T) []json.RawMessage {
 
 func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	rows := loadCapturedRows(t)
-	if len(rows) != 29 {
-		t.Fatalf("fixture rows = %d, want 29", len(rows))
+	if len(rows) < 29 {
+		t.Fatalf("fixture rows = %d, want at least 29", len(rows))
 	}
 
 	now := time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC)

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
 )
 
 //go:embed testdata/azaadville-darul-uloom-core.json

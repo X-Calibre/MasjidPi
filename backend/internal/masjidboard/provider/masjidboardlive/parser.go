@@ -21,9 +21,6 @@ const (
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
 // The 29-row upstream structure remains confined to this provider package.
-// Jumu'ah is part of PrayerTimes, but its positional row contains several
-// board-specific presentation values whose per-service semantics are not yet
-// safe to infer generically; those values are therefore left optional here.
 func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, error) {
 	if boardID == "" {
 		return model.Board{}, fmt.Errorf("masjidboardlive: board ID is required")
@@ -55,6 +52,14 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		return model.Board{}, err
 	}
 
+	jumuah, err := parseJumuahRow(rows[rowJumuah])
+	if err != nil {
+		return model.Board{}, err
+	}
+	if jumuah != nil {
+		prayers.Jumuah = []model.JumuahService{*jumuah}
+	}
+
 	astronomical, err := parseAstronomicalRow(rows[rowAstronomical])
 	if err != nil {
 		return model.Board{}, err
@@ -71,8 +76,8 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 			GregorianDate: dateOnly(localNow, loc),
 			IslamicDate:    stringValueFromRow(rows[rowClock], 5),
 		},
-		PrayerTimes:    prayers,
-		Astronomical:   astronomical,
+		PrayerTimes:  prayers,
+		Astronomical: astronomical,
 	}, nil
 }
 
@@ -195,6 +200,89 @@ func parseSalahRow(raw json.RawMessage) (model.PrayerTimes, error) {
 		}
 	}
 	return prayers, nil
+}
+
+// parseJumuahRow normalises row 1. The row contains three detailed
+// heading/time pairs followed by dedicated Jumu'ah Adhan, Jamaah, alternate
+// language values and the source heading-code configuration.
+func parseJumuahRow(raw json.RawMessage) (*model.JumuahService, error) {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: parse row 1: %w", err)
+	}
+	if len(values) < 12 {
+		return nil, fmt.Errorf("masjidboardlive: row 1 has %d fields, need at least 12", len(values))
+	}
+
+	hasData := false
+	for i := 0; i < 12; i++ {
+		if !isAbsent(stringValue(values, i)) {
+			hasData = true
+			break
+		}
+	}
+	if !hasData {
+		return nil, nil
+	}
+
+	codes := strings.Split(stringValue(values, 11), ",")
+	events := make([]model.JumuahEvent, 0, 3)
+	for i := 0; i < 3; i++ {
+		heading := stringValue(values, i*2)
+		timeValue := stringValue(values, i*2+1)
+		var parsed *model.ClockTime
+		if !isAbsent(timeValue) {
+			parsed, err = parseClockTime(timeValue)
+			if err != nil {
+				return nil, fmt.Errorf("masjidboardlive: row 1 Jumuah time %d value %q: %w", i+1, timeValue, err)
+			}
+		}
+		code := ""
+		if i < len(codes) {
+			code = strings.TrimSpace(codes[i])
+		}
+		if !isAbsent(heading) || parsed != nil || code != "" {
+			events = append(events, model.JumuahEvent{Code: code, Heading: heading, Time: parsed})
+		}
+	}
+
+	parseOptional := func(index int) (*model.ClockTime, error) {
+		value := stringValue(values, index)
+		if isAbsent(value) {
+			return nil, nil
+		}
+		parsed, parseErr := parseClockTime(value)
+		if parseErr != nil {
+			return nil, fmt.Errorf("masjidboardlive: row 1 column %d value %q: %w", index, value, parseErr)
+		}
+		return parsed, nil
+	}
+
+	adhan, err := parseOptional(7)
+	if err != nil {
+		return nil, err
+	}
+	jamaah, err := parseOptional(8)
+	if err != nil {
+		return nil, err
+	}
+	alternateAdhan, err := parseOptional(9)
+	if err != nil {
+		return nil, err
+	}
+	alternateJamaah, err := parseOptional(10)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.JumuahService{
+		Adhan:           adhan,
+		Jamaah:          jamaah,
+		AlternateAdhan:  alternateAdhan,
+		AlternateJamaah: alternateJamaah,
+		Khateeb:         stringValue(values, 6),
+		Events:          events,
+	}, nil
 }
 
 func parseAstronomicalRow(raw json.RawMessage) (*model.AstronomicalTimes, error) {

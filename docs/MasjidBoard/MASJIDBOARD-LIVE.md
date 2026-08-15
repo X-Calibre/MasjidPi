@@ -1,6 +1,6 @@
 # MasjidBoard Live Research
 
-**Status:** Research / discovery
+**Status:** Research / discovery  
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
@@ -527,54 +527,68 @@ The only mandatory board content is:
 
 Everything else must be capable of being absent without making the board invalid. Optional content includes Jumu'ah, astronomical information, announcements, programmes, Eid, Nikah, funeral notices, posters, banking/contributions, moon information, Ayah/Hadith/Sunnah, and other board-specific content.
 
-### Jumu'ah is part of PrayerTimes
+### Jumu'ah and the standard five-prayer timetable
 
-**Decision:** Jumu'ah is modelled within `PrayerTimes` because it is a prayer service rather than generic optional board content.
+**Decision:** The normalised domain retains the five daily prayer slots: Fajr, Dhuhr, Asr, Maghrib and Esha. Jumu'ah is not a sixth daily prayer and does not replace the Dhuhr field in the underlying domain model.
 
-Jumu'ah is **not** modelled as a sixth daily prayer alongside Fajr, Dhuhr, Asr, Maghrib and Esha.
+On Friday, Jumu'ah replaces **Dhuhr only in the standard five-prayer timetable presentation**, specifically for the Adhan and Salaah/Jamaah times shown in that Dhuhr slot.
 
-### Jumu'ah replaces Dhuhr on Friday
+The Friday resolution rules are:
 
-**Decision:** Jumu'ah represents the Friday congregational prayer that replaces Dhuhr for the Friday prayer schedule.
-
-The normalised model should preserve the distinction between the normal daily prayer schedule and the Friday congregational schedule:
-
-```text
-Normal daily prayer schedule
-    Fajr
-    Dhuhr
-    Asr
-    Maghrib
-    Esha
-
-Friday congregational schedule
-    Jumu'ah
-        ↓
-    replaces Dhuhr
-```
-
-The underlying Dhuhr/astronomical calculation may still be retained where MasjidBoard Live supplies it, because it can remain useful as timing/calculation data. However, the Friday congregational prayer displayed to the user is Jumu'ah rather than a Dhuhr Jamaah.
-
-### Jumu'ah may contain multiple services
-
-The MasjidBoard Live upstream mapping supports up to three Jumu'ah heading/time pairs and separate Khateeb, Adhan and Jamaah values. The normalised model should therefore represent Jumu'ah as an optional collection of services rather than a single time.
+1. Use the Jumu'ah Adhan when it is available.
+2. Use the Jumu'ah Salaah/Jamaah time when it is available.
+3. If a Jumu'ah Salaah/Jamaah time is not supplied, use the Jumu'ah Khutbah time as the Salaah-time fallback.
+4. The underlying Dhuhr field remains Dhuhr and may retain the supplied Dhuhr/astronomical calculation data.
+5. The Friday timetable therefore presents the Dhuhr slot using the Jumu'ah congregational times rather than Dhuhr Jamaah.
 
 Conceptually:
 
-```go
-type PrayerTimes struct {
-    Fajr    PrayerTime
-    Dhuhr   PrayerTime
-    Asr     PrayerTime
-    Maghrib PrayerTime
-    Esha    PrayerTime
-    Jumuah  []JumuahService
-}
+```text
+Normal day:
+    Dhuhr slot -> Dhuhr Adhan + Dhuhr Salaah
+
+Friday:
+    Dhuhr slot -> Jumu'ah Adhan + Jumu'ah Salaah
+                           |
+                           +-> Khutbah fallback if Salaah unavailable
 ```
 
-`Jumuah` may be absent on boards that do not supply Jumu'ah information. It must not be required for a board to be valid, whereas the fundamental daily prayer times remain required.
+### Detailed Friday Jumu'ah information
 
-This decision supersedes the earlier categorisation of Jumu'ah as separate generic optional board content.
+A separate Friday Jumu'ah element will display the richer Jumu'ah information supplied by MasjidBoard Live. This detailed element is independent of the five-prayer timetable representation and may show the detailed sequence of Jumu'ah headings/times, Khutbah information, Khateeb information, and other supplied Friday-specific data.
+
+The conceptual separation is:
+
+```text
+PrayerTimes
+    |
+    +-- Fajr
+    +-- Dhuhr
+    +-- Asr
+    +-- Maghrib
+    +-- Esha
+    |
+    +-- Friday presentation of Dhuhr slot
+            -> Jumu'ah Adhan
+            -> Jumu'ah Salaah
+            -> Khutbah fallback
+
+Jumu'ah details
+    +-- Adhan
+    +-- detailed heading/time events
+    +-- Khutbah
+    +-- Salaah/Jamaah
+    +-- Khateeb
+    +-- other supplied Friday information
+```
+
+This distinction is intentional: the standard timetable needs only the Jumu'ah Adhan and Salaah semantics needed to replace the Friday Dhuhr presentation, while the dedicated Friday element can preserve and display richer upstream Jumu'ah information.
+
+### Jumu'ah may contain multiple detailed entries/events
+
+The MasjidBoard Live upstream mapping supports up to three Jumu'ah heading/time pairs and separate Khateeb, Adhan and Jamaah values. The detailed normalised representation should therefore preserve these as optional detailed Jumu'ah information rather than collapsing the complete upstream row into a single prayer time.
+
+The exact Go representation of the detailed events should be frozen only after the remaining JavaScript assignment/display path has been traced. The parser must not invent semantics for positional values that have not been verified.
 
 ### Do not mirror the 29-row structure in the domain model
 
@@ -586,20 +600,33 @@ The provider should parse the upstream response into a normalised model containi
 
 Ayah, Hadith and Sunnah are not critical to the initial implementation. Their provider mappings can remain under investigation while the core board is implemented.
 
+### Local prayer-time representation
+
+Prayer times in the normalised domain are represented as local clock values using hour and minute rather than `time.Time`. The board timezone is stored separately on the board identity.
+
+```go
+type PrayerTime struct {
+    Hour   int
+    Minute int
+}
+```
+
+This is appropriate because a prayer time is fundamentally a local mosque clock time; the calendar date and timezone are contextual.
+
 ## Current Status
 
-The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The domain model now explicitly treats Jumu'ah as the Friday congregational replacement for Dhuhr within `PrayerTimes`.
+The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The domain model now explicitly distinguishes the standard five-prayer timetable from the detailed Friday Jumu'ah information.
 
-The next implementation work should focus on completing the normalised model for verified optional content and then building the provider/cache/display layers.
+On Friday, Jumu'ah supplies the Adhan and Salaah/Jamaah values displayed in the Dhuhr slot of the standard timetable, with Khutbah as the Salaah fallback when no Salaah time is supplied. A separate Friday element will display the richer Jumu'ah information.
 
 ## Next Step
 
-Before adding further parser fields, capture the generated HTML (`View Source`) for the selected representative boards and use the page's embedded `boardId` + `theInfo` together as the authoritative fixture. This avoids the earlier problem of associating an opaque API response with the wrong public board.
+Before adding further parser fields, use the generated HTML (`View Source`) and the captured `functions_uo_latest.js` together as the authoritative upstream fixtures. This avoids the earlier problem of associating an opaque API response with the wrong public board.
 
 Then:
 
-1. Verify the remaining `theInfo` mappings against multiple boards where the same feature is populated.
-2. Freeze the normalised provider model around verified semantics.
+1. Trace the remaining Jumu'ah assignments and DOM/display usage so each detailed heading/time field is understood.
+2. Freeze the normalised detailed Jumu'ah representation around verified semantics.
 3. Add parser fixtures/tests using complete generated-page data for representative boards.
 4. Implement the MasjidBoard Live provider using the public `mid`, resolving `boardId` from the generated page rather than hard-coding it.
 5. Implement last-known-good local caching and refresh/recovery behaviour.

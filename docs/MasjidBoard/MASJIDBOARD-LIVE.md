@@ -277,7 +277,7 @@ This confirms that Jumu'ah is not limited to one service or one simple time valu
 | 15 | `liveStreamingServer` | Live-stream server |
 | 16 | `liveStreamingURL` | Live-stream URL |
 
-**Important source-code observation:** `handleResults()` assigns `spreadsheetArray[3][6]` to both `iftar` and `maghribAthan`. This should not be treated as proof that Iftar and Maghrib are semantically identical. Row 23 separately contains `maghribAthanI` and the other alternate-language Salah values. MasjidPi should preserve the upstream distinction where possible and verify this against actual board data.
+**Important source-code observation:** `handleResults()` assigns `spreadsheetArray[3][6]` to both `iftar` and `maghribAthan`. This does not establish that Iftar and Maghrib are semantically identical. A masjid may publish Iftar at a time that differs from the Maghrib Adhan by a few minutes, depending on its timetable/practice. MasjidPi must therefore retain this as an open research question rather than collapsing the two concepts in the normalised model. During Ramadhaan, compare real MasjidBoard Live boards that explicitly display both Iftar and Maghrib times to determine whether MasjidBoard Live supports distinct values or only exposes a shared source value. Row 23 separately contains `maghribAthanI` and other alternate-language Salah values.
 
 #### Row 4 — display/theme/time configuration
 
@@ -590,6 +590,20 @@ The MasjidBoard Live upstream mapping supports up to three Jumu'ah heading/time 
 
 The exact Go representation of the detailed events should be frozen only after the remaining JavaScript assignment/display path has been traced. The parser must not invent semantics for positional values that have not been verified.
 
+### Iftar and Maghrib remain distinct concepts pending Ramadhaan validation
+
+The current `functions_uo_latest.js` assigns the same upstream row-3 column to both `iftar` and `maghribAthan`. This is a **source mapping observation, not a semantic decision**.
+
+MasjidPi should treat Iftar and Maghrib Athaan as distinct concepts until the upstream behaviour is verified. A masjid may publish Iftar a few minutes before or otherwise separately from the Maghrib Athaan according to its own timetable/practice.
+
+The planned validation is to observe multiple MasjidBoard Live boards during Ramadhaan where both Iftar and Maghrib are explicitly displayed. The investigation should determine whether:
+
+- MasjidBoard Live supports distinct Iftar and Maghrib values;
+- both are always derived from one shared source value; or
+- the frontend displays a single value under different labels even when the underlying masjid timetable distinguishes them.
+
+Until that evidence exists, the normalised model must not silently equate Iftar with Maghrib Athaan.
+
 ### Do not mirror the 29-row structure in the domain model
 
 The 29-row response is an upstream transport/configuration format. It should not become the MasjidPi domain model.
@@ -613,21 +627,118 @@ type PrayerTime struct {
 
 This is appropriate because a prayer time is fundamentally a local mosque clock time; the calendar date and timezone are contextual.
 
+## Research Plan
+
+MasjidBoard remains a **research/development effort** and is not ready to be merged into `main` or included in the next MasjidPi release. The work should proceed through the following four research stages before production integration is considered.
+
+### Stage 1 — Complete the upstream schema
+
+Produce a definitive mapping of the MasjidBoard Live `theInfo` response and the corresponding frontend usage.
+
+For every relevant row and column, record:
+
+- row and column position;
+- source variable name;
+- observed meaning;
+- example values;
+- confidence level;
+- whether it is data, configuration, presentation state, or derived information;
+- known dependencies on other fields; and
+- unresolved questions.
+
+The output of this stage is the **MasjidBoard Live data contract** as currently understood by MasjidPi.
+
+This stage must also trace the remaining Jumu'ah heading/code semantics and investigate fields that `handleResults()` does not fully populate or explain.
+
+### Stage 2 — Cross-board validation
+
+Validate the Stage 1 mapping against multiple real MasjidBoard Live boards rather than relying on a single capture.
+
+Compare the same fields across the currently verified boards and add further representative boards where necessary. Particular attention should be given to:
+
+- Jumu'ah heading/code combinations;
+- optional and absent values;
+- alternate-language values;
+- announcements and programmes;
+- posters and media;
+- Islamic-date adjustments;
+- board configuration differences;
+- fields that appear only on some boards; and
+- Iftar versus Maghrib behaviour during Ramadhaan.
+
+The objective is to distinguish **actual upstream semantics** from values or behaviours that merely occur on one board.
+
+### Stage 3 — Define the normalised MasjidPi model
+
+Only after Stages 1 and 2 should the generic MasjidBoard domain model be finalised.
+
+The model should:
+
+- represent semantic concepts rather than the 29-row transport structure;
+- keep MasjidBoard Live-specific parsing inside the provider;
+- make fundamental identity and daily prayer times reliable;
+- make all other content optional;
+- preserve detailed Jumu'ah information without confusing it with the five daily prayers;
+- preserve Iftar and Maghrib as separate concepts unless upstream evidence proves they are equivalent; and
+- leave insufficiently understood upstream fields outside the model until their semantics are established.
+
+The result should be a provider-independent model that could accept another MasjidBoard data source later.
+
+### Stage 4 — Provider implementation and validation
+
+Implement the MasjidBoard Live provider against the normalised model.
+
+The provider should:
+
+```text
+public mid
+    |
+    v
+GET /v2/?mid=<mid>
+    |
+    +--> resolve boardId
+    |
+    +--> obtain theInfo
+    |
+    v
+parse upstream data
+    |
+    v
+normalised Board
+    |
+    +--> tests using captured fixtures
+```
+
+Implementation should then proceed through:
+
+1. Complete provider parsing for the verified schema.
+2. Fixture-based tests using representative real boards.
+3. Last-known-good local caching.
+4. Refresh and recovery behaviour.
+5. Media/image acquisition and caching.
+6. Validation of the provider independently from the display layer.
+7. Only after the provider is stable, implementation of the HDMI display scheduler/rendering layer.
+
+Completion of Stage 4 does **not** automatically mean MasjidBoard is ready for release. Release integration should only be considered after the provider, cache, display behaviour, and real-board validation are sufficiently mature for production use.
+
 ## Current Status
 
 The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The domain model now explicitly distinguishes the standard five-prayer timetable from the detailed Friday Jumu'ah information.
 
 On Friday, Jumu'ah supplies the Adhan and Salaah/Jamaah values displayed in the Dhuhr slot of the standard timetable, with Khutbah as the Salaah fallback when no Salaah time is supplied. A separate Friday element will display the richer Jumu'ah information.
 
-## Next Step
+Iftar versus Maghrib remains an open upstream-semantics question. The current source maps both names to one value, but MasjidPi will not assume they are semantically identical until Ramadhaan observations establish how MasjidBoard Live represents boards that distinguish the two times.
 
-Before adding further parser fields, use the generated HTML (`View Source`) and the captured `functions_uo_latest.js` together as the authoritative upstream fixtures. This avoids the earlier problem of associating an opaque API response with the wrong public board.
+The MasjidBoard implementation remains isolated on `research/masjidboard-live` and is **not part of the current MasjidPi release path**.
 
-Then:
+## Immediate Next Step
 
-1. Trace the remaining Jumu'ah assignments and DOM/display usage so each detailed heading/time field is understood.
-2. Freeze the normalised detailed Jumu'ah representation around verified semantics.
-3. Add parser fixtures/tests using complete generated-page data for representative boards.
-4. Implement the MasjidBoard Live provider using the public `mid`, resolving `boardId` from the generated page rather than hard-coding it.
-5. Implement last-known-good local caching and refresh/recovery behaviour.
-6. Build the standalone HDMI display application against the normalised model.
+Begin **Stage 1 — Complete the upstream schema** by tracing the remaining `functions_uo_latest.js` assignments and DOM/display usage, with particular focus on:
+
+1. Jumu'ah heading-code semantics.
+2. Rows 22–28 and fields whose assignments are incomplete or commented out.
+3. Media/image identifiers and their retrieval contract.
+4. Fields whose values are derived rather than directly supplied.
+5. Any upstream fields required to reproduce the full range of MasjidBoard Live content.
+
+No further production-facing MasjidPi integration should be undertaken until the Stage 1 and Stage 2 research has established a sufficiently reliable upstream data contract.

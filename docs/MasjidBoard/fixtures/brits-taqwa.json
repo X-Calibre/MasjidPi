@@ -1,0 +1,9 @@
+{
+  "fixture": "brits-taqwa",
+  "source_html": "../brits-taqwa.html",
+  "public_mid": "brits-taqwa",
+  "board_id": "1ZK8NtqROdU3Ww4THcHkHyDJN2gu98HC1ovBbGO7iooY",
+  "expected_theInfo_rows": 29,
+  "format": "MasjidBoard Live generated HTML fixture",
+  "notes": "The authoritative theInfo payload remains embedded in the source HTML. This fixture records the verified board identity so the HTML and extracted test data cannot be associated with the wrong board."
+}

@@ -1,0 +1,9 @@
+{
+  "fixture": "zakariyya-park-duzak",
+  "source_html": "../zakariyya-park-duzak.html",
+  "public_mid": "zakariyya-park-duzak",
+  "board_id": "1GcUzmzuO3XM-xXblab-Mq0lE2ddp_qGZ0w-eeMYwlK8",
+  "expected_theInfo_rows": 29,
+  "format": "MasjidBoard Live generated HTML fixture",
+  "notes": "The authoritative theInfo payload remains embedded in the source HTML. This fixture records the verified board identity so the HTML and extracted test data cannot be associated with the wrong board."
+}

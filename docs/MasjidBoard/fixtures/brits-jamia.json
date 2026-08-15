@@ -1,0 +1,9 @@
+{
+  "fixture": "brits-jamia",
+  "source_html": "../brits-jamia.html",
+  "public_mid": "brits-jamia",
+  "board_id": "1lTEEzl7sefO4W72c9iKxcUkB1ZReHhtZt9DFmCFfT_0",
+  "expected_theInfo_rows": 29,
+  "format": "MasjidBoard Live generated HTML fixture",
+  "notes": "The authoritative theInfo payload remains embedded in the source HTML. This fixture records the verified board identity so the HTML and extracted test data cannot be associated with the wrong board."
+}

@@ -1,0 +1,9 @@
+{
+  "fixture": "erasmia-aaisha",
+  "source_html": "../erasmia-aaisha.html",
+  "public_mid": "erasmia-aaisha",
+  "board_id": "1asEQ0Ju83TPqBFHw7NbBAihAxMt5JQ2bJkbaWnwKf7k",
+  "expected_theInfo_rows": 29,
+  "format": "MasjidBoard Live generated HTML fixture",
+  "notes": "The authoritative theInfo payload remains embedded in the source HTML. This fixture records the verified board identity so the HTML and extracted test data cannot be associated with the wrong board."
+}

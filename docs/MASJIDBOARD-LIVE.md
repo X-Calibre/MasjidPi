@@ -282,7 +282,7 @@ This confirms that Jumu'ah is not limited to one service or one simple time valu
 #### Row 4 — display/theme/time configuration
 
 | Column | Variable | Meaning |
----:|---|---|
+|---:|---|---|
 | 0 | `istiwaCaution` | Istiwa caution value |
 | 1 | `zawaalEnd` | Zawaal end |
 | 2 | `theme` | Board theme |
@@ -527,6 +527,55 @@ The only mandatory board content is:
 
 Everything else must be capable of being absent without making the board invalid. Optional content includes Jumu'ah, astronomical information, announcements, programmes, Eid, Nikah, funeral notices, posters, banking/contributions, moon information, Ayah/Hadith/Sunnah, and other board-specific content.
 
+### Jumu'ah is part of PrayerTimes
+
+**Decision:** Jumu'ah is modelled within `PrayerTimes` because it is a prayer service rather than generic optional board content.
+
+Jumu'ah is **not** modelled as a sixth daily prayer alongside Fajr, Dhuhr, Asr, Maghrib and Esha.
+
+### Jumu'ah replaces Dhuhr on Friday
+
+**Decision:** Jumu'ah represents the Friday congregational prayer that replaces Dhuhr for the Friday prayer schedule.
+
+The normalised model should preserve the distinction between the normal daily prayer schedule and the Friday congregational schedule:
+
+```text
+Normal daily prayer schedule
+    Fajr
+    Dhuhr
+    Asr
+    Maghrib
+    Esha
+
+Friday congregational schedule
+    Jumu'ah
+        ↓
+    replaces Dhuhr
+```
+
+The underlying Dhuhr/astronomical calculation may still be retained where MasjidBoard Live supplies it, because it can remain useful as timing/calculation data. However, the Friday congregational prayer displayed to the user is Jumu'ah rather than a Dhuhr Jamaah.
+
+### Jumu'ah may contain multiple services
+
+The MasjidBoard Live upstream mapping supports up to three Jumu'ah heading/time pairs and separate Khateeb, Adhan and Jamaah values. The normalised model should therefore represent Jumu'ah as an optional collection of services rather than a single time.
+
+Conceptually:
+
+```go
+type PrayerTimes struct {
+    Fajr    PrayerTime
+    Dhuhr   PrayerTime
+    Asr     PrayerTime
+    Maghrib PrayerTime
+    Esha    PrayerTime
+    Jumuah  []JumuahService
+}
+```
+
+`Jumuah` may be absent on boards that do not supply Jumu'ah information. It must not be required for a board to be valid, whereas the fundamental daily prayer times remain required.
+
+This decision supersedes the earlier categorisation of Jumu'ah as separate generic optional board content.
+
 ### Do not mirror the 29-row structure in the domain model
 
 The 29-row response is an upstream transport/configuration format. It should not become the MasjidPi domain model.
@@ -539,7 +588,9 @@ Ayah, Hadith and Sunnah are not critical to the initial implementation. Their pr
 
 ## Current Status
 
-The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The next implementation work should focus on completing the normalised model for verified optional content and then building the provider/cache/display layers.
+The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The domain model now explicitly treats Jumu'ah as the Friday congregational replacement for Dhuhr within `PrayerTimes`.
+
+The next implementation work should focus on completing the normalised model for verified optional content and then building the provider/cache/display layers.
 
 ## Next Step
 

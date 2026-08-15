@@ -3,84 +3,82 @@ package model
 import "time"
 
 // Board is the normalised representation of a MasjidBoard.
-// Identity, date context, and all five daily prayer times are required
-// for a usable board dataset. Other fields are optional enrichment.
+// Identity and the five daily prayer times are the required core.
+// Everything else is optional enrichment.
 type Board struct {
-	Identity                Identity
-	DateContext             DateContext
-	PrayerTimes             PrayerTimes
-	AstronomicalTimes       *AstronomicalTimes
-	JumuahServices          []JumuahService
-	Announcements           []Announcement
-	Programmes              []Programme
-	Notices                 []Notice
-	Media                   []Media
-	Banking                 *Banking
-	ContributionInformation *ContributionInformation
-	NewMoon                 *NewMoon
-	DisplayConfiguration    *DisplayConfiguration
+	Identity       BoardIdentity
+	DateContext    DateContext
+	PrayerTimes    PrayerTimes
+	Astronomical   *AstronomicalTimes
+	Announcements []Announcement
+	Programmes    []Programme
+	Notices       []Notice
+	Media         []Media
+	Banking       *Banking
+	NewMoon       *NewMoon
 }
 
-// Identity identifies the masjid represented by the board.
-type Identity struct {
-	SourceBoardID string
-	MasjidID      string
-	EnglishName   string
-	ArabicName    string
-	Location      string
+// BoardIdentity identifies the masjid represented by the board.
+type BoardIdentity struct {
+	ID            string
+	Name          string
+	AlternateName string
+	TimeZone      string
 }
 
 // DateContext describes the date and timezone to which the board applies.
 type DateContext struct {
 	GregorianDate time.Time
 	IslamicDate   string
-	Timezone      string
 }
 
-// PrayerTimes contains the five daily prayers. These are the core purpose
-// of the board and are deliberately represented as fixed semantic fields.
+// PrayerTimes contains the five daily prayers and optional Friday Jumu'ah
+// services. On Friday, Jumu'ah replaces Dhuhr as the congregational prayer.
 type PrayerTimes struct {
 	Fajr    PrayerTime
-	Zuhr    PrayerTime
+	Dhuhr   PrayerTime
 	Asr     PrayerTime
 	Maghrib PrayerTime
 	Esha    PrayerTime
+	Jumuah  []JumuahService
 }
 
-// PrayerTime contains the Adhan and Jamaah times for a prayer.
+// ClockTime is a local wall-clock time. The board timezone is stored once on
+// BoardIdentity rather than duplicated in every prayer time.
+type ClockTime struct {
+	Hour   int
+	Minute int
+}
+
+// PrayerTime contains the optional Adhan and Jamaah times for one prayer.
+// The prayer itself is part of the required five-prayer schedule; either
+// value may be absent when the upstream board does not supply it.
 type PrayerTime struct {
-	Adhan  *time.Time
-	Jamaah *time.Time
+	Adhan  *ClockTime
+	Jamaah *ClockTime
 }
 
-// AstronomicalTimes contains optional astronomical/perpetual prayer-related
-// times supplied by the upstream source.
-type AstronomicalTimes struct {
-	Suhur       *time.Time
-	FajrStart   *time.Time
-	Sunrise     *time.Time
-	Ishraaq     *time.Time
-	Duha        *time.Time
-	SolarNoon   *time.Time
-	ZuhrStart   *time.Time
-	AsrShafii   *time.Time
-	AsrHanafi   *time.Time
-	Sunset      *time.Time
-	EshaStart   *time.Time
-}
-
-// JumuahService represents one Jumuah service. Multiple services are
-// supported because a board may have more than one.
+// JumuahService represents one Friday congregational service. Multiple
+// services are supported. Individual fields may be absent.
 type JumuahService struct {
-	Title   string
-	Adhan   *time.Time
-	Lecture *time.Time
-	Khutbah *time.Time
-	Salah   *time.Time
+	Label   string
+	Adhan   *ClockTime
+	Jamaah  *ClockTime
 	Khateeb string
 }
 
-// Announcement is optional board content.
+type AstronomicalTimes struct {
+	Suhur     *ClockTime
+	FajrStart *ClockTime
+	Sunrise   *ClockTime
+	Ishraaq   *ClockTime
+	Duha      *ClockTime
+	AsrShafii *ClockTime
+	AsrHanafi *ClockTime
+	Sunset    *ClockTime
+	EshaStart *ClockTime
+}
+
 type Announcement struct {
 	Title       string
 	Content     string
@@ -88,7 +86,6 @@ type Announcement struct {
 	VisibleTo   *time.Time
 }
 
-// Programme represents an optional scheduled masjid programme.
 type Programme struct {
 	Title       string
 	Content     string
@@ -98,7 +95,6 @@ type Programme struct {
 	VisibleTo   *time.Time
 }
 
-// Notice represents optional community notice content.
 type Notice struct {
 	Type        NoticeType
 	Title       string
@@ -117,7 +113,6 @@ const (
 	NoticeTypeEid      NoticeType = "eid"
 )
 
-// Media represents an optional image/poster or other display asset.
 type Media struct {
 	SourceID       string
 	SourceURL      string
@@ -129,24 +124,10 @@ type Media struct {
 	DisplaySeconds int
 }
 
-// Banking contains optional banking information supplied by the board.
 type Banking struct {
 	Content string
 }
 
-// ContributionInformation contains optional contribution/donation information.
-type ContributionInformation struct {
-	Content string
-}
-
-// NewMoon contains optional lunar/new-moon information.
 type NewMoon struct {
 	Content string
-}
-
-// DisplayConfiguration contains optional board-specific display settings.
-// Detailed rendering configuration is intentionally kept outside the core
-// domain model until display design is finalised.
-type DisplayConfiguration struct {
-	Language string
 }

@@ -2,6 +2,7 @@
 
 UPDATE_STAGING="/opt/.masjidpi-staging"
 UPDATE_BACKUP="/opt/.masjidpi-backup"
+UPDATE_MARKER="/opt/.masjidpi-update-in-progress"
 
 prepare_update() {
     info "Preparing new MasjidPi runtime..."
@@ -24,6 +25,7 @@ activate_update() {
     local expected_version="$1"
 
     rm -rf "$UPDATE_BACKUP"
+    printf '%s\n' "$expected_version" > "$UPDATE_MARKER"
 
     stop_service
 
@@ -33,6 +35,7 @@ activate_update() {
 
     if start_service && run_selftest "$expected_version"; then
         rm -rf "$UPDATE_BACKUP"
+        rm -f "$UPDATE_MARKER"
         success "MasjidPi ${expected_version} installed and validated."
         return 0
     fi
@@ -44,6 +47,7 @@ activate_update() {
     mv "$UPDATE_BACKUP" "$INSTALL_DIR"
 
     if start_service && run_selftest; then
+        rm -f "$UPDATE_MARKER"
         success "Previous MasjidPi version restored successfully."
     else
         error "Automatic rollback failed. MasjidPi may require manual recovery."

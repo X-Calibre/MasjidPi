@@ -25,22 +25,21 @@ The current release provides:
 - Pre-built release packages
 - Bundled installer
 - Upgrade installation preserving configuration and runtime data
+- Safe update workflow
+- Safer update and recovery behaviour
+- Validation of a newly installed version before considering an update successful
+- Recovery/rollback path if an update fails
+- First-run and production installation workflow improvements
 
-The current release is considered functionally complete and reliable enough for normal use.
+The v1.0.8 release has been tested successfully on a Raspberry Pi 3 B and is considered functionally complete and reliable enough for normal use.
+
+The Updates & Recovery work is now considered complete. Remaining work should prioritise reliability and simplicity rather than unnecessary configuration options.
 
 ---
 
 ## Remaining Work
 
-### Updates & Recovery
-
-- Safe update workflow — Complete
-- Safer update and recovery behaviour — Complete
-- Validate a newly installed version before considering an update successful — Complete
-- Provide a recovery/rollback path if an update fails — Complete
-- Improve the first-run and production installation workflow where required — Complete
-
-The remaining work should prioritise reliability and simplicity rather than unnecessary configuration options.
+There are no outstanding Updates & Recovery items at this stage. Future work should focus on planned v2 capabilities and further reliability improvements where they provide clear user value.
 
 ---
 
@@ -128,6 +127,39 @@ This restructuring is a v2 architectural target and should not unnecessarily dis
 - Preconfigured operating environment
 - Repeatable image-based installation workflow
 
+### Linux x86-64 Appliance / Old Laptop Support
+
+MasjidPi should eventually support repurposing an older x86-64 laptop or PC as a dedicated MasjidPi appliance.
+
+The preferred approach is to use a lightweight Linux operating system rather than requiring Windows. This would allow the machine to boot directly into a simple, appliance-like MasjidPi environment without requiring users to manage a normal desktop operating system.
+
+Potential capabilities:
+
+- Support for standard Linux x86-64 hardware
+- Dedicated MasjidPi appliance installation/image
+- Automatic MasjidPi startup at boot
+- Audio output through built-in, USB, Bluetooth, or other supported Linux audio hardware
+- Optional HDMI display output for MasjidBoard
+- Ability to run MasjidPi Listen and MasjidPi Board together on the same machine
+- Reuse of the same MasjidPi Core, Listen, and Board architecture as Raspberry Pi deployments
+- Simple installation suitable for repurposing older laptops and PCs
+
+This should be treated as a platform/appliance target rather than a separate MasjidPi product. The application should remain shared across Raspberry Pi and x86-64 Linux, with platform-specific behaviour isolated where necessary.
+
+### Windows x64 Desktop Support
+
+Potential future support for running MasjidPi directly on Windows x64 as a desktop application.
+
+This is primarily intended as a convenience, development, testing, and desktop-listening platform rather than the preferred dedicated appliance platform. A Linux-based x86-64 appliance remains the preferred approach for repurposing an old laptop as a dedicated MasjidPi device.
+
+Potential capabilities:
+
+- Windows x64 build
+- Bundled or managed MPV runtime
+- Windows-compatible playback IPC and filesystem handling
+- Simple desktop installation
+- Local Web UI access
+
 ### Hardware & Advanced Audio
 
 - OLED display
@@ -202,5 +234,7 @@ MasjidPi should remain:
 - Independent of browser-local configuration
 - Modular, with Listen and Board capabilities separated from shared Core functionality
 - Resilient when optional external services are unavailable
+- Portable across appropriate hardware platforms without unnecessarily duplicating the application
+- Focused on appliance simplicity rather than exposing unnecessary configuration
 
 The project should prioritise a reliable home appliance experience over unnecessary complexity.

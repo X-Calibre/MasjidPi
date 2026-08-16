@@ -29,7 +29,7 @@ Install the latest official release with:
 curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
-The installer automatically detects the supported CPU architecture, downloads the latest release, verifies its checksum and installs MasjidPi as a system service.
+The installer automatically detects the supported CPU architecture, checks the local installation environment, downloads the latest release, verifies its checksum, installs MasjidPi as a system service and validates the running installation before reporting success.
 
 **No Git checkout or Go installation is required.**
 

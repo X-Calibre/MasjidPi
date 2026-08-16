@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining production work, and plann
 
 ## Current Status
 
-**v1.0.7 is released and verified on Raspberry Pi hardware.**
+**v1.0.8 is released and verified on Raspberry Pi hardware.**
 
 The current release provides:
 

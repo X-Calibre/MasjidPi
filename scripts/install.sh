@@ -15,6 +15,7 @@ source "$SCRIPT_DIR/build.sh"
 source "$SCRIPT_DIR/install_mode.sh"
 source "$SCRIPT_DIR/service.sh"
 source "$SCRIPT_DIR/selftest.sh"
+source "$SCRIPT_DIR/update.sh"
 
 SOURCE_MODE=false
 
@@ -65,17 +66,24 @@ main() {
         install_go
         update_repository
         build_project
+        RELEASE_VERSION="$("$PROJECT_ROOT/backend/build/masjidpi" --version)"
     else
         info "Release installation selected."
         install_packages release
         prepare_release
     fi
 
-    stop_service
-    install_runtime
-    install_service
-    start_service
-    run_selftest
+    if [ "$INSTALL_MODE" = "update" ]; then
+        trap cleanup_update EXIT
+        prepare_update
+        activate_update "$RELEASE_VERSION"
+    else
+        stop_service
+        install_runtime
+        install_service
+        start_service
+        run_selftest "$RELEASE_VERSION"
+    fi
 
     success "Installation completed."
     print_summary

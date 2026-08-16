@@ -37,7 +37,7 @@ start_service() {
     else
         error "MasjidPi failed to start."
         journalctl -u masjidpi --no-pager -n 20
-        exit 1
+        return 1
     fi
 
     success "MasjidPi service started."

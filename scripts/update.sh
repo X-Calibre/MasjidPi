@@ -15,13 +15,18 @@ prepare_update() {
     unset RUNTIME_TARGET
 
     [[ -x "$UPDATE_STAGING/bin/masjidpi" ]] || die "Staged MasjidPi binary is missing."
-    [[ -f "$UPDATE_STAGING/VERSION" ]] || die "Staged MasjidPi version file is missing."
     [[ -f "$UPDATE_STAGING/frontend/index.html" ]] || die "Staged MasjidPi frontend is missing."
 
-    local staged_version
-    staged_version="$(cat "$UPDATE_STAGING/VERSION")"
-    [[ "$staged_version" == "$RELEASE_VERSION" ]] || \
-        die "Staged version mismatch: expected $RELEASE_VERSION, found $staged_version."
+    if $SOURCE_MODE; then
+        info "Source build staged successfully."
+    else
+        [[ -f "$UPDATE_STAGING/VERSION" ]] || die "Staged MasjidPi version file is missing."
+
+        local staged_version
+        staged_version="$(cat "$UPDATE_STAGING/VERSION")"
+        [[ "$staged_version" == "$RELEASE_VERSION" ]] || \
+            die "Staged version mismatch: expected $RELEASE_VERSION, found $staged_version."
+    fi
 
     success "New runtime prepared."
 }

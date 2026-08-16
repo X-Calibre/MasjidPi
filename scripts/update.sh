@@ -77,10 +77,18 @@ activate_update() {
 
     if ! mv "$UPDATE_STAGING" "$INSTALL_DIR"; then
         error "Unable to activate the new MasjidPi runtime. Restoring previous version..."
-        mv "$UPDATE_BACKUP" "$INSTALL_DIR" || die "Previous MasjidPi runtime could not be restored."
+
+        if ! mv "$UPDATE_BACKUP" "$INSTALL_DIR"; then
+            die "Previous MasjidPi runtime could not be restored."
+        fi
+
         rm -f "$UPDATE_MARKER"
-        start_service || true
-        die "Update cancelled before the new runtime was activated."
+
+        if start_service && run_selftest; then
+            die "Update cancelled before the new runtime was activated. Previous version restored successfully."
+        fi
+
+        die "Update cancelled and previous MasjidPi runtime failed validation."
     fi
 
     if start_service && run_selftest "$expected_version"; then

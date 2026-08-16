@@ -18,11 +18,45 @@ prepare_update() {
     [[ -f "$UPDATE_STAGING/VERSION" ]] || die "Staged MasjidPi version file is missing."
     [[ -f "$UPDATE_STAGING/frontend/index.html" ]] || die "Staged MasjidPi frontend is missing."
 
+    local staged_version
+    staged_version="$(cat "$UPDATE_STAGING/VERSION")"
+    [[ "$staged_version" == "$RELEASE_VERSION" ]] || \
+        die "Staged version mismatch: expected $RELEASE_VERSION, found $staged_version."
+
     success "New runtime prepared."
+}
+
+rollback_update() {
+    error "MasjidPi ${RELEASE_VERSION} failed validation. Rolling back..."
+
+    stop_service || true
+
+    if [[ -d "$INSTALL_DIR" ]]; then
+        rm -rf "$INSTALL_DIR"
+    fi
+
+    if [[ -d "$UPDATE_BACKUP" ]]; then
+        mv "$UPDATE_BACKUP" "$INSTALL_DIR"
+    else
+        error "Previous MasjidPi runtime is not available for rollback."
+        return 1
+    fi
+
+    if start_service && run_selftest; then
+        rm -f "$UPDATE_MARKER"
+        success "Previous MasjidPi version restored successfully."
+        return 0
+    fi
+
+    error "Automatic rollback failed. MasjidPi may require manual recovery."
+    return 1
 }
 
 activate_update() {
     local expected_version="$1"
+
+    [[ -d "$UPDATE_STAGING" ]] || die "Update staging directory is missing."
+    [[ -d "$INSTALL_DIR" ]] || die "Current MasjidPi runtime is missing."
 
     rm -rf "$UPDATE_BACKUP"
     printf '%s\n' "$expected_version" > "$UPDATE_MARKER"
@@ -30,8 +64,19 @@ activate_update() {
     stop_service
 
     info "Activating MasjidPi ${expected_version}..."
-    mv "$INSTALL_DIR" "$UPDATE_BACKUP"
-    mv "$UPDATE_STAGING" "$INSTALL_DIR"
+
+    if ! mv "$INSTALL_DIR" "$UPDATE_BACKUP"; then
+        rm -f "$UPDATE_MARKER"
+        die "Unable to preserve the current MasjidPi runtime. Update cancelled."
+    fi
+
+    if ! mv "$UPDATE_STAGING" "$INSTALL_DIR"; then
+        error "Unable to activate the new MasjidPi runtime. Restoring previous version..."
+        mv "$UPDATE_BACKUP" "$INSTALL_DIR" || die "Previous MasjidPi runtime could not be restored."
+        rm -f "$UPDATE_MARKER"
+        start_service || true
+        die "Update cancelled before the new runtime was activated."
+    fi
 
     if start_service && run_selftest "$expected_version"; then
         rm -rf "$UPDATE_BACKUP"
@@ -40,17 +85,7 @@ activate_update() {
         return 0
     fi
 
-    error "MasjidPi ${expected_version} failed validation. Rolling back..."
-
-    stop_service || true
-    rm -rf "$INSTALL_DIR"
-    mv "$UPDATE_BACKUP" "$INSTALL_DIR"
-
-    if start_service && run_selftest; then
-        rm -f "$UPDATE_MARKER"
-        success "Previous MasjidPi version restored successfully."
-    else
-        error "Automatic rollback failed. MasjidPi may require manual recovery."
+    if rollback_update; then
         return 1
     fi
 

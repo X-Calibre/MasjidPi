@@ -38,7 +38,7 @@ The current release is considered functionally complete and reliable enough for 
 - Safer update and recovery behaviour — Complete
 - Validate a newly installed version before considering an update successful — Complete
 - Provide a recovery/rollback path if an update fails — Complete
-- Improve the first-run and production installation workflow where required
+- Improve the first-run and production installation workflow where required — Complete
 
 The remaining work should prioritise reliability and simplicity rather than unnecessary configuration options.
 

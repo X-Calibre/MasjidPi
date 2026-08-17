@@ -44,6 +44,12 @@ func (p *Playback) Save(streamID string) error {
 		return p.Clear()
 	}
 
+	if current, ok, err := p.Load(); err != nil {
+		return err
+	} else if ok && current == streamID {
+		return nil
+	}
+
 	if err := os.MkdirAll(filepath.Dir(p.path), 0755); err != nil {
 		return err
 	}

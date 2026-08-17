@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 )
 
 type FavouritesState struct {
@@ -36,6 +37,16 @@ func (f *Favourites) Load() ([]string, error) {
 }
 
 func (f *Favourites) Save(ids []string) error {
+	current, err := f.Load()
+	if err != nil {
+		return err
+	}
+	if reflect.DeepEqual(current, ids) {
+		if _, statErr := os.Stat(f.path); statErr == nil {
+			return nil
+		}
+	}
+
 	if err := os.MkdirAll(filepath.Dir(f.path), 0755); err != nil {
 		return err
 	}

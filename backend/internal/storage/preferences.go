@@ -41,6 +41,14 @@ func (p *Preferences) Save(state PreferencesState) error {
 		return err
 	}
 
+	if current, err := p.Load(); err == nil && current == state {
+		if _, statErr := os.Stat(p.path); statErr == nil {
+			return nil
+		}
+	} else if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
 	data, err := json.Marshal(state)
 	if err != nil {
 		return err

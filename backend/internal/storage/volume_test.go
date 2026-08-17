@@ -58,3 +58,30 @@ func TestVolumeRejectsOutOfRange(t *testing.T) {
 		t.Fatal("expected out-of-range volume to fail")
 	}
 }
+
+func TestVolumeSaveSkipsUnchangedValue(t *testing.T) {
+	path := t.TempDir() + "/volume.json"
+	state := NewVolume(path)
+	device := "alsa/plughw:CARD=USB,DEV=0"
+
+	if err := state.Save(device, 85); err != nil {
+		t.Fatalf("initial save: %v", err)
+	}
+
+	before, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat before unchanged save: %v", err)
+	}
+
+	if err := state.Save(device, 85); err != nil {
+		t.Fatalf("unchanged save: %v", err)
+	}
+
+	after, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat after unchanged save: %v", err)
+	}
+	if !os.SameFile(before, after) {
+		t.Fatal("unchanged volume replaced the state file")
+	}
+}

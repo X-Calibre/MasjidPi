@@ -17,7 +17,7 @@ MasjidPi is intended to run continuously on Raspberry Pi hardware where the prim
 
 `volume.json` is no longer rewritten when the requested device volume already matches the persisted value. This prevents redundant flash writes from repeated identical volume updates.
 
-The next volume optimisation is to separate live hardware-volume changes from persistence so dragging the Web UI slider does not cause a persistent write for every intermediate value.
+Web UI volume changes are now split into two operations: intermediate slider movement changes the live hardware volume without persistence, while the final slider value is persisted once when the control change completes. A short client-side debounce also prevents excessive API requests while the slider is being dragged.
 
 ### LiveMasjid MQTT logging
 
@@ -29,7 +29,6 @@ The MasjidPi service now applies systemd journal rate limiting so a persistent f
 
 ## Still to audit
 
-- Web UI volume persistence frequency.
 - Other persistent state writers for unchanged-value writes.
 - Catalogue update write patterns and atomicity.
 - systemd/journald persistent-vs-volatile storage policy for the appliance image.

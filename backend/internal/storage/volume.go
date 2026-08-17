@@ -68,6 +68,13 @@ func (v *Volume) Save(device string, volume int) error {
 			if state.Volumes == nil {
 				state.Volumes = make(map[string]int)
 			}
+
+			// Avoid rewriting the state file when the persisted value is already
+			// the requested value. This is especially important for volume changes
+			// because the UI may issue repeated updates while a slider is moved.
+			if existingVolume, ok := state.Volumes[device]; ok && existingVolume == volume {
+				return nil
+			}
 		}
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return err

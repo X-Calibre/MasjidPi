@@ -42,6 +42,13 @@ func (s *AudioDeviceState) Save(name string) error {
 	if name == "" {
 		return nil
 	}
+
+	if current, ok, err := s.Load(); err != nil {
+		return err
+	} else if ok && current == name {
+		return nil
+	}
+
 	if err := os.MkdirAll(filepath.Dir(s.path), 0755); err != nil {
 		return err
 	}

@@ -24,11 +24,9 @@
         const serial = requestSerial;
         clearTimeout(timer);
         timer = setTimeout(async () => {
+            if (serial !== requestSerial) return;
             try {
-                const status = await sendVolume(value, false);
-                if (serial === requestSerial && window.playerStatus !== undefined) {
-                    window.playerStatus = status;
-                }
+                await sendVolume(value, false);
             } catch (err) {
                 console.error(err);
             }
@@ -48,10 +46,7 @@
         clearTimeout(timer);
         requestSerial += 1;
         try {
-            const status = await sendVolume(value, true);
-            if (window.playerStatus !== undefined) {
-                window.playerStatus = status;
-            }
+            await sendVolume(value, true);
         } catch (err) {
             console.error(err);
         }

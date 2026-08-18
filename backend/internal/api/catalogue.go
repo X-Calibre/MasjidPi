@@ -1,15 +1,13 @@
 package api
 
-import (
-	"path/filepath"
-
-	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
-)
+import "github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
 
 func (s *Server) refreshCatalogue() error {
-	if err := catalogue.Update(filepath.Join(s.catalogueDataRoot, "page.html"), s.catalogueFile); err != nil {
+	streams, err := catalogue.Update(s.catalogueFile)
+	if err != nil {
 		return err
 	}
 
-	return s.streams.Reload(s.catalogueFile)
+	s.streams.Replace(streams)
+	return nil
 }

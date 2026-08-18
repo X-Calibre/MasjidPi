@@ -6,20 +6,21 @@ import (
 )
 
 type Paths struct {
-	AppRoot              string
-	DataRoot             string
-	ConfigRoot           string
-	Config               string
-	Catalogue            string
-	PlaybackState        string
-	AudioDeviceState     string
-	VolumeState          string
-	FavouritesState      string
-	PreferencesState     string
-	MasjidBoardSelection string
-	MasjidBoardCache     string
-	Frontend             string
-	Version              string
+	AppRoot               string
+	DataRoot              string
+	ConfigRoot            string
+	Config                string
+	Catalogue             string
+	PlaybackState         string
+	AudioDeviceState      string
+	VolumeState           string
+	FavouritesState       string
+	PreferencesState      string
+	MasjidBoardCatalogue  string
+	MasjidBoardSelection  string
+	MasjidBoardCache      string
+	Frontend              string
+	Version               string
 }
 
 func NewPaths(base string) Paths {
@@ -34,6 +35,7 @@ func NewPaths(base string) Paths {
 		VolumeState:          filepath.Join(base, "backend", "data", "volume.json"),
 		FavouritesState:      filepath.Join(base, "backend", "data", "favourites.json"),
 		PreferencesState:     filepath.Join(base, "backend", "data", "preferences.json"),
+		MasjidBoardCatalogue: filepath.Join(base, "backend", "data", "masjidboard_catalogue.json"),
 		MasjidBoardSelection: filepath.Join(base, "backend", "data", "masjidboard_selection.json"),
 		MasjidBoardCache:     filepath.Join(base, "backend", "data", "masjidboard_cache"),
 		Frontend:             filepath.Join(base, "frontend"),
@@ -54,6 +56,7 @@ func RuntimePaths() (Paths, error) {
 			VolumeState:          "/var/lib/masjidpi/volume.json",
 			FavouritesState:      "/var/lib/masjidpi/favourites.json",
 			PreferencesState:     "/var/lib/masjidpi/preferences.json",
+			MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
 			MasjidBoardSelection: "/var/lib/masjidpi/masjidboard_selection.json",
 			MasjidBoardCache:     "/var/lib/masjidpi/masjidboard_cache",
 			Frontend:             filepath.Join(home, "frontend"),
@@ -76,6 +79,7 @@ func RuntimePaths() (Paths, error) {
 				VolumeState:          "/var/lib/masjidpi/volume.json",
 				FavouritesState:      "/var/lib/masjidpi/favourites.json",
 				PreferencesState:     "/var/lib/masjidpi/preferences.json",
+				MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
 				MasjidBoardSelection: "/var/lib/masjidpi/masjidboard_selection.json",
 				MasjidBoardCache:     "/var/lib/masjidpi/masjidboard_cache",
 				Frontend:             filepath.Join(executableDir, "frontend"),

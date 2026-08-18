@@ -85,3 +85,25 @@ func TestVolumeSaveSkipsUnchangedValue(t *testing.T) {
 		t.Fatal("unchanged volume replaced the state file")
 	}
 }
+
+func TestVolumeLoadUsesCachedState(t *testing.T) {
+	path := t.TempDir() + "/volume.json"
+	device := "alsa/plughw:CARD=USB,DEV=0"
+	state := NewVolume(path)
+
+	if err := state.Save(device, 85); err != nil {
+		t.Fatalf("save volume: %v", err)
+	}
+
+	if err := os.WriteFile(path, []byte(`{"volumes":{"alsa/plughw:CARD=USB,DEV=0":40}}`), 0600); err != nil {
+		t.Fatalf("replace backing file: %v", err)
+	}
+
+	volume, ok, err := state.Load(device)
+	if err != nil {
+		t.Fatalf("load cached volume: %v", err)
+	}
+	if !ok || volume != 85 {
+		t.Fatalf("expected cached volume 85, got volume=%d ok=%v", volume, ok)
+	}
+}

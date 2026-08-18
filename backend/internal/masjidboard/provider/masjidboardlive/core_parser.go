@@ -226,18 +226,18 @@ func parseCoreAstronomical(parseClock func(string) (*model.ClockTime, error)) (*
 	}
 
 	return &model.AstronomicalTimes{
-		Suhur:          values[0],
-		FajrStart:      values[1],
-		Sunrise:        values[2],
-		Ishraaq:        values[3],
-		Duha:           values[4],
-		IstiwaCaution:  values[5],
-		Istiwa:         values[6],
-		ZawaalEnd:      values[7],
-		AsrShafii:      values[8],
-		AsrHanafi:      values[9],
-		Sunset:         values[10],
-		EshaStart:      values[11],
+		Suhur:         values[0],
+		FajrStart:     values[1],
+		Sunrise:       values[2],
+		Ishraaq:       values[3],
+		Duha:          values[4],
+		IstiwaCaution: values[5],
+		Istiwa:        values[6],
+		ZawaalEnd:     values[7],
+		AsrShafii:     values[8],
+		AsrHanafi:     values[9],
+		Sunset:        values[10],
+		EshaStart:     values[11],
 	}, nil
 }
 
@@ -269,18 +269,8 @@ func parseCoreJumuah(fields map[string]string, parseClock func(string) (*model.C
 
 	service := &model.JumuahService{Events: events}
 	for _, event := range events {
-		if event.Time == nil {
-			continue
-		}
-		switch event.Code {
-		case "0":
-			if service.Adhan == nil {
-				service.Adhan = event.Time
-			}
-		case "6":
-			if service.Jamaah == nil {
-				service.Jamaah = event.Time
-			}
+		if event.Time != nil && event.Code == "0" && service.Adhan == nil {
+			service.Adhan = event.Time
 		}
 	}
 	return service, nil

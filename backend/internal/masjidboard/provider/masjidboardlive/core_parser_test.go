@@ -100,7 +100,9 @@ func TestParseCoreObjectBritsJamia(t *testing.T) {
 		t.Fatalf("Jumuah event 3 = %+v", jumuah.Events[2])
 	}
 	assertCoreClock(t, "Jumuah Adhan", jumuah.Adhan, 12, 25)
-	assertCoreClock(t, "Jumuah Jamaah", jumuah.Jamaah, 13, 0)
+	if jumuah.Jamaah != nil {
+		t.Fatalf("Jumuah Jamaah = %+v, want nil because Core exposes Khutbah rather than a dedicated Jamaah field", jumuah.Jamaah)
+	}
 	assertCoreClock(t, "Jumuah effective Salaah", jumuah.EffectiveSalaah(), 13, 0)
 
 	if result.Metadata.MBLNumber != "MBL11517PRP" {
@@ -124,6 +126,10 @@ func TestParseCoreObjectAllowsJumuahPlaceholders(t *testing.T) {
 	raw = strings.Replace(raw, `jumuahTime3 : "13:00"`, `jumuahTime3 : "~~~~"`, 1)
 	raw = strings.Replace(raw, `jumuahHeadings : "0,1,6"`, `jumuahHeadings : "0,,6"`, 1)
 
+	if raw == string(loadCoreFixture(t)) {
+		t.Fatal("test fixture replacements did not apply")
+	}
+
 	result, err := ParseCoreObject([]byte(raw), coreIdentity(), time.Now())
 	if err != nil {
 		t.Fatalf("ParseCoreObject() error = %v", err)
@@ -141,6 +147,10 @@ func TestParseCoreObjectRejectsMissingCorePrayer(t *testing.T) {
 	raw := string(loadCoreFixture(t))
 	raw = strings.Replace(raw, `fajrAthan : "05:40"`, `fajrAthan : ""`, 1)
 	raw = strings.Replace(raw, `fajrJamaah : "06:00"`, `fajrJamaah : "~~~~"`, 1)
+
+	if raw == string(loadCoreFixture(t)) {
+		t.Fatal("test fixture replacements did not apply")
+	}
 
 	if _, err := ParseCoreObject([]byte(raw), coreIdentity(), time.Now()); err == nil {
 		t.Fatal("ParseCoreObject() expected an error for missing Fajr")

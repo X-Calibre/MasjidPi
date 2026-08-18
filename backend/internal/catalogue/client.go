@@ -2,9 +2,7 @@ package catalogue
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -20,26 +18,16 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) Download(url, filename string) error {
+func (c *Client) Get(url string) (*http.Response, error) {
 	resp, err := c.http.Get(url)
 	if err != nil {
-		return fmt.Errorf("download page: %w", err)
+		return nil, fmt.Errorf("download page: %w", err)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected HTTP status: %s", resp.Status)
+		resp.Body.Close()
+		return nil, fmt.Errorf("unexpected HTTP status: %s", resp.Status)
 	}
 
-	file, err := os.Create(filename)
-	if err != nil {
-		return fmt.Errorf("create file: %w", err)
-	}
-	defer file.Close()
-
-	if _, err := io.Copy(file, resp.Body); err != nil {
-		return fmt.Errorf("save page: %w", err)
-	}
-
-	return nil
+	return resp, nil
 }

@@ -120,13 +120,14 @@ func TestParseCoreObjectBritsJamia(t *testing.T) {
 }
 
 func TestParseCoreObjectAllowsJumuahPlaceholders(t *testing.T) {
-	raw := string(loadCoreFixture(t))
-	raw = strings.Replace(raw, `jumuahTime1 : "12:25"`, `jumuahTime1 : "~~~~"`, 1)
-	raw = strings.Replace(raw, `jumuahTime2 : "12:40"`, `jumuahTime2 : ""`, 1)
-	raw = strings.Replace(raw, `jumuahTime3 : "13:00"`, `jumuahTime3 : "~~~~"`, 1)
-	raw = strings.Replace(raw, `jumuahHeadings : "0,1,6"`, `jumuahHeadings : "0,,6"`, 1)
+	original := string(loadCoreFixture(t))
+	raw := original
+	raw = strings.Replace(raw, "jumuahTime1 : \"12:25\"", "jumuahTime1 : \"~~~~\"", 1)
+	raw = strings.Replace(raw, "jumuahTime2 : \"12:40\"", "jumuahTime2 : \"\"", 1)
+	raw = strings.Replace(raw, "jumuahTime3 : \"13:00\"", "jumuahTime3 : \"~~~~\"", 1)
+	raw = strings.Replace(raw, "jumuahHeadings : \"0,1,6\"", "jumuahHeadings : \"0,,6\"", 1)
 
-	if raw == string(loadCoreFixture(t)) {
+	if raw == original {
 		t.Fatal("test fixture replacements did not apply")
 	}
 
@@ -144,11 +145,12 @@ func TestParseCoreObjectAllowsJumuahPlaceholders(t *testing.T) {
 }
 
 func TestParseCoreObjectRejectsMissingCorePrayer(t *testing.T) {
-	raw := string(loadCoreFixture(t))
-	raw = strings.Replace(raw, `fajrAthan : "05:40"`, `fajrAthan : ""`, 1)
-	raw = strings.Replace(raw, `fajrJamaah : "06:00"`, `fajrJamaah : "~~~~"`, 1)
+	original := string(loadCoreFixture(t))
+	raw := original
+	raw = strings.Replace(raw, "fajrAthan : \"05:40\"", "fajrAthan : \"\"", 1)
+	raw = strings.Replace(raw, "fajrJamaah : \"06:00\"", "fajrJamaah : \"~~~~\"", 1)
 
-	if raw == string(loadCoreFixture(t)) {
+	if raw == original {
 		t.Fatal("test fixture replacements did not apply")
 	}
 

@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Record the current experimental validation status of the MasjidBoard Live Core provider path before discovery/catalogue integration continues.
+Record the current experimental validation status of the MasjidBoard Live Core provider path and its handoff from FindMasjid discovery.
 
 ## Working Source Architecture
 
@@ -90,7 +90,7 @@ Core placeholder values include empty strings and values such as `~~~~`. These a
 
 Khutbah remains semantically distinct from Jumu'ah Salaah/Jamaah. Where a dedicated Salaah/Jamaah value is unavailable, the existing domain-model fallback may use Khutbah as the effective Friday Salaah display time.
 
-## Live End-to-End Validation
+## Live Core End-to-End Validation
 
 On 2026-08-18, the production-shaped Core path was tested live against `brits-jamia`.
 
@@ -141,20 +141,81 @@ Stream provider  SmartBilal
 Stream URL       https://media.smartbilal.com/masjid/britsj
 ```
 
-This validates the complete Core provider path experimentally. It does not make MasjidBoard release-ready; caching, discovery/catalogue integration, broader failure handling and display integration remain separate work.
+## Live Discovery-to-Provider Validation
 
-## Next Work Item
+Also on 2026-08-18, the structured FindMasjid discovery path was tested live for Brits, South Africa.
 
-The next implementation/research boundary is discovery/catalogue integration:
+The endpoint returned three boards:
 
 ```text
-FindMasjid directory
-    -> discover board
-    -> normalise catalogue entry
-    -> obtain `web_url`
-    -> construct selected-board identity
+Jamiah Yusuf Darul Uloom Brits  -> brits-darul-uloom
+Brits Jamia Masjid              -> brits-jamia
+Masjid Taqwa                    -> brits-taqwa
+```
+
+`brits-jamia` was selected from the returned `CatalogueEntry` and passed through the formal provider handoff:
+
+```text
+FindMasjid
+    -> CatalogueEntry
+    -> NewCoreClientFromCatalogue(...)
     -> CoreClient
+    -> live Core board
     -> model.Board
 ```
 
-Discovery must remain independent from individual-board retrieval so a catalogue refresh failure does not prevent an already-selected board from continuing to operate from cached configuration/data.
+The handoff derived the provider identity without caller-side timezone construction:
+
+```text
+ID        brits-jamia
+Name      Brits Jamia Masjid
+Timezone  GMT+02:00
+```
+
+The subsequently retrieved live board preserved the same identity and returned the expected timetable:
+
+```text
+Fajr Jamaah      06:00
+Dhuhr Jamaah     13:20
+Asr Jamaah       17:00
+Maghrib Adhan    17:54
+Esha Jamaah      19:30
+```
+
+The discovery record and the independently retrieved Core board also agreed on the opaque upstream identifier:
+
+```text
+FindMasjid MBL_ID   MBL11517PRP
+Core mbl_number     MBL11517PRP
+```
+
+The handoff code preserves the full millisecond timezone offset and formats fixed-offset zones as `GMT±HH:MM`, including fractional offsets such as `+05:30` and `-03:30`.
+
+This validates the discovery -> catalogue entry -> Core provider path experimentally against the live service. It does not make MasjidBoard release-ready; catalogue persistence/refresh, selected-board persistence, caching, broader failure handling, Premium enrichment and display integration remain separate work.
+
+## Next Work Item
+
+The next boundary is **Stage 3 catalogue design and persistence strategy**.
+
+Before adding user-facing selection or scheduled catalogue refresh, define:
+
+1. the stable MasjidPi catalogue record and which FindMasjid fields belong in it;
+2. which upstream fields remain provider-only metadata;
+3. how catalogue entries are keyed, renamed and reconciled;
+4. how discovery timestamps and validation state are recorded;
+5. how a selected board is persisted independently from catalogue refresh;
+6. how last-known-good catalogue data is retained if discovery fails; and
+7. how catalogue refresh remains independent from retrieval of an already-selected board.
+
+The intended boundary remains:
+
+```text
+FindMasjid discovery
+    -> normalised local catalogue
+    -> user selects board
+    -> persist selected board identity
+    -> Core provider
+    -> cached normalised Board
+```
+
+Discovery and individual-board retrieval must remain independent so a catalogue refresh failure does not prevent an already-selected board from continuing to operate from cached configuration/data.

@@ -22,16 +22,17 @@ type masjidBoardStatusProvider interface {
 }
 
 type Server struct {
-	httpServer          *http.Server
-	logger              *slog.Logger
-	playback            *playback.Manager
-	streams             *stream.Store
-	favourites          *storage.Favourites
-	preferences         *storage.Preferences
-	audioDeviceState    *storage.AudioDeviceState
-	masjidBoardService  masjidBoardStatusProvider
-	catalogueFile       string
-	catalogueDataRoot   string
+	httpServer                 *http.Server
+	logger                     *slog.Logger
+	playback                   *playback.Manager
+	streams                    *stream.Store
+	favourites                 *storage.Favourites
+	preferences                *storage.Preferences
+	audioDeviceState           *storage.AudioDeviceState
+	masjidBoardService         masjidBoardStatusProvider
+	masjidBoardCataloguePath   string
+	catalogueFile              string
+	catalogueDataRoot          string
 }
 
 func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
@@ -63,6 +64,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/api/preferences", server.preferencesHandler)
 	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
 	mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
+	mux.HandleFunc("/api/masjidboard/catalogue", server.masjidBoardCatalogue)
 	mux.HandleFunc("/api/version", server.version)
 	mux.Handle("/", fileServer)
 
@@ -77,6 +79,12 @@ func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
 // provider without coupling MasjidBoard availability to the audio subsystem.
 func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	s.masjidBoardService = service
+}
+
+// SetMasjidBoardCataloguePath configures the disk-first local catalogue used
+// by the WebUI/API configuration surface. The catalogue is loaded on demand.
+func (s *Server) SetMasjidBoardCataloguePath(path string) {
+	s.masjidBoardCataloguePath = path
 }
 
 func (s *Server) Start() error {

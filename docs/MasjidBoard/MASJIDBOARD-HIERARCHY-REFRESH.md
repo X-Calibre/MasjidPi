@@ -42,7 +42,7 @@ A manual refresh bypasses the age check.
 
 ## Transactional Behaviour
 
-A candidate hierarchy must be completely retrieved and validated before it can replace the persisted hierarchy.
+A candidate hierarchy must be retrieved and structurally validated before it can replace the persisted hierarchy.
 
 ```text
 load last-known-good hierarchy
@@ -54,34 +54,48 @@ retrieve countries
 retrieve regions for every country
         |
         v
-retrieve cities for every region
+retrieve available cities for every region
         |
         v
-normalise + validate counts
+normalise + validate counts / unresolved coverage
         |
-        +--> failure
+        +--> structural or over-count failure
         |       -> retain previous hierarchy unchanged
         |
         +--> success
                 -> atomically persist candidate
 ```
 
-Network errors, malformed responses, incomplete traversal and persistence failures must not erase the previous hierarchy.
+Network errors while retrieving countries, regions or otherwise resolvable city lists, malformed responses, count over-runs and persistence failures must not erase the previous hierarchy.
 
-## Upstream Counts
+## Upstream Counts and Unresolved Coverage
 
 MasjidBoard Live exposes board counts at each hierarchy level. These are retained and used as completeness checks.
+
+The live all-country validation on 2026-08-18 detected 24 countries and 721 boards. It also established that the upstream hierarchy is not perfectly reversible at city level. South Africa exposed two boards that are counted by higher hierarchy levels but cannot currently be represented by a unique returned city row:
+
+- one board in a blank region bucket for which the city endpoint returns HTTP 500; and
+- one extra board included in a duplicate `Limpopo` region count, while the merged city response accounts for only 25 of the 26 boards.
+
+The hierarchy therefore distinguishes **resolved** city coverage from **unresolved** upstream coverage. `Region.UnresolvedCount` records the number of boards that are included in the authoritative upstream region count but are not represented by usable city rows.
 
 For a valid candidate:
 
 ```text
 sum(region counts) == country count
-sum(city counts)   == region count
+sum(city counts) + unresolved_count == region count
 ```
 
-Duplicate labels returned by upstream are merged before lower-level traversal and their counts are summed. This specifically accommodates observed upstream anomalies such as duplicate province labels.
+A city total greater than its region count is invalid and rejects the candidate. A city total below its region count is retained with the difference recorded as unresolved rather than causing all otherwise-valid countries and cities to remain stale.
 
-Blank region names are preserved because MasjidBoard Live has been observed to expose a legitimate blank region bucket. Blank country and city names are not accepted.
+A blank region is handled according to context:
+
+- if it is the country's only region, it represents a country without a province layer and its cities are resolved normally;
+- if it appears alongside named regions, it is preserved as an unresolved bucket instead of calling an upstream city request known to be non-resolvable for this shape.
+
+Duplicate labels returned by upstream are merged before lower-level traversal and their counts are summed. This accommodates observed duplicate province labels while retaining the upstream total for validation.
+
+Blank country and city names are not accepted.
 
 ## Relationship to Scoped Catalogue
 
@@ -102,5 +116,7 @@ city-level board catalogue
         v
 selected 1-3 boards
 ```
+
+Unresolved hierarchy counts are diagnostic metadata; they do not create synthetic city choices in the WebUI. Users select from the actual country / region / city rows that upstream exposes.
 
 Refreshing the hierarchy does not refresh selected board timetables. Those are separate runtime operations with their own last-known-good caches.

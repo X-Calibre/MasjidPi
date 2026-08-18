@@ -200,6 +200,7 @@ func sameHierarchy(a, b State) bool {
 				if ar.Cities[k] != br.Cities[k] {
 					return false
 				}
+			}
 		}
 	}
 	return true

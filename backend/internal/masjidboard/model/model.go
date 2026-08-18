@@ -65,12 +65,12 @@ type PrayerTime struct {
 // The event heading and source code are preserved so presentation-specific
 // translation can be applied later without losing the upstream value.
 type JumuahService struct {
-	Adhan          *ClockTime
-	Jamaah         *ClockTime
-	AlternateAdhan *ClockTime
+	Adhan           *ClockTime
+	Jamaah          *ClockTime
+	AlternateAdhan  *ClockTime
 	AlternateJamaah *ClockTime
-	Khateeb        string
-	Events         []JumuahEvent
+	Khateeb         string
+	Events          []JumuahEvent
 }
 
 // JumuahEvent is one of the three detailed Friday heading/time pairs supplied
@@ -102,15 +102,18 @@ func equalHeading(value, wanted string) bool {
 }
 
 type AstronomicalTimes struct {
-	Suhur     *ClockTime
-	FajrStart *ClockTime
-	Sunrise   *ClockTime
-	Ishraaq   *ClockTime
-	Duha      *ClockTime
-	AsrShafii *ClockTime
-	AsrHanafi *ClockTime
-	Sunset    *ClockTime
-	EshaStart *ClockTime
+	Suhur          *ClockTime
+	FajrStart      *ClockTime
+	Sunrise        *ClockTime
+	Ishraaq        *ClockTime
+	Duha           *ClockTime
+	IstiwaCaution  *ClockTime
+	Istiwa         *ClockTime
+	ZawaalEnd      *ClockTime
+	AsrShafii      *ClockTime
+	AsrHanafi      *ClockTime
+	Sunset         *ClockTime
+	EshaStart      *ClockTime
 }
 
 type Announcement struct {

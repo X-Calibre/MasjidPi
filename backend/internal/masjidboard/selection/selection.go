@@ -7,26 +7,42 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
 )
 
-const MaxBoards = 3
+const (
+	MinBoards = 1
+	MaxBoards = 3
+)
 
 // Board is the minimal last-known identity required to keep a selected
 // MasjidBoard usable without loading or refreshing the full catalogue.
 type Board struct {
-	CatalogueID       string `json:"catalogue_id"`
-	Provider          string `json:"provider"`
-	ExternalID        string `json:"external_id"`
-	Name              string `json:"name"`
-	TimeZoneOffsetMS  int64  `json:"time_zone_offset_ms"`
+	CatalogueID      string `json:"catalogue_id"`
+	Provider         string `json:"provider"`
+	ExternalID       string `json:"external_id"`
+	Name             string `json:"name"`
+	TimeZoneOffsetMS int64  `json:"time_zone_offset_ms"`
 }
 
 // State is the ordered set of boards selected by the user. Order is
 // significant and is preserved for display/UI purposes.
+//
+// The zero value represents an unconfigured MasjidBoard installation and is
+// returned when no persisted selection exists. A configured State must contain
+// between MinBoards and MaxBoards boards.
 type State struct {
 	Boards []Board `json:"boards"`
 }
 
-// Validate verifies the persisted selection contract.
+// Configured reports whether the state contains a user configuration.
+func (s State) Configured() bool {
+	return len(s.Boards) > 0
+}
+
+// Validate verifies a configured selection. An empty State is the internal
+// unconfigured state and is not a valid persisted user selection.
 func Validate(state State) error {
+	if len(state.Boards) < MinBoards {
+		return fmt.Errorf("masjidboard selection: at least %d board must be selected", MinBoards)
+	}
 	if len(state.Boards) > MaxBoards {
 		return fmt.Errorf("masjidboard selection: %d boards selected; maximum is %d", len(state.Boards), MaxBoards)
 	}

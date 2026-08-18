@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/api"
+	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
@@ -117,6 +118,16 @@ func Run() error {
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
 	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
+	server.SetAudioDeviceState(audioDeviceState)
+
+	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)
+	if err != nil {
+		return fmt.Errorf("parse catalogue refresh interval: %w", err)
+	}
+	if catalogueRefreshInterval <= 0 {
+		return fmt.Errorf("catalogue refresh interval must be greater than zero")
+	}
+	go monitorCatalogueRefresh(ctx, catalogueRefreshInterval, paths.Catalogue, streamStore, log)
 
 	go func() {
 		<-ctx.Done()
@@ -132,6 +143,29 @@ func Run() error {
 		return fmt.Errorf("HTTP server stopped: %w", err)
 	}
 	return nil
+}
+
+func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalogueFile string, streams *stream.Store, log interface {
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+}) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			updated, err := catalogue.Update(catalogueFile)
+			if err != nil {
+				log.Warn("Scheduled catalogue update failed", "error", err)
+				continue
+			}
+			streams.Replace(updated)
+			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()))
+		}
+	}
 }
 
 func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *player.MPV, state *storage.AudioDeviceState, log interface {

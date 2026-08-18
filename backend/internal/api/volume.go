@@ -9,8 +9,9 @@ import (
 )
 
 type VolumeRequest struct {
-	Volume      *int   `json:"volume,omitempty"`
+	Volume      *int  `json:"volume,omitempty"`
 	AudioDevice string `json:"audio_device,omitempty"`
+	Persist     *bool  `json:"persist,omitempty"`
 }
 
 func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
@@ -41,19 +42,33 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		paths, err := config.RuntimePaths()
-		if err != nil {
-			writeError(w, http.StatusInternalServerError, err.Error())
-			return
+		state := s.audioDeviceState
+		if state == nil {
+			paths, err := config.RuntimePaths()
+			if err != nil {
+				writeError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			state = storage.NewAudioDeviceState(paths.AudioDeviceState)
 		}
-		if err := storage.NewAudioDeviceState(paths.AudioDeviceState).Save(req.AudioDevice); err != nil {
+		if err := state.Save(req.AudioDevice); err != nil {
 			writeError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 	}
 
 	if req.Volume != nil {
-		if err := s.playback.Volume(*req.Volume); err != nil {
+		persist := true
+		if req.Persist != nil {
+			persist = *req.Persist
+		}
+
+		if persist {
+			if err := s.playback.Volume(*req.Volume); err != nil {
+				writeError(w, http.StatusBadRequest, err.Error())
+				return
+			}
+		} else if err := s.playback.SetVolumeTransient(*req.Volume); err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}

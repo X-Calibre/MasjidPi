@@ -1,24 +1,28 @@
 package catalogue
 
+import "github.com/X-Calibre/MasjidPi/backend/internal/stream"
+
 const LiveMasjidPageURL = "https://www.livemasjid.com"
 
-// Update downloads the latest LiveMasjid catalogue, parses it and writes the
-// generated catalogue to the supplied runtime paths.
-func Update(pageFile, catalogueFile string) error {
+// Update downloads and parses the latest LiveMasjid catalogue in memory, then
+// persists the generated catalogue only when its content has changed.
+func Update(catalogueFile string) ([]stream.Stream, error) {
 	client := NewClient()
 
-	if err := client.Download(LiveMasjidPageURL, pageFile); err != nil {
-		return err
-	}
-
-	streams, err := ParseHTML(pageFile)
+	resp, err := client.Get(LiveMasjidPageURL)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	streams, err := ParseHTML(resp.Body)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := WriteCatalogue(catalogueFile, streams); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return streams, nil
 }

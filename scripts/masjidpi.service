@@ -16,5 +16,10 @@ ExecStart=/opt/masjidpi/bin/masjidpi
 Restart=always
 RestartSec=5
 
+# Protect the SD card from runaway journal writes during persistent failures.
+# Normal application logs remain available, but bursts are rate-limited by systemd.
+LogRateLimitIntervalSec=30s
+LogRateLimitBurst=20
+
 [Install]
 WantedBy=multi-user.target

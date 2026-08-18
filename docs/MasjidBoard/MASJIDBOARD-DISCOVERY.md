@@ -188,6 +188,134 @@ The implementation should keep discovery separate from board retrieval so that a
 
 **Output:** A tested catalogue/discovery subsystem suitable for later integration into MasjidBoard, but not automatically part of the next MasjidPi release.
 
+## Verified Stage 1 Findings
+
+### Public directory endpoint
+
+The public Masjid Search page uses a structured backend endpoint rather than requiring HTML scraping:
+
+```text
+POST https://masjidboardlive.com/findmasjid/assets/php/live_page.php
+Content-Type: application/x-www-form-urlencoded
+```
+
+The captured browser traffic shows a hierarchical discovery flow:
+
+```text
+type=country
+    ↓
+type=province
+    ↓
+type=cityProvince
+    ↓
+type=masjid
+```
+
+This means MasjidPi can potentially enumerate the directory using structured responses rather than scraping rendered HTML.
+
+The country response includes both names and board counts. At the time of capture, South Africa reported 615 masjids and the directory contained 722 masjids in total across the returned countries.
+
+### Masjid catalogue record structure
+
+A `type=masjid` response returns a city name followed by structured masjid records. Observed fields include:
+
+```text
+masjid
+fajr_jamaat
+zuhr_jamaat
+asr_jamaat
+maghrib_adhan
+esha_jamaat
+last_updated
+MBL_ID
+city
+sunset
+time_zone_milli
+web_url
+jumuah_khutbah
+ramadhaanactive
+date_adjust
+moon_seen
+ladies_facility
+```
+
+The Core directory therefore already contains useful timetable data in addition to discovery metadata.
+
+### `web_url` is the important public slug
+
+Known Premium boards appear in the Core directory with a `web_url` that matches the public Premium `mid` already verified during individual-board research.
+
+Examples:
+
+| Masjid | Core `web_url` | Known Premium page |
+|---|---|---|
+| Darul Uloom Zakariyya | `zakariyya-park-duzak` | `mid=zakariyya-park-duzak` |
+| Masjid Aaisha | `erasmia-aaisha` | `mid=erasmia-aaisha` |
+| Madrasah Arabia Islamia / Darul Uloom | `azaadville-darul-uloom` | `mid=azaadville-darul-uloom` |
+| Brits Jamia Masjid | `brits-jamia` | `mid=brits-jamia` |
+| Masjid Taqwa, Brits | `brits-taqwa` | `mid=brits-taqwa` |
+| Fawkner Mosque | `fawkner-masjid` | `mid=fawkner-masjid` |
+
+This relationship has now been observed in both South Africa and Australia.
+
+**Current architectural direction:** Treat `web_url` as the upstream public slug used to correlate a Core catalogue entry with a possible Premium board. Continue to treat the long Premium `boardId` as an opaque implementation detail resolved only when retrieving an individual Premium board.
+
+### `MBL_ID` must remain opaque for now
+
+The Core catalogue also exposes an `MBL_ID`, but the observed suffixes do not map cleanly to Premium vs Basic/Free status.
+
+Known Premium boards have appeared with both `PRM` and `PRP` suffixes:
+
+| Known Premium board | Core `MBL_ID` |
+|---|---|
+| Darul Uloom Zakariyya | `MBL11300PRM` |
+| Masjid Aaisha | `MBL11145PRM` |
+| Azaadville Darul Uloom | `MBL11289PRP` |
+| Brits Jamia | `MBL11517PRP` |
+| Brits Taqwa | `MBL11443PRP` |
+| Fawkner Mosque | `MBL11390PRP` |
+
+Other observed catalogue suffixes include `CRM`, `CRP`, `CRS`, `EXT`, and additional `PRM`/`PRP` entries.
+
+Therefore MasjidPi must **not infer Premium status from the `MBL_ID` suffix** unless authoritative upstream evidence is found later. `MBL_ID` should be retained, if useful, only as opaque upstream metadata.
+
+### Stage 1 discovery conclusion so far
+
+The emerging discovery model is:
+
+```text
+MasjidBoard Live Core directory
+        |
+        v
+structured discovery endpoint
+        |
+        v
+Core catalogue entry
+        |
+        +-- masjid name
+        +-- geography
+        +-- timetable summary
+        +-- web_url
+        +-- opaque MBL_ID
+        |
+        v
+possible Premium capability probe using web_url
+        |
+        +-- Premium page resolves
+        |       -> richer Premium provider available
+        |
+        +-- Premium page unavailable
+                -> Core/Basic data remains usable if supported
+```
+
+This is deliberately independent of undocumented `MBL_ID` suffix semantics.
+
+### Data-quality observations
+
+The discovery layer must tolerate imperfect upstream geography and field values. Captured responses have shown duplicate or blank province entries and special placeholder values such as `~~~~`, `Hide`, empty strings, and `00:00` in timetable-related fields.
+
+The eventual catalogue parser must therefore validate and normalise upstream values rather than assuming that every returned field is clean or complete.
+
 ## Research Principles
 
 ### Do not confuse examples with a catalogue
@@ -262,4 +390,4 @@ The eventual architecture should therefore be:
 
 **Research only. No implementation is proposed yet.**
 
-The next step is to complete Stage 1 by identifying and testing the public discovery mechanisms for both Basic/Free and Premium boards before designing the catalogue around any particular endpoint or page structure.
+Stage 1 has now identified a structured public directory endpoint and verified that known Premium public slugs can be correlated with Core catalogue `web_url` values across multiple boards and countries. The next research task is to determine the safest and least assumption-driven way to test whether a discovered Core entry also exposes a usable Premium board, while retaining Core/Basic entries that may be useful without Premium access.

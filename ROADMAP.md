@@ -8,11 +8,12 @@ The roadmap focuses on the current product, remaining production work, and plann
 
 ## Current Status
 
-**v1.0.8 is released and verified on Raspberry Pi hardware.**
+**v1.0.10 is the current release.**
 
 The current release provides:
 
 - LiveMasjid stream catalogue and updates
+- Weekly automatic catalogue refresh plus manual refresh from the Web UI
 - Masjid search and discovery
 - Favourites
 - Web UI
@@ -30,16 +31,21 @@ The current release provides:
 - Validation of a newly installed version before considering an update successful
 - Recovery/rollback path if an update fails
 - First-run and production installation workflow improvements
+- Application-level SD-card write optimisations, including in-memory state caching, reduced logging, atomic state writes, and in-memory catalogue processing
 
-The v1.0.8 release has been tested successfully on a Raspberry Pi 3 B and is considered functionally complete and reliable enough for normal use.
+The v1.0.8 release was tested successfully on a Raspberry Pi 3 B and established the current stable appliance baseline. v1.0.10 builds on that baseline with application-level SD-card write and filesystem-activity optimisations.
 
-The Updates & Recovery work is now considered complete. Remaining work should prioritise reliability and simplicity rather than unnecessary configuration options.
+The Updates & Recovery work and application-level SD-card write optimisation are now considered complete. Remaining reliability work should prioritise measured OS-level appliance behaviour and simplicity rather than unnecessary configuration options.
 
 ---
 
 ## Remaining Work
 
-There are no outstanding Updates & Recovery items at this stage. Future work should focus on planned v2 capabilities and further reliability improvements where they provide clear user value.
+There are no outstanding application-level Updates & Recovery or SD-card write optimisation items at this stage.
+
+OS-level SD-card behaviour should be measured on Raspberry Pi hardware before deciding whether appliance-specific changes to journald, swap, or other system services are justified.
+
+Future work should otherwise focus on planned capabilities and further reliability improvements where they provide clear user value.
 
 ---
 

@@ -85,7 +85,10 @@ func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
 	mount := parts[1]
 	payload := string(msg.Payload())
 
-	c.log.Info(
+	// Individual MQTT events can be frequent during normal operation. Keep
+	// them at DEBUG so routine status traffic does not fill the persistent
+	// system journal. Connection/subscription failures remain WARN/ERROR.
+	c.log.Debug(
 		"LiveMasjid MQTT event received",
 		"topic", msg.Topic(),
 		"mount", mount,

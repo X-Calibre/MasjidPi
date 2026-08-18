@@ -15,8 +15,11 @@ source "$SCRIPT_DIR/build.sh"
 source "$SCRIPT_DIR/install_mode.sh"
 source "$SCRIPT_DIR/service.sh"
 source "$SCRIPT_DIR/selftest.sh"
+source "$SCRIPT_DIR/update.sh"
+source "$SCRIPT_DIR/preflight.sh"
 
 SOURCE_MODE=false
+INSTALL_SUCCEEDED=false
 
 usage() {
     cat <<EOF
@@ -45,9 +48,24 @@ parse_args() {
     esac
 }
 
+cleanup_failed_install() {
+    local status=$?
+
+    if [[ "$status" -ne 0 && "${INSTALL_MODE:-}" == "install" && "$INSTALL_SUCCEEDED" != true ]]; then
+        warn "Installation did not complete. Cleaning up the application runtime..."
+        stop_service || true
+        rm -rf "$INSTALL_DIR"
+        rm -rf "$UPDATE_STAGING" "$UPDATE_BACKUP"
+        rm -f "$UPDATE_MARKER"
+    fi
+
+    return "$status"
+}
+
 main() {
     require_root
     parse_args "${1:-}"
+    preflight_install
 
     detect_os
     detect_arch
@@ -65,20 +83,30 @@ main() {
         install_go
         update_repository
         build_project
+        RELEASE_VERSION="$("$PROJECT_ROOT/backend/build/masjidpi" --version)"
     else
         info "Release installation selected."
         install_packages release
         prepare_release
     fi
 
-    stop_service
-    install_runtime
-    install_service
-    start_service
-    run_selftest
+    if [ "$INSTALL_MODE" = "update" ]; then
+        trap cleanup_update EXIT
+        prepare_update
+        activate_update "$RELEASE_VERSION"
+    else
+        stop_service
+        install_runtime
+        install_service
+        start_service
+        run_selftest "$RELEASE_VERSION"
+    fi
 
+    INSTALL_SUCCEEDED=true
     success "Installation completed."
     print_summary
 }
+
+trap cleanup_failed_install EXIT
 
 main "$@"

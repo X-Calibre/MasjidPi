@@ -1,7 +1,7 @@
 package catalogue
 
 import (
-	"os"
+	"io"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -9,15 +9,8 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 )
 
-func ParseHTML(filename string) ([]stream.Stream, error) {
-
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	doc, err := goquery.NewDocumentFromReader(file)
+func ParseHTML(r io.Reader) ([]stream.Stream, error) {
+	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
 		return nil, err
 	}
@@ -25,15 +18,10 @@ func ParseHTML(filename string) ([]stream.Stream, error) {
 	var streams []stream.Stream
 
 	doc.Find(".bs-component").Each(func(i int, card *goquery.Selection) {
-
 		link := card.Find(".masjidname")
-
 		name := clean(link.Text())
-
 		href, _ := link.Attr("href")
-
 		id := strings.TrimSpace(strings.TrimPrefix(href, "/"))
-
 		location := clean(card.Find(".location").Text())
 
 		streams = append(streams, stream.Stream{
@@ -42,7 +30,6 @@ func ParseHTML(filename string) ([]stream.Stream, error) {
 			Location: location,
 			URL:      RelayBaseURL + id,
 		})
-
 	})
 
 	return streams, nil

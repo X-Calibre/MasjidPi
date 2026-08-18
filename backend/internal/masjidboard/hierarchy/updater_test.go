@@ -102,6 +102,9 @@ func TestUpdaterManualBuildsCompleteHierarchy(t *testing.T) {
 	if len(cities) != 2 || cities[0].Name != "Brits" || cities[1].Name != "Rustenburg" {
 		t.Fatalf("cities = %+v", cities)
 	}
+	if result.State.Countries[0].Regions[0].UnresolvedCount != 0 {
+		t.Fatalf("unresolved = %d, want 0", result.State.Countries[0].Regions[0].UnresolvedCount)
+	}
 }
 
 func TestUpdaterMergesDuplicateRegionLabelsBeforeCityFetch(t *testing.T) {
@@ -112,7 +115,7 @@ func TestUpdaterMergesDuplicateRegionLabelsBeforeCityFetch(t *testing.T) {
 			"South Africa": {{Name: "Limpopo", Count: 25}, {Name: "Limpopo", Count: 1}},
 		},
 		cities: map[string][]Location{
-			"South Africa|Limpopo": {{Name: "Polokwane", Count: 26}},
+			"South Africa|Limpopo": {{Name: "Polokwane", Count: 25}},
 		},
 	}
 	store := &fakeHierarchyStore{}
@@ -125,12 +128,44 @@ func TestUpdaterMergesDuplicateRegionLabelsBeforeCityFetch(t *testing.T) {
 	if len(regions) != 1 || regions[0].Name != "Limpopo" || regions[0].Count != 26 {
 		t.Fatalf("regions = %+v", regions)
 	}
+	if regions[0].UnresolvedCount != 1 {
+		t.Fatalf("unresolved = %d, want 1", regions[0].UnresolvedCount)
+	}
 	if source.calls != 3 {
 		t.Fatalf("source calls = %d, want 3 (countries, regions, cities once)", source.calls)
 	}
 }
 
-func TestUpdaterRejectsIncompleteCountAndPreservesLastKnownGood(t *testing.T) {
+func TestUpdaterPreservesMixedBlankRegionAsUnresolved(t *testing.T) {
+	now := time.Date(2026, 8, 18, 12, 0, 0, 0, time.UTC)
+	source := &fakeHierarchySource{
+		countries: []Location{{Name: "South Africa", Count: 3}},
+		regions: map[string][]Location{
+			"South Africa": {{Name: "", Count: 1}, {Name: "Gauteng", Count: 2}},
+		},
+		cities: map[string][]Location{
+			"South Africa|Gauteng": {{Name: "Pretoria", Count: 2}},
+		},
+	}
+	store := &fakeHierarchyStore{}
+
+	result, err := (Updater{Source: source, Store: store}).RefreshManual(context.Background(), now)
+	if err != nil {
+		t.Fatalf("RefreshManual() error = %v", err)
+	}
+	regions := result.State.Countries[0].Regions
+	if len(regions) != 2 {
+		t.Fatalf("regions = %+v", regions)
+	}
+	if regions[0].Name != "" || regions[0].UnresolvedCount != 1 || len(regions[0].Cities) != 0 {
+		t.Fatalf("blank region = %+v", regions[0])
+	}
+	if source.calls != 3 {
+		t.Fatalf("source calls = %d, want 3 (countries, regions, one city request)", source.calls)
+	}
+}
+
+func TestUpdaterRejectsCityCountExceedingRegionAndPreservesLastKnownGood(t *testing.T) {
 	now := time.Date(2026, 8, 18, 12, 0, 0, 0, time.UTC)
 	old := State{
 		RetrievedAt: now.Add(-8 * 24 * time.Hour),
@@ -141,7 +176,7 @@ func TestUpdaterRejectsIncompleteCountAndPreservesLastKnownGood(t *testing.T) {
 	source := &fakeHierarchySource{
 		countries: []Location{{Name: "South Africa", Count: 2}},
 		regions: map[string][]Location{"South Africa": {{Name: "North West", Count: 2}}},
-		cities: map[string][]Location{"South Africa|North West": {{Name: "Brits", Count: 1}}},
+		cities: map[string][]Location{"South Africa|North West": {{Name: "Brits", Count: 3}}},
 	}
 
 	result, err := (Updater{Source: source, Store: store}).RefreshManual(context.Background(), now)

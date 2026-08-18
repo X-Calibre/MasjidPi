@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 type AudioDevice struct {
@@ -13,6 +14,11 @@ type AudioDevice struct {
 
 type AudioDeviceState struct {
 	path string
+
+	mu     sync.RWMutex
+	loaded bool
+	name   string
+	ok     bool
 }
 
 func NewAudioDeviceState(path string) *AudioDeviceState {
@@ -20,8 +26,26 @@ func NewAudioDeviceState(path string) *AudioDeviceState {
 }
 
 func (s *AudioDeviceState) Load() (string, bool, error) {
+	s.mu.RLock()
+	if s.loaded {
+		name, ok := s.name, s.ok
+		s.mu.RUnlock()
+		return name, ok, nil
+	}
+	s.mu.RUnlock()
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.loaded {
+		return s.name, s.ok, nil
+	}
+
 	data, err := os.ReadFile(s.path)
 	if errors.Is(err, os.ErrNotExist) {
+		s.loaded = true
+		s.name = ""
+		s.ok = false
 		return "", false, nil
 	}
 	if err != nil {
@@ -32,10 +56,11 @@ func (s *AudioDeviceState) Load() (string, bool, error) {
 	if err := json.Unmarshal(data, &state); err != nil {
 		return "", false, err
 	}
-	if state.Name == "" {
-		return "", false, nil
-	}
-	return state.Name, true, nil
+
+	s.loaded = true
+	s.name = state.Name
+	s.ok = state.Name != ""
+	return s.name, s.ok, nil
 }
 
 func (s *AudioDeviceState) Save(name string) error {
@@ -43,9 +68,11 @@ func (s *AudioDeviceState) Save(name string) error {
 		return nil
 	}
 
-	if current, ok, err := s.Load(); err != nil {
+	current, ok, err := s.Load()
+	if err != nil {
 		return err
-	} else if ok && current == name {
+	}
+	if ok && current == name {
 		return nil
 	}
 
@@ -57,5 +84,34 @@ func (s *AudioDeviceState) Save(name string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(s.path, data, 0644)
+
+	tmp, err := os.CreateTemp(filepath.Dir(s.path), ".audio-device-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+
+	if err := tmp.Chmod(0644); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpName, s.path); err != nil {
+		return err
+	}
+
+	s.mu.Lock()
+	s.loaded = true
+	s.name = name
+	s.ok = true
+	s.mu.Unlock()
+
+	return nil
 }

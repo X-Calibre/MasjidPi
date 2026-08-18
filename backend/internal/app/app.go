@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -128,7 +127,7 @@ func Run() error {
 	if catalogueRefreshInterval <= 0 {
 		return fmt.Errorf("catalogue refresh interval must be greater than zero")
 	}
-	go monitorCatalogueRefresh(ctx, catalogueRefreshInterval, paths.DataRoot, paths.Catalogue, streamStore, log)
+	go monitorCatalogueRefresh(ctx, catalogueRefreshInterval, paths.Catalogue, streamStore, log)
 
 	go func() {
 		<-ctx.Done()
@@ -146,7 +145,7 @@ func Run() error {
 	return nil
 }
 
-func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, dataRoot, catalogueFile string, streams *stream.Store, log interface {
+func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalogueFile string, streams *stream.Store, log interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
 }) {
@@ -158,15 +157,12 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, dataRo
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			pageFile := filepath.Join(dataRoot, "page.html")
-			if err := catalogue.Update(pageFile, catalogueFile); err != nil {
+			updated, err := catalogue.Update(catalogueFile)
+			if err != nil {
 				log.Warn("Scheduled catalogue update failed", "error", err)
 				continue
 			}
-			if err := streams.Reload(catalogueFile); err != nil {
-				log.Warn("Scheduled catalogue reload failed", "error", err)
-				continue
-			}
+			streams.Replace(updated)
 			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()))
 		}
 	}
@@ -232,7 +228,6 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 					log.Warn("Audio device unavailable, falling back to automatic output", "audio_device", name)
 					lastMode = "fallback"
 				}
-			}
 		}
 	}
 }

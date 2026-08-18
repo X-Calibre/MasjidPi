@@ -163,7 +163,7 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap.
 
 ## Project Status
 
-**Current stable release: v1.0.10**
+**Current stable release: v1.0.11**
 
 MasjidPi is actively developed and has been validated on a Raspberry Pi 3B running 64-bit ARM64 Linux.
 

@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 )
 
 type Store struct {
+	mu      sync.RWMutex
 	streams []Stream
 }
 
@@ -27,23 +29,33 @@ func (s *Store) Reload(filename string) error {
 	}
 
 	var streams []Stream
-
 	if err := json.Unmarshal(data, &streams); err != nil {
 		return err
 	}
 
-	s.streams = streams
-
+	s.Replace(streams)
 	return nil
 }
 
+func (s *Store) Replace(streams []Stream) {
+	copyOfStreams := append([]Stream(nil), streams...)
+	s.mu.Lock()
+	s.streams = copyOfStreams
+	s.mu.Unlock()
+}
+
 func (s *Store) All() []Stream {
-	return s.streams
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]Stream(nil), s.streams...)
 }
 
 func (s *Store) FindByID(id string) (*Stream, error) {
-	for _, stream := range s.streams {
-		if stream.ID == id {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for _, item := range s.streams {
+		if item.ID == id {
+			stream := item
 			return &stream, nil
 		}
 	}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 type VolumeState struct {
@@ -15,6 +16,9 @@ type VolumeState struct {
 
 type Volume struct {
 	path string
+	mu sync.Mutex
+	loaded bool
+	state VolumeState
 }
 
 func NewVolume(path string) *Volume {
@@ -22,31 +26,13 @@ func NewVolume(path string) *Volume {
 }
 
 func (v *Volume) Load(device string) (int, bool, error) {
-	data, err := os.ReadFile(v.path)
-	if errors.Is(err, os.ErrNotExist) {
-		return 0, false, nil
-	}
-	if err != nil {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
+	if err := v.loadLocked(); err != nil {
 		return 0, false, err
 	}
-
-	var state VolumeState
-	if err := json.Unmarshal(data, &state); err != nil {
-		return 0, false, err
-	}
-
-	if state.Volumes != nil {
-		volume, ok := state.Volumes[device]
-		if ok && volume >= 0 && volume <= 100 {
-			return volume, true, nil
-		}
-	}
-
-	if state.Volume != nil && *state.Volume >= 0 && *state.Volume <= 100 {
-		return *state.Volume, true, nil
-	}
-
-	return 0, false, nil
+	return volumeFromState(v.state, device)
 }
 
 func (v *Volume) Save(device string, volume int) error {
@@ -56,33 +42,28 @@ func (v *Volume) Save(device string, volume int) error {
 	if volume < 0 || volume > 100 {
 		return errors.New("volume must be between 0 and 100")
 	}
+
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
+	if err := v.loadLocked(); err != nil {
+		return err
+	}
+	if existingVolume, ok := v.state.Volumes[device]; ok && existingVolume == volume {
+		return nil
+	}
+
 	if err := os.MkdirAll(filepath.Dir(v.path), 0755); err != nil {
 		return err
 	}
 
-	state := VolumeState{Volumes: map[string]int{}}
-	if data, err := os.ReadFile(v.path); err == nil {
-		var existing VolumeState
-		if json.Unmarshal(data, &existing) == nil {
-			state.Volumes = existing.Volumes
-			if state.Volumes == nil {
-				state.Volumes = make(map[string]int)
-			}
-
-			// Avoid rewriting the state file when the persisted value is already
-			// the requested value. This is especially important for volume changes
-			// because the UI may issue repeated updates while a slider is moved.
-			if existingVolume, ok := state.Volumes[device]; ok && existingVolume == volume {
-				return nil
-			}
-		}
-	} else if !errors.Is(err, os.ErrNotExist) {
-		return err
+	if v.state.Volumes == nil {
+		v.state.Volumes = make(map[string]int)
 	}
-	state.Volumes[device] = volume
-	state.Volume = nil
+	v.state.Volumes[device] = volume
+	v.state.Volume = nil
 
-	data, err := json.Marshal(state)
+	data, err := json.Marshal(v.state)
 	if err != nil {
 		return err
 	}
@@ -105,6 +86,47 @@ func (v *Volume) Save(device string, volume int) error {
 	if err := tmp.Close(); err != nil {
 		return err
 	}
+	if err := os.Rename(tmpName, v.path); err != nil {
+		return err
+	}
 
-	return os.Rename(tmpName, v.path)
+	return nil
+}
+
+func (v *Volume) loadLocked() error {
+	if v.loaded {
+		return nil
+	}
+
+	state := VolumeState{Volumes: make(map[string]int)}
+	data, err := os.ReadFile(v.path)
+	if errors.Is(err, os.ErrNotExist) {
+		v.state = state
+		v.loaded = true
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(data, &state); err != nil {
+		return err
+	}
+	if state.Volumes == nil {
+		state.Volumes = make(map[string]int)
+	}
+	v.state = state
+	v.loaded = true
+	return nil
+}
+
+func volumeFromState(state VolumeState, device string) (int, bool, error) {
+	if state.Volumes != nil {
+		if volume, ok := state.Volumes[device]; ok && volume >= 0 && volume <= 100 {
+			return volume, true, nil
+		}
+	}
+	if state.Volume != nil && *state.Volume >= 0 && *state.Volume <= 100 {
+		return *state.Volume, true, nil
+	}
+	return 0, false, nil
 }

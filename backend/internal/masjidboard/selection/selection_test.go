@@ -19,14 +19,31 @@ func selected(id, name string, offset int64) Board {
 	}
 }
 
-func TestValidateAllowsUpToThreeBoards(t *testing.T) {
-	state := State{Boards: []Board{
-		selected("brits-jamia", "Brits Jamia Masjid", 7200000),
-		selected("brits-taqwa", "Masjid Taqwa", 7200000),
-		selected("brits-darul-uloom", "Jamiah Yusuf Darul Uloom Brits", 7200000),
-	}}
-	if err := Validate(state); err != nil {
-		t.Fatalf("Validate() error = %v", err)
+func TestStateConfigured(t *testing.T) {
+	if (State{}).Configured() {
+		t.Fatal("zero State should be unconfigured")
+	}
+	if !(State{Boards: []Board{selected("brits-jamia", "Brits Jamia Masjid", 7200000)}}).Configured() {
+		t.Fatal("state with a selected board should be configured")
+	}
+}
+
+func TestValidateRejectsUnconfiguredState(t *testing.T) {
+	if err := Validate(State{}); err == nil {
+		t.Fatal("Validate() expected an error for an empty configured selection")
+	}
+}
+
+func TestValidateAllowsOneToThreeBoards(t *testing.T) {
+	for count := 1; count <= 3; count++ {
+		boards := []Board{
+			selected("brits-jamia", "Brits Jamia Masjid", 7200000),
+			selected("brits-taqwa", "Masjid Taqwa", 7200000),
+			selected("brits-darul-uloom", "Jamiah Yusuf Darul Uloom Brits", 7200000),
+		}
+		if err := Validate(State{Boards: boards[:count]}); err != nil {
+			t.Fatalf("Validate() with %d boards error = %v", count, err)
+		}
 	}
 }
 
@@ -75,14 +92,35 @@ func TestFromCatalogueRecord(t *testing.T) {
 	}
 }
 
-func TestStoreMissingSelection(t *testing.T) {
+func TestStoreMissingSelectionIsUnconfigured(t *testing.T) {
 	store := NewStore(filepath.Join(t.TempDir(), "selection.json"))
 	state, err := store.Load()
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
-	if len(state.Boards) != 0 {
-		t.Fatalf("Boards = %d, want 0", len(state.Boards))
+	if state.Configured() || len(state.Boards) != 0 {
+		t.Fatalf("Load() = %+v, want unconfigured state", state)
+	}
+}
+
+func TestStoreRejectsEmptySelectionSave(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "selection.json")
+	store := NewStore(path)
+	if err := store.Save(State{}); err == nil {
+		t.Fatal("Save() expected an error for empty selection")
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("selection file should not exist after rejected empty save; stat err = %v", err)
+	}
+}
+
+func TestStoreRejectsPersistedEmptySelection(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "selection.json")
+	if err := os.WriteFile(path, []byte(`{"boards":[]}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := NewStore(path).Load(); err == nil {
+		t.Fatal("Load() expected validation error for persisted empty selection")
 	}
 }
 
@@ -100,7 +138,7 @@ func TestStoreSaveLoadPreservesOrder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
-	if len(got.Boards) != 2 || got.Boards[0].ExternalID != "brits-taqwa" || got.Boards[1].ExternalID != "brits-jamia" {
+	if !got.Configured() || len(got.Boards) != 2 || got.Boards[0].ExternalID != "brits-taqwa" || got.Boards[1].ExternalID != "brits-jamia" {
 		t.Fatalf("order not preserved: %+v", got.Boards)
 	}
 }

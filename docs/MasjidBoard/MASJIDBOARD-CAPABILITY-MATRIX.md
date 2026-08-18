@@ -165,6 +165,94 @@ Hide
 
 Other placeholder values already observed elsewhere in MasjidBoard Live research should be handled consistently by the provider rather than allowed to reach the domain model as clock times.
 
+## Timetable Generation and Freshness Semantics
+
+MasjidBoard Live supports more than one timetable-management model. Its own public documentation states that Adhan and Iqamah times can auto-update year-on-year so that timetable data only needs to be entered once. It also describes upcoming Iqamah changes that update automatically for the entire year, while explicitly supporting manual input for masjids that do not have a perpetual salaah-time calendar.
+
+MasjidBoard Live additionally supports temporary overrides of a perpetual timetable for unexpected Salaah-time changes and special Ramadan times. Its FindMasjid release notes explicitly refer to masjids with a perpetual-times calendar that may not yet have updated their Ramadan times.
+
+The working upstream model is therefore:
+
+```text
+Perpetual timetable
+    -> annual/calendar data is entered upstream
+    -> today's applicable values can be selected/generated automatically
+    -> routine daily administrator edits are not required
+
+Manual timetable
+    -> a masjid without a perpetual salaah-time calendar can enter/update
+       timetable values manually
+
+Temporary override
+    -> normal perpetual values can be overridden for unexpected changes,
+       Ramadan or other special timetable requirements
+```
+
+This distinction is important for MasjidPi freshness handling. An old upstream edit timestamp does not by itself prove that today's timetable is stale.
+
+### `last_updated` observations
+
+The same `last_updated` value was observed through FindMasjid and the Core board page for the two boards where it was populated:
+
+```text
+erasmia-abu-bakr
+    FindMasjid: Fri, 15 May 2026, 00:00:00
+    Core:       Fri, 15 May 2026, 00:00:00
+
+brits-jamia
+    FindMasjid: Sun, 22 Mar 2026, 12:47:25
+    Core:       Sun, 22 Mar 2026, 12:47:25
+```
+
+For `fawkner-rahman`, both previously observed FindMasjid data and the Core board expose an empty `last_updated`, while still exposing a complete usable timetable.
+
+The current evidence therefore supports these conclusions:
+
+- `last_updated` is shared upstream metadata exposed through more than one public interface;
+- it is optional in practice;
+- an empty value does not mean that timetable data is unavailable;
+- an old value does not by itself mean that the current day's timetable is stale; and
+- `last_updated` must not be used as MasjidPi's sole freshness test.
+
+The exact authoritative meaning of `last_updated` is not yet proven from upstream implementation. It is reasonable to treat it as an upstream edit/update indicator, but MasjidPi must not assume that it represents the time today's timetable was generated.
+
+### MasjidPi freshness model
+
+The working model should keep upstream metadata separate from MasjidPi's own retrieval state:
+
+```text
+upstream_last_updated
+    -> optional value supplied by MasjidBoard Live
+    -> retained as source metadata
+    -> never used alone to reject an otherwise valid timetable
+
+retrieved_at
+    -> time MasjidPi successfully retrieved the board response
+
+validated_at
+    -> time MasjidPi successfully parsed and validated the board response
+
+timetable_date
+    -> local date for which the normalised timetable applies
+```
+
+A rule such as `upstream_last_updated older than N days = stale` would be unsafe because perpetual timetable data can remain valid without frequent manual edits.
+
+MasjidPi freshness should instead be based primarily on successful retrieval, successful parsing/validation and the date context of the timetable. Upstream `last_updated` can remain useful informational metadata where supplied.
+
+### What is not yet proven
+
+The research does **not** establish either of these relationships:
+
+```text
+blank last_updated     = perpetual timetable
+populated last_updated = manually maintained timetable
+```
+
+Those would be unsupported inferences. A future sample may show that both perpetual and manual boards can have populated or empty values.
+
+The next freshness investigation should therefore look for explicit timetable-mode/configuration evidence rather than attempting to infer mode from `last_updated`.
+
 ## Premium Capability Probe
 
 A discovered `web_url` can be probed using:
@@ -223,7 +311,7 @@ HTTP status alone is not sufficient; the generated Premium page structure must a
 | Public `web_url` / `mid` | Yes | Used for retrieval | Yes |
 | Masjid/city discovery metadata | Yes | Page metadata exists | Yes |
 | Timezone offset | Yes | Not in observed `data` object | Yes |
-| Last-updated value | Yes | Yes where supplied | Not yet defined as catalogue metadata |
+| Last-updated value | Optional | Optional | Not yet defined as catalogue metadata |
 | Fajr Adhan | No | Yes | Yes |
 | Fajr Jamaah | Yes | Yes | Yes |
 | Dhuhr Adhan | No | Yes | Yes |
@@ -469,8 +557,8 @@ Premium capability should continue to be determined by the Premium capability pr
 Stage 2 is not complete. Remaining research includes:
 
 1. broader Core schema sampling across more countries and `MBL_ID` variants;
-2. operational meaning and reliability of Core `last_updated`;
-3. why some boards expose an empty `last_updated` value;
+2. whether an explicit perpetual/manual timetable mode is exposed in Core, Premium or supporting JavaScript/configuration;
+3. operational meaning of `last_updated` beyond the confirmed fact that it is optional shared upstream metadata;
 4. whether Core and Premium can temporarily diverge for the same board;
 5. defined production behaviour if such a divergence is observed;
 6. exact Core Jumu'ah behaviour across more `jumuahHeadings` combinations;
@@ -484,6 +572,8 @@ The standard timetable source question is now sufficiently validated for researc
 
 **Core is the working primary timetable source; Premium is an optional enrichment source.**
 
-The next Stage 2 work should focus on freshness, defensive parsing, broader schema sampling and remaining Ramadan/Jumu'ah semantics before production implementation is frozen.
+The freshness investigation has also established that MasjidBoard Live supports perpetual, manual and temporary-override timetable workflows. `last_updated` cannot safely be interpreted as the age of today's timetable.
+
+The next Stage 2 work should look for explicit timetable-mode/configuration evidence and broaden Core schema sampling before production implementation is frozen.
 
 No MasjidBoard work from this research branch is intended to be merged into the next MasjidPi release until the module is substantially further developed and validated.

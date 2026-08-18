@@ -143,6 +143,12 @@ func TestParseJumuahAllowsEmptyRow(t *testing.T) {
 	}
 }
 
+func TestCorePlaceholderIsAbsent(t *testing.T) {
+	if !isAbsent("~~~~") {
+		t.Fatal("expected ~~~~ to be treated as absent")
+	}
+}
+
 func TestParseRejectsIncomplete29RowResponse(t *testing.T) {
 	rows := loadCapturedRows(t)[:28]
 	if _, err := Parse(rows, "board-id", time.Now()); err == nil {

@@ -31,13 +31,13 @@ type Item struct {
 
 // Result is the independent runtime state for one selected board.
 type Result struct {
-	Selection             selection.Board
-	Board                 *model.Board
-	Status                Status
-	LastAttempt           time.Time
-	LastSuccessfulUpdate  time.Time
-	UpdateError           error
-	PersistenceError      error
+	Selection            selection.Board
+	Board                *model.Board
+	Status               Status
+	LastAttempt          time.Time
+	LastSuccessfulUpdate time.Time
+	UpdateError          error
+	PersistenceError     error
 }
 
 // CacheStore is the last-known-good persistence contract used by Coordinator.
@@ -80,7 +80,7 @@ func newWithClock(items []Item, cacheStore CacheStore, now func() time.Time) (*C
 		}
 		state.Boards[i] = item.Selection
 	}
-	if err := selection.ValidateConfigured(state); err != nil {
+	if err := selection.Validate(state); err != nil {
 		return nil, fmt.Errorf("masjidboard runtime: invalid selection: %w", err)
 	}
 

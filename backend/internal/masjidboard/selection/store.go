@@ -11,8 +11,8 @@ import (
 )
 
 // Store persists the small runtime selection state. Unlike the full catalogue,
-// selection state is loaded once and retained in memory because normal runtime
-// needs it continuously.
+// configured selection state is loaded once and retained in memory because
+// normal runtime needs it continuously.
 type Store struct {
 	path   string
 	mu     sync.Mutex
@@ -26,7 +26,8 @@ func NewStore(path string) *Store {
 }
 
 // Load reads the selection at most once and returns a defensive copy.
-// A missing file means no boards are currently selected.
+// A missing file returns the zero State, which represents an unconfigured
+// MasjidBoard installation rather than a valid configured selection.
 func (s *Store) Load() (State, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -37,8 +38,10 @@ func (s *Store) Load() (State, error) {
 	return cloneState(s.state), nil
 }
 
-// Save validates and atomically persists selection state. Identical state is a
-// no-op. Selection order is significant and therefore participates in equality.
+// Save validates and atomically persists a configured selection. A configured
+// selection must contain one to three boards; an empty selection is rejected.
+// Identical state is a no-op. Selection order is significant and therefore
+// participates in equality.
 func (s *Store) Save(state State) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -52,10 +55,6 @@ func (s *Store) Save(state State) error {
 
 	state = cloneState(state)
 	if s.exists && reflect.DeepEqual(s.state, state) {
-		return nil
-	}
-	if !s.exists && len(state.Boards) == 0 {
-		s.state = state
 		return nil
 	}
 

@@ -25,13 +25,36 @@ func (c DiscoveryClient) Countries(ctx context.Context) ([]HierarchyEntry, error
 
 // Regions returns the province/region buckets beneath a country. Blank region
 // names are intentionally preserved because upstream has been observed to
-// expose a legitimate blank bucket.
+// expose a legitimate blank bucket. Some countries do not have a province
+// hierarchy at all; FindMasjid returns city rows plus a "changeToCity" marker
+// for those countries. They are represented as one blank region whose count is
+// the sum of the directly returned cities.
 func (c DiscoveryClient) Regions(ctx context.Context, country string) ([]HierarchyEntry, error) {
 	country = strings.TrimSpace(country)
 	if country == "" {
 		return nil, fmt.Errorf("masjidboardlive: country is required")
 	}
-	return c.fetchHierarchyPairs(ctx, "province", country, country, "", "")
+
+	body, err := c.postDiscovery(ctx, "province", country, country, "", "")
+	if err != nil {
+		return nil, err
+	}
+	if entries, err := parseHierarchyPairs(body, true); err == nil {
+		return entries, nil
+	}
+
+	cities, direct, err := parseDirectCityResponse(body)
+	if err != nil {
+		return nil, fmt.Errorf("masjidboardlive: decode region hierarchy response: %w", err)
+	}
+	if !direct {
+		return nil, fmt.Errorf("masjidboardlive: unsupported region hierarchy response for %q", country)
+	}
+	var total int
+	for _, city := range cities {
+		total += city.Count
+	}
+	return []HierarchyEntry{{Name: "", Count: total}}, nil
 }
 
 // Cities returns the town/city buckets beneath a country and region. The
@@ -39,6 +62,11 @@ func (c DiscoveryClient) Regions(ctx context.Context, country string) ([]Hierarc
 // grouping metadata used only by its frontend; only the primary rows are
 // returned here. The primary rows have been observed in both pair-array and
 // object forms, so both upstream encodings are accepted.
+//
+// For countries with no province hierarchy, Regions represents the direct
+// city level as a blank region. We first try the normal cityProvince request;
+// if that is unavailable, we repeat the province request and consume the
+// upstream "changeToCity" response.
 func (c DiscoveryClient) Cities(ctx context.Context, country, region string) ([]HierarchyEntry, error) {
 	country = strings.TrimSpace(country)
 	region = strings.TrimSpace(region)
@@ -46,6 +74,26 @@ func (c DiscoveryClient) Cities(ctx context.Context, country, region string) ([]
 		return nil, fmt.Errorf("masjidboardlive: country is required")
 	}
 
+	entries, err := c.fetchCities(ctx, country, region)
+	if err == nil {
+		return entries, nil
+	}
+	if region != "" {
+		return nil, err
+	}
+
+	body, fallbackErr := c.postDiscovery(ctx, "province", country, country, "", "")
+	if fallbackErr != nil {
+		return nil, err
+	}
+	cities, direct, fallbackErr := parseDirectCityResponse(body)
+	if fallbackErr != nil || !direct {
+		return nil, err
+	}
+	return cities, nil
+}
+
+func (c DiscoveryClient) fetchCities(ctx context.Context, country, region string) ([]HierarchyEntry, error) {
 	body, err := c.postDiscovery(ctx, "cityProvince", region, country, region, "")
 	if err != nil {
 		return nil, err
@@ -145,6 +193,31 @@ func parseHierarchyPairs(raw []byte, allowBlankName bool) ([]HierarchyEntry, err
 		entries = append(entries, entry)
 	}
 	return entries, nil
+}
+
+// parseDirectCityResponse recognises the FindMasjid response used when a
+// country skips the province level:
+//
+//   [<city rows>, <grouping rows>, "changeToCity"]
+//
+// Only the primary city rows are relevant to MasjidPi.
+func parseDirectCityResponse(raw []byte) ([]HierarchyEntry, bool, error) {
+	var top []json.RawMessage
+	if err := json.Unmarshal(raw, &top); err != nil {
+		return nil, false, err
+	}
+	if len(top) < 3 {
+		return nil, false, nil
+	}
+	var marker string
+	if err := json.Unmarshal(top[2], &marker); err != nil || marker != "changeToCity" {
+		return nil, false, nil
+	}
+	entries, err := parseCityHierarchyRows(top[0])
+	if err != nil {
+		return nil, true, err
+	}
+	return entries, true, nil
 }
 
 func parseCityHierarchyRows(raw []byte) ([]HierarchyEntry, error) {

@@ -3,7 +3,6 @@ package catalogue
 import (
 	"fmt"
 	"sort"
-	"time"
 )
 
 // Reconcile combines a validated discovery candidate with the current
@@ -86,44 +85,3 @@ func cloneRecord(record Record) Record {
 	}
 	return copy
 }
-
-// EqualContent compares catalogue data while ignoring discovery timestamps.
-// It is intended for future persistence code to avoid writes when a refresh
-// only advances freshness metadata without changing user-relevant records.
-func EqualContent(a, b Catalogue) bool {
-	if len(a.Records) != len(b.Records) {
-		return false
-	}
-
-	for i := range a.Records {
-		if !equalRecordContent(a.Records[i], b.Records[i]) {
-			return false
-		}
-	}
-	return true
-}
-
-func equalRecordContent(a, b Record) bool {
-	if a.ID != b.ID ||
-		a.Provider != b.Provider ||
-		a.ExternalID != b.ExternalID ||
-		a.Name != b.Name ||
-		a.City != b.City ||
-		a.Region != b.Region ||
-		a.Country != b.Country ||
-		a.TimeZoneOffsetMS != b.TimeZoneOffsetMS ||
-		a.Status != b.Status {
-		return false
-	}
-	if len(a.ProviderMetadata) != len(b.ProviderMetadata) {
-		return false
-	}
-	for key, value := range a.ProviderMetadata {
-		if b.ProviderMetadata[key] != value {
-			return false
-		}
-	}
-	return true
-}
-
-var _ = time.Time{}

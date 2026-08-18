@@ -80,9 +80,16 @@ func (s State) Validate() error {
 // because MasjidBoard Live has been observed to expose legitimate blank region
 // buckets.
 func (s State) Normalized() State {
-	out := State{RetrievedAt: s.RetrievedAt, ValidatedAt: s.ValidatedAt}
-	countries := make(map[string]*Country)
+	type regionAccumulator struct {
+		count  int
+		cities map[string]int
+	}
+	type countryAccumulator struct {
+		count   int
+		regions map[string]*regionAccumulator
+	}
 
+	countries := make(map[string]*countryAccumulator)
 	for _, sourceCountry := range s.Countries {
 		countryName := strings.TrimSpace(sourceCountry.Name)
 		if countryName == "" {
@@ -90,48 +97,41 @@ func (s State) Normalized() State {
 		}
 		country := countries[countryName]
 		if country == nil {
-			country = &Country{Name: countryName}
+			country = &countryAccumulator{regions: make(map[string]*regionAccumulator)}
 			countries[countryName] = country
 		}
-		country.Count += sourceCountry.Count
+		country.count += sourceCountry.Count
 
-		regionMap := make(map[string]*Region)
-		for i := range country.Regions {
-			regionMap[country.Regions[i].Name] = &country.Regions[i]
-		}
 		for _, sourceRegion := range sourceCountry.Regions {
 			regionName := strings.TrimSpace(sourceRegion.Name)
-			region := regionMap[regionName]
+			region := country.regions[regionName]
 			if region == nil {
-				country.Regions = append(country.Regions, Region{Name: regionName})
-				region = &country.Regions[len(country.Regions)-1]
-				regionMap[regionName] = region
+				region = &regionAccumulator{cities: make(map[string]int)}
+				country.regions[regionName] = region
 			}
-			region.Count += sourceRegion.Count
-
-			cityCounts := make(map[string]int)
-			for _, city := range region.Cities {
-				cityCounts[strings.TrimSpace(city.Name)] += city.Count
-			}
-			for _, city := range sourceRegion.Cities {
-				name := strings.TrimSpace(city.Name)
-				if name != "" {
-					cityCounts[name] += city.Count
+			region.count += sourceRegion.Count
+			for _, sourceCity := range sourceRegion.Cities {
+				cityName := strings.TrimSpace(sourceCity.Name)
+				if cityName != "" {
+					region.cities[cityName] += sourceCity.Count
 				}
 			}
-			region.Cities = region.Cities[:0]
-			for name, count := range cityCounts {
-				if name != "" {
-					region.Cities = append(region.Cities, Location{Name: name, Count: count})
-				}
-			}
-			sort.Slice(region.Cities, func(i, j int) bool { return region.Cities[i].Name < region.Cities[j].Name })
 		}
-		sort.Slice(country.Regions, func(i, j int) bool { return country.Regions[i].Name < country.Regions[j].Name })
 	}
 
-	for _, country := range countries {
-		out.Countries = append(out.Countries, *country)
+	out := State{RetrievedAt: s.RetrievedAt, ValidatedAt: s.ValidatedAt}
+	for countryName, sourceCountry := range countries {
+		country := Country{Name: countryName, Count: sourceCountry.count}
+		for regionName, sourceRegion := range sourceCountry.regions {
+			region := Region{Name: regionName, Count: sourceRegion.count}
+			for cityName, count := range sourceRegion.cities {
+				region.Cities = append(region.Cities, Location{Name: cityName, Count: count})
+			}
+			sort.Slice(region.Cities, func(i, j int) bool { return region.Cities[i].Name < region.Cities[j].Name })
+			country.Regions = append(country.Regions, region)
+		}
+		sort.Slice(country.Regions, func(i, j int) bool { return country.Regions[i].Name < country.Regions[j].Name })
+		out.Countries = append(out.Countries, country)
 	}
 	sort.Slice(out.Countries, func(i, j int) bool { return out.Countries[i].Name < out.Countries[j].Name })
 	return out

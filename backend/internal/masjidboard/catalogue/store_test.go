@@ -1,6 +1,7 @@
 package catalogue
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -150,7 +151,7 @@ func TestStoreLoadReadsDiskOnDemand(t *testing.T) {
 
 	second := testCatalogue()
 	second.Records[0].Name = "Changed On Disk"
-	data, err := jsonMarshal(second)
+	data, err := json.Marshal(second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -230,10 +231,6 @@ func TestStoreFailedSaveKeepsPersistedLastKnownGood(t *testing.T) {
 	if got.Records[0].ID != state.Records[0].ID {
 		t.Fatalf("persisted last-known-good state changed after failed Save(): %+v", got)
 	}
-}
-
-func jsonMarshal(state Catalogue) ([]byte, error) {
-	return json.Marshal(state)
 }
 
 func cataloguesEqual(a, b Catalogue) bool {

@@ -51,7 +51,7 @@ func TestHierarchyRegionsPreservesBlankBucket(t *testing.T) {
 	}
 }
 
-func TestHierarchyCitiesUsesPrimaryRows(t *testing.T) {
+func TestHierarchyCitiesUsesPrimaryPairRows(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			t.Fatalf("ParseForm() error = %v", err)
@@ -76,6 +76,40 @@ func TestHierarchyCitiesUsesPrimaryRows(t *testing.T) {
 	}
 }
 
+func TestHierarchyCitiesSupportsObjectRows(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if r.PostForm.Get("type") != "cityProvince" || r.PostForm.Get("search") != "Victoria" {
+			t.Fatalf("form = %#v", r.PostForm)
+		}
+		if r.PostForm.Get("countryName") != "Australia" || r.PostForm.Get("provinceName") != "Victoria" {
+			t.Fatalf("location form = %#v", r.PostForm)
+		}
+		_, _ = w.Write([]byte(`[[{"0":"Coburg North","city":"Coburg North","1":"1","COUNT(*)":"1"},{"0":"Fawkner","city":"Fawkner","1":"3","COUNT(*)":"3"},{"0":"Wallan","city":"Wallan","1":"2","COUNT(*)":"2"}],[{"0":"","LEFT(SUBQUERY.city,1)":"","1":"3","COUNT(LEFT(SUBQUERY.city,1))":"3"}]]`))
+	}))
+	defer server.Close()
+
+	client := DiscoveryClient{HTTPClient: server.Client(), Endpoint: server.URL}
+	entries, err := client.Cities(context.Background(), "Australia", "Victoria")
+	if err != nil {
+		t.Fatalf("Cities() error = %v", err)
+	}
+	if len(entries) != 3 {
+		t.Fatalf("entries = %+v", entries)
+	}
+	if entries[0].Name != "Coburg North" || entries[0].Count != 1 {
+		t.Fatalf("entries[0] = %+v", entries[0])
+	}
+	if entries[1].Name != "Fawkner" || entries[1].Count != 3 {
+		t.Fatalf("entries[1] = %+v", entries[1])
+	}
+	if entries[2].Name != "Wallan" || entries[2].Count != 2 {
+		t.Fatalf("entries[2] = %+v", entries[2])
+	}
+}
+
 func TestHierarchyRejectsNullResponse(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`null`))
@@ -91,5 +125,11 @@ func TestHierarchyRejectsNullResponse(t *testing.T) {
 func TestHierarchyRejectsInvalidCount(t *testing.T) {
 	if _, err := parseHierarchyPairs([]byte(`[["South Africa","bad"]]`), false); err == nil {
 		t.Fatal("parseHierarchyPairs() expected error for invalid count")
+	}
+}
+
+func TestCityHierarchyRejectsMissingObjectFields(t *testing.T) {
+	if _, err := parseCityHierarchyRows([]byte(`[{"city":"Fawkner"}]`)); err == nil {
+		t.Fatal("parseCityHierarchyRows() expected error for missing count")
 	}
 }

@@ -33,8 +33,10 @@ type Record struct {
 	Status             Status            `json:"status"`
 }
 
-// Catalogue is a complete last-known-good discovery snapshot plus records
-// retained by reconciliation when they temporarily disappear upstream.
+// Catalogue is the complete last-known-good discovery snapshot for the user's
+// configured geographic scope, plus records retained by reconciliation when
+// they temporarily disappear upstream. It is intentionally not a worldwide
+// mirror of the provider catalogue.
 type Catalogue struct {
 	RetrievedAt time.Time `json:"retrieved_at"`
 	ValidatedAt time.Time `json:"validated_at"`

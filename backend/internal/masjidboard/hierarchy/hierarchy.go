@@ -16,11 +16,13 @@ type Location struct {
 }
 
 // Region is one province/region and the towns/cities currently available
-// beneath it.
+// beneath it. UnresolvedCount records boards included in the upstream region
+// count that FindMasjid does not expose through a usable city bucket.
 type Region struct {
-	Name   string     `json:"name"`
-	Count  int        `json:"count"`
-	Cities []Location `json:"cities"`
+	Name            string     `json:"name"`
+	Count           int        `json:"count"`
+	UnresolvedCount int        `json:"unresolved_count,omitempty"`
+	Cities          []Location `json:"cities"`
 }
 
 // Country is one active MasjidBoard Live country and its region hierarchy.
@@ -61,6 +63,9 @@ func (s State) Validate() error {
 			if region.Count < 0 {
 				return fmt.Errorf("masjidboard hierarchy: invalid count for region %q", region.Name)
 			}
+			if region.UnresolvedCount < 0 {
+				return fmt.Errorf("masjidboard hierarchy: invalid unresolved count for region %q", region.Name)
+			}
 			for _, city := range region.Cities {
 				if strings.TrimSpace(city.Name) == "" {
 					return fmt.Errorf("masjidboard hierarchy: city name is required in %q", region.Name)
@@ -81,8 +86,9 @@ func (s State) Validate() error {
 // buckets.
 func (s State) Normalized() State {
 	type regionAccumulator struct {
-		count  int
-		cities map[string]int
+		count      int
+		unresolved int
+		cities     map[string]int
 	}
 	type countryAccumulator struct {
 		count   int
@@ -110,6 +116,7 @@ func (s State) Normalized() State {
 				country.regions[regionName] = region
 			}
 			region.count += sourceRegion.Count
+			region.unresolved += sourceRegion.UnresolvedCount
 			for _, sourceCity := range sourceRegion.Cities {
 				cityName := strings.TrimSpace(sourceCity.Name)
 				if cityName != "" {
@@ -123,7 +130,7 @@ func (s State) Normalized() State {
 	for countryName, sourceCountry := range countries {
 		country := Country{Name: countryName, Count: sourceCountry.count}
 		for regionName, sourceRegion := range sourceCountry.regions {
-			region := Region{Name: regionName, Count: sourceRegion.count}
+			region := Region{Name: regionName, Count: sourceRegion.count, UnresolvedCount: sourceRegion.unresolved}
 			for cityName, count := range sourceRegion.cities {
 				region.Cities = append(region.Cities, Location{Name: cityName, Count: count})
 			}

@@ -42,12 +42,16 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		paths, err := config.RuntimePaths()
-		if err != nil {
-			writeError(w, http.StatusInternalServerError, err.Error())
-			return
+		state := s.audioDeviceState
+		if state == nil {
+			paths, err := config.RuntimePaths()
+			if err != nil {
+				writeError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			state = storage.NewAudioDeviceState(paths.AudioDeviceState)
 		}
-		if err := storage.NewAudioDeviceState(paths.AudioDeviceState).Save(req.AudioDevice); err != nil {
+		if err := state.Save(req.AudioDevice); err != nil {
 			writeError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

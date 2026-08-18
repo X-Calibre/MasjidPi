@@ -111,11 +111,33 @@ func (u Updater) build(ctx context.Context, now time.Time) (State, error) {
 
 		for _, regionEntry := range regions {
 			region := Region{Name: regionEntry.Name, Count: regionEntry.Count}
+
+			// Some countries have no province layer at all; those are represented
+			// by a single blank region and are still resolvable through Cities(). A
+			// blank bucket alongside named regions is different: live FindMasjid
+			// has been observed to advertise such a bucket but return HTTP 500 when
+			// asked for its cities. Preserve its board count as unresolved rather
+			// than discarding the entire otherwise-valid global hierarchy.
+			if region.Name == "" && len(regions) > 1 {
+				region.UnresolvedCount = region.Count
+				country.Regions = append(country.Regions, region)
+				continue
+			}
+
 			cities, err := u.Source.Cities(ctx, country.Name, region.Name)
 			if err != nil {
 				return State{}, fmt.Errorf("masjidboard hierarchy: fetch cities for %q / %q: %w", country.Name, region.Name, err)
 			}
 			region.Cities = mergeLocations(cities, false)
+
+			cityTotal := 0
+			for _, city := range region.Cities {
+				cityTotal += city.Count
+			}
+			if cityTotal > region.Count {
+				return State{}, fmt.Errorf("masjidboard hierarchy: city counts for %q / %q total %d, exceed expected %d", country.Name, region.Name, cityTotal, region.Count)
+			}
+			region.UnresolvedCount = region.Count - cityTotal
 			country.Regions = append(country.Regions, region)
 		}
 		state.Countries = append(state.Countries, country)
@@ -149,8 +171,8 @@ func validateCounts(state State) error {
 			for _, city := range region.Cities {
 				cityTotal += city.Count
 			}
-			if cityTotal != region.Count {
-				return fmt.Errorf("masjidboard hierarchy: city counts for %q / %q total %d, expected %d", country.Name, region.Name, cityTotal, region.Count)
+			if cityTotal+region.UnresolvedCount != region.Count {
+				return fmt.Errorf("masjidboard hierarchy: city counts for %q / %q total %d plus unresolved %d, expected %d", country.Name, region.Name, cityTotal, region.UnresolvedCount, region.Count)
 			}
 		}
 		if regionTotal != country.Count {
@@ -171,14 +193,13 @@ func sameHierarchy(a, b State) bool {
 		}
 		for j := range ac.Regions {
 			ar, br := ac.Regions[j], bc.Regions[j]
-			if ar.Name != br.Name || ar.Count != br.Count || len(ar.Cities) != len(br.Cities) {
+			if ar.Name != br.Name || ar.Count != br.Count || ar.UnresolvedCount != br.UnresolvedCount || len(ar.Cities) != len(br.Cities) {
 				return false
 			}
 			for k := range ar.Cities {
 				if ar.Cities[k] != br.Cities[k] {
 					return false
 				}
-			}
 		}
 	}
 	return true

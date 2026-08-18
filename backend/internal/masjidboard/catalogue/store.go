@@ -10,36 +10,31 @@ import (
 	"sync"
 )
 
-// Store persists the last-known-good MasjidBoard catalogue. It loads once,
-// caches state in memory, avoids rewriting identical state, and replaces
-// changed state atomically.
+// Store persists the last-known-good MasjidBoard catalogue. The catalogue is
+// disk-first: Load reads it on demand rather than retaining it in memory for
+// the lifetime of the process. Save avoids rewriting identical state and
+// replaces changed state atomically.
 type Store struct {
-	path   string
-	mu     sync.Mutex
-	loaded bool
-	exists bool
-	state  Catalogue
+	path string
+	mu   sync.Mutex
 }
 
 func NewStore(path string) *Store {
 	return &Store{path: path}
 }
 
-// Load returns the cached catalogue after loading it from disk at most once.
-// A missing file is treated as an empty catalogue.
+// Load reads and validates the catalogue from disk on demand. A missing file
+// is treated as an empty catalogue.
 func (s *Store) Load() (Catalogue, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := s.loadLocked(); err != nil {
-		return Catalogue{}, err
-	}
-	return cloneCatalogue(s.state), nil
+	return s.loadLocked()
 }
 
-// Save validates and atomically persists a catalogue. Identical state is a
-// no-op. The in-memory last-known-good state is changed only after the atomic
-// replacement succeeds.
+// Save validates and atomically persists a catalogue. If the currently
+// persisted catalogue is identical, Save is a no-op. A failed save leaves the
+// existing on-disk last-known-good catalogue unchanged.
 func (s *Store) Save(state Catalogue) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -47,12 +42,14 @@ func (s *Store) Save(state Catalogue) error {
 	if err := validateCatalogue(state); err != nil {
 		return err
 	}
-	if err := s.loadLocked(); err != nil {
+
+	current, exists, err := s.loadExistingLocked()
+	if err != nil {
 		return err
 	}
 
 	state = cloneCatalogue(state)
-	if s.exists && reflect.DeepEqual(s.state, state) {
+	if exists && reflect.DeepEqual(current, state) {
 		return nil
 	}
 
@@ -92,39 +89,38 @@ func (s *Store) Save(state Catalogue) error {
 		return fmt.Errorf("masjidboard catalogue: replace catalogue: %w", err)
 	}
 
-	s.state = state
-	s.exists = true
 	return nil
 }
 
-func (s *Store) loadLocked() error {
-	if s.loaded {
-		return nil
+func (s *Store) loadLocked() (Catalogue, error) {
+	state, exists, err := s.loadExistingLocked()
+	if err != nil {
+		return Catalogue{}, err
 	}
+	if !exists {
+		return Catalogue{}, nil
+	}
+	return state, nil
+}
 
+func (s *Store) loadExistingLocked() (Catalogue, bool, error) {
 	data, err := os.ReadFile(s.path)
 	if errors.Is(err, os.ErrNotExist) {
-		s.state = Catalogue{}
-		s.exists = false
-		s.loaded = true
-		return nil
+		return Catalogue{}, false, nil
 	}
 	if err != nil {
-		return fmt.Errorf("masjidboard catalogue: read catalogue: %w", err)
+		return Catalogue{}, false, fmt.Errorf("masjidboard catalogue: read catalogue: %w", err)
 	}
 
 	var state Catalogue
 	if err := json.Unmarshal(data, &state); err != nil {
-		return fmt.Errorf("masjidboard catalogue: decode catalogue: %w", err)
+		return Catalogue{}, false, fmt.Errorf("masjidboard catalogue: decode catalogue: %w", err)
 	}
 	if err := validateCatalogue(state); err != nil {
-		return fmt.Errorf("masjidboard catalogue: invalid persisted catalogue: %w", err)
+		return Catalogue{}, false, fmt.Errorf("masjidboard catalogue: invalid persisted catalogue: %w", err)
 	}
 
-	s.state = cloneCatalogue(state)
-	s.exists = true
-	s.loaded = true
-	return nil
+	return cloneCatalogue(state), true, nil
 }
 
 func validateCatalogue(state Catalogue) error {

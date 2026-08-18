@@ -11,35 +11,57 @@ MasjidPi is intended to run continuously on Raspberry Pi hardware where the prim
 - Persistent data updates should be atomic so power loss cannot leave corrupt state.
 - Optimisations must not sacrifice the ability to diagnose real failures.
 
-## Implemented on `research/sd-card-write-optimisation`
+## Implemented
 
 ### Volume state
 
-`volume.json` is no longer rewritten when the requested device volume already matches the persisted value. This prevents redundant flash writes from repeated identical volume updates.
+`volume.json` is no longer rewritten when the requested device volume already matches the persisted value. Intermediate slider movement changes live hardware volume without persistence, while the final slider value is persisted once when the control change completes.
 
-Web UI volume changes are now split into two operations: intermediate slider movement changes the live hardware volume without persistence, while the final slider value is persisted once when the control change completes. A short client-side debounce also prevents excessive API requests while the slider is being dragged.
+Persisted volume state is loaded once and cached in memory, eliminating repeated filesystem reads during normal runtime.
 
 ### Other persistent state
 
-Preferences, selected audio device, last playback stream, and favourites now compare the requested state with the existing persisted state before replacing their files. Repeating an unchanged state update therefore performs a read but avoids a persistent file replacement.
+Preferences, selected audio device, last playback stream, and favourites are loaded once and cached in memory. Unchanged state updates are discarded in memory without rereading or replacing the state file.
 
-The playback clear operation already treats a missing state file as a no-op, so repeated clears do not create writes.
+Changed persistent state is written using temporary files and atomic replacement where applicable.
+
+The playback clear operation treats an already-empty state as a no-op.
+
+### Catalogue updates
+
+Automatic catalogue refresh runs weekly, with manual refresh available from the Web UI.
+
+The LiveMasjid source HTML is downloaded and parsed in memory rather than being persisted as `page.html`. Generated catalogue content is compared with the existing `catalogue.json`; unchanged content produces no persistent write. Changed catalogues are written atomically.
+
+After refresh, the in-memory stream store is updated directly instead of rereading `catalogue.json` from disk.
+
+Unused legacy catalogue JavaScript download code has been removed.
 
 ### LiveMasjid MQTT logging
 
-Individual MQTT events are now logged at `DEBUG` rather than `INFO`. Connection and subscription failures remain visible at `WARN`/`ERROR` levels.
+Individual MQTT events are logged at `DEBUG` rather than `INFO`. Connection and subscription failures remain visible at `WARN`/`ERROR` levels.
 
 ### systemd journal protection
 
-The MasjidPi service now applies systemd journal rate limiting so a persistent failure cannot generate an uncontrolled burst of journal writes.
+The MasjidPi service applies systemd journal rate limiting so a persistent failure cannot generate an uncontrolled burst of journal writes.
 
-## Still to audit
+## Application-level audit status
 
-- Catalogue update write patterns and atomicity.
-- systemd/journald persistent-vs-volatile storage policy for the appliance image.
-- OS-level services that may write frequently to the SD card.
-- Measurement tooling for filesystem writes over long-running tests.
+The application-level filesystem audit is complete. Production runtime code no longer contains direct `os.WriteFile()` state writes or unnecessary persistent download files. Remaining temporary-file and rename operations correspond to intentional atomic persistence of changed state.
+
+Normal steady-state operation should not generate meaningful application data writes while streams are playing, MQTT status traffic is received, the Web UI is polled, or the catalogue refresh timer is idle.
+
+## Remaining OS-level work
+
+OS-level behaviour will be assessed separately after application-level optimisation. This includes:
+
+- systemd/journald persistent-vs-volatile storage policy for a dedicated appliance installation;
+- swap behaviour;
+- OS services and timers that may write frequently to the SD card;
+- measurement of real filesystem writes during long-running Raspberry Pi tests.
+
+OS-level changes should be based on measurement and should be applied only where appropriate for a dedicated MasjidPi appliance rather than changing normal Linux behaviour unnecessarily.
 
 ## Validation goal
 
-A normal MasjidPi installation should be able to run continuously without generating meaningful background SD-card writes apart from intentional configuration/state changes, catalogue refreshes, package/update activity, and other explicitly expected persistence.
+A normal MasjidPi installation should be able to run continuously without generating meaningful background application writes apart from intentional configuration/state changes, changed catalogue refreshes, package/update activity, and other explicitly expected persistence.

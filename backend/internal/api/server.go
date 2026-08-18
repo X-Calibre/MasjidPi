@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
@@ -14,15 +15,16 @@ import (
 )
 
 type Server struct {
-	httpServer        *http.Server
-	logger            *slog.Logger
-	playback          *playback.Manager
-	streams           *stream.Store
-	favourites        *storage.Favourites
-	preferences       *storage.Preferences
-	audioDeviceState  *storage.AudioDeviceState
-	catalogueFile     string
-	catalogueDataRoot string
+	httpServer          *http.Server
+	logger              *slog.Logger
+	playback            *playback.Manager
+	streams             *stream.Store
+	favourites          *storage.Favourites
+	preferences         *storage.Preferences
+	audioDeviceState    *storage.AudioDeviceState
+	masjidBoardService  *masjidboardservice.Service
+	catalogueFile       string
+	catalogueDataRoot   string
 }
 
 func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
@@ -61,6 +63,12 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 
 func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
 	s.audioDeviceState = state
+}
+
+// SetMasjidBoardService retains the MasjidBoard runtime service for later API
+// exposure without coupling MasjidBoard availability to the audio subsystem.
+func (s *Server) SetMasjidBoardService(service *masjidboardservice.Service) {
+	s.masjidBoardService = service
 }
 
 func (s *Server) Start() error {

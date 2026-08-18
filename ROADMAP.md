@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining production work, and plann
 
 ## Current Status
 
-**v1.0.10 is the current release.**
+**v1.0.11 is the current release.**
 
 The current release provides:
 
@@ -32,8 +32,9 @@ The current release provides:
 - Recovery/rollback path if an update fails
 - First-run and production installation workflow improvements
 - Application-level SD-card write optimisations, including in-memory state caching, reduced logging, atomic state writes, and in-memory catalogue processing
+- Security dependency update for the Go network/HTML parsing stack
 
-The v1.0.8 release was tested successfully on a Raspberry Pi 3 B and established the current stable appliance baseline. v1.0.10 builds on that baseline with application-level SD-card write and filesystem-activity optimisations.
+The v1.0.8 release was tested successfully on a Raspberry Pi 3 B and established the current stable appliance baseline. v1.0.10 added application-level SD-card write and filesystem-activity optimisations, and v1.0.11 adds the dependency security fix while retaining that baseline.
 
 The Updates & Recovery work and application-level SD-card write optimisation are now considered complete. Remaining reliability work should prioritise measured OS-level appliance behaviour and simplicity rather than unnecessary configuration options.
 

@@ -17,6 +17,7 @@ type Paths struct {
 	FavouritesState       string
 	PreferencesState      string
 	MasjidBoardCatalogue  string
+	MasjidBoardScope      string
 	MasjidBoardSelection  string
 	MasjidBoardCache      string
 	Frontend              string
@@ -36,6 +37,7 @@ func NewPaths(base string) Paths {
 		FavouritesState:      filepath.Join(base, "backend", "data", "favourites.json"),
 		PreferencesState:     filepath.Join(base, "backend", "data", "preferences.json"),
 		MasjidBoardCatalogue: filepath.Join(base, "backend", "data", "masjidboard_catalogue.json"),
+		MasjidBoardScope:     filepath.Join(base, "backend", "data", "masjidboard_scope.json"),
 		MasjidBoardSelection: filepath.Join(base, "backend", "data", "masjidboard_selection.json"),
 		MasjidBoardCache:     filepath.Join(base, "backend", "data", "masjidboard_cache"),
 		Frontend:             filepath.Join(base, "frontend"),
@@ -57,6 +59,7 @@ func RuntimePaths() (Paths, error) {
 			FavouritesState:      "/var/lib/masjidpi/favourites.json",
 			PreferencesState:     "/var/lib/masjidpi/preferences.json",
 			MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
+			MasjidBoardScope:     "/var/lib/masjidpi/masjidboard_scope.json",
 			MasjidBoardSelection: "/var/lib/masjidpi/masjidboard_selection.json",
 			MasjidBoardCache:     "/var/lib/masjidpi/masjidboard_cache",
 			Frontend:             filepath.Join(home, "frontend"),
@@ -80,6 +83,7 @@ func RuntimePaths() (Paths, error) {
 				FavouritesState:      "/var/lib/masjidpi/favourites.json",
 				PreferencesState:     "/var/lib/masjidpi/preferences.json",
 				MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
+				MasjidBoardScope:     "/var/lib/masjidpi/masjidboard_scope.json",
 				MasjidBoardSelection: "/var/lib/masjidpi/masjidboard_selection.json",
 				MasjidBoardCache:     "/var/lib/masjidpi/masjidboard_cache",
 				Frontend:             filepath.Join(executableDir, "frontend"),

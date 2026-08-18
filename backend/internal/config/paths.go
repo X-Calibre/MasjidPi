@@ -16,6 +16,7 @@ type Paths struct {
 	VolumeState           string
 	FavouritesState       string
 	PreferencesState      string
+	MasjidBoardHierarchy  string
 	MasjidBoardCatalogue  string
 	MasjidBoardScope      string
 	MasjidBoardSelection  string
@@ -36,6 +37,7 @@ func NewPaths(base string) Paths {
 		VolumeState:          filepath.Join(base, "backend", "data", "volume.json"),
 		FavouritesState:      filepath.Join(base, "backend", "data", "favourites.json"),
 		PreferencesState:     filepath.Join(base, "backend", "data", "preferences.json"),
+		MasjidBoardHierarchy: filepath.Join(base, "backend", "data", "masjidboard_hierarchy.json"),
 		MasjidBoardCatalogue: filepath.Join(base, "backend", "data", "masjidboard_catalogue.json"),
 		MasjidBoardScope:     filepath.Join(base, "backend", "data", "masjidboard_scope.json"),
 		MasjidBoardSelection: filepath.Join(base, "backend", "data", "masjidboard_selection.json"),
@@ -58,6 +60,7 @@ func RuntimePaths() (Paths, error) {
 			VolumeState:          "/var/lib/masjidpi/volume.json",
 			FavouritesState:      "/var/lib/masjidpi/favourites.json",
 			PreferencesState:     "/var/lib/masjidpi/preferences.json",
+			MasjidBoardHierarchy: "/var/lib/masjidpi/masjidboard_hierarchy.json",
 			MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
 			MasjidBoardScope:     "/var/lib/masjidpi/masjidboard_scope.json",
 			MasjidBoardSelection: "/var/lib/masjidpi/masjidboard_selection.json",
@@ -82,6 +85,7 @@ func RuntimePaths() (Paths, error) {
 				VolumeState:          "/var/lib/masjidpi/volume.json",
 				FavouritesState:      "/var/lib/masjidpi/favourites.json",
 				PreferencesState:     "/var/lib/masjidpi/preferences.json",
+				MasjidBoardHierarchy: "/var/lib/masjidpi/masjidboard_hierarchy.json",
 				MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
 				MasjidBoardScope:     "/var/lib/masjidpi/masjidboard_scope.json",
 				MasjidBoardSelection: "/var/lib/masjidpi/masjidboard_selection.json",

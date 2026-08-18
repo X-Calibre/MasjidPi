@@ -5,7 +5,7 @@
 
 ## Decision
 
-MasjidPi will allow the user to select and display up to three MasjidBoard entries at the same time.
+MasjidPi will allow the user to select and display between one and three MasjidBoard entries at the same time once MasjidBoard has been configured.
 
 The primary use case is timetable comparison between nearby masjids. A user who cannot make a Jamaah at one masjid should be able to see the next practical nearby option without reopening the catalogue or changing configuration.
 
@@ -19,13 +19,35 @@ Example:
 
 Selection order is significant and must be preserved. The application must not sort the user's selected boards unless a future UI explicitly offers a separate comparison/sort view.
 
+## Unconfigured vs Configured State
+
+An installation with no persisted MasjidBoard selection is **unconfigured**. This is an internal startup/setup state, not a valid saved user selection.
+
+Once the user configures MasjidBoard, the persisted selection must contain at least one board and at most three boards:
+
+```text
+no selection file / zero-value state
+    -> MasjidBoard unconfigured
+
+1 selected board
+    -> valid configured state
+
+2 selected boards
+    -> valid configured state
+
+3 selected boards
+    -> valid configured state
+```
+
+The WebUI must not allow a configured MasjidBoard setup to be saved with zero selected boards. If a future product requirement adds an explicit "disable MasjidBoard" function, that should be modelled separately rather than by treating an empty configured selection as valid.
+
 ## Persisted Selection Model
 
-The selection file stores an ordered list with a hard maximum of three boards:
+The selection file stores an ordered list with a hard minimum of one and maximum of three boards:
 
 ```text
 SelectionState
-    Boards[0..3]
+    Boards[1..3]
 
 SelectedBoard
     CatalogueID
@@ -57,8 +79,7 @@ The much smaller selection state is different: it is needed for normal operation
 
 ```text
 startup
-    -> load selection state
-    -> 0 boards: MasjidBoard not configured
+    -> no persisted selection: MasjidBoard is unconfigured
     -> 1 board: start one board provider
     -> 2 boards: start two board providers
     -> 3 boards: start three board providers
@@ -76,8 +97,9 @@ A failure retrieving one selected board must not prevent the other selected boar
 
 ## Validation Rules
 
-- Zero selected boards is valid.
-- One, two, or three selected boards are valid.
+- An absent selection file / zero-value state represents **unconfigured**, not a valid configured selection.
+- A configured selection must contain one, two, or three boards.
+- Saving zero boards is invalid and must be rejected.
 - Four or more boards are invalid and must be rejected.
 - Duplicate catalogue IDs are invalid.
 - `CatalogueID` must match `provider + ":" + external_id`.
@@ -95,7 +117,9 @@ The selection should be persisted independently of the full catalogue, currently
 
 Storage follows the existing MasjidPi appliance rules:
 
-- load once at startup and cache in memory;
+- a missing selection file means MasjidBoard has not yet been configured;
+- load a configured selection once at startup and cache it in memory;
+- reject attempts to persist an empty configured selection;
 - do not rewrite unchanged selection state;
 - write changed state through a temporary file;
 - `fsync` the temporary file;
@@ -108,14 +132,14 @@ Normal board operation must not require the full discovery catalogue to be resid
 
 ```text
 normal runtime
-    -> selection state in memory
+    -> configured selection state in memory
     -> current selected-board data in memory
     -> full catalogue not loaded
 
 user opens board-selection WebUI
     -> load catalogue from local storage
     -> browse/search locally
-    -> save updated ordered selection
+    -> save updated ordered selection of 1-3 boards
     -> catalogue may then be discarded from memory
 ```
 
@@ -136,10 +160,12 @@ Each selected board should eventually have its own last-known-good board-data ca
 
 ## Implementation Status
 
-The initial implementation provides:
+The current implementation provides:
 
-- an ordered `SelectionState`;
-- a hard maximum of three boards;
+- a distinct internal unconfigured state;
+- an ordered configured `SelectionState` containing one to three boards;
+- explicit minimum and maximum board validation;
+- rejection of empty persisted selections;
 - duplicate and identity validation;
 - conversion from provider-neutral catalogue records;
 - load-once runtime selection storage;

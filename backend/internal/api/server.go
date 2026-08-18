@@ -20,6 +20,7 @@ type Server struct {
 	streams           *stream.Store
 	favourites        *storage.Favourites
 	preferences       *storage.Preferences
+	audioDeviceState  *storage.AudioDeviceState
 	catalogueFile     string
 	catalogueDataRoot string
 }
@@ -56,6 +57,10 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.Handle("/", fileServer)
 
 	return server
+}
+
+func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
+	s.audioDeviceState = state
 }
 
 func (s *Server) Start() error {

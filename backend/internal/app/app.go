@@ -122,6 +122,7 @@ func Run() error {
 	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
 	server.SetAudioDeviceState(audioDeviceState)
 	server.SetMasjidBoardService(masjidBoardService)
+	server.SetMasjidBoardCataloguePath(paths.MasjidBoardCatalogue)
 
 	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)
 	if err != nil {

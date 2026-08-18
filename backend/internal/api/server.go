@@ -7,12 +7,19 @@ import (
 	"os"
 	"path/filepath"
 
-	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
+	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
+
+type masjidBoardStatusProvider interface {
+	Configured() bool
+	Selection() selection.State
+	Results() []masjidboardruntime.Result
+}
 
 type Server struct {
 	httpServer          *http.Server
@@ -22,7 +29,7 @@ type Server struct {
 	favourites          *storage.Favourites
 	preferences         *storage.Preferences
 	audioDeviceState    *storage.AudioDeviceState
-	masjidBoardService  *masjidboardservice.Service
+	masjidBoardService  masjidBoardStatusProvider
 	catalogueFile       string
 	catalogueDataRoot   string
 }
@@ -55,6 +62,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/api/favourites", server.favouritesHandler)
 	mux.HandleFunc("/api/preferences", server.preferencesHandler)
 	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
+	mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 	mux.HandleFunc("/api/version", server.version)
 	mux.Handle("/", fileServer)
 
@@ -65,9 +73,9 @@ func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
 	s.audioDeviceState = state
 }
 
-// SetMasjidBoardService retains the MasjidBoard runtime service for later API
-// exposure without coupling MasjidBoard availability to the audio subsystem.
-func (s *Server) SetMasjidBoardService(service *masjidboardservice.Service) {
+// SetMasjidBoardService retains the read-only MasjidBoard runtime status
+// provider without coupling MasjidBoard availability to the audio subsystem.
+func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	s.masjidBoardService = service
 }
 

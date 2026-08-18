@@ -51,6 +51,28 @@ func TestHierarchyRegionsPreservesBlankBucket(t *testing.T) {
 	}
 }
 
+func TestHierarchyRegionsSupportsDirectCityCountry(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		if r.PostForm.Get("type") != "province" || r.PostForm.Get("countryName") != "Bangladesh" {
+			t.Fatalf("form = %#v", r.PostForm)
+		}
+		_, _ = w.Write([]byte(`[[{"0":"Baishari","city":"Baishari","1":"1","COUNT(*)":"1"}],[{"0":"","LEFT(SUBQUERY.city,1)":"","1":"1","COUNT(LEFT(SUBQUERY.city,1))":"1"}],"changeToCity"]`))
+	}))
+	defer server.Close()
+
+	client := DiscoveryClient{HTTPClient: server.Client(), Endpoint: server.URL}
+	entries, err := client.Regions(context.Background(), "Bangladesh")
+	if err != nil {
+		t.Fatalf("Regions() error = %v", err)
+	}
+	if len(entries) != 1 || entries[0].Name != "" || entries[0].Count != 1 {
+		t.Fatalf("entries = %+v", entries)
+	}
+}
+
 func TestHierarchyCitiesUsesPrimaryPairRows(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
@@ -107,6 +129,35 @@ func TestHierarchyCitiesSupportsObjectRows(t *testing.T) {
 	}
 	if entries[2].Name != "Wallan" || entries[2].Count != 2 {
 		t.Fatalf("entries[2] = %+v", entries[2])
+	}
+}
+
+func TestHierarchyCitiesFallsBackToDirectCountryCities(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm() error = %v", err)
+		}
+		switch r.PostForm.Get("type") {
+		case "cityProvince":
+			_, _ = w.Write([]byte(`null`))
+		case "province":
+			if r.PostForm.Get("countryName") != "Bangladesh" {
+				t.Fatalf("form = %#v", r.PostForm)
+			}
+			_, _ = w.Write([]byte(`[[{"0":"Baishari","city":"Baishari","1":"1","COUNT(*)":"1"}],[{"0":"","LEFT(SUBQUERY.city,1)":"","1":"1","COUNT(LEFT(SUBQUERY.city,1))":"1"}],"changeToCity"]`))
+		default:
+			t.Fatalf("unexpected type %q", r.PostForm.Get("type"))
+		}
+	}))
+	defer server.Close()
+
+	client := DiscoveryClient{HTTPClient: server.Client(), Endpoint: server.URL}
+	entries, err := client.Cities(context.Background(), "Bangladesh", "")
+	if err != nil {
+		t.Fatalf("Cities() error = %v", err)
+	}
+	if len(entries) != 1 || entries[0].Name != "Baishari" || entries[0].Count != 1 {
+		t.Fatalf("entries = %+v", entries)
 	}
 }
 

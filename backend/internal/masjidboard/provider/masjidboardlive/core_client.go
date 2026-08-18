@@ -24,9 +24,22 @@ type CoreClient struct {
 	Identity   model.BoardIdentity
 }
 
-// Fetch retrieves the public Core board page, extracts its embedded data
-// object and normalises it into the shared MasjidBoard model.
-func (c CoreClient) Fetch(ctx context.Context, now time.Time) (CoreResult, error) {
+// Fetch implements the provider-level board contract. Provider-specific Core
+// metadata remains available through FetchAt for callers that explicitly need
+// it, while the rest of MasjidPi sees only the normalised Board model.
+func (c CoreClient) Fetch(ctx context.Context) (model.Board, error) {
+	result, err := c.FetchAt(ctx, time.Now())
+	if err != nil {
+		return model.Board{}, err
+	}
+	return result.Board, nil
+}
+
+// FetchAt retrieves the public Core board page, extracts its embedded data
+// object and normalises it into the shared MasjidBoard model. The explicit
+// clock keeps parsing/date-context tests deterministic and also returns the
+// provider-specific metadata captured from the Core object.
+func (c CoreClient) FetchAt(ctx context.Context, now time.Time) (CoreResult, error) {
 	webURL := strings.TrimSpace(c.WebURL)
 	if webURL == "" {
 		return CoreResult{}, fmt.Errorf("masjidboardlive: Core web URL is required")
@@ -41,12 +54,8 @@ func (c CoreClient) Fetch(ctx context.Context, now time.Time) (CoreResult, error
 	if err != nil {
 		return CoreResult{}, fmt.Errorf("masjidboardlive: parse Core endpoint: %w", err)
 	}
-	q := u.Query()
-	q.Set(webURL, "")
-	u.RawQuery = q.Encode()
 	// MasjidBoard Live uses the unusual public form /boards/?<web_url>, not
-	// /boards/?<web_url>=. url.Values.Encode() emits the latter, so preserve
-	// the verified upstream shape explicitly.
+	// /boards/?<web_url>=. Preserve that verified upstream shape explicitly.
 	u.RawQuery = url.QueryEscape(webURL)
 
 	client := c.HTTPClient

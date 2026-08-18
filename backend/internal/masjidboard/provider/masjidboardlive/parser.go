@@ -345,7 +345,7 @@ func stringValueFromRow(raw json.RawMessage, index int) string {
 
 func isAbsent(value string) bool {
 	switch strings.TrimSpace(value) {
-	case "", "-", "–", "—", "FALSE", "false", "Hide", "hide", "#N/A":
+	case "", "-", "–", "—", "~~~~", "FALSE", "false", "Hide", "hide", "#N/A":
 		return true
 	default:
 		return false

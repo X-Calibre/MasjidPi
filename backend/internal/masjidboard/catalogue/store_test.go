@@ -59,8 +59,7 @@ func TestStoreSaveAndLoad(t *testing.T) {
 		t.Fatalf("mode = %o, want 600", info.Mode().Perm())
 	}
 
-	freshStore := NewStore(path)
-	got, err := freshStore.Load()
+	got, err := store.Load()
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
@@ -132,7 +131,7 @@ func TestStoreChangedSaveReplacesState(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got, err := NewStore(path).Load()
+	got, err := store.Load()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -141,23 +140,48 @@ func TestStoreChangedSaveReplacesState(t *testing.T) {
 	}
 }
 
-func TestStoreLoadCachesState(t *testing.T) {
+func TestStoreLoadReadsDiskOnDemand(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "catalogue.json")
-	state := testCatalogue()
 	store := NewStore(path)
-	if err := store.Save(state); err != nil {
+	first := testCatalogue()
+	if err := store.Save(first); err != nil {
+		t.Fatal(err)
+	}
+
+	second := testCatalogue()
+	second.Records[0].Name = "Changed On Disk"
+	data, err := jsonMarshal(second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := store.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Records[0].Name != "Changed On Disk" {
+		t.Fatalf("Load() did not reread disk: %+v", got.Records[0])
+	}
+}
+
+func TestStoreLoadDetectsLaterCorruption(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "catalogue.json")
+	store := NewStore(path)
+	if err := store.Save(testCatalogue()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.Load(); err != nil {
 		t.Fatal(err)
 	}
 
 	if err := os.WriteFile(path, []byte("broken"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	got, err := store.Load()
-	if err != nil {
-		t.Fatalf("cached Load() error = %v", err)
-	}
-	if got.Records[0].Name != state.Records[0].Name {
-		t.Fatalf("cached Load() = %+v", got)
+	if _, err := store.Load(); err == nil {
+		t.Fatal("Load() expected error after on-disk corruption")
 	}
 }
 
@@ -181,11 +205,11 @@ func TestStoreReturnsDefensiveCopies(t *testing.T) {
 		t.Fatal(err)
 	}
 	if second.Records[0].Name != "Brits Jamia Masjid" || second.Records[0].ProviderMetadata["mbl_id"] != "MBL11517PRP" {
-		t.Fatalf("store state was mutated through returned copy: %+v", second.Records[0])
+		t.Fatalf("persisted state was mutated through returned copy: %+v", second.Records[0])
 	}
 }
 
-func TestStoreFailedSaveKeepsLastKnownGood(t *testing.T) {
+func TestStoreFailedSaveKeepsPersistedLastKnownGood(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "catalogue.json")
 	store := NewStore(path)
 	state := testCatalogue()
@@ -204,8 +228,12 @@ func TestStoreFailedSaveKeepsLastKnownGood(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got.Records[0].ID != state.Records[0].ID {
-		t.Fatalf("last-known-good state changed after failed Save(): %+v", got)
+		t.Fatalf("persisted last-known-good state changed after failed Save(): %+v", got)
 	}
+}
+
+func jsonMarshal(state Catalogue) ([]byte, error) {
+	return json.Marshal(state)
 }
 
 func cataloguesEqual(a, b Catalogue) bool {

@@ -3,6 +3,7 @@ package masjidboardlive
 import (
 	"bytes"
 	"testing"
+	"time"
 )
 
 func TestExtractCoreData(t *testing.T) {
@@ -41,7 +42,8 @@ func TestExtractCoreDataFeedsParser(t *testing.T) {
 		t.Fatalf("ExtractCoreData() error = %v", err)
 	}
 
-	result, err := ParseCoreObject(object, coreIdentity(), fixedCoreTestTime())
+	now := time.Date(2026, 8, 18, 16, 0, 0, 0, time.UTC)
+	result, err := ParseCoreObject(object, coreIdentity(), now)
 	if err != nil {
 		t.Fatalf("ParseCoreObject() error = %v", err)
 	}

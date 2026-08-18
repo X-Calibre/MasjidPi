@@ -5,36 +5,41 @@
 
 ## Purpose
 
-Record verified comparisons between MasjidBoard Live discovery, Core board and Premium board data, and define the capabilities that MasjidPi can expect from each access path.
+Record the verified capabilities of the three public MasjidBoard Live access paths used in the research:
 
-This document is intentionally separate from board discovery and from the positional Premium parser research.
+1. FindMasjid discovery/catalogue data;
+2. the public Core board page; and
+3. the Premium board page.
+
+This document is separate from `MASJIDBOARD-DISCOVERY.md`, which covers catalogue enumeration, and `MASJIDBOARD-LIVE.md`, which covers detailed board semantics and Premium positional parsing.
 
 ## Reference Boards
 
-The research has used both Core-only candidates and known Premium boards:
+The current research has used:
 
 - Core-only candidate: `erasmia-abu-bakr`
 - Core-only candidate: `fawkner-rahman`
-- Known Premium board: `erasmia-aaisha`
-- Known Premium board: `brits-jamia`
-- Known Premium board: `fawkner-masjid`
+- Premium-capable: `erasmia-aaisha`
+- Premium-capable: `brits-jamia`
+- Premium-capable: `fawkner-masjid`
 
-The same-board FindMasjid/Premium comparisons were performed for `erasmia-aaisha` and `brits-jamia`.
+Core-board schema validation has been performed across South Africa and Australia.
 
-The public Core board data interface was independently verified for `erasmia-abu-bakr` in South Africa and `fawkner-rahman` in Australia.
+Direct Core/Premium same-board timetable comparisons have now been performed for:
+
+- `brits-jamia`
+- `erasmia-aaisha`
 
 ## Three Distinct Public Data Paths
 
-Research now supports three separate upstream responsibilities:
-
 ```text
 FindMasjid endpoint
-    -> board discovery and catalogue metadata
+    -> discovery and catalogue metadata
 
 https://masjidboardlive.com/boards/?<web_url>
     -> Core board data
     -> embedded `let data = {...}` object
-    -> full standard timetable and astronomical values
+    -> standard timetable and astronomical values
 
 https://premium.masjidboardlive.com/v2/?mid=<web_url>
     -> Premium board data when available
@@ -42,72 +47,33 @@ https://premium.masjidboardlive.com/v2/?mid=<web_url>
     -> richer board/community/display content
 ```
 
-The Core board page must therefore not be confused with the smaller FindMasjid catalogue record. A board can be useful to MasjidPi without having Premium capability.
+These are distinct responsibilities. A board does not need Premium capability to provide a useful full timetable to MasjidPi.
 
-## Premium Capability Probe
+## FindMasjid Discovery Data
 
-A Core catalogue `web_url` can be probed against:
-
-```text
-https://premium.masjidboardlive.com/v2/?mid=<web_url>
-```
-
-### Verified Premium success
-
-A successful Premium page exposes both a server-supplied `boardId` and an embedded `theInfo` payload.
-
-For example, `erasmia-aaisha` exposes:
-
-```javascript
-let boardId = "1asEQ0Ju83TPqBFHw7NbBAihAxMt5JQ2bJkbaWnwKf7k";
-let theInfo = [...];
-```
-
-`brits-jamia` and `fawkner-masjid` also resolve as valid Premium boards.
-
-### Verified Premium absence
-
-For `erasmia-abu-bakr`, the Premium page renders:
+The public FindMasjid endpoint exposes records containing fields such as:
 
 ```text
-MasjidBoard live - 500
-This masjid does not exist
+masjid
+fajr_jamaat
+zuhr_jamaat
+asr_jamaat
+maghrib_adhan
+esha_jamaat
+last_updated
+MBL_ID
+city
+sunset
+time_zone_milli
+web_url
+jumuah_khutbah
+ramadhaanactive
+date_adjust
+moon_seen
+ladies_facility
 ```
 
-and does not expose `boardId` or `theInfo`.
-
-The same negative pattern was independently observed for `fawkner-rahman` in Australia.
-
-Both boards nevertheless expose usable Core board data through the public `/boards/?<web_url>` page.
-
-### Probe-state decision
-
-Premium capability must not be represented as a simple boolean derived from HTTP status.
-
-The research model should distinguish at least:
-
-```text
-available
-unavailable
-unknown
-```
-
-Suggested semantics:
-
-```text
-available
-    Generated Premium page contains a valid boardId and theInfo payload.
-
-unavailable
-    Premium page explicitly reports that the masjid does not exist and does not expose boardId/theInfo.
-
-unknown
-    Timeout, DNS failure, transport failure, unexpected server response,
-    malformed page, or other condition where Premium capability cannot be
-    determined reliably.
-```
-
-A transient failure must never be interpreted as proof that a board is Core-only.
+This is the preferred discovery/catalogue source because it provides the public `web_url` slug and useful location/summary metadata without retrieving each individual board first.
 
 ## Verified Core Board Interface
 
@@ -117,7 +83,7 @@ The public Core board page:
 https://masjidboardlive.com/boards/?<web_url>
 ```
 
-embeds a JavaScript object of the form:
+embeds a JavaScript object:
 
 ```javascript
 let data = {
@@ -125,9 +91,11 @@ let data = {
 }
 ```
 
-This object is present in the generated HTML and is consumed by `/boards/script.js`. No additional timetable API call is required to obtain the observed Core data.
+The generated HTML itself contains the timetable object. `/boards/script.js` consumes it for display; no additional timetable API call was required in the observed boards.
 
-The same field set was captured from both `erasmia-abu-bakr` and `fawkner-rahman`:
+### Verified Core schema
+
+The exact same field set was observed for `erasmia-abu-bakr` and `fawkner-rahman`:
 
 ```text
 lang
@@ -168,13 +136,15 @@ customcode
 sunday_zuhr_text
 ```
 
-There were no schema-key differences between these two captures despite the boards being in different countries.
+There were no key differences between these two Core-only candidates despite being in different countries.
 
-This is strong evidence for treating the public Core board page as a distinct individual-board data source. It does not yet prove that every MasjidBoard Live Core board always exposes exactly this schema, so the eventual parser must remain defensive.
+This is strong evidence for a dedicated Core-board parser/provider. The eventual parser must nevertheless remain defensive because the research sample is not yet large enough to prove the schema is immutable across all boards.
 
 ### Core placeholder values
 
-Core values are not guaranteed to be usable clock times. For example, `fawkner-rahman` exposed:
+Core fields can contain placeholders rather than usable clock times.
+
+For example, `fawkner-rahman` exposed:
 
 ```text
 jumuahTime1 = "~~~~"
@@ -182,181 +152,212 @@ jumuahTime2 = "~~~~"
 jumuahTime3 = "~~~~"
 ```
 
-Values such as `~~~~`, `Hide`, empty strings and other established upstream placeholders must be normalised as absent/unavailable where appropriate rather than treated as malformed prayer times.
-
-## Revised Capability Matrix
-
-| Capability | FindMasjid discovery | Core board page | Premium board |
-|---|---|---|---|
-| Public catalogue discovery | Yes | No; selected board retrieval | Yes, through FindMasjid catalogue entry |
-| Public slug (`web_url` / `mid`) | Yes | Used to retrieve board | Yes |
-| Masjid display name | Yes | Page-level metadata exists; model use not yet defined | Yes |
-| City | Yes | Page-level metadata exists; model use not yet defined | Yes |
-| Timezone offset | Yes | Not yet established as an embedded `data` field | Yes |
-| Last-updated timestamp | Yes | Yes, where supplied | Not yet defined as a Premium catalogue field |
-| Fajr Jamaah | Yes | Yes | Yes |
-| Dhuhr Jamaah | Yes | Yes | Yes |
-| Asr Jamaah | Yes | Yes | Yes |
-| Maghrib Adhan | Yes | Yes | Yes |
-| Esha Jamaah | Yes | Yes | Yes |
-| Fajr Adhan | No | Yes | Yes |
-| Dhuhr Adhan | No | Yes | Yes |
-| Asr Adhan | No | Yes | Yes |
-| Esha Adhan | No | Yes | Yes |
-| Maghrib Jamaah | No reliable field observed | No dedicated field observed | Yes where supplied |
-| Jumu'ah summary/Khutbah | Yes | Up to three Jumu'ah slots plus heading configuration | Yes |
-| Detailed Jumu'ah heading/time events | No | Limited/configured slots | Yes |
-| Jumu'ah Adhan/Salaah semantics | No | Requires mapping from Core slots/configuration | Explicit dedicated values where supplied |
-| Khateeb | No | Not observed in embedded Core object | Yes where supplied |
-| Sunset | Yes | Yes | Yes |
-| Broader astronomical times | No | Yes | Yes |
-| Sehri/Fajr start | No | Yes | Yes |
-| Ishraaq/Duha | No | Yes | Yes |
-| Asr Shafi'i/Hanafi | No | Yes | Yes |
-| Istiwa/Zawaal values | No | Yes | Yes |
-| Alternate-language Salah values | No | No observed equivalent | Yes |
-| Board identity/configuration | Limited | Limited | Yes |
-| Announcements/community content | No | No observed equivalent in `data` | Yes |
-| Live-stream metadata | Not established | Fields present where configured | Yes where supplied |
-| Premium opaque `boardId` | No | No | Yes |
-| Embedded `theInfo` payload | No | No | Yes |
-
-## FindMasjid Record Fields Observed
-
-The discovery endpoint exposes records containing fields such as:
+Values such as the following must be normalised as unavailable where semantically appropriate:
 
 ```text
-masjid
-fajr_jamaat
-zuhr_jamaat
-asr_jamaat
-maghrib_adhan
-esha_jamaat
-last_updated
-MBL_ID
-city
-sunset
-time_zone_milli
-web_url
-jumuah_khutbah
-ramadhaanactive
-date_adjust
-moon_seen
-ladies_facility
+""
+~~~~
+Hide
+-
+–
+—
 ```
 
-This remains valuable for catalogue generation and lightweight summaries, but it is no longer the only verified non-Premium timetable source.
+Other placeholder values already observed elsewhere in MasjidBoard Live research should be handled consistently by the provider rather than allowed to reach the domain model as clock times.
 
-## Premium Data Observed
+## Premium Capability Probe
 
-Premium `theInfo` payloads contain substantially richer information, including:
+A discovered `web_url` can be probed using:
 
-- full five-prayer Adhan/Jamaah data;
-- detailed Jumu'ah events;
-- Jumu'ah Adhan and Jamaah;
-- astronomical times;
-- alternate-language data;
-- masjid identity and display configuration;
-- announcements;
-- Nikah and funeral data;
-- Taleem/programmes;
-- posters and media identifiers;
-- contribution/banking information;
-- moon/Eid/display configuration; and
-- live-stream information where configured.
+```text
+https://premium.masjidboardlive.com/v2/?mid=<web_url>
+```
 
-Premium should therefore be treated as the richer content source, but it is not required for a useful standard timetable.
+### Premium available
 
-## Same-board FindMasjid/Premium Validation
+A valid Premium page exposes both:
 
-### Masjid Aaisha — `erasmia-aaisha`
+```javascript
+let boardId = "...";
+let theInfo = [...];
+```
 
-The FindMasjid catalogue and Premium `theInfo` agreed on every overlapping timetable value checked:
+Verified examples include:
 
-| Field | FindMasjid | Premium |
-|---|---:|---:|
-| Fajr Jamaah | 06:00 | 06:00 |
-| Dhuhr Jamaah | 12:40 | 12:40 |
-| Asr Jamaah | 16:45 | 16:45 |
-| Maghrib Adhan | 17:52 | 17:52 |
-| Esha Jamaah | 19:20 | 19:20 |
-| Jumu'ah Khutbah | 12:45 | 12:45 |
-| Sunset | 17:49 | 17:49 |
-| Timezone offset | +02:00 | +02:00 |
+- `erasmia-aaisha`
+- `brits-jamia`
+- `fawkner-masjid`
+
+### Premium unavailable
+
+For both `erasmia-abu-bakr` and `fawkner-rahman`, the Premium page returned the application-level error page:
+
+```text
+MasjidBoard live - 500
+This masjid does not exist
+```
+
+and exposed neither `boardId` nor `theInfo`.
+
+Both boards nevertheless remained usable through the public Core board page.
+
+### Premium probe state
+
+Premium capability should be represented with at least three states:
+
+```text
+available
+unavailable
+unknown
+```
+
+`unknown` is required for transient DNS, timeout, transport, malformed-response or unexpected-server failures. A temporary retrieval failure must not be interpreted as proof that Premium is unavailable.
+
+HTTP status alone is not sufficient; the generated Premium page structure must also be validated.
+
+## Capability Matrix
+
+| Capability | FindMasjid | Core board | Premium board |
+|---|---|---|---|
+| Catalogue discovery | Yes | No | Via FindMasjid |
+| Public `web_url` / `mid` | Yes | Used for retrieval | Yes |
+| Masjid/city discovery metadata | Yes | Page metadata exists | Yes |
+| Timezone offset | Yes | Not in observed `data` object | Yes |
+| Last-updated value | Yes | Yes where supplied | Not yet defined as catalogue metadata |
+| Fajr Adhan | No | Yes | Yes |
+| Fajr Jamaah | Yes | Yes | Yes |
+| Dhuhr Adhan | No | Yes | Yes |
+| Dhuhr Jamaah | Yes | Yes | Yes |
+| Asr Adhan | No | Yes | Yes |
+| Asr Jamaah | Yes | Yes | Yes |
+| Maghrib Adhan | Yes | Yes | Yes |
+| Maghrib Jamaah | No reliable field | No dedicated field observed | Yes where supplied |
+| Esha Adhan | No | Yes | Yes |
+| Esha Jamaah | Yes | Yes | Yes |
+| Sunset | Yes | Yes | Yes |
+| Sehri/Fajr start | No | Yes | Yes |
+| Sunrise/Ishraaq/Duha | No | Yes | Yes |
+| Istiwa/Zawaal | No | Yes | Yes |
+| Asr Shafi'i/Hanafi | No | Yes | Yes |
+| Jumu'ah summary | Yes | Yes | Yes |
+| Jumu'ah configured slots | No | Yes | Yes |
+| Dedicated Premium Jumu'ah fields | No | No | Yes |
+| Khateeb | No | Not observed | Yes where supplied |
+| Live-stream metadata | Not established | Yes where configured | Yes where configured |
+| Alternate-language values | No | Not observed | Yes |
+| Announcements/community content | No | Not observed in `data` | Yes |
+| Posters/programmes/notices | No | Not observed in `data` | Yes |
+| Premium opaque `boardId` | No | No | Yes |
+| Embedded `theInfo` | No | No | Yes |
+
+## Same-board Core/Premium Validation
 
 ### Brits Jamia — `brits-jamia`
 
-A second independent same-board comparison produced the same result:
+Core and Premium matched across all standard timetable fields checked:
 
-| Field | FindMasjid | Premium |
+| Field | Core | Premium |
 |---|---:|---:|
+| Fajr Adhan | 05:40 | 05:40 |
 | Fajr Jamaah | 06:00 | 06:00 |
+| Dhuhr Adhan | 13:00 | 13:00 |
 | Dhuhr Jamaah | 13:20 | 13:20 |
+| Asr Adhan | 16:40 | 16:40 |
 | Asr Jamaah | 17:00 | 17:00 |
 | Maghrib Adhan | 17:54 | 17:54 |
+| Esha Adhan | 19:15 | 19:15 |
 | Esha Jamaah | 19:30 | 19:30 |
-| Jumu'ah Khutbah | 13:00 | 13:00 |
 | Sunset | 17:51 | 17:51 |
-| Timezone offset | +02:00 | +02:00 |
 
-This provides cross-board evidence that the FindMasjid timetable summary is consistent with corresponding Premium board data for the overlapping fields tested.
-
-This does **not** prove that the interfaces can never diverge, nor that they have identical semantics or refresh behaviour.
-
-## Sunset / Iftar versus Maghrib Adhan
-
-The Core board research provides direct evidence that sunset and Maghrib Adhan must remain separate timetable concepts.
-
-For `fawkner-rahman`:
+Core Jumu'ah data was:
 
 ```text
-sunset       = 17:50
-maghribAthan = 17:55
+jumuahTime1    = 12:25
+jumuahTime2    = 12:40
+jumuahTime3    = 13:00
+jumuahHeadings = 0,1,6
 ```
 
-For `erasmia-abu-bakr`:
+Using the verified heading mapping:
 
 ```text
-sunset       = 17:49
-maghribAthan = 17:52
+0 = Adhan
+1 = Lecture
+6 = Khutbah
 ```
 
-Operationally, Iftar normally occurs at sunset, while a masjid may schedule the Maghrib Adhan at the same time or a few minutes later. MasjidPi must therefore not collapse sunset/Iftar and Maghrib Adhan into one semantic field merely because some upstream JavaScript or some boards use the same value.
-
-Ramadan-specific behaviour still warrants later validation when boards actively expose Ramadan/Iftar data.
-
-## Jumu'ah Comparison
-
-Brits Jamia provided a useful Premium Jumu'ah comparison.
-
-The Premium board exposed the detailed sequence:
+this produces:
 
 ```text
-Adhan      12:25
-Lecture    12:40
-Khutbah    13:00
+12:25 Adhan
+12:40 Lecture
+13:00 Khutbah
 ```
 
-and the dedicated Jumu'ah fields contained:
+which matches the Premium Jumu'ah event sequence exactly.
+
+### Masjid Aaisha — `erasmia-aaisha`
+
+A second independent Premium-capable board produced the same result.
+
+| Field | Core | Premium |
+|---|---:|---:|
+| Fajr start | 05:14 | 05:14 |
+| Fajr Adhan | 05:45 | 05:45 |
+| Fajr Jamaah | 06:00 | 06:00 |
+| Sunrise | 06:32 | 06:32 |
+| Ishraaq | 06:47 | 06:47 |
+| Duha | 09:21 | 09:21 |
+| Dhuhr Adhan | 12:25 | 12:25 |
+| Dhuhr Jamaah | 12:40 | 12:40 |
+| Asr Shafi'i | 15:25 | 15:25 |
+| Asr Hanafi | 16:13 | 16:13 |
+| Asr Adhan | 16:30 | 16:30 |
+| Asr Jamaah | 16:45 | 16:45 |
+| Sunset | 17:49 | 17:49 |
+| Maghrib Adhan | 17:52 | 17:52 |
+| Esha start | 19:06 | 19:06 |
+| Esha Adhan | 19:10 | 19:10 |
+| Esha Jamaah | 19:20 | 19:20 |
+
+Core Jumu'ah data was:
 
 ```text
-jumuahAdhan   = 12:25
-jumuahJamaah  = 13:00
+jumuahTime1    = 12:20
+jumuahTime2    = 12:40
+jumuahTime3    = 12:45
+jumuahHeadings = 0,3,6
 ```
 
-The FindMasjid catalogue exposed:
+Using the verified heading mapping:
 
 ```text
-jumuah_khutbah = 13:00
+0 = Adhan
+3 = Sunan
+6 = Khutbah
 ```
 
-In this sample, FindMasjid `jumuah_khutbah`, the Premium Khutbah event and Premium `jumuahJamaah` happen to contain the same time.
+this produces:
 
-This must **not** be generalised into a rule that Khutbah and Jumu'ah Salaah/Jamaah are always identical. They remain separate semantic values.
+```text
+12:20 Adhan
+12:40 Sunan
+12:45 Khutbah
+```
 
-Core board pages additionally expose `jumuahTime1`, `jumuahTime2`, `jumuahTime3` and `jumuahHeadings`. Their precise semantic mapping must be handled using the verified JavaScript/display research rather than inferred solely from slot position.
+which again matches the Premium event sequence.
 
-The previously agreed Friday timetable rule remains:
+### Conclusion from same-board comparisons
+
+Two independent Premium-capable boards now show Core and Premium agreeing field-for-field for the standard timetable and the astronomical/Jumu'ah values compared.
+
+This is enough to adopt **Core as the working primary timetable source** for MasjidPi research.
+
+It does not prove Core and Premium can never diverge, so production code should still be defensive and the decision should remain revisitable if future captures contradict it.
+
+## Jumu'ah Semantics
+
+The previously agreed Friday timetable behaviour remains unchanged:
 
 ```text
 Friday standard five-prayer timetable:
@@ -368,91 +369,121 @@ If Jumu'ah Salaah/Jamaah is unavailable:
     use Jumu'ah Khutbah as the Salaah-time fallback.
 ```
 
-The dedicated Friday Jumu'ah element can preserve and display the richer event sequence separately.
+Core exposes three Jumu'ah slots and `jumuahHeadings`. Slot meaning must therefore be resolved from the heading configuration rather than inferred from position alone.
 
-## Source Responsibilities
+The Premium provider additionally exposes dedicated Jumu'ah fields and richer event data, which remains useful for the separate Friday detail element.
 
-The current research supports the following separation:
+A Core or FindMasjid field labelled Khutbah must not automatically be treated as semantically identical to Jumu'ah Salaah/Jamaah merely because particular boards use the same time.
+
+## Sunset / Iftar versus Maghrib Adhan
+
+Core data confirms that sunset and Maghrib Adhan are separate concepts.
+
+`fawkner-rahman`:
+
+```text
+sunset       = 17:50
+maghribAthan = 17:55
+```
+
+`erasmia-abu-bakr`:
+
+```text
+sunset       = 17:49
+maghribAthan = 17:52
+```
+
+MasjidPi must therefore retain separate semantic fields for sunset/Iftar and Maghrib Adhan.
+
+During Ramadan, a masjid may display Iftar at sunset while delaying Maghrib Adhan by several minutes. Ramadan-specific data should be revalidated when boards are actively publishing those fields.
+
+## Working Source Responsibilities
 
 ```text
 MasjidBoard Live
         |
         +-- FindMasjid
-        |       +--> board discovery
-        |       +--> MasjidPi catalogue
-        |       +--> lightweight summary metadata
+        |       +--> discover boards
+        |       +--> generate/update catalogue
+        |       +--> location and summary metadata
         |
         +-- Core board page
-        |       +--> selected Core board retrieval
-        |       +--> full standard timetable
-        |       +--> astronomical times
+        |       +--> PRIMARY standard timetable provider
+        |       +--> Adhan/Jamaah values
+        |       +--> astronomical values
         |       +--> Jumu'ah slots/configuration
-        |       +--> optional stream/configuration fields
+        |       +--> optional live-stream metadata
         |
         +-- Premium board
-                +--> selected Premium board retrieval
-                +--> full timetable
-                +--> richer Jumu'ah
+                +--> OPTIONAL enrichment provider
+                +--> richer Jumu'ah content
                 +--> alternate-language values
-                +--> announcements/community content
-                +--> richer board/display configuration
+                +--> announcements
+                +--> posters
+                +--> programmes
+                +--> Nikah/funeral/community content
+                +--> richer display/configuration data
 ```
 
-Discovery, Core retrieval and Premium retrieval should remain separate provider responsibilities.
+Discovery, Core retrieval and Premium enrichment should remain separate responsibilities.
 
-## Revised Source Precedence Decision
+## Working Source-precedence Decision
 
-The earlier working assumption that Premium should always be the only full board-data source is no longer accurate.
-
-For an individual selected board, the research now supports:
+The current Stage 2 decision is:
 
 ```text
 FindMasjid
     -> discover board and obtain web_url
 
 Core board page
-    -> standard timetable source available independently of Premium
+    -> primary standard timetable source
 
-Premium board available
-    -> optional richer capability/source for Premium-only content
+Premium available
+    -> enrich the board with Premium-only content
 ```
 
-MasjidPi should not merge Core and Premium timetable values field-by-field without a defined precedence policy. Same-board comparisons should continue before production behaviour is frozen.
+MasjidPi should not switch its standard timetable provider merely because Premium is available.
 
-**Working decision:**
+This has several advantages:
 
-- FindMasjid is primarily the **discovery/catalogue source**.
-- The public Core board page is a verified **individual timetable source**.
-- Premium is an optional **richer board/content source** where available.
-- Premium is **not required** for a useful full standard timetable.
+- Core-only and Premium-capable boards follow the same standard timetable path;
+- Premium availability is no longer a prerequisite for normal prayer-time display;
+- a Premium outage does not automatically remove standard timetable capability if Core remains available;
+- the timetable provider can have one normalised schema and one defensive parsing path; and
+- Premium can remain focused on genuinely richer content instead of duplicating timetable responsibility.
+
+The production implementation should still define how to behave if future validation finds a Core/Premium disagreement.
 
 ## `MBL_ID` Capability Caveat
 
-Known Premium boards have been observed with both `PRM` and `PRP` suffixes, while other entries expose suffixes including `CRM`, `CRP`, `CRS` and `EXT`.
+Known Premium boards have appeared with both `PRM` and `PRP` suffixes, while other entries expose suffixes including `CRM`, `CRP`, `CRS`, `EXT` and `PTA...EXT` forms.
 
-Premium capability must therefore **not** be derived solely from the `MBL_ID` suffix. The suffix should remain opaque upstream metadata unless authoritative semantics are established later.
+MasjidPi must not derive Premium capability solely from these suffixes.
 
-Premium availability should be determined by the Premium capability probe described above.
+`MBL_ID` should remain opaque upstream metadata unless authoritative semantics are established later.
 
-## Important Open Questions
+Premium capability should continue to be determined by the Premium capability probe.
 
-Stage 2 is not complete. The following still require validation:
+## Remaining Stage 2 Questions
 
-1. How stable the embedded Core `data` schema is across a larger sample of boards.
-2. How often Core board values are updated and what `last_updated` means operationally when populated.
-3. Why some Core boards expose an empty `last_updated` value and whether that affects freshness guarantees.
-4. Whether Core and Premium can temporarily diverge for the same selected board.
-5. Which source should take precedence for overlapping timetable values on a Premium-capable board.
-6. Whether a Premium board can temporarily stop resolving while its Core board remains valid.
-7. Whether Premium access can ever require authentication or another non-public access path.
-8. Exact Core Jumu'ah slot semantics across different `jumuahHeadings` configurations.
-9. Ramadan-specific Core values, especially Iftar versus Maghrib behaviour, when Ramadan boards are actively populated.
-10. Whether ladies-facility, moon-seen, date-adjust and similar FindMasjid fields belong in the final user-facing catalogue or only in board data.
+Stage 2 is not complete. Remaining research includes:
+
+1. broader Core schema sampling across more countries and `MBL_ID` variants;
+2. operational meaning and reliability of Core `last_updated`;
+3. why some boards expose an empty `last_updated` value;
+4. whether Core and Premium can temporarily diverge for the same board;
+5. defined production behaviour if such a divergence is observed;
+6. exact Core Jumu'ah behaviour across more `jumuahHeadings` combinations;
+7. Ramadan-specific values, especially Iftar versus Maghrib behaviour;
+8. how Core live-stream metadata relates to MasjidPi's existing audio-stream subsystem; and
+9. which FindMasjid fields belong in the final user-facing catalogue versus selected-board data.
 
 ## Current Stage 2 Direction
 
-Stage 2 has now established that the public Core board page exposes a substantially richer timetable than the FindMasjid catalogue record, and that the same Core schema was observed on two Core-only candidates in different countries.
+The standard timetable source question is now sufficiently validated for research purposes:
 
-The next research should broaden Core schema validation, compare Core and Premium data for the same Premium-capable boards, and refine Jumu'ah and Ramadan semantics before production provider precedence is frozen.
+**Core is the working primary timetable source; Premium is an optional enrichment source.**
 
-No production implementation is frozen yet; this remains research on `research/masjidboard-live`.
+The next Stage 2 work should focus on freshness, defensive parsing, broader schema sampling and remaining Ramadan/Jumu'ah semantics before production implementation is frozen.
+
+No MasjidBoard work from this research branch is intended to be merged into the next MasjidPi release until the module is substantially further developed and validated.

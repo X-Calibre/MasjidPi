@@ -161,7 +161,7 @@
 
     function jumuahItems(service) {
         const adhan = service.adhan || eventTime(service, "Adhan");
-        const salaah = service.effective_salaah || service.jamaah || eventTime(service, "Khutbah");
+        const salaah = service.effective_salaah || service.jamaah;
         const items = [];
 
         if (adhan) {
@@ -170,7 +170,7 @@
 
         if (Array.isArray(service.events)) {
             for (const event of service.events) {
-                if (!event.time || event.heading === "Adhan" || event.heading === "Khutbah") {
+                if (!event.time || !event.heading || event.heading === "Adhan") {
                     continue;
                 }
                 if (sameTime(event.time, adhan) || sameTime(event.time, salaah)) {

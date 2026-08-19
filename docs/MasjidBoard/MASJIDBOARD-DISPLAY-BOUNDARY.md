@@ -92,7 +92,7 @@ Each row contains a stable key, display label and optional Adhan/Jamaah local wa
 
 Jumu'ah presentation retains available source headings/events but also exposes `effective_salaah`, which uses a supplied Jumu'ah Jamaah time when available and otherwise the normalised Khutbah fallback already defined by the domain model.
 
-Astronomical values remain optional. The presentation model currently carries the normalised astronomical fields so the later screen design can choose which are actually rendered without making the display consume the full internal `Board` object.
+Astronomical values remain optional. The presentation model currently carries the normalised astronomical fields so later screen layouts/preferences can use them without making the display consume the full internal `Board` object.
 
 Clock times have an explicit display JSON shape:
 
@@ -104,6 +104,73 @@ Clock times have an explicit display JSON shape:
 ```
 
 The display model owns this JSON contract independently of the internal Go domain structs.
+
+## Initial Display Content Scope
+
+The initial household display should focus on the information required to decide **where and when to pray** rather than displaying every available timetable field.
+
+The default layout should show:
+
+- masjid name;
+- current local date/time;
+- Fajr, Dhuhr, Asr, Maghrib and Esha;
+- Adhan where supplied;
+- Jamaah where supplied;
+- Jumu'ah information where supplied; and
+- a concise per-board stale/unavailable indication.
+
+The following data may remain available through the presentation API but is **not part of the default initial layout**:
+
+```text
+Suhur
+Fajr Start
+Sunrise
+Ishraaq
+Duha
+Istiwa / Zawaal
+Asr Shafi'i
+Asr Hanafi
+Sunset
+Esha Start
+```
+
+These values are reserved for later layouts/preferences such as an extended timetable or Ramadan-oriented view.
+
+## Prayer Time Presentation Rules
+
+The information order for each daily prayer is fixed:
+
+```text
+Prayer name
+Adhan
+Jamaah
+```
+
+Adhan must therefore appear before Jamaah in reading order.
+
+Visual emphasis is different from reading order:
+
+- when both Adhan and Jamaah are present, **Jamaah is visually dominant** (for example larger and/or bolder);
+- Adhan remains visible first but with secondary emphasis;
+- when only one of Adhan or Jamaah is supplied, that available time takes the dominant styling; and
+- the display must never render a fabricated placeholder such as `--:--` for a missing value.
+
+Example when both values exist:
+
+```text
+Asr
+Adhan    16:30
+Jamaah   16:45   <- dominant
+```
+
+Example when only Adhan exists:
+
+```text
+Maghrib
+Adhan    17:54   <- dominant
+```
+
+This omission rule is general, not Maghrib-specific. Missing optional timetable values do not indicate a failed board update.
 
 ## What the Display API Deliberately Omits
 
@@ -177,13 +244,13 @@ load display
 
 It must not call configuration-changing endpoints.
 
-Time formatting (for example 12-hour versus 24-hour presentation), visual layout, stale-warning styling and which optional astronomical fields are shown belong to the later display/UI design rather than the provider or runtime layers.
+Time formatting (for example 12-hour versus 24-hour presentation), exact typography, stale-warning styling and optional future layouts belong to the display/UI layer rather than the provider or runtime layers.
 
 ## Live Validation — 19 August 2026
 
 Three real selected boards were returned in configured order with independent current timetable data. A deliberate failure of one board proved that the other two remained current while the failed board continued to expose its cached timetable as stale. Restoring the provider identity returned all three to current state.
 
-The new presentation model is therefore built on already-live-validated runtime semantics rather than a speculative provider contract.
+The presentation API was subsequently live-tested with the same three real boards and returned the expected ordered compact display data.
 
 ## Independence from Audio Playback
 

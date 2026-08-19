@@ -68,6 +68,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/api/preferences", server.preferencesHandler)
 	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
 	mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
+	mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
 	mux.HandleFunc("/api/masjidboard/hierarchy", server.masjidBoardHierarchy)
 	mux.HandleFunc("/api/masjidboard/hierarchy/refresh", server.masjidBoardHierarchyRefresh)
 	mux.HandleFunc("/api/masjidboard/scope", server.masjidBoardScope)

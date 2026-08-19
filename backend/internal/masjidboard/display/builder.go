@@ -54,29 +54,29 @@ func populateBoard(out *Board, board model.Board) {
 	out.Date.Islamic = board.DateContext.IslamicDate
 
 	out.Prayers = []Prayer{
-		{Key: "fajr", Label: "Fajr", Adhan: cloneTime(board.PrayerTimes.Fajr.Adhan), Jamaah: cloneTime(board.PrayerTimes.Fajr.Jamaah)},
-		{Key: "dhuhr", Label: "Dhuhr", Adhan: cloneTime(board.PrayerTimes.Dhuhr.Adhan), Jamaah: cloneTime(board.PrayerTimes.Dhuhr.Jamaah)},
-		{Key: "asr", Label: "Asr", Adhan: cloneTime(board.PrayerTimes.Asr.Adhan), Jamaah: cloneTime(board.PrayerTimes.Asr.Jamaah)},
-		{Key: "maghrib", Label: "Maghrib", Adhan: cloneTime(board.PrayerTimes.Maghrib.Adhan), Jamaah: cloneTime(board.PrayerTimes.Maghrib.Jamaah)},
-		{Key: "esha", Label: "Esha", Adhan: cloneTime(board.PrayerTimes.Esha.Adhan), Jamaah: cloneTime(board.PrayerTimes.Esha.Jamaah)},
+		{Key: "fajr", Label: "Fajr", Adhan: displayTime(board.PrayerTimes.Fajr.Adhan), Jamaah: displayTime(board.PrayerTimes.Fajr.Jamaah)},
+		{Key: "dhuhr", Label: "Dhuhr", Adhan: displayTime(board.PrayerTimes.Dhuhr.Adhan), Jamaah: displayTime(board.PrayerTimes.Dhuhr.Jamaah)},
+		{Key: "asr", Label: "Asr", Adhan: displayTime(board.PrayerTimes.Asr.Adhan), Jamaah: displayTime(board.PrayerTimes.Asr.Jamaah)},
+		{Key: "maghrib", Label: "Maghrib", Adhan: displayTime(board.PrayerTimes.Maghrib.Adhan), Jamaah: displayTime(board.PrayerTimes.Maghrib.Jamaah)},
+		{Key: "esha", Label: "Esha", Adhan: displayTime(board.PrayerTimes.Esha.Adhan), Jamaah: displayTime(board.PrayerTimes.Esha.Jamaah)},
 	}
 
 	if len(board.PrayerTimes.Jumuah) > 0 {
 		out.Jumuah = make([]JumuahService, 0, len(board.PrayerTimes.Jumuah))
 		for _, service := range board.PrayerTimes.Jumuah {
 			presented := JumuahService{
-				Adhan:           cloneTime(service.Adhan),
-				Jamaah:          cloneTime(service.Jamaah),
-				EffectiveSalaah: cloneTime(service.EffectiveSalaah()),
-				AlternateAdhan:  cloneTime(service.AlternateAdhan),
-				AlternateJamaah: cloneTime(service.AlternateJamaah),
+				Adhan:           displayTime(service.Adhan),
+				Jamaah:          displayTime(service.Jamaah),
+				EffectiveSalaah: displayTime(service.EffectiveSalaah()),
+				AlternateAdhan:  displayTime(service.AlternateAdhan),
+				AlternateJamaah: displayTime(service.AlternateJamaah),
 				Khateeb:         service.Khateeb,
 			}
 			if len(service.Events) > 0 {
 				presented.Events = make([]JumuahEvent, 0, len(service.Events))
 				for _, event := range service.Events {
 					presented.Events = append(presented.Events, JumuahEvent{
-						Code: event.Code, Heading: event.Heading, Time: cloneTime(event.Time),
+						Code: event.Code, Heading: event.Heading, Time: displayTime(event.Time),
 					})
 				}
 			}
@@ -87,18 +87,17 @@ func populateBoard(out *Board, board model.Board) {
 	if board.Astronomical != nil {
 		a := board.Astronomical
 		out.Astronomical = &Astronomical{
-			Suhur: cloneTime(a.Suhur), FajrStart: cloneTime(a.FajrStart), Sunrise: cloneTime(a.Sunrise),
-			Ishraaq: cloneTime(a.Ishraaq), Duha: cloneTime(a.Duha), IstiwaCaution: cloneTime(a.IstiwaCaution),
-			Istiwa: cloneTime(a.Istiwa), ZawaalEnd: cloneTime(a.ZawaalEnd), AsrShafii: cloneTime(a.AsrShafii),
-			AsrHanafi: cloneTime(a.AsrHanafi), Sunset: cloneTime(a.Sunset), EshaStart: cloneTime(a.EshaStart),
+			Suhur: displayTime(a.Suhur), FajrStart: displayTime(a.FajrStart), Sunrise: displayTime(a.Sunrise),
+			Ishraaq: displayTime(a.Ishraaq), Duha: displayTime(a.Duha), IstiwaCaution: displayTime(a.IstiwaCaution),
+			Istiwa: displayTime(a.Istiwa), ZawaalEnd: displayTime(a.ZawaalEnd), AsrShafii: displayTime(a.AsrShafii),
+			AsrHanafi: displayTime(a.AsrHanafi), Sunset: displayTime(a.Sunset), EshaStart: displayTime(a.EshaStart),
 		}
 	}
 }
 
-func cloneTime(value *model.ClockTime) *model.ClockTime {
+func displayTime(value *model.ClockTime) *ClockTime {
 	if value == nil {
 		return nil
 	}
-	copy := *value
-	return &copy
+	return &ClockTime{Hour: value.Hour, Minute: value.Minute}
 }

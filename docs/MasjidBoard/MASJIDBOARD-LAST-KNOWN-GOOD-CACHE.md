@@ -1,45 +1,46 @@
 # MasjidBoard Last-Known-Good Board Cache
 
-**Status:** Stage 4 implementation decision  
+**Status:** Implemented and live-validated  
 **Branch:** `research/masjidboard-live`
 
-## Behavioural rule
+## Behavioural Rule
 
-Each selected MasjidBoard keeps its own persisted last-known-good timetable.
+Each selected MasjidBoard keeps its own persisted last-known-good timetable. A failed refresh must never overwrite or remove usable timetable data from the previous successful refresh.
 
-A failed refresh must never overwrite or remove usable timetable data from the previous successful refresh.
-
-The user-facing distinction is:
+The runtime states are:
 
 ```text
 current
     latest refresh succeeded
+    using_cached_data = false
+    update_failed = false
 
 stale
     latest refresh failed
     last-known-good timetable exists and is displayed
-    UI must indicate that the last update failed
+    using_cached_data = true
+    update_failed = true
 
 unavailable
     latest refresh failed
     no successful cached timetable exists yet
 ```
 
-`stale` therefore does not mean that there is no timetable to display. It means that the displayed timetable is the last successfully validated data rather than the result of the latest refresh attempt.
+`stale` means usable data remains available, but it came from the last successful refresh rather than the latest attempt. The display must indicate that the latest update failed.
 
-## Per-board independence
+## Per-Board Independence
 
-For one to three configured boards, cache and update state remain independent:
+For one to three configured boards:
 
 ```text
-Board 1 -> own provider -> own cache -> own update status
-Board 2 -> own provider -> own cache -> own update status
-Board 3 -> own provider -> own cache -> own update status
+Board 1 -> own provider -> own runtime state -> own cache
+Board 2 -> own provider -> own runtime state -> own cache
+Board 3 -> own provider -> own runtime state -> own cache
 ```
 
-A failed update for one board must not prevent the other selected boards from updating or displaying normally.
+A failure for one board does not prevent the others from refreshing or displaying normally.
 
-## Persisted cache contents
+## Persisted Cache
 
 Each successful cache entry contains:
 
@@ -49,73 +50,81 @@ SuccessfulAt
 Board
 ```
 
-`SuccessfulAt` is a MasjidPi-owned timestamp recording when the provider result was successfully retrieved and accepted.
+Cache filenames are derived from a SHA-256 hash of the stable catalogue ID. The catalogue ID remains inside the persisted record for validation.
 
-Failure metadata is deliberately not written into the last-known-good cache. A failed attempt must leave the successful cache unchanged. The runtime coordinator will hold the latest attempt/error status and expose it to the API/UI.
-
-## Storage layout
-
-One cache file is maintained per selected board. Cache filenames are derived from a SHA-256 hash of the stable catalogue ID rather than embedding the ID directly in the filename. This avoids filesystem-character and cross-platform naming problems while retaining the catalogue ID inside the persisted record for validation.
-
-The cache directory is expected to live under MasjidPi persistent data storage, for example:
+Installed cache storage is:
 
 ```text
 /var/lib/masjidpi/masjidboard_cache/
 ```
 
-The exact runtime path will be wired during application integration.
+Development cache storage lives under `backend/data/`.
 
-## Persistence rules
+Failure metadata is not written into the last-known-good cache. Failed attempts leave the successful cache unchanged. The runtime owns latest-attempt/error state and exposes it through the API.
 
-A cache entry is written only after a successful validated board refresh.
-
-Changed entries are persisted by:
+## Refresh Sequence
 
 ```text
-validate entry
-    -> encode JSON
-    -> write temporary file
-    -> fsync temporary file
-    -> close
-    -> atomic rename over previous entry
-```
-
-Identical entries are not rewritten.
-
-A candidate that fails validation is rejected before storage and cannot replace the previous cache.
-
-## Refresh/runtime sequence
-
-The future runtime coordinator should implement:
-
-```text
-attempt provider refresh
+attempt live refresh
         |
         +--> success
         |       -> validate result
-        |       -> persist as new last-known-good entry
+        |       -> persist new last-known-good data
         |       -> display new data
         |       -> status = current
         |
         +--> failure
-                -> load existing cache
+                -> existing last-known-good data?
                         |
-                        +--> cache exists
+                        +--> yes
                         |       -> display cached data
                         |       -> status = stale
-                        |       -> expose "last update failed" flag/error
+                        |       -> using_cached_data = true
+                        |       -> update_failed = true
                         |
-                        +--> no cache
+                        +--> no
                                 -> status = unavailable
 ```
 
-The cache itself does not decide `current`, `stale`, or `unavailable`; those are runtime states derived from the latest refresh attempt plus cache availability.
+The cache itself does not decide `current`, `stale` or `unavailable`; those are runtime states derived from the latest refresh attempt and cache availability.
 
-## SD-card behaviour
+## Persistence / SD-Card Rules
 
-This cache follows the existing MasjidPi appliance write policy:
+- write only after a successful validated board refresh;
+- never write on a failed refresh;
+- suppress an identical successful write;
+- use temporary-file + sync + atomic rename for changed data;
+- reject invalid candidates before storage; and
+- persist normalised board data, not raw upstream HTML/provider payloads.
 
-- no write on failed refresh;
-- no write for an identical successful entry;
-- one atomic replacement only when last-known-good data actually changes; and
-- no raw upstream HTML or provider payload is persisted.
+## Live Failure and Recovery Validation — 19 August 2026
+
+The fallback path was deliberately exercised with three selected real boards. Brits Jamia Masjid was temporarily reconfigured to an invalid MasjidBoard Live external ID while its previous successful cache was retained under the test identity.
+
+Observed result:
+
+```text
+Jamiah Yusuf Darul Uloom Brits
+    status = current
+
+Brits Jamia test entry
+    live request failed with 404
+    status = stale
+    using_cached_data = true
+    update_failed = true
+    last_successful_update preserved
+    previously cached timetable still returned
+
+Masjid Taqwa
+    status = current
+```
+
+After restoring the genuine selection, the next successful live refresh returned Brits Jamia Masjid to:
+
+```text
+status = current
+using_cached_data = false
+update_failed = false
+```
+
+This validates both failure isolation and recovery. The last-known-good requirement is therefore considered implemented and live-validated.

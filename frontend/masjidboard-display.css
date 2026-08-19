@@ -53,8 +53,9 @@ body { min-height: 100vh; }
 .board-status.unavailable { color: var(--danger); }
 
 .prayer-grid { flex: 1; display: grid; grid-template-rows: repeat(5, minmax(94px, 1fr)); gap: clamp(9px, 1.15vh, 14px); }
+.prayer-grid.friday { grid-template-rows: minmax(94px, 1fr) minmax(124px, 1.28fr) repeat(3, minmax(94px, 1fr)); }
 .prayer-row { align-items: stretch; min-height: 0; }
-.prayer-label, .jumuah-row-label { display: flex; align-items: center; font-size: clamp(1.15rem, 1.65vw, 1.6rem); font-weight: 760; color: var(--accent); padding: 0 clamp(4px, .7vw, 10px); }
+.prayer-label { display: flex; align-items: center; font-size: clamp(1.15rem, 1.65vw, 1.6rem); font-weight: 760; color: var(--accent); padding: 0 clamp(4px, .7vw, 10px); }
 
 .prayer-cell, .jumuah-cell {
     padding: clamp(14px, 1.5vw, 22px);
@@ -68,6 +69,7 @@ body { min-height: 100vh; }
 }
 .prayer-cell.stale, .jumuah-cell.stale, .board-header.stale { border-color: rgba(241,189,98,.38); }
 .prayer-cell.unavailable, .jumuah-cell.unavailable { color: var(--muted); }
+.jumuah-cell:empty { background: transparent; border-color: transparent; }
 
 .time-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .time-label { color: var(--muted); font-size: clamp(.8rem, 1vw, 1rem); font-weight: 600; }
@@ -78,11 +80,6 @@ body { min-height: 100vh; }
 .single-time { padding-block: 2px; }
 .unavailable-copy { color: var(--muted); font-size: .92rem; line-height: 1.35; }
 
-.jumuah-section { margin-top: 1px; }
-.jumuah-section .comparison-grid { align-items: stretch; }
-.jumuah-row-label { min-height: clamp(100px, 12vh, 145px); }
-.jumuah-cell { min-height: clamp(100px, 12vh, 145px); }
-.jumuah-cell:empty { background: transparent; border-color: transparent; }
 .time-line.jumuah-event .time-label { font-size: clamp(.9rem, 1.1vw, 1.08rem); }
 .time-line.jumuah-event .time-value { font-size: clamp(1.3rem, 1.9vw, 1.95rem); font-weight: 650; color: #d8dfdc; }
 .time-line.jumuah-adhan .time-value { font-size: clamp(1.45rem, 2.25vw, 2.25rem); font-weight: 680; }

@@ -23,11 +23,13 @@ html, body {
 body { min-height: 100vh; }
 
 .board-shell {
+    height: 100vh;
     min-height: 100vh;
     padding: clamp(18px, 2vw, 30px);
     display: flex;
     flex-direction: column;
-    gap: clamp(12px, 1.4vh, 18px);
+    gap: clamp(10px, 1.1vh, 15px);
+    overflow: hidden;
 }
 
 .board-topbar {
@@ -35,7 +37,8 @@ body { min-height: 100vh; }
     display: flex;
     justify-content: center;
     text-align: center;
-    min-height: clamp(92px, 11vh, 118px);
+    flex: 0 0 auto;
+    min-height: clamp(108px, 12.5vh, 138px);
 }
 
 .clock-block {
@@ -47,17 +50,17 @@ body { min-height: 100vh; }
 }
 
 .current-time {
-    font-size: clamp(3.6rem, 5.2vw, 5.8rem);
-    font-weight: 830;
+    font-size: clamp(4.1rem, 5.9vw, 6.5rem);
+    font-weight: 840;
     letter-spacing: -0.055em;
     line-height: 0.92;
 }
 
 .current-date {
-    margin-top: 8px;
+    margin-top: 10px;
     color: var(--muted);
-    font-size: clamp(1rem, 1.25vw, 1.28rem);
-    font-weight: 520;
+    font-size: clamp(1.18rem, 1.5vw, 1.55rem);
+    font-weight: 540;
 }
 
 .connection-state {
@@ -70,12 +73,14 @@ body { min-height: 100vh; }
 .connection-state.warning { color: var(--warning); }
 
 .display-state {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .timetable-stage {
-    height: 100%;
+    flex: 1 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -90,7 +95,10 @@ body { min-height: 100vh; }
     gap: clamp(8px, .8vw, 12px);
 }
 
-.board-headers { align-items: stretch; }
+.board-headers {
+    align-items: stretch;
+    flex: 0 0 auto;
+}
 .board-header-spacer { min-height: 1px; }
 
 .board-header,
@@ -102,7 +110,7 @@ body { min-height: 100vh; }
 }
 
 .board-header {
-    min-height: clamp(64px, 7.4vh, 84px);
+    min-height: clamp(86px, 10vh, 114px);
     padding: clamp(10px, 1.1vw, 18px);
     background: var(--panel);
     display: flex;
@@ -114,9 +122,10 @@ body { min-height: 100vh; }
 
 .board-name {
     margin: 0;
-    font-size: clamp(1.1rem, 1.45vw, 1.55rem);
-    line-height: 1.15;
-    font-weight: 760;
+    font-size: clamp(2rem, 2.75vw, 3rem);
+    line-height: 1.08;
+    font-weight: 790;
+    letter-spacing: -0.025em;
     text-wrap: balance;
 }
 
@@ -129,7 +138,7 @@ body { min-height: 100vh; }
 .board-status.unavailable { color: var(--danger); }
 
 .prayer-grid {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     display: grid;
     grid-template-rows: repeat(5, minmax(0, 1fr));
@@ -266,19 +275,22 @@ body { min-height: 100vh; }
     .prayer-row {
         grid-template-columns: minmax(120px, .42fr) repeat(var(--board-count), minmax(0, 1fr));
     }
+    .board-name,
     .prayer-label { font-size: clamp(1.45rem, 3vw, 2.2rem); }
 }
 
 @media (max-width: 760px) {
-    .board-shell { padding: 10px; gap: 8px; }
-    .board-topbar { min-height: 78px; }
+    .board-shell { padding: 10px; gap: 8px; overflow: auto; }
+    .board-topbar { min-height: 88px; }
+    .current-time { font-size: clamp(3rem, 12vw, 4.6rem); }
+    .current-date { font-size: clamp(.95rem, 4vw, 1.2rem); }
     .comparison-grid,
     .prayer-row { grid-template-columns: 72px repeat(var(--board-count), minmax(0, 1fr)); gap: 5px; }
     .board-header,
     .prayer-cell,
     .jumuah-cell,
     .prayer-label-card { border-radius: 12px; padding: 8px; }
-    .board-name { font-size: .84rem; }
+    .board-name { font-size: clamp(1rem, 4vw, 1.45rem); }
     .prayer-label { font-size: clamp(1rem, 4vw, 1.45rem); }
     .time-line { flex-direction: column; align-items: flex-start; gap: 2px; }
     .time-label,

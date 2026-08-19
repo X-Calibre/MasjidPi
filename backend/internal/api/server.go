@@ -22,20 +22,21 @@ type masjidBoardStatusProvider interface {
 }
 
 type Server struct {
-	httpServer               *http.Server
-	logger                   *slog.Logger
-	playback                 *playback.Manager
-	streams                  *stream.Store
-	favourites               *storage.Favourites
-	preferences              *storage.Preferences
-	audioDeviceState         *storage.AudioDeviceState
-	masjidBoardService       masjidBoardStatusProvider
-	masjidBoardMaintenance   masjidBoardMaintenance
-	masjidBoardHierarchyPath string
-	masjidBoardCataloguePath string
-	masjidBoardScopePath     string
-	catalogueFile            string
-	catalogueDataRoot        string
+	httpServer                    *http.Server
+	logger                        *slog.Logger
+	playback                      *playback.Manager
+	streams                       *stream.Store
+	favourites                    *storage.Favourites
+	preferences                   *storage.Preferences
+	audioDeviceState              *storage.AudioDeviceState
+	masjidBoardService            masjidBoardStatusProvider
+	masjidBoardSelectionManager   masjidBoardSelectionManager
+	masjidBoardMaintenance        masjidBoardMaintenance
+	masjidBoardHierarchyPath      string
+	masjidBoardCataloguePath      string
+	masjidBoardScopePath          string
+	catalogueFile                 string
+	catalogueDataRoot             string
 }
 
 func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
@@ -72,6 +73,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/api/masjidboard/scope", server.masjidBoardScope)
 	mux.HandleFunc("/api/masjidboard/catalogue", server.masjidBoardCatalogue)
 	mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
+	mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
 	mux.HandleFunc("/api/version", server.version)
 	mux.Handle("/", fileServer)
 
@@ -82,10 +84,16 @@ func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
 	s.audioDeviceState = state
 }
 
-// SetMasjidBoardService retains the read-only MasjidBoard runtime status
-// provider without coupling MasjidBoard availability to the audio subsystem.
+// SetMasjidBoardService retains the MasjidBoard runtime status provider without
+// coupling MasjidBoard availability to the audio subsystem. Production service
+// implementations may also support live selection reconfiguration.
 func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	s.masjidBoardService = service
+	if manager, ok := service.(masjidBoardSelectionManager); ok {
+		s.masjidBoardSelectionManager = manager
+	} else {
+		s.masjidBoardSelectionManager = nil
+	}
 }
 
 // SetMasjidBoardMaintenance exposes explicit hierarchy/catalogue maintenance

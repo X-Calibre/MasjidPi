@@ -11,6 +11,11 @@ func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
 }) *masjidboardservice.Service {
+	// Discovery maintenance is independent of selected-board timetable runtime.
+	// It starts even before a board selection exists so the hierarchy can be
+	// available to the configuration WebUI/API.
+	startMasjidBoardMaintenance(ctx, paths, log)
+
 	service, err := masjidboardservice.New(masjidboardservice.Config{
 		SelectionPath: paths.MasjidBoardSelection,
 		CacheDir:      paths.MasjidBoardCache,

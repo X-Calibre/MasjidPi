@@ -103,7 +103,9 @@ func TestParseCoreObjectBritsJamia(t *testing.T) {
 	if jumuah.Jamaah != nil {
 		t.Fatalf("Jumuah Jamaah = %+v, want nil because Core exposes Khutbah rather than a dedicated Jamaah field", jumuah.Jamaah)
 	}
-	assertCoreClock(t, "Jumuah effective Salaah", jumuah.EffectiveSalaah(), 13, 0)
+	if jumuah.EffectiveSalaah() != nil {
+		t.Fatalf("Jumuah effective Salaah = %+v, want nil without explicit Jamaah", jumuah.EffectiveSalaah())
+	}
 
 	if result.Metadata.MBLNumber != "MBL11517PRP" {
 		t.Fatalf("MBLNumber = %q", result.Metadata.MBLNumber)

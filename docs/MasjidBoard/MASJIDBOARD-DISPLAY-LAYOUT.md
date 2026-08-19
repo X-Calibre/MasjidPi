@@ -25,11 +25,11 @@ The default screen includes:
 current local time / date
 selected masjid names
 Fajr
-Dhuhr
+Dhuhr (Saturday–Thursday)
+Jumu'ah (Friday, replacing Dhuhr)
 Asr
 Maghrib
 Esha
-Jumu'ah information
 per-board stale/unavailable indication
 ```
 
@@ -65,40 +65,31 @@ The display refreshes presentation data periodically while maintaining an indepe
 
 The structure is a comparison grid with one column per selected masjid and the same prayer rows aligned horizontally.
 
-Conceptually:
+On ordinary days:
 
 ```text
-                         19:25
-                   Wednesday 19 August
-
-              Darul Uloom      Brits Jamia       Masjid Taqwa
-
 Fajr
-              Adhan  05:30     Adhan  05:40      Adhan  05:40
-              Jamaah 05:45     Jamaah 06:00      Jamaah 06:00
-
 Dhuhr
-              Adhan  12:30     Adhan  13:00      Adhan  13:00
-              Jamaah 12:45     Jamaah 13:20      Jamaah 13:20
-
 Asr
-              Adhan  16:30     Adhan  16:40      Adhan  16:30
-              Jamaah 16:45     Jamaah 17:00      Jamaah 16:50
-
 Maghrib
-              Adhan  17:54     Adhan  17:54      Adhan  17:54
-
 Esha
-              Adhan  19:15     Adhan  19:15      Adhan  19:15
-              Jamaah 19:30     Jamaah 19:30      Jamaah 19:30
-
-Jumu'ah
-              available data   12:25 / 13:00     12:25 / 13:00
 ```
+
+On Friday:
+
+```text
+Fajr
+Jumu'ah
+Asr
+Maghrib
+Esha
+```
+
+Jumu'ah is therefore not displayed as an additional sixth row. It is hidden on non-Friday days and replaces Dhuhr on Friday.
 
 ## Reading Order and Emphasis
 
-Within every prayer cell, reading order is:
+Within every normal prayer cell, reading order is:
 
 ```text
 Adhan
@@ -114,6 +105,24 @@ When only one value exists, the remaining value adopts the dominant styling.
 
 The display does not render placeholder times for absent data. For example, Maghrib does not show an empty `Jamaah --:--` row when no Jamaah value is supplied. Its available Adhan time becomes the dominant value in that cell.
 
+## Jumu'ah Behaviour
+
+Jumu'ah is shown only on Friday and occupies the normal Dhuhr row position.
+
+Within a Jumu'ah cell, timed items are displayed in chronological order regardless of the order returned by the provider. The visual hierarchy is:
+
+```text
+Salaah      strongest
+Adhan       secondary
+other timed events (Lecture, Sunan, etc.) slightly smaller than Adhan
+```
+
+Additional timed events remain clearly readable and are not treated as tiny metadata. Duplicate events that resolve to the same displayed Adhan or Salaah time are suppressed.
+
+A board may legitimately expose Jumu'ah headings with no associated times. That is not a stale/update failure and no fabricated time or placeholder is shown.
+
+The initial Friday row is allowed slightly more vertical space than an ordinary Dhuhr row so that three timed Jumu'ah events can remain legible without shrinking the overall information hierarchy.
+
 ## Alignment
 
 Prayer names form a stable vertical rhythm shared across all selected boards. Equivalent prayer values from different masjids remain horizontally comparable without requiring the viewer to scan separate cards vertically.
@@ -125,14 +134,6 @@ The display preserves the user's configured board order. It does not reorder col
 Each selected board gets one stable column header. Long names wrap within their column rather than changing identity.
 
 The API-provided selected order is authoritative.
-
-## Jumu'ah
-
-Jumu'ah is shown as a separate section rather than replacing the normal Dhuhr row in the general weekly layout.
-
-`effective_salaah` is preferred as the compact congregational-time value where available. Adhan remains first and Salaah receives dominant emphasis when both are present. Additional timed Jumu'ah events, such as a lecture or Sunan time, may be shown secondarily.
-
-A board may legitimately expose Jumu'ah headings with no associated times. That is not a stale/update failure and no fabricated time is shown.
 
 ## Stale and Unavailable State
 
@@ -146,6 +147,8 @@ An unavailable board with no live or cached timetable keeps its configured colum
 
 The screen contains a clearly visible browser-local clock and date as common screen-level elements rather than repeating them in each board column.
 
+The weekday shown by that local clock determines whether the Friday Jumu'ah row or the ordinary Dhuhr row is rendered. The display refresh loop re-evaluates this automatically, so the row changes without restarting MasjidPi when the appliance crosses into or out of Friday.
+
 The board timezone remains available in the presentation API for later multi-timezone layout refinement.
 
 ## One- and Two-Board Adaptation
@@ -153,6 +156,7 @@ The board timezone remains available in the presentation API for later multi-tim
 One-board and two-board modes preserve the same semantics:
 
 - same prayer order;
+- same Friday Jumu'ah replacement rule;
 - same Adhan-before-Jamaah reading order;
 - same Jamaah emphasis;
 - same missing-value omission rules;
@@ -177,10 +181,10 @@ These are either administrative WebUI responsibilities or future display-layout 
 
 ## Validation Boundary
 
-The frontend should now be live-tested with the existing three-board Brits selection by opening:
+The frontend should be live-tested with the existing three-board selection by opening:
 
 ```text
 http://localhost:8080/masjidboard.html
 ```
 
-The next refinement should be based on the actual rendered screen rather than adding more display data speculatively.
+Non-Friday validation should show Dhuhr and no Jumu'ah row. Friday validation should show Jumu'ah in the Dhuhr position and no separate Dhuhr row.

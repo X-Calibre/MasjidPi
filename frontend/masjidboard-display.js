@@ -212,7 +212,7 @@
     function appendPrayerRow(boards, key, label) {
         const row = makeElement("div", "prayer-row");
         row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
-        row.append(makeElement("div", "prayer-label", label));
+        row.append(makeElement("div", "prayer-label prayer-label-card", label));
         for (const board of boards) {
             row.append(renderPrayerCell(board, findPrayer(board, key)));
         }
@@ -222,7 +222,7 @@
     function appendJumuahRow(boards) {
         const row = makeElement("div", "prayer-row jumuah-row");
         row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
-        row.append(makeElement("div", "prayer-label", "Jumu’ah"));
+        row.append(makeElement("div", "prayer-label prayer-label-card", "Jumu’ah"));
         for (const board of boards) {
             row.append(renderJumuahCell(board));
         }

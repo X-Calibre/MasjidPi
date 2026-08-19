@@ -145,8 +145,9 @@ body { min-height: 100vh; }
     gap: clamp(8px, .9vh, 12px);
 }
 
+/* Keep Friday fully responsive while giving Jumu'ah a little extra room. */
 .prayer-grid.friday {
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1.42fr) repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1.22fr) repeat(3, minmax(0, 1fr));
 }
 
 .prayer-row {

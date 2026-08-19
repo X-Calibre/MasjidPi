@@ -1,6 +1,6 @@
 # MasjidBoard Display and Configuration Boundary
 
-**Status:** Architecture decision; backend status boundary implemented  
+**Status:** Architecture decision; presentation API implemented  
 **Branch:** `research/masjidboard-live`
 
 ## Decision
@@ -32,96 +32,158 @@ MasjidBoard backend service
     +-- current / stale / unavailable runtime state
              |
              v
-presentation-oriented display API
+GET /api/masjidboard/display
              |
              v
 MasjidBoard display
     +-- READ ONLY
     +-- render selected board information
     +-- preserve configured board order
-    +-- show per-board stale/update-failed indication
+    +-- show per-board stale indication
 ```
 
 The display does not need to know how a board was discovered, selected, refreshed or configured.
 
-## Current Runtime/Diagnostic API
+## Presentation API
 
-The implemented read-only runtime endpoint is:
+The display-facing endpoint is:
+
+```text
+GET /api/masjidboard/display
+```
+
+It is derived from the selected-board runtime state but exposes a deliberately smaller provider-neutral contract than the diagnostic status API.
+
+The top-level model is:
+
+```text
+DisplayView
+    configured
+    boards[]
+```
+
+Each board contains presentation information only:
+
+```text
+catalogue_id
+name
+alternate_name (optional)
+time_zone (optional)
+status              current | stale | unavailable
+stale               boolean
+last_successful_update (optional)
+date
+prayers[]
+jumuah[] (optional)
+astronomical (optional)
+```
+
+The five daily prayers are always presented in stable order:
+
+```text
+Fajr
+Dhuhr
+Asr
+Maghrib
+Esha
+```
+
+Each row contains a stable key, display label and optional Adhan/Jamaah local wall-clock times. Missing individual times are omitted rather than fabricated.
+
+Jumu'ah presentation retains available source headings/events but also exposes `effective_salaah`, which uses a supplied Jumu'ah Jamaah time when available and otherwise the normalised Khutbah fallback already defined by the domain model.
+
+Astronomical values remain optional. The presentation model currently carries the normalised astronomical fields so the later screen design can choose which are actually rendered without making the display consume the full internal `Board` object.
+
+Clock times have an explicit display JSON shape:
+
+```json
+{
+  "hour": 16,
+  "minute": 45
+}
+```
+
+The display model owns this JSON contract independently of the internal Go domain structs.
+
+## What the Display API Deliberately Omits
+
+The presentation endpoint does **not** expose:
+
+- provider name or provider-specific external IDs;
+- discovery scope or catalogue partitions;
+- upstream provider metadata;
+- update error strings;
+- persistence error strings;
+- configuration operations; or
+- refresh controls.
+
+Those remain available through administrative/configuration APIs where appropriate.
+
+## Runtime/Diagnostic API
+
+The separate diagnostic endpoint remains:
 
 ```text
 GET /api/masjidboard/status
 ```
 
-It returns the configured boards in user-selected order and exposes detailed runtime/provider-neutral board state including:
-
-- stable catalogue/provider identity;
-- display name and timezone offset;
-- `current`, `stale` or `unavailable` status;
-- cached-data and update-failed flags;
-- attempt/success timestamps;
-- diagnostic errors where applicable; and
-- the currently displayable normalised board data.
-
-This endpoint has been live-validated with three simultaneous boards and with an intentional single-board failure.
-
-## Next Boundary: Presentation Model
-
-`GET /api/masjidboard/status` is deliberately useful for runtime inspection and diagnostics, but the physical display should not be tightly coupled to its large raw normalised `Board` structure.
-
-The next implementation step is to define a **small, stable, presentation-oriented display model/API** derived from runtime state.
-
-That model should expose only what the display needs, for example:
-
-- selected boards in configured order;
-- board display name;
-- the prayer/Jamaah times required by the chosen presentation;
-- relevant Jumu'ah information;
-- any deliberately selected astronomical times;
-- a concise per-board stale/update-failed indicator; and
-- enough freshness information to communicate stale data appropriately.
-
-It should gracefully represent missing optional values. A missing individual Jamaah/Jumu'ah field is not itself an update failure.
-
-The display model must remain provider-neutral. MasjidBoard Live-specific payload structure must not leak into the display frontend.
-
-## Configuration APIs
-
-Configuration and maintenance endpoints are separate from the display boundary. The backend now includes configuration operations for catalogue access/refresh and ordered selected-board state. The display must never call configuration-changing endpoints.
-
-The display's normal lifecycle should remain conceptually simple:
-
-```text
-load display
-    -> read presentation data
-    -> render configured board(s)
-    -> periodically read refreshed presentation data
-```
-
-No discovery or configuration state machine belongs in the display frontend.
+It exposes richer runtime information such as provider identity, update-failed flags, attempt timestamps and diagnostic error messages. It is useful for WebUI administration and troubleshooting but should not be the physical display's normal data source.
 
 ## Failure Behaviour
 
-Per-board failure state is part of presentation data:
+Per-board failure state is reduced to the display concepts that matter visually:
 
 ```text
 latest refresh succeeds
-    -> current timetable
+    -> status = current
+    -> stale = false
 
 latest refresh fails + last-known-good exists
     -> cached timetable remains visible
-    -> stale/update-failed indication shown for that board only
+    -> status = stale
+    -> stale = true
+    -> last_successful_update retained
 
 latest refresh fails + no cache exists
-    -> board unavailable indication
+    -> status = unavailable
+    -> timetable omitted
 ```
 
-A failed update must not blank a previously usable timetable.
+A failed update must not blank a previously usable timetable. Raw error text is intentionally excluded from the display endpoint.
+
+## Unconfigured / Initial Refresh Behaviour
+
+When MasjidBoard has not been configured:
+
+```json
+{
+  "configured": false,
+  "boards": []
+}
+```
+
+When boards are configured but a particular board has not yet produced live or cached data, its display slot remains present in selection order with `status = unavailable`. This prevents the display layout from silently changing while an initial refresh is pending or unsuccessful.
+
+## Display Lifecycle
+
+The physical display frontend should remain simple:
+
+```text
+load display
+    -> GET /api/masjidboard/display
+    -> render configured board(s)
+    -> periodically GET the same endpoint
+```
+
+It must not call configuration-changing endpoints.
+
+Time formatting (for example 12-hour versus 24-hour presentation), visual layout, stale-warning styling and which optional astronomical fields are shown belong to the later display/UI design rather than the provider or runtime layers.
 
 ## Live Validation — 19 August 2026
 
-Three real selected boards were returned in configured order with independent current timetable data. A deliberate failure of one board subsequently proved that the other two remained current while the failed board continued to expose its cached timetable as stale. Restoring the provider identity returned all three to current state.
+Three real selected boards were returned in configured order with independent current timetable data. A deliberate failure of one board proved that the other two remained current while the failed board continued to expose its cached timetable as stale. Restoring the provider identity returned all three to current state.
 
-This validates the backend information needed by the future read-only display.
+The new presentation model is therefore built on already-live-validated runtime semantics rather than a speculative provider contract.
 
 ## Independence from Audio Playback
 

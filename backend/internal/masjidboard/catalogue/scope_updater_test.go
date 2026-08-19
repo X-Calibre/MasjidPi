@@ -24,10 +24,15 @@ func (s fakeScopeStore) Load() (scope.State, error) {
 func TestScopedUpdaterScheduledUsesAllConfiguredLocations(t *testing.T) {
 	now := time.Date(2026, 8, 19, 12, 0, 0, 0, time.UTC)
 	store := &fakePartitionStore{}
-	source := &fakeCatalogueSource{records: map[string][]Record{
-		"South Africa|North West|Brits": {{ID: "masjidboardlive:brits", Provider: "masjidboardlive", ExternalID: "brits", Name: "Brits Masjid"}},
-		"South Africa|Gauteng|Akasia":   {{ID: "masjidboardlive:akasia", Provider: "masjidboardlive", ExternalID: "akasia", Name: "Akasia Masjid"}},
-	}}
+	brits := Location{Country: "South Africa", Region: "North West", City: "Brits"}
+	akasia := Location{Country: "South Africa", Region: "Gauteng", City: "Akasia"}
+	source := &fakeCatalogueSource{
+		results: map[string]Catalogue{
+			brits.key():  candidate(brits, "masjidboardlive:brits", "Brits Masjid", now),
+			akasia.key(): candidate(akasia, "masjidboardlive:akasia", "Akasia Masjid", now),
+		},
+		errors: map[string]error{},
+	}
 
 	u := ScopedUpdater{
 		Scope: fakeScopeStore{state: scope.State{Locations: []scope.Location{

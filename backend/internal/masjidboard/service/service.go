@@ -23,13 +23,18 @@ type Config struct {
 
 // Service owns the small runtime-critical MasjidBoard state. It loads the
 // configured 1-3 board selection once at startup, constructs independent
-// providers and exposes the latest per-board runtime results.
+// providers and exposes the latest per-board runtime results. Selection may be
+// reconfigured live through the API without restarting the application.
 type Service struct {
+	mu sync.RWMutex
+
 	selection selection.State
 	runtime   *runtime.Coordinator
+	results   []runtime.Result
 
-	mu      sync.RWMutex
-	results []runtime.Result
+	selectionStore *selection.Store
+	cacheStore     runtime.CacheStore
+	factory        providerFactory
 }
 
 // New constructs the production MasjidBoard startup service.
@@ -41,24 +46,44 @@ func New(config Config) (*Service, error) {
 	}
 
 	cacheStore := cache.NewStore(config.CacheDir)
-	return newWithFactory(state, cacheStore, func(board selection.Board) (provider.Provider, error) {
+	factory := func(board selection.Board) (provider.Provider, error) {
 		client, err := masjidboardlive.NewCoreClientFromSelectionWithHTTPClient(board, config.HTTPClient)
 		if err != nil {
 			return nil, err
 		}
 		return client, nil
-	})
+	}
+
+	service, err := newWithFactory(state, cacheStore, factory)
+	if err != nil {
+		return nil, err
+	}
+	service.selectionStore = selectionStore
+	return service, nil
 }
 
 type providerFactory func(selection.Board) (provider.Provider, error)
 
 func newWithFactory(state selection.State, cacheStore runtime.CacheStore, factory providerFactory) (*Service, error) {
+	coordinator, err := buildCoordinator(state, cacheStore, factory)
+	if err != nil {
+		return nil, err
+	}
+	return &Service{
+		selection:  cloneSelection(state),
+		runtime:    coordinator,
+		cacheStore: cacheStore,
+		factory:    factory,
+	}, nil
+}
+
+func buildCoordinator(state selection.State, cacheStore runtime.CacheStore, factory providerFactory) (*runtime.Coordinator, error) {
 	if !state.Configured() {
 		coordinator, err := runtime.New(nil, cacheStore)
 		if err != nil {
 			return nil, err
 		}
-		return &Service{selection: state, runtime: coordinator}, nil
+		return coordinator, nil
 	}
 	if err := selection.Validate(state); err != nil {
 		return nil, fmt.Errorf("masjidboard service: invalid selection: %w", err)
@@ -83,32 +108,86 @@ func newWithFactory(state selection.State, cacheStore runtime.CacheStore, factor
 	if err != nil {
 		return nil, fmt.Errorf("masjidboard service: create runtime: %w", err)
 	}
-	return &Service{selection: selection.State{Boards: append([]selection.Board(nil), state.Boards...)}, runtime: coordinator}, nil
+	return coordinator, nil
+}
+
+// Reconfigure validates and persists a new ordered 1-3 board selection, then
+// atomically replaces the active runtime coordinator. Existing cached board
+// data is retained on disk and may be reused by the new coordinator.
+func (s *Service) Reconfigure(state selection.State) error {
+	if s == nil {
+		return fmt.Errorf("masjidboard service: service is unavailable")
+	}
+	if err := selection.Validate(state); err != nil {
+		return err
+	}
+
+	s.mu.RLock()
+	cacheStore := s.cacheStore
+	factory := s.factory
+	selectionStore := s.selectionStore
+	s.mu.RUnlock()
+
+	coordinator, err := buildCoordinator(state, cacheStore, factory)
+	if err != nil {
+		return err
+	}
+	if selectionStore == nil {
+		return fmt.Errorf("masjidboard service: selection store is unavailable")
+	}
+	if err := selectionStore.Save(state); err != nil {
+		return fmt.Errorf("masjidboard service: persist selection: %w", err)
+	}
+
+	s.mu.Lock()
+	s.selection = cloneSelection(state)
+	s.runtime = coordinator
+	s.results = nil
+	s.mu.Unlock()
+	return nil
 }
 
 // Configured reports whether MasjidBoard has a persisted user selection.
 func (s *Service) Configured() bool {
-	return s != nil && s.selection.Configured()
+	if s == nil {
+		return false
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.selection.Configured()
 }
 
-// Selection returns the startup selection in user-defined display order.
+// Selection returns the current selection in user-defined display order.
 func (s *Service) Selection() selection.State {
 	if s == nil {
 		return selection.State{}
 	}
-	return selection.State{Boards: append([]selection.Board(nil), s.selection.Boards...)}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return cloneSelection(s.selection)
 }
 
 // Refresh updates all configured boards independently and publishes one result
 // per selected board. A failure on one board never suppresses the others.
 func (s *Service) Refresh(ctx context.Context) []runtime.Result {
-	if s == nil || s.runtime == nil {
+	if s == nil {
 		return nil
 	}
-	results := s.runtime.FetchAll(ctx)
+	s.mu.RLock()
+	coordinator := s.runtime
+	s.mu.RUnlock()
+	if coordinator == nil {
+		return nil
+	}
+
+	results := coordinator.FetchAll(ctx)
 
 	s.mu.Lock()
-	s.results = append([]runtime.Result(nil), results...)
+	// Do not publish results from a coordinator that was replaced while this
+	// network refresh was in flight.
+	if s.runtime == coordinator {
+		s.results = append([]runtime.Result(nil), results...)
+	}
 	s.mu.Unlock()
 
 	return append([]runtime.Result(nil), results...)
@@ -123,4 +202,8 @@ func (s *Service) Results() []runtime.Result {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return append([]runtime.Result(nil), s.results...)
+}
+
+func cloneSelection(state selection.State) selection.State {
+	return selection.State{Boards: append([]selection.Board(nil), state.Boards...)}
 }

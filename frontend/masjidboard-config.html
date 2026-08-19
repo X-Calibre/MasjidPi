@@ -46,10 +46,28 @@
     </section>
 
     <section class="card">
-        <h2>Selected Masjids</h2>
-        <p class="config-intro">Select up to three MasjidBoards. Their order here will determine the display column order.</p>
-        <div id="boardSelection">
-            <p class="status-detail">Masjid selection controls will be added after location configuration.</p>
+        <div class="section-heading-row">
+            <div>
+                <h2>Selected Masjids</h2>
+                <p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order.</p>
+            </div>
+            <button id="refreshCatalogueButton" class="secondary compact-button" type="button">Refresh Masjids</button>
+        </div>
+
+        <div id="boardSelection" class="board-selection">
+            <p class="status-detail">Loading available MasjidBoards…</p>
+        </div>
+
+        <div class="board-picker">
+            <label for="boardSearch">Find a Masjid</label>
+            <input id="boardSearch" type="search" placeholder="Search available masjids…" autocomplete="off">
+            <select id="availableBoards" size="7" aria-label="Available MasjidBoards"></select>
+            <div id="availableBoardMeta" class="config-meta"></div>
+            <button id="addBoardButton" class="secondary" type="button">+ Add Selected Masjid</button>
+        </div>
+
+        <div class="configuration-actions board-save-actions">
+            <button id="saveBoardsButton" type="button">Save Selected Masjids</button>
         </div>
     </section>
 

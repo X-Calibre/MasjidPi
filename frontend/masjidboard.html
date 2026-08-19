@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <title>MasjidBoard · MasjidPi</title>
+    <link rel="stylesheet" href="masjidboard-display.css">
+</head>
+<body>
+<main class="board-shell" aria-live="polite">
+    <header class="board-topbar">
+        <div class="clock-block">
+            <time id="currentTime" class="current-time">--:--</time>
+            <time id="currentDate" class="current-date">Loading date…</time>
+        </div>
+        <div id="connectionState" class="connection-state" role="status">Connecting…</div>
+    </header>
+
+    <section id="unconfiguredState" class="empty-state hidden">
+        <h1>MasjidBoard is not configured</h1>
+        <p>Select your locations and masjids from the MasjidPi WebUI.</p>
+    </section>
+
+    <section id="displayState" class="display-state hidden">
+        <div id="boardHeaders" class="comparison-grid board-headers"></div>
+        <div id="prayerGrid" class="prayer-grid"></div>
+        <section id="jumuahSection" class="jumuah-section hidden">
+            <div class="section-title">Jumu’ah</div>
+            <div id="jumuahGrid" class="comparison-grid"></div>
+        </section>
+    </section>
+
+    <section id="loadErrorState" class="empty-state hidden">
+        <h1>Timetable temporarily unavailable</h1>
+        <p>MasjidPi will keep trying automatically.</p>
+    </section>
+</main>
+
+<script src="masjidboard-display.js"></script>
+</body>
+</html>

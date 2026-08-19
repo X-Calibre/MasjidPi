@@ -223,7 +223,7 @@
         }
 
         jumuahGrid.replaceChildren();
-        jumuahGrid.append(makeElement("div", "jumuah-label-spacer"));
+        jumuahGrid.append(makeElement("div", "jumuah-row-label", "Jumu’ah"));
         for (const board of boards) {
             jumuahGrid.append(renderJumuahCell(board));
         }

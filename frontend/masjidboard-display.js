@@ -176,7 +176,12 @@
                 if (sameTime(event.time, adhan) || sameTime(event.time, salaah)) {
                     continue;
                 }
-                items.push({label: event.heading, time: event.time, kind: "event"});
+
+                // Preserve the event label. If no explicit Salaah/Jamaah time
+                // exists, Khutbah becomes the visually dominant final event;
+                // otherwise it remains a secondary Jumu'ah event.
+                const kind = event.heading === "Khutbah" && !salaah ? "salaah" : "event";
+                items.push({label: event.heading, time: event.time, kind});
             }
         }
 

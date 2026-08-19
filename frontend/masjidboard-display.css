@@ -1,110 +1,314 @@
 :root {
     color-scheme: dark;
-    --bg: #07100d;
-    --panel: #0d1a16;
-    --panel-soft: #12231d;
+    --bg: #06100d;
+    --panel: #0c1915;
+    --panel-soft: #10231c;
     --line: rgba(255, 255, 255, 0.09);
     --text: #f6f8f7;
-    --muted: #9fb0a9;
-    --accent: #e5c86d;
+    --muted: #a8b5b0;
+    --accent: #e7c857;
     --warning: #f1bd62;
     --danger: #ef8e86;
-    --radius: 20px;
+    --radius: 18px;
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+html, body {
+    min-height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 body { min-height: 100vh; }
 
 .board-shell {
     min-height: 100vh;
-    padding: clamp(24px, 3.2vw, 54px);
+    padding: clamp(18px, 2vw, 30px);
     display: flex;
     flex-direction: column;
-    gap: clamp(20px, 2.5vh, 34px);
+    gap: clamp(12px, 1.4vh, 18px);
 }
 
-.board-topbar { position: relative; display: flex; justify-content: center; text-align: center; }
-.clock-block { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.current-time { font-size: clamp(3.2rem, 5vw, 5.2rem); font-weight: 800; letter-spacing: -0.055em; line-height: 0.95; }
-.current-date { margin-top: 9px; color: var(--muted); font-size: clamp(1rem, 1.45vw, 1.3rem); }
-.connection-state { position: absolute; right: 0; top: 4px; color: var(--muted); font-size: .88rem; }
+.board-topbar {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    min-height: clamp(92px, 11vh, 118px);
+}
+
+.clock-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.current-time {
+    font-size: clamp(3.6rem, 5.2vw, 5.8rem);
+    font-weight: 830;
+    letter-spacing: -0.055em;
+    line-height: 0.92;
+}
+
+.current-date {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: clamp(1rem, 1.25vw, 1.28rem);
+    font-weight: 520;
+}
+
+.connection-state {
+    position: absolute;
+    right: 0;
+    top: 4px;
+    color: var(--muted);
+    font-size: .86rem;
+}
 .connection-state.warning { color: var(--warning); }
 
-.display-state { flex: 1; display: flex; flex-direction: column; gap: clamp(15px, 1.9vh, 24px); }
-.comparison-grid, .prayer-row { --board-count: 3; display: grid; grid-template-columns: minmax(110px, .52fr) repeat(var(--board-count), minmax(0, 1fr)); gap: clamp(10px, 1.15vw, 18px); }
+.display-state {
+    flex: 1;
+    min-height: 0;
+}
+
+.timetable-stage {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, .9vh, 12px);
+}
+
+.comparison-grid,
+.prayer-row {
+    --board-count: 3;
+    display: grid;
+    grid-template-columns: minmax(180px, 0.48fr) repeat(var(--board-count), minmax(0, 1fr));
+    gap: clamp(8px, .8vw, 12px);
+}
+
 .board-headers { align-items: stretch; }
 .board-header-spacer { min-height: 1px; }
 
-.board-header {
-    background: var(--panel);
+.board-header,
+.prayer-cell,
+.jumuah-cell,
+.prayer-label-card {
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    padding: clamp(14px, 1.5vw, 24px);
+}
+
+.board-header {
+    min-height: clamp(64px, 7.4vh, 84px);
+    padding: clamp(10px, 1.1vw, 18px);
+    background: var(--panel);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    min-height: clamp(82px, 9vh, 108px);
 }
-.board-name { margin: 0; font-size: clamp(1.15rem, 1.65vw, 1.65rem); line-height: 1.15; font-weight: 760; text-wrap: balance; }
-.board-status { min-height: 1.2em; margin-top: 7px; font-size: .78rem; color: var(--warning); }
+
+.board-name {
+    margin: 0;
+    font-size: clamp(1.1rem, 1.45vw, 1.55rem);
+    line-height: 1.15;
+    font-weight: 760;
+    text-wrap: balance;
+}
+
+.board-status {
+    min-height: 1.05em;
+    margin-top: 5px;
+    font-size: .72rem;
+    color: var(--warning);
+}
 .board-status.unavailable { color: var(--danger); }
 
-.prayer-grid { flex: 1; display: grid; grid-template-rows: repeat(5, minmax(94px, 1fr)); gap: clamp(9px, 1.15vh, 14px); }
-.prayer-grid.friday { grid-template-rows: minmax(94px, 1fr) minmax(124px, 1.28fr) repeat(3, minmax(94px, 1fr)); }
-.prayer-row { align-items: stretch; min-height: 0; }
-.prayer-label { display: flex; align-items: center; font-size: clamp(2.05rem, 3.2vw, 3.2rem); font-weight: 760; color: var(--accent); padding: 0 clamp(4px, .7vw, 10px); }
+.prayer-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    gap: clamp(8px, .9vh, 12px);
+}
 
-.prayer-cell, .jumuah-cell {
-    padding: clamp(14px, 1.5vw, 22px);
-    background: var(--panel-soft);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
+.prayer-grid.friday {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1.42fr) repeat(3, minmax(0, 1fr));
+}
+
+.prayer-row {
+    align-items: stretch;
+    min-height: 0;
+}
+
+.prayer-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--accent);
+    font-size: clamp(2rem, 2.75vw, 3rem);
+    font-weight: 790;
+    letter-spacing: -0.025em;
+    padding: clamp(10px, 1vw, 16px);
+}
+
+.prayer-label-card {
+    background: linear-gradient(180deg, rgba(13, 29, 24, .98), rgba(9, 23, 19, .98));
+}
+
+.prayer-cell,
+.jumuah-cell {
+    min-height: 0;
+    padding: clamp(12px, 1.3vw, 20px);
+    background: linear-gradient(180deg, #11271f 0%, #0e211b 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: clamp(7px, .7vh, 11px);
+    gap: clamp(7px, .7vh, 10px);
 }
-.prayer-cell.stale, .jumuah-cell.stale, .board-header.stale { border-color: rgba(241,189,98,.38); }
-.prayer-cell.unavailable, .jumuah-cell.unavailable { color: var(--muted); }
-.jumuah-cell:empty { background: transparent; border-color: transparent; }
 
-.time-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.time-label { color: var(--muted); font-size: clamp(1.45rem, 2.25vw, 2.25rem); line-height: 1; font-weight: 600; }
-.time-value { font-variant-numeric: tabular-nums; font-size: clamp(1.45rem, 2.25vw, 2.25rem); line-height: 1; font-weight: 650; letter-spacing: -.025em; }
-.time-line.dominant .time-label { color: var(--text); font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 720; }
-.time-line.dominant .time-value { color: var(--text); font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 850; }
+.prayer-cell.stale,
+.jumuah-cell.stale,
+.board-header.stale {
+    border-color: rgba(241, 189, 98, 0.38);
+}
+
+.prayer-cell.unavailable,
+.jumuah-cell.unavailable { color: var(--muted); }
+
+.time-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+}
+
+.time-label,
+.time-value {
+    line-height: 1;
+}
+
+.time-label {
+    color: var(--muted);
+    font-size: clamp(1.25rem, 1.75vw, 1.95rem);
+    font-weight: 620;
+}
+
+.time-value {
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.25rem, 1.75vw, 1.95rem);
+    font-weight: 690;
+    letter-spacing: -0.025em;
+}
+
 .time-line.secondary .time-value { color: #d8dfdc; }
+
+.time-line.dominant .time-label,
+.time-line.dominant .time-value {
+    color: var(--text);
+    font-size: clamp(1.85rem, 2.7vw, 2.85rem);
+}
+
+.time-line.dominant .time-label { font-weight: 760; }
+.time-line.dominant .time-value { font-weight: 870; }
 .single-time { padding-block: 2px; }
-.unavailable-copy { color: var(--muted); font-size: .92rem; line-height: 1.35; }
 
-.time-line.jumuah-event .time-label { font-size: clamp(1.3rem, 1.9vw, 1.95rem); }
-.time-line.jumuah-event .time-value { font-size: clamp(1.3rem, 1.9vw, 1.95rem); font-weight: 650; color: #d8dfdc; }
-.time-line.jumuah-adhan .time-label { font-size: clamp(1.45rem, 2.25vw, 2.25rem); }
-.time-line.jumuah-adhan .time-value { font-size: clamp(1.45rem, 2.25vw, 2.25rem); font-weight: 680; }
-.time-line.jumuah-salaah .time-label { font-size: clamp(1.9rem, 3vw, 3rem); }
-.time-line.jumuah-salaah .time-value { font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 850; }
+.unavailable-copy {
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.35;
+}
 
-.empty-state { margin: auto; width: min(720px, 100%); padding: 42px; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+/* Friday/Jumu'ah: keep events chronological and visually stepped. */
+.time-line.jumuah-event .time-label,
+.time-line.jumuah-event .time-value {
+    font-size: clamp(1.08rem, 1.45vw, 1.6rem);
+}
+.time-line.jumuah-event .time-label { font-weight: 600; }
+.time-line.jumuah-event .time-value { font-weight: 670; color: #d8dfdc; }
+
+.time-line.jumuah-adhan .time-label,
+.time-line.jumuah-adhan .time-value {
+    font-size: clamp(1.25rem, 1.75vw, 1.95rem);
+}
+.time-line.jumuah-adhan .time-label { font-weight: 640; }
+.time-line.jumuah-adhan .time-value { font-weight: 710; }
+
+.time-line.jumuah-salaah .time-label,
+.time-line.jumuah-salaah .time-value {
+    font-size: clamp(1.85rem, 2.7vw, 2.85rem);
+    color: var(--text);
+}
+.time-line.jumuah-salaah .time-label { font-weight: 770; }
+.time-line.jumuah-salaah .time-value { font-weight: 870; }
+
+.empty-state {
+    margin: auto;
+    width: min(720px, 100%);
+    padding: 42px;
+    text-align: center;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
 .empty-state h1 { margin: 0 0 12px; font-size: clamp(1.5rem, 3vw, 2.3rem); }
 .empty-state p { margin: 0; color: var(--muted); line-height: 1.5; }
 .hidden { display: none !important; }
 
+@media (max-width: 1000px) {
+    .comparison-grid,
+    .prayer-row {
+        grid-template-columns: minmax(120px, .42fr) repeat(var(--board-count), minmax(0, 1fr));
+    }
+    .prayer-label { font-size: clamp(1.45rem, 3vw, 2.2rem); }
+}
+
 @media (max-width: 760px) {
-    .board-shell { padding: 14px; }
-    .comparison-grid, .prayer-row { grid-template-columns: 76px repeat(var(--board-count), minmax(0, 1fr)); gap: 6px; }
-    .board-header, .prayer-cell, .jumuah-cell { border-radius: 14px; padding: 10px; }
-    .board-name { font-size: .86rem; }
-    .prayer-label { font-size: clamp(1.35rem, 5.4vw, 1.95rem); }
+    .board-shell { padding: 10px; gap: 8px; }
+    .board-topbar { min-height: 78px; }
+    .comparison-grid,
+    .prayer-row { grid-template-columns: 72px repeat(var(--board-count), minmax(0, 1fr)); gap: 5px; }
+    .board-header,
+    .prayer-cell,
+    .jumuah-cell,
+    .prayer-label-card { border-radius: 12px; padding: 8px; }
+    .board-name { font-size: .84rem; }
+    .prayer-label { font-size: clamp(1rem, 4vw, 1.45rem); }
     .time-line { flex-direction: column; align-items: flex-start; gap: 2px; }
-    .time-line.dominant .time-label, .time-line.dominant .time-value, .time-line.jumuah-salaah .time-label, .time-line.jumuah-salaah .time-value { font-size: clamp(1.25rem, 5vw, 1.8rem); }
-    .time-label, .time-value, .time-line.jumuah-adhan .time-label, .time-line.jumuah-adhan .time-value { font-size: clamp(1rem, 4vw, 1.45rem); }
-    .time-line.jumuah-event .time-label, .time-line.jumuah-event .time-value { font-size: clamp(.95rem, 3.7vw, 1.3rem); }
+    .time-label,
+    .time-value,
+    .time-line.jumuah-adhan .time-label,
+    .time-line.jumuah-adhan .time-value { font-size: clamp(.9rem, 3.7vw, 1.3rem); }
+    .time-line.dominant .time-label,
+    .time-line.dominant .time-value,
+    .time-line.jumuah-salaah .time-label,
+    .time-line.jumuah-salaah .time-value { font-size: clamp(1.1rem, 4.6vw, 1.65rem); }
+    .time-line.jumuah-event .time-label,
+    .time-line.jumuah-event .time-value { font-size: clamp(.82rem, 3.3vw, 1.12rem); }
 }
 
 @media (prefers-color-scheme: light) {
-    :root { color-scheme: light; --bg:#f2f5f3; --panel:#fff; --panel-soft:#f9fbfa; --line:rgba(14,37,28,.12); --text:#102019; --muted:#617269; --accent:#78600e; --warning:#8e6104; --danger:#a83b34; }
-    .time-line.secondary .time-value, .time-line.jumuah-event .time-value { color:#3d4e46; }
+    :root {
+        color-scheme: light;
+        --bg: #f2f5f3;
+        --panel: #ffffff;
+        --panel-soft: #f9fbfa;
+        --line: rgba(14, 37, 28, 0.12);
+        --text: #102019;
+        --muted: #617269;
+        --accent: #78600e;
+        --warning: #8e6104;
+        --danger: #a83b34;
+    }
+    .prayer-label-card { background: linear-gradient(180deg, #fff, #f6f9f7); }
+    .prayer-cell,
+    .jumuah-cell { background: linear-gradient(180deg, #fff, #f8fbf9); }
+    .time-line.secondary .time-value,
+    .time-line.jumuah-event .time-value { color: #3d4e46; }
 }

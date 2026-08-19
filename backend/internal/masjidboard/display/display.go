@@ -3,7 +3,6 @@ package display
 import (
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 )
 
@@ -34,40 +33,48 @@ type Date struct {
 	Islamic   string `json:"islamic,omitempty"`
 }
 
+// ClockTime is a display-facing local wall-clock time. It is deliberately
+// distinct from the internal domain type so the API's JSON shape remains a
+// stable presentation contract.
+type ClockTime struct {
+	Hour   int `json:"hour"`
+	Minute int `json:"minute"`
+}
+
 type Prayer struct {
-	Key    string           `json:"key"`
-	Label  string           `json:"label"`
-	Adhan  *model.ClockTime `json:"adhan,omitempty"`
-	Jamaah *model.ClockTime `json:"jamaah,omitempty"`
+	Key    string     `json:"key"`
+	Label  string     `json:"label"`
+	Adhan  *ClockTime `json:"adhan,omitempty"`
+	Jamaah *ClockTime `json:"jamaah,omitempty"`
 }
 
 type JumuahService struct {
-	Adhan           *model.ClockTime `json:"adhan,omitempty"`
-	Jamaah          *model.ClockTime `json:"jamaah,omitempty"`
-	EffectiveSalaah *model.ClockTime `json:"effective_salaah,omitempty"`
-	AlternateAdhan  *model.ClockTime `json:"alternate_adhan,omitempty"`
-	AlternateJamaah *model.ClockTime `json:"alternate_jamaah,omitempty"`
-	Khateeb         string           `json:"khateeb,omitempty"`
-	Events          []JumuahEvent    `json:"events,omitempty"`
+	Adhan           *ClockTime    `json:"adhan,omitempty"`
+	Jamaah          *ClockTime    `json:"jamaah,omitempty"`
+	EffectiveSalaah *ClockTime    `json:"effective_salaah,omitempty"`
+	AlternateAdhan  *ClockTime    `json:"alternate_adhan,omitempty"`
+	AlternateJamaah *ClockTime    `json:"alternate_jamaah,omitempty"`
+	Khateeb         string        `json:"khateeb,omitempty"`
+	Events          []JumuahEvent `json:"events,omitempty"`
 }
 
 type JumuahEvent struct {
-	Code    string           `json:"code,omitempty"`
-	Heading string           `json:"heading"`
-	Time    *model.ClockTime `json:"time,omitempty"`
+	Code    string     `json:"code,omitempty"`
+	Heading string     `json:"heading"`
+	Time    *ClockTime `json:"time,omitempty"`
 }
 
 type Astronomical struct {
-	Suhur         *model.ClockTime `json:"suhur,omitempty"`
-	FajrStart     *model.ClockTime `json:"fajr_start,omitempty"`
-	Sunrise       *model.ClockTime `json:"sunrise,omitempty"`
-	Ishraaq       *model.ClockTime `json:"ishraaq,omitempty"`
-	Duha          *model.ClockTime `json:"duha,omitempty"`
-	IstiwaCaution *model.ClockTime `json:"istiwa_caution,omitempty"`
-	Istiwa        *model.ClockTime `json:"istiwa,omitempty"`
-	ZawaalEnd     *model.ClockTime `json:"zawaal_end,omitempty"`
-	AsrShafii     *model.ClockTime `json:"asr_shafii,omitempty"`
-	AsrHanafi     *model.ClockTime `json:"asr_hanafi,omitempty"`
-	Sunset        *model.ClockTime `json:"sunset,omitempty"`
-	EshaStart     *model.ClockTime `json:"esha_start,omitempty"`
+	Suhur         *ClockTime `json:"suhur,omitempty"`
+	FajrStart     *ClockTime `json:"fajr_start,omitempty"`
+	Sunrise       *ClockTime `json:"sunrise,omitempty"`
+	Ishraaq       *ClockTime `json:"ishraaq,omitempty"`
+	Duha          *ClockTime `json:"duha,omitempty"`
+	IstiwaCaution *ClockTime `json:"istiwa_caution,omitempty"`
+	Istiwa        *ClockTime `json:"istiwa,omitempty"`
+	ZawaalEnd     *ClockTime `json:"zawaal_end,omitempty"`
+	AsrShafii     *ClockTime `json:"asr_shafii,omitempty"`
+	AsrHanafi     *ClockTime `json:"asr_hanafi,omitempty"`
+	Sunset        *ClockTime `json:"sunset,omitempty"`
+	EshaStart     *ClockTime `json:"esha_start,omitempty"`
 }

@@ -1,39 +1,42 @@
 # MasjidBoard Catalogue and Persistence Design
 
-**Status:** Stage 3 research / architecture  
+**Status:** Implemented core architecture; live integration validated  
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
 
-Define the stable MasjidPi catalogue record, geographic discovery scope, multi-board selection model, refresh/reconciliation behaviour, and last-known-good strategy for MasjidBoard Live discovery.
+Define the stable MasjidPi catalogue identity, geographic discovery scope, hierarchy persistence, multi-board selection, refresh behaviour and last-known-good strategy for MasjidBoard discovery/runtime.
 
 ```text
 FindMasjid hierarchy
         |
         v
-configured discovery scope
+persisted available geography
         |
         v
-scoped local catalogue
-        |
-        +--> WebUI/API search and selection
-        |
-        +--> persisted 1–3 selected boards
+configured 1-3 discovery locations
         |
         v
-independent Core providers
+partitioned scoped local catalogue
+        |
+        +--> merged WebUI/API browse/search view
+        |
+        +--> persisted ordered 1-3 selected boards
         |
         v
-normalised Board results
+independent Core providers/runtimes
+        |
+        v
+normalised current/stale board results
 ```
 
-Discovery scope, catalogue persistence, selected-board persistence, individual-board retrieval, and display remain separate concerns.
+Discovery hierarchy, configured scope, catalogue persistence, board selection, individual timetable retrieval and display are separate concerns.
 
 ## Discovery Scope
 
-MasjidPi does **not** maintain a worldwide mirror of the MasjidBoard Live directory.
+MasjidPi does **not** maintain a worldwide mirror of all MasjidBoard timetable records.
 
-During initial configuration the user chooses:
+The user may configure **one to three locations**. Each location is expressed as:
 
 ```text
 Country
@@ -41,135 +44,96 @@ Country
       -> Town / City
 ```
 
-That scope is persisted independently in `masjidboard_scope.json`. The local catalogue contains the boards for that configured town/city only.
+Country and city are required. Region may be blank because the upstream hierarchy contains entries without a province/region value.
 
-Country and city are required for a configured scope. Region may be blank because the upstream FindMasjid hierarchy contains entries without a province/region value.
+Multiple locations support real-world border cases where a nearby masjid may belong to an adjacent town/city. The maximum is three locations.
 
-Changing scope rebuilds the local catalogue for the new location. Records from two scopes must not be silently mixed.
-
-See `MASJIDBOARD-DISCOVERY-SCOPE.md` for the lifecycle decision.
-
-## Design Goals
-
-The catalogue subsystem should:
-
-- use stable public MasjidBoard Live identifiers rather than opaque implementation IDs;
-- keep already-selected boards operational if discovery is unavailable;
-- keep the local catalogue small and relevant to the user's configured area;
-- tolerate board renames and metadata changes;
-- tolerate boards disappearing temporarily or permanently;
-- avoid unnecessary SD-card writes;
-- persist only changed data and use atomic replacement;
-- distinguish catalogue freshness from individual-board timetable freshness;
-- avoid treating upstream `last_updated` as catalogue freshness; and
-- remain provider-specific at the discovery boundary while exposing provider-neutral records internally.
+The persisted global hierarchy is maintained separately so the WebUI can know which countries, regions and towns/cities are currently available. Board catalogue data itself remains scoped to the configured locations.
 
 ## Stable Catalogue Identity
 
-The working external key is the public MasjidBoard Live `web_url` slug, for example:
+For MasjidBoard Live, the working external identity is the public `web_url` slug:
 
 ```text
-brits-jamia
+provider    = masjidboardlive
+external_id = brits-jamia
+catalogue_id = masjidboardlive:brits-jamia
 ```
 
-MasjidPi namespaces that identity:
-
-```text
-masjidboardlive:brits-jamia
-```
-
-Conceptually:
-
-```text
-catalogue_id = provider + ":" + external_id
-```
-
-For MasjidBoard Live:
-
-```text
-provider    = "masjidboardlive"
-external_id = web_url
-```
-
-The opaque Premium `boardId` must not become the catalogue key. `MBL_ID` remains upstream metadata unless stronger stability guarantees are established.
+The opaque Premium `boardId` is not the catalogue key. `MBL_ID` remains provider metadata.
 
 ## Catalogue Record
 
-The persisted catalogue contains identity, geography, provider metadata needed for retrieval, and discovery-state information.
-
 ```text
 CatalogueRecord
-    ID                  masjidboardlive:<web_url>
-    Provider            masjidboardlive
-    ExternalID          <web_url>
-    Name                upstream masjid name
-    City                upstream city
-    Country             configured country
-    Region              configured province/region
-    TimeZoneOffsetMS    exact upstream offset
-    ProviderMetadata    optional upstream metadata such as MBL_ID
-    DiscoveredAt        MasjidPi timestamp
-    LastSeenAt          MasjidPi timestamp
-    Status              active | missing | unavailable
-```
-
-Timetable summary fields from FindMasjid do not need to be persisted in the catalogue because selected boards retrieve their authoritative timetable through the Core provider.
-
-Upstream `last_updated` may be retained as provider metadata but must not drive catalogue freshness or removal decisions.
-
-## Multi-Board Selection
-
-Selection is persisted independently from discovery scope and catalogue.
-
-The product model is:
-
-```text
-unconfigured
-    no persisted board selection
-
-configured
-    exactly 1–3 ordered selected boards
-```
-
-An empty configured selection and a fourth board are invalid.
-
-Each selected board persists enough stable metadata to start without a catalogue refresh:
-
-```text
-SelectedBoard
-    CatalogueID
+    ID
     Provider
     ExternalID
     Name
+    City
+    Country
+    Region
     TimeZoneOffsetMS
+    ProviderMetadata
+    DiscoveredAt
+    LastSeenAt
+    Status
 ```
 
-Selection order is preserved and later maps directly to display order.
+FindMasjid timetable summary fields are not authoritative selected-board data and do not need to drive the runtime timetable. Selected boards retrieve their normalised timetable through the Core provider.
 
-## Startup Behaviour
+## Partitioned Catalogue
 
-An already-configured appliance must not depend on catalogue availability:
+Each configured discovery location owns an independent persisted catalogue partition. The local browse/search view merges the one to three partitions and deduplicates records by stable catalogue ID.
+
+A successful refresh replaces only the relevant partition. A failed location refresh leaves that partition's last-known-good state untouched and does not affect other locations.
+
+This design provides both multi-location discovery and failure isolation without keeping a worldwide board mirror.
+
+## Multi-Board Selection
+
+Selection is persisted independently from discovery scope/catalogue:
+
+```text
+unconfigured -> no persisted board selection
+configured   -> exactly 1-3 ordered selected boards
+```
+
+Each selected board persists:
+
+```text
+CatalogueID
+Provider
+ExternalID
+Name
+TimeZoneOffsetMS
+```
+
+Selection order is preserved and maps to display order. The selection can be reconfigured through API/WebUI while the service is running.
+
+## Startup and Runtime
+
+An already-configured appliance does not depend on discovery availability:
 
 ```text
 load selected-board state
         |
         +--> configured
-        |       -> construct 1–3 independent providers
+        |       -> construct 1-3 independent runtimes
         |       -> refresh each independently
         |       -> use per-board last-known-good cache on failure
         |
         +--> unconfigured
-                -> wait for WebUI/API configuration
+                -> wait for API/WebUI configuration
 ```
 
-The catalogue and discovery scope are not required for normal selected-board display once configuration is complete.
+## Persistent State
 
-## Persistent Files
-
-Installed appliance:
+Installed appliance state includes conceptually:
 
 ```text
 /var/lib/masjidpi/masjidboard_scope.json
+/var/lib/masjidpi/masjidboard_hierarchy.json
 /var/lib/masjidpi/masjidboard_catalogue.json
 /var/lib/masjidpi/masjidboard_selection.json
 /var/lib/masjidpi/masjidboard_cache/
@@ -177,178 +141,105 @@ Installed appliance:
 
 Development equivalents live under `backend/data/`.
 
-These are separate because their lifecycles and write frequencies differ.
-
-## Catalogue Memory Lifecycle
-
-The catalogue is disk-first. It does **not** need to remain in memory throughout normal appliance operation.
-
-It is loaded when the WebUI/API browses the configured location catalogue or when catalogue maintenance requires it.
-
-The selected 1–3 board state and current timetable results are the runtime-relevant data.
-
-## Catalogue Freshness
-
-MasjidPi-owned timestamps are separate from MasjidBoard Live's per-board `last_updated` field:
-
-```text
-retrieved_at
-    successful upstream scoped discovery retrieval
-
-validated_at
-    candidate parsed and passed validation
-
-last_seen_at
-    per-record most recent successful discovery
-```
-
-A catalogue can therefore be fresh even when an individual board has a blank or old upstream `last_updated` value.
+These remain separate because their lifecycles and write frequencies differ.
 
 ## Refresh Policy
 
-The scoped catalogue refreshes only in two circumstances.
+### Hierarchy
 
-### Automatic
+The hierarchy is persisted independently so available countries, regions and towns/cities can be refreshed without downloading every board timetable globally.
 
-At most once every seven days.
+### Scoped catalogue
 
-The due decision is based on persisted `validated_at` / `retrieved_at`, not process uptime. Reboots therefore do not reset the weekly interval.
+Automatic scoped catalogue refresh occurs at most once every seven days based on persisted MasjidPi freshness timestamps. The user may explicitly request an immediate refresh through API/WebUI. Opening configuration does not itself force a refresh.
 
-### Manual
+### Selected timetables
 
-The user may explicitly request an immediate refresh through the configuration API/WebUI regardless of catalogue age.
+Selected-board timetable refresh is independent of catalogue maintenance and occurs on the provider/runtime schedule.
 
-Opening the configuration UI does not itself force a refresh.
+## Last-Known-Good Behaviour
 
-Selected-board timetable refreshes are independent and occur on their own shorter provider schedule.
-
-## Last-Known-Good Catalogue Behaviour
-
-A failed discovery refresh must never replace a valid persisted catalogue with an empty, malformed, or partial result.
+Catalogue partition failure:
 
 ```text
-retrieve configured scope
-        |
-        v
-parse / normalise / validate candidate
-        |
-        +--> failure
-        |       -> keep current catalogue unchanged
-        |
-        +--> success
-                -> reconcile with current scoped catalogue
-                -> atomically persist if changed
+retrieve location
+    -> validate/reconcile candidate
+        -> success: atomically replace that partition if changed
+        -> failure: retain existing partition
 ```
 
-## Reconciliation Rules
-
-### Existing record seen again
-
-For the same `provider + external_id`:
-
-- retain the same catalogue ID;
-- update mutable metadata such as name, city, timezone and provider metadata;
-- update `last_seen_at`;
-- keep status active.
-
-### Rename
-
-An unchanged `web_url` with a changed display name is the same board.
-
-### `web_url` change
-
-A changed slug is treated as a new external identity. MasjidPi must not automatically merge records based only on similar names, city or `MBL_ID`.
-
-### Temporarily missing
-
-A board absent from a successful refresh is retained conservatively as `missing` rather than deleted immediately.
-
-### Selected board disappears from catalogue
-
-Selection remains valid. If Core retrieval still works, the board continues normally. If live retrieval fails, the runtime falls back to that board's last-known-good timetable cache.
-
-## Availability Status
-
-Catalogue status remains deliberately simple:
+Selected-board failure:
 
 ```text
-active
-missing
-unavailable
+live refresh succeeds
+    -> current
+    -> persist accepted timetable as last-known-good
+
+live refresh fails + cache exists
+    -> stale
+    -> using_cached_data = true
+    -> update_failed = true
+    -> keep displaying previous timetable
+
+live refresh fails + no cache
+    -> unavailable
 ```
 
-A transient network failure must not automatically mark a board unavailable.
-
-Runtime timetable state is separate:
-
-```text
-current
-stale
-unavailable
-```
-
-where `stale` means the latest board refresh failed but persisted last-known-good timetable data is still displayed with an update-failed indication.
+Failures are isolated per selected board.
 
 ## Timezone Handling
 
-`time_zone_milli` is persisted exactly and must not be rounded to whole hours. The catalogue-to-provider handoff supports offsets such as:
+`time_zone_milli` is preserved exactly and is not rounded to whole hours. MasjidPi does not invent an IANA timezone where upstream only provides a fixed offset.
 
-```text
-GMT+02:00
-GMT+05:30
-GMT+05:45
-GMT+09:30
-GMT-03:30
-```
+## Configuration / Display Boundary
 
-MasjidPi must not invent an IANA timezone where upstream only exposes a fixed millisecond offset.
+All configuration belongs to API/WebUI:
 
-## Search and Configuration
+- configure one to three discovery locations;
+- refresh/browse the local catalogue;
+- select and order one to three boards; and
+- manage future display preferences.
 
-The WebUI/API owns all configuration. The MasjidBoard display is presentation-only.
+The physical MasjidBoard display is read-only. It consumes presentation data only and never performs discovery, catalogue maintenance or configuration.
 
-Initial configuration walks the upstream hierarchy:
+`GET /api/masjidboard/status` currently exposes detailed runtime/diagnostic board state. The next implementation boundary is a smaller stable presentation-oriented display model/API rather than coupling the display directly to the complete raw normalised board structure.
 
-```text
-countries
-    -> regions/provinces
-        -> towns/cities
-            -> persist scope
-            -> fetch local scoped catalogue
-            -> select 1–3 boards
-```
+## Independence from Audio
 
-After generation, ordinary board search/filtering operates against the persisted local catalogue rather than making a remote request for every keystroke.
+MasjidBoard remains independent from the LiveMasjid audio-stream catalogue and playback subsystem. Failure in either subsystem must not prevent the other from operating.
 
-## Separation from Audio Catalogue
+## Live Validation — 19 August 2026
 
-The MasjidBoard catalogue is separate from the existing LiveMasjid audio-stream catalogue. Neither should use the other's identity scheme as its storage key, and MasjidBoard failure must not prevent audio playback from starting or operating.
+Development exercised the live FindMasjid hierarchy, including alternate upstream response shapes and blank region values.
+
+The complete selected-board path was then tested with three real Brits boards. The tests confirmed:
+
+- ordered three-board selection and persistence;
+- independent live provider retrieval and normalisation;
+- simultaneous `current` state for all three boards;
+- optional missing timetable fields do not invalidate a board;
+- intentional failure of one board leaves the other two current;
+- the failed board returns its persisted timetable as `stale` with cached/update-failed flags; and
+- successful recovery returns it to `current`.
+
+The catalogue/selection/runtime reliability path is therefore considered sufficiently validated to proceed to the display presentation model.
 
 ## Current Decisions
 
-1. `provider + web_url` is the stable MasjidPi catalogue identity.
-2. `MBL_ID` remains opaque provider metadata.
-3. Discovery scope, catalogue, selection and board caches are persisted independently.
-4. Discovery is scoped to the configured country/region/city rather than mirrored globally.
-5. A configured selection contains exactly 1–3 ordered boards.
-6. Selected boards operate without a successful catalogue refresh.
-7. Catalogue refresh is transactional and last-known-good.
-8. Automatic catalogue refresh is weekly; manual refresh may run immediately.
-9. Catalogue freshness uses MasjidPi-owned timestamps, not upstream `last_updated`.
-10. The catalogue is disk-first and loaded on demand for configuration/browsing.
-11. Exact millisecond timezone offsets are preserved.
+1. `provider + external_id` is the stable catalogue identity; MasjidBoard Live uses the public `web_url` slug.
+2. Discovery hierarchy is persisted separately from scoped board catalogue data.
+3. The user may configure one to three discovery locations.
+4. Catalogue data is partitioned per configured location and merged/deduplicated for browsing.
+5. A configured selection contains exactly one to three ordered boards.
+6. Selected boards operate independently of catalogue availability after configuration.
+7. Catalogue and board caches use last-known-good transactional persistence.
+8. Automatic scoped catalogue refresh is weekly; manual refresh may run immediately.
+9. The catalogue is disk-first and loaded on demand.
+10. Exact millisecond timezone offsets are preserved.
+11. Per-board runtime states are `current`, `stale` or `unavailable`.
 12. Display is read-only; all configuration belongs to WebUI/API.
 13. MasjidBoard remains independent from audio playback.
 
 ## Next Implementation Boundary
 
-With discovery scope persistence now defined, the next implementation pieces are:
-
-```text
-1. hierarchy client methods for country / region / city discovery
-2. scoped catalogue builder for the persisted location
-3. weekly-due decision based on persisted catalogue timestamps
-4. manual catalogue update operation
-5. configuration API for reading/updating discovery scope
-6. configuration API for ordered 1–3 board selection
-```
+Define and test the provider-neutral **display presentation model/API** that transforms the validated runtime state into the small stable data contract required by the physical display.

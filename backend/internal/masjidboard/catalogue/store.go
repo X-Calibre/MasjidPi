@@ -65,10 +65,11 @@ func (s *Store) SavePartition(partition Partition) error {
 		return err
 	}
 
-	state, _, err := s.loadExistingLocked()
+	state, exists, err := s.loadExistingLocked()
 	if err != nil {
 		return err
 	}
+	current := cloneState(state)
 
 	key := partition.Location.key()
 	replaced := false
@@ -85,6 +86,9 @@ func (s *Store) SavePartition(partition Partition) error {
 	state = normalizeState(state)
 	if err := validateState(state); err != nil {
 		return err
+	}
+	if exists && reflect.DeepEqual(current, state) {
+		return nil
 	}
 	return s.writeLocked(state)
 }

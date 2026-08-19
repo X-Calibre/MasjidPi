@@ -6,17 +6,28 @@ import (
 	"testing"
 )
 
+func loc(country, region, city string) Location {
+	return Location{Country: country, Region: region, City: city}
+}
+
 func TestStateConfigured(t *testing.T) {
 	if (State{}).Configured() {
 		t.Fatal("zero-value state must be unconfigured")
 	}
-	if !(State{Country: "South Africa", Region: "North West", City: "Brits"}).Configured() {
-		t.Fatal("country/city scope should be configured")
+	if !(State{Locations: []Location{loc("South Africa", "North West", "Brits")}}).Configured() {
+		t.Fatal("one valid location should be configured")
+	}
+	if !(State{Locations: []Location{
+		loc("South Africa", "North West", "Brits"),
+		loc("South Africa", "Gauteng", "Akasia"),
+		loc("South Africa", "Gauteng", "Pretoria"),
+	}}).Configured() {
+		t.Fatal("three valid locations should be configured")
 	}
 }
 
 func TestValidateAllowsBlankRegion(t *testing.T) {
-	state := State{Country: "South Africa", City: "Brits"}
+	state := State{Locations: []Location{loc("South Africa", "", "Brits")}}
 	if err := state.Validate(); err != nil {
 		t.Fatalf("blank upstream region should be allowed: %v", err)
 	}
@@ -25,6 +36,39 @@ func TestValidateAllowsBlankRegion(t *testing.T) {
 func TestValidateRejectsUnconfigured(t *testing.T) {
 	if err := (State{}).Validate(); err == nil {
 		t.Fatal("expected unconfigured state to be rejected")
+	}
+}
+
+func TestValidateRejectsMoreThanThreeLocations(t *testing.T) {
+	state := State{Locations: []Location{
+		loc("South Africa", "Gauteng", "A"),
+		loc("South Africa", "Gauteng", "B"),
+		loc("South Africa", "Gauteng", "C"),
+		loc("South Africa", "Gauteng", "D"),
+	}}
+	if err := state.Validate(); err == nil {
+		t.Fatal("expected four locations to be rejected")
+	}
+}
+
+func TestValidateRejectsDuplicateLocationsCaseInsensitively(t *testing.T) {
+	state := State{Locations: []Location{
+		loc("South Africa", "North West", "Brits"),
+		loc(" south africa ", " north west ", " BRITS "),
+	}}
+	if err := state.Validate(); err == nil {
+		t.Fatal("expected duplicate locations to be rejected")
+	}
+}
+
+func TestValidateAllowsLocationsAcrossRegionsAndCountries(t *testing.T) {
+	state := State{Locations: []Location{
+		loc("South Africa", "North West", "Brits"),
+		loc("South Africa", "Gauteng", "Akasia"),
+		loc("Botswana", "", "Gaborone"),
+	}}
+	if err := state.Validate(); err != nil {
+		t.Fatalf("cross-region/country locations should be allowed: %v", err)
 	}
 }
 
@@ -39,11 +83,14 @@ func TestStoreMissingIsUnconfigured(t *testing.T) {
 	}
 }
 
-func TestStoreRoundTripNormalizes(t *testing.T) {
+func TestStoreRoundTripNormalizesAndPreservesOrder(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "scope.json")
 	store := NewStore(path)
 
-	want := State{Country: " South Africa ", Region: " North West ", City: " Brits "}
+	want := State{Locations: []Location{
+		loc(" South Africa ", " North West ", " Brits "),
+		loc(" South Africa ", " Gauteng ", " Akasia "),
+	}}
 	if err := store.Save(want); err != nil {
 		t.Fatal(err)
 	}
@@ -52,9 +99,17 @@ func TestStoreRoundTripNormalizes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expected := State{Country: "South Africa", Region: "North West", City: "Brits"}
-	if got != expected {
+	expected := State{Locations: []Location{
+		loc("South Africa", "North West", "Brits"),
+		loc("South Africa", "Gauteng", "Akasia"),
+	}}
+	if len(got.Locations) != len(expected.Locations) {
 		t.Fatalf("got %#v, want %#v", got, expected)
+	}
+	for i := range expected.Locations {
+		if got.Locations[i] != expected.Locations[i] {
+			t.Fatalf("location %d = %#v, want %#v", i, got.Locations[i], expected.Locations[i])
+		}
 	}
 }
 
@@ -68,7 +123,7 @@ func TestStoreRejectsEmptyConfiguredSave(t *testing.T) {
 func TestStoreUnchangedSaveDoesNotRewrite(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "scope.json")
 	store := NewStore(path)
-	state := State{Country: "South Africa", Region: "North West", City: "Brits"}
+	state := State{Locations: []Location{loc("South Africa", "North West", "Brits")}}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)
 	}

@@ -55,7 +55,7 @@ body { min-height: 100vh; }
 .prayer-grid { flex: 1; display: grid; grid-template-rows: repeat(5, minmax(94px, 1fr)); gap: clamp(9px, 1.15vh, 14px); }
 .prayer-grid.friday { grid-template-rows: minmax(94px, 1fr) minmax(124px, 1.28fr) repeat(3, minmax(94px, 1fr)); }
 .prayer-row { align-items: stretch; min-height: 0; }
-.prayer-label { display: flex; align-items: center; font-size: clamp(1.15rem, 1.65vw, 1.6rem); font-weight: 760; color: var(--accent); padding: 0 clamp(4px, .7vw, 10px); }
+.prayer-label { display: flex; align-items: center; font-size: clamp(2.05rem, 3.2vw, 3.2rem); font-weight: 760; color: var(--accent); padding: 0 clamp(4px, .7vw, 10px); }
 
 .prayer-cell, .jumuah-cell {
     padding: clamp(14px, 1.5vw, 22px);
@@ -72,17 +72,19 @@ body { min-height: 100vh; }
 .jumuah-cell:empty { background: transparent; border-color: transparent; }
 
 .time-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.time-label { color: var(--muted); font-size: clamp(.8rem, 1vw, 1rem); font-weight: 600; }
+.time-label { color: var(--muted); font-size: clamp(1.45rem, 2.25vw, 2.25rem); line-height: 1; font-weight: 600; }
 .time-value { font-variant-numeric: tabular-nums; font-size: clamp(1.45rem, 2.25vw, 2.25rem); line-height: 1; font-weight: 650; letter-spacing: -.025em; }
-.time-line.dominant .time-label { color: var(--text); font-weight: 720; }
+.time-line.dominant .time-label { color: var(--text); font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 720; }
 .time-line.dominant .time-value { color: var(--text); font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 850; }
 .time-line.secondary .time-value { color: #d8dfdc; }
 .single-time { padding-block: 2px; }
 .unavailable-copy { color: var(--muted); font-size: .92rem; line-height: 1.35; }
 
-.time-line.jumuah-event .time-label { font-size: clamp(.9rem, 1.1vw, 1.08rem); }
+.time-line.jumuah-event .time-label { font-size: clamp(1.3rem, 1.9vw, 1.95rem); }
 .time-line.jumuah-event .time-value { font-size: clamp(1.3rem, 1.9vw, 1.95rem); font-weight: 650; color: #d8dfdc; }
+.time-line.jumuah-adhan .time-label { font-size: clamp(1.45rem, 2.25vw, 2.25rem); }
 .time-line.jumuah-adhan .time-value { font-size: clamp(1.45rem, 2.25vw, 2.25rem); font-weight: 680; }
+.time-line.jumuah-salaah .time-label { font-size: clamp(1.9rem, 3vw, 3rem); }
 .time-line.jumuah-salaah .time-value { font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 850; }
 
 .empty-state { margin: auto; width: min(720px, 100%); padding: 42px; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
@@ -95,10 +97,11 @@ body { min-height: 100vh; }
     .comparison-grid, .prayer-row { grid-template-columns: 76px repeat(var(--board-count), minmax(0, 1fr)); gap: 6px; }
     .board-header, .prayer-cell, .jumuah-cell { border-radius: 14px; padding: 10px; }
     .board-name { font-size: .86rem; }
+    .prayer-label { font-size: clamp(1.35rem, 5.4vw, 1.95rem); }
     .time-line { flex-direction: column; align-items: flex-start; gap: 2px; }
-    .time-line.dominant .time-value, .time-line.jumuah-salaah .time-value { font-size: clamp(1.25rem, 5vw, 1.8rem); }
-    .time-value, .time-line.jumuah-adhan .time-value { font-size: clamp(1rem, 4vw, 1.45rem); }
-    .time-line.jumuah-event .time-value { font-size: clamp(.95rem, 3.7vw, 1.3rem); }
+    .time-line.dominant .time-label, .time-line.dominant .time-value, .time-line.jumuah-salaah .time-label, .time-line.jumuah-salaah .time-value { font-size: clamp(1.25rem, 5vw, 1.8rem); }
+    .time-label, .time-value, .time-line.jumuah-adhan .time-label, .time-line.jumuah-adhan .time-value { font-size: clamp(1rem, 4vw, 1.45rem); }
+    .time-line.jumuah-event .time-label, .time-line.jumuah-event .time-value { font-size: clamp(.95rem, 3.7vw, 1.3rem); }
 }
 
 @media (prefers-color-scheme: light) {

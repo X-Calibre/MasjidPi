@@ -21,6 +21,10 @@
         return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
     }
 
+    function minutesSinceMidnight(time) {
+        return time.hour * 60 + time.minute;
+    }
+
     function updateClock() {
         const now = new Date();
         currentTime.textContent = now.toLocaleTimeString([], {
@@ -93,13 +97,13 @@
             : undefined;
     }
 
-    function appendTimeLine(cell, label, time, dominant, single) {
+    function appendTimeLine(cell, label, time, dominant, single, extraClass = "") {
         if (!time) {
             return;
         }
         const line = makeElement(
             "div",
-            `time-line ${dominant ? "dominant" : "secondary"}${single ? " single-time" : ""}`,
+            `time-line ${dominant ? "dominant" : "secondary"}${single ? " single-time" : ""}${extraClass ? ` ${extraClass}` : ""}`,
         );
         line.append(makeElement("span", "time-label", label));
         line.append(makeElement("span", "time-value", formatClock(time)));
@@ -115,7 +119,6 @@
         }
 
         if (!prayer) {
-            cell.append(makeElement("div", "unavailable-copy", "Not provided"));
             return cell;
         }
 
@@ -123,14 +126,8 @@
         const hasJamaah = Boolean(prayer.jamaah);
         const onlyOne = Number(hasAdhan) + Number(hasJamaah) === 1;
 
-        // Reading order is always Adhan then Jamaah. Jamaah is dominant when
-        // both exist; a sole available value inherits the dominant style.
         appendTimeLine(cell, "Adhan", prayer.adhan, onlyOne, onlyOne);
         appendTimeLine(cell, "Jamaah", prayer.jamaah, hasJamaah, onlyOne);
-
-        if (!hasAdhan && !hasJamaah) {
-            cell.append(makeElement("div", "unavailable-copy", "Not provided"));
-        }
         return cell;
     }
 
@@ -163,31 +160,17 @@
         return event ? event.time : null;
     }
 
-    function renderJumuahCell(board) {
-        const cell = makeElement("div", `jumuah-cell ${boardStateClass(board)}`.trim());
-        const service = Array.isArray(board.jumuah) ? board.jumuah[0] : null;
+    function sameTime(left, right) {
+        return left && right && left.hour === right.hour && left.minute === right.minute;
+    }
 
-        if (!service) {
-            cell.append(makeElement("div", "unavailable-copy", "No Jumu’ah time provided"));
-            return cell;
-        }
-
+    function jumuahItems(service) {
         const adhan = service.adhan || eventTime(service, "Adhan");
         const salaah = service.effective_salaah || service.jamaah || eventTime(service, "Khutbah");
-        const hasAdhan = Boolean(adhan);
-        const hasSalaah = Boolean(salaah);
-        const onlyOne = Number(hasAdhan) + Number(hasSalaah) === 1;
+        const items = [];
 
-        appendTimeLine(cell, "Adhan", adhan, onlyOne, onlyOne);
-        appendTimeLine(cell, "Salaah", salaah, hasSalaah, onlyOne);
-
-        if (!hasAdhan && !hasSalaah) {
-            const timedEvents = Array.isArray(service.events)
-                ? service.events.filter((event) => event.time)
-                : [];
-            if (timedEvents.length === 0) {
-                cell.append(makeElement("div", "unavailable-copy", "Times not provided"));
-            }
+        if (adhan) {
+            items.push({label: "Adhan", time: adhan, kind: "adhan"});
         }
 
         if (Array.isArray(service.events)) {
@@ -195,11 +178,38 @@
                 if (!event.time || event.heading === "Adhan" || event.heading === "Khutbah") {
                     continue;
                 }
-                const row = makeElement("div", "jumuah-event");
-                row.append(makeElement("span", "", event.heading));
-                row.append(makeElement("strong", "", formatClock(event.time)));
-                cell.append(row);
+                if (sameTime(event.time, adhan) || sameTime(event.time, salaah)) {
+                    continue;
+                }
+                items.push({label: event.heading, time: event.time, kind: "event"});
             }
+        }
+
+        if (salaah) {
+            items.push({label: "Salaah", time: salaah, kind: "salaah"});
+        }
+
+        items.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
+        return items;
+    }
+
+    function renderJumuahCell(board) {
+        const cell = makeElement("div", `jumuah-cell ${boardStateClass(board)}`.trim());
+        const service = Array.isArray(board.jumuah) ? board.jumuah[0] : null;
+
+        if (!service) {
+            return cell;
+        }
+
+        for (const item of jumuahItems(service)) {
+            appendTimeLine(
+                cell,
+                item.label,
+                item.time,
+                item.kind === "salaah",
+                false,
+                `jumuah-${item.kind}`,
+            );
         }
         return cell;
     }

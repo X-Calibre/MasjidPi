@@ -56,8 +56,11 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	if got.Prayers[0].Jamaah == nil || got.Prayers[0].Jamaah.Hour != 6 {
 		t.Fatalf("fajr = %+v", got.Prayers[0])
 	}
-	if len(got.Jumuah) != 1 || got.Jumuah[0].EffectiveSalaah == nil || got.Jumuah[0].EffectiveSalaah.Hour != 13 {
-		t.Fatalf("jumuah = %+v", got.Jumuah)
+	if len(got.Jumuah) != 1 || got.Jumuah[0].EffectiveSalaah != nil {
+		t.Fatalf("jumuah effective salaah = %+v, want nil without explicit Jamaah", got.Jumuah)
+	}
+	if len(got.Jumuah[0].Events) != 1 || got.Jumuah[0].Events[0].Heading != "Khutbah" || got.Jumuah[0].Events[0].Time == nil || got.Jumuah[0].Events[0].Time.Hour != 13 {
+		t.Fatalf("jumuah events = %+v", got.Jumuah[0].Events)
 	}
 	if got.Astronomical == nil || got.Astronomical.Sunrise == nil || got.Astronomical.Sunset == nil {
 		t.Fatalf("astronomical = %+v", got.Astronomical)

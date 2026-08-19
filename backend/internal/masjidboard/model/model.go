@@ -82,23 +82,11 @@ type JumuahEvent struct {
 	Time    *ClockTime
 }
 
-// EffectiveSalaah returns the Jumu'ah Jamaah/Salaah time when supplied. If the
-// source does not provide it, the Khutbah event is used as the agreed fallback
-// for the standard five-prayer timetable.
+// EffectiveSalaah returns only an explicitly supplied Jumu'ah Jamaah/Salaah
+// time. A Khutbah event is not treated as Salaah because the source may expose
+// Khutbah without publishing the actual prayer time.
 func (s JumuahService) EffectiveSalaah() *ClockTime {
-	if s.Jamaah != nil {
-		return s.Jamaah
-	}
-	for _, event := range s.Events {
-		if event.Time != nil && equalHeading(event.Heading, "Khutbah") {
-			return event.Time
-		}
-	}
-	return nil
-}
-
-func equalHeading(value, wanted string) bool {
-	return value == wanted
+	return s.Jamaah
 }
 
 type AstronomicalTimes struct {

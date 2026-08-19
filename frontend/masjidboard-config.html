@@ -72,7 +72,13 @@
     </section>
 
     <section class="card">
-        <h2>MasjidBoard Status</h2>
+        <div class="section-heading-row">
+            <div>
+                <h2>MasjidBoard Status</h2>
+                <p class="config-intro">Current timetable data for the selected MasjidBoards.</p>
+            </div>
+            <button id="refreshBoardsButton" class="secondary compact-button" type="button">Refresh Boards</button>
+        </div>
         <div id="masjidBoardStatus">
             <p class="status-detail">Loading MasjidBoard status…</p>
         </div>
@@ -82,5 +88,6 @@
 </div>
 
 <script src="masjidboard-config.js"></script>
+<script src="masjidboard-board-refresh.js"></script>
 </body>
 </html>

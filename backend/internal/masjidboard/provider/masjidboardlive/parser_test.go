@@ -118,7 +118,7 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	assertClock("EshaStart", board.Astronomical.EshaStart, 19, 7)
 }
 
-func TestParseJumuahUsesKhutbahAsSalaahFallback(t *testing.T) {
+func TestParseJumuahDoesNotInferSalaahFromKhutbah(t *testing.T) {
 	row := json.RawMessage(`["Adhān","12:25","Sunan","12:55","Khutbah","13:00","Ml M Bhamjee","12:25","","18:35","19:10","0,3,6"]`)
 	service, err := parseJumuahRow(row)
 	if err != nil {
@@ -127,8 +127,11 @@ func TestParseJumuahUsesKhutbahAsSalaahFallback(t *testing.T) {
 	if service.Jamaah != nil {
 		t.Fatal("Jumuah Jamaah should be absent")
 	}
-	if got := service.EffectiveSalaah(); got == nil || got.Hour != 13 || got.Minute != 0 {
-		t.Fatalf("EffectiveSalaah() = %+v, want 13:00", got)
+	if got := service.EffectiveSalaah(); got != nil {
+		t.Fatalf("EffectiveSalaah() = %+v, want nil without explicit Jamaah", got)
+	}
+	if len(service.Events) != 3 || service.Events[2].Heading != "Khutbah" || service.Events[2].Time == nil || service.Events[2].Time.Hour != 13 {
+		t.Fatalf("Jumuah events = %+v", service.Events)
 	}
 }
 

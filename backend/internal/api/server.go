@@ -22,17 +22,20 @@ type masjidBoardStatusProvider interface {
 }
 
 type Server struct {
-	httpServer                 *http.Server
-	logger                     *slog.Logger
-	playback                   *playback.Manager
-	streams                    *stream.Store
-	favourites                 *storage.Favourites
-	preferences                *storage.Preferences
-	audioDeviceState           *storage.AudioDeviceState
-	masjidBoardService         masjidBoardStatusProvider
-	masjidBoardCataloguePath   string
-	catalogueFile              string
-	catalogueDataRoot          string
+	httpServer               *http.Server
+	logger                   *slog.Logger
+	playback                 *playback.Manager
+	streams                  *stream.Store
+	favourites               *storage.Favourites
+	preferences              *storage.Preferences
+	audioDeviceState         *storage.AudioDeviceState
+	masjidBoardService       masjidBoardStatusProvider
+	masjidBoardMaintenance   masjidBoardMaintenance
+	masjidBoardHierarchyPath string
+	masjidBoardCataloguePath string
+	masjidBoardScopePath     string
+	catalogueFile            string
+	catalogueDataRoot        string
 }
 
 func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
@@ -64,7 +67,11 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/api/preferences", server.preferencesHandler)
 	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
 	mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
+	mux.HandleFunc("/api/masjidboard/hierarchy", server.masjidBoardHierarchy)
+	mux.HandleFunc("/api/masjidboard/hierarchy/refresh", server.masjidBoardHierarchyRefresh)
+	mux.HandleFunc("/api/masjidboard/scope", server.masjidBoardScope)
 	mux.HandleFunc("/api/masjidboard/catalogue", server.masjidBoardCatalogue)
+	mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
 	mux.HandleFunc("/api/version", server.version)
 	mux.Handle("/", fileServer)
 
@@ -81,8 +88,22 @@ func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	s.masjidBoardService = service
 }
 
-// SetMasjidBoardCataloguePath configures the disk-first local catalogue used
-// by the WebUI/API configuration surface. The catalogue is loaded on demand.
+// SetMasjidBoardMaintenance exposes explicit hierarchy/catalogue maintenance
+// operations to the configuration API.
+func (s *Server) SetMasjidBoardMaintenance(service masjidBoardMaintenance) {
+	s.masjidBoardMaintenance = service
+}
+
+// SetMasjidBoardConfigurationPaths configures the disk-first discovery state
+// read and written by the WebUI/API configuration surface.
+func (s *Server) SetMasjidBoardConfigurationPaths(hierarchyPath, scopePath, cataloguePath string) {
+	s.masjidBoardHierarchyPath = hierarchyPath
+	s.masjidBoardScopePath = scopePath
+	s.masjidBoardCataloguePath = cataloguePath
+}
+
+// SetMasjidBoardCataloguePath is retained for callers/tests that only need the
+// catalogue read API.
 func (s *Server) SetMasjidBoardCataloguePath(path string) {
 	s.masjidBoardCataloguePath = path
 }

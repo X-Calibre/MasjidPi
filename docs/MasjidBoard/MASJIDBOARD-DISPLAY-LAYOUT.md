@@ -1,13 +1,13 @@
 # MasjidBoard Initial Display Layout
 
-**Status:** Initial display design decision  
+**Status:** Initial display frontend implemented  
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
 
-Define the first read-only MasjidBoard screen layout before implementing the display frontend.
+Define the first read-only MasjidBoard screen layout and its implemented frontend behaviour.
 
-The initial layout is designed around the most constrained supported case: **three selected masjids displayed simultaneously**. One-board and two-board views should later expand from the same information hierarchy rather than introduce different semantics.
+The initial layout is designed around the most constrained supported case: **three selected masjids displayed simultaneously**. One-board and two-board views expand from the same information hierarchy rather than introduce different semantics.
 
 ## Primary Use Case
 
@@ -35,9 +35,35 @@ per-board stale/unavailable indication
 
 The default screen does not show the extended astronomical/calculation set. Suhur, Fajr Start, Sunrise, Ishraaq, Duha, Istiwa/Zawaal, Shafi'i/Hanafi Asr calculation times, Sunset and Esha Start remain available for later layouts/preferences.
 
+## Implemented Frontend
+
+The first read-only display page is:
+
+```text
+/masjidboard.html
+```
+
+It uses only:
+
+```text
+GET /api/masjidboard/display
+```
+
+and does not expose configuration or audio controls.
+
+The frontend files are:
+
+```text
+frontend/masjidboard.html
+frontend/masjidboard-display.css
+frontend/masjidboard-display.js
+```
+
+The display refreshes presentation data periodically while maintaining an independent local clock. If the API connection is interrupted after usable data has already been rendered, the existing timetable remains on screen and a small connection warning is shown rather than blanking the display.
+
 ## Three-Board Layout
 
-The preferred initial structure is a comparison grid with one column per selected masjid and the same prayer rows aligned horizontally.
+The structure is a comparison grid with one column per selected masjid and the same prayer rows aligned horizontally.
 
 Conceptually:
 
@@ -70,8 +96,6 @@ Jumu'ah
               available data   12:25 / 13:00     12:25 / 13:00
 ```
 
-The example is structural only; exact typography, spacing and visual styling will be determined during frontend implementation.
-
 ## Reading Order and Emphasis
 
 Within every prayer cell, reading order is:
@@ -84,66 +108,49 @@ Jamaah
 When both values exist:
 
 - Adhan appears first with secondary emphasis;
-- Jamaah appears second and is visually dominant, for example larger and/or bolder.
+- Jamaah appears second and is visually dominant, larger and bolder.
 
 When only one value exists, the remaining value adopts the dominant styling.
 
-The display must not render placeholders for absent data. For example, Maghrib should not show an empty `Jamaah --:--` row when no Jamaah value is supplied.
-
-This rule prevents sparse upstream data from producing visually broken timetable rows.
+The display does not render placeholder times for absent data. For example, Maghrib does not show an empty `Jamaah --:--` row when no Jamaah value is supplied. Its available Adhan time becomes the dominant value in that cell.
 
 ## Alignment
 
-Prayer names should form a stable vertical rhythm shared across all selected boards. Equivalent prayer values from different masjids should be horizontally comparable without requiring the viewer to scan separate cards vertically.
+Prayer names form a stable vertical rhythm shared across all selected boards. Equivalent prayer values from different masjids remain horizontally comparable without requiring the viewer to scan separate cards vertically.
 
-This is especially important for Jamaah comparison:
-
-```text
-Asr Jamaah
-Darul Uloom    16:45
-Masjid Taqwa   16:50
-Brits Jamia    17:00
-```
-
-The display should preserve the user's configured board order. It must not reorder columns automatically by the next Jamaah time.
+The display preserves the user's configured board order. It does not reorder columns automatically by the next Jamaah time.
 
 ## Board Names
 
-Each selected board gets one stable column header. Long names may need controlled wrapping or abbreviation at the presentation layer, but the frontend must not silently substitute a different mosque identity.
+Each selected board gets one stable column header. Long names wrap within their column rather than changing identity.
 
 The API-provided selected order is authoritative.
 
 ## Jumu'ah
 
-Jumu'ah should be shown as a separate section rather than replacing the normal Dhuhr row in the general weekly layout.
+Jumu'ah is shown as a separate section rather than replacing the normal Dhuhr row in the general weekly layout.
 
-Available Jumu'ah information should be rendered without fabricating missing values. `effective_salaah` is the preferred compact congregational-time value when available, while richer event headings/times may be used where screen space permits.
+`effective_salaah` is preferred as the compact congregational-time value where available. Adhan remains first and Salaah receives dominant emphasis when both are present. Additional timed Jumu'ah events, such as a lecture or Sunan time, may be shown secondarily.
 
-A board may legitimately expose Jumu'ah headings with no associated times. That is not a stale/update failure.
+A board may legitimately expose Jumu'ah headings with no associated times. That is not a stale/update failure and no fabricated time is shown.
 
 ## Stale and Unavailable State
 
 Status is per board, not global.
 
-A stale board should continue displaying its last-known-good timetable and show a subtle but visible warning attached to that board/column. The warning should not dominate the timetable.
+A stale board continues displaying its last-known-good timetable and gets a subtle warning attached to that board/column.
 
-Conceptually:
-
-```text
-Brits Jamia Masjid   [stale]
-```
-
-An unavailable board with no live or cached timetable should keep its configured column/slot so the other boards do not move unexpectedly. The slot should communicate that timetable data is unavailable without displaying invented times.
+An unavailable board with no live or cached timetable keeps its configured column/slot so the other boards do not move unexpectedly. No prayer times are invented.
 
 ## Current Time and Date
 
-The screen should contain a clearly visible current local clock and date. The exact placement can be refined during visual implementation, but these should be common screen-level elements rather than repeated in every board column when the selected boards share the same local context.
+The screen contains a clearly visible browser-local clock and date as common screen-level elements rather than repeating them in each board column.
 
-If future multi-location selections span different timezones, the board timezone remains available in the presentation API and the layout can adapt accordingly. The initial implementation should not assume provider-specific timezone behaviour.
+The board timezone remains available in the presentation API for later multi-timezone layout refinement.
 
 ## One- and Two-Board Adaptation
 
-One-board and two-board modes should preserve the same semantics:
+One-board and two-board modes preserve the same semantics:
 
 - same prayer order;
 - same Adhan-before-Jamaah reading order;
@@ -152,9 +159,7 @@ One-board and two-board modes should preserve the same semantics:
 - same stale/unavailable semantics; and
 - same selected-board ordering.
 
-Fewer boards should use the additional width to improve readability rather than add more data by default.
-
-The initial frontend should therefore be responsive to the number of selected boards, not switch to a different information model.
+The grid automatically adapts its column count to the number of selected boards, allowing fewer boards to use more width without adding extra information by default.
 
 ## Non-Goals for Initial Layout
 
@@ -170,12 +175,12 @@ The first layout does not include:
 
 These are either administrative WebUI responsibilities or future display-layout features.
 
-## Next Implementation Step
+## Validation Boundary
 
-Implement the read-only display frontend against:
+The frontend should now be live-tested with the existing three-board Brits selection by opening:
 
 ```text
-GET /api/masjidboard/display
+http://localhost:8080/masjidboard.html
 ```
 
-Start with the three-board comparison layout, then verify that the same component structure adapts cleanly to two and one selected board.
+The next refinement should be based on the actual rendered screen rather than adding more display data speculatively.

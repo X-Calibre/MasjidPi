@@ -107,7 +107,7 @@ func Run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	masjidBoardService := startMasjidBoard(ctx, paths, log)
+	masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 
 	liveStatus := livestatus.New("livemasjid.com", 1883, log)
 	liveStatus.Start(ctx)
@@ -122,7 +122,8 @@ func Run() error {
 	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
 	server.SetAudioDeviceState(audioDeviceState)
 	server.SetMasjidBoardService(masjidBoardService)
-	server.SetMasjidBoardCataloguePath(paths.MasjidBoardCatalogue)
+	server.SetMasjidBoardMaintenance(masjidBoardMaintenance)
+	server.SetMasjidBoardConfigurationPaths(paths.MasjidBoardHierarchy, paths.MasjidBoardScope, paths.MasjidBoardCatalogue)
 
 	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)
 	if err != nil {

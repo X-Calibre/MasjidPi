@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasjidBoard Configuration - MasjidPi</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="masjidboard-config.css">
 </head>
 <body>
 <div class="container">
@@ -22,12 +23,26 @@
         </div>
     </header>
 
+    <div id="configBanner" class="config-banner hidden" role="status"></div>
+
     <section class="card">
-        <h2>Locations</h2>
-        <p class="config-intro">Choose up to three locations whose MasjidBoards should be available for selection.</p>
-        <div id="locationConfiguration">
-            <p class="status-detail">Location configuration controls will be added here next.</p>
+        <div class="section-heading-row">
+            <div>
+                <h2>Locations</h2>
+                <p class="config-intro">Choose up to three locations whose MasjidBoards should be available for selection.</p>
+            </div>
+            <button id="refreshHierarchyButton" class="secondary compact-button" type="button">Refresh Locations</button>
         </div>
+
+        <div id="locationConfiguration" class="location-configuration">
+            <p class="status-detail">Loading location hierarchy…</p>
+        </div>
+
+        <div class="configuration-actions">
+            <button id="addLocationButton" class="secondary" type="button">+ Add Location</button>
+            <button id="saveLocationsButton" type="button">Save Locations</button>
+        </div>
+        <small id="hierarchyMeta" class="config-meta"></small>
     </section>
 
     <section class="card">
@@ -48,47 +63,6 @@
     <footer class="footer">MasjidPi · MasjidBoard Configuration</footer>
 </div>
 
-<script>
-(() => {
-    const toggle = document.getElementById("themeToggle");
-    const key = "masjidpi-theme";
-    const validThemes = ["system", "light", "dark"];
-
-    function storedTheme() {
-        const value = localStorage.getItem(key);
-        return validThemes.includes(value) ? value : "system";
-    }
-
-    function applyTheme(theme) {
-        if (theme === "system") document.documentElement.removeAttribute("data-theme");
-        else document.documentElement.dataset.theme = theme;
-        toggle.textContent = "Theme: " + theme.charAt(0).toUpperCase() + theme.slice(1);
-    }
-
-    let theme = storedTheme();
-    applyTheme(theme);
-    toggle.addEventListener("click", () => {
-        theme = validThemes[(validThemes.indexOf(theme) + 1) % validThemes.length];
-        localStorage.setItem(key, theme);
-        applyTheme(theme);
-    });
-
-    fetch("/api/masjidboard/status")
-        .then(response => {
-            if (!response.ok) throw new Error("HTTP " + response.status);
-            return response.json();
-        })
-        .then(status => {
-            const target = document.getElementById("masjidBoardStatus");
-            const count = Array.isArray(status.boards) ? status.boards.length : 0;
-            target.innerHTML = `<div class="status-row"><span>Configured</span><strong>${status.configured ? "Yes" : "No"}</strong></div>` +
-                `<div class="status-row"><span>Selected boards</span><strong>${count}</strong></div>`;
-        })
-        .catch(error => {
-            document.getElementById("masjidBoardStatus").innerHTML =
-                `<p class="status-detail status-detail-error">Unable to load MasjidBoard status: ${error.message}</p>`;
-        });
-})();
-</script>
+<script src="masjidboard-config.js"></script>
 </body>
 </html>

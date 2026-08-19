@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -39,8 +40,9 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	if res.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", res.Code)
 	}
+	body := res.Body.String()
 	var got display.View
-	if err := json.NewDecoder(res.Body).Decode(&got); err != nil {
+	if err := json.Unmarshal([]byte(body), &got); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
 	if !got.Configured || len(got.Boards) != 2 {
@@ -58,12 +60,7 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	if got.Boards[1].Status != masjidboardruntime.StatusUnavailable {
 		t.Fatalf("unavailable board = %+v", got.Boards[1])
 	}
-
-	body := res.Body.String()
-	if body == "" {
-		t.Fatal("empty body")
-	}
-	if contains(body, "secret diagnostic") || contains(body, "another diagnostic") || contains(body, "provider\"") || contains(body, "external_id") {
+	if strings.Contains(body, "secret diagnostic") || strings.Contains(body, "another diagnostic") || strings.Contains(body, "\"provider\"") || strings.Contains(body, "external_id") {
 		t.Fatalf("display API leaked administrative/provider detail: %s", body)
 	}
 }
@@ -91,13 +88,4 @@ func TestMasjidBoardDisplayRejectsWrongMethod(t *testing.T) {
 	if res.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("expected 405, got %d", res.Code)
 	}
-}
-
-func contains(value, substring string) bool {
-	for i := 0; i+len(substring) <= len(value); i++ {
-		if value[i:i+len(substring)] == substring {
-			return true
-		}
-	}
-	return false
 }

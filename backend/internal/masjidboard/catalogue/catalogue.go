@@ -2,6 +2,7 @@ package catalogue
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -33,14 +34,112 @@ type Record struct {
 	Status             Status            `json:"status"`
 }
 
-// Catalogue is the complete last-known-good discovery snapshot for the user's
-// configured geographic scope, plus records retained by reconciliation when
-// they temporarily disappear upstream. It is intentionally not a worldwide
-// mirror of the provider catalogue.
+// Catalogue is one last-known-good discovery snapshot. It is used for
+// reconciliation within a single configured location and as the merged view
+// presented to callers.
 type Catalogue struct {
 	RetrievedAt time.Time `json:"retrieved_at"`
 	ValidatedAt time.Time `json:"validated_at"`
 	Records     []Record  `json:"records"`
+}
+
+// Location identifies one configured catalogue source location. Region may be
+// blank because MasjidBoard Live supports countries without a province layer.
+type Location struct {
+	Country string `json:"country"`
+	Region  string `json:"region,omitempty"`
+	City    string `json:"city"`
+}
+
+func (l Location) Normalized() Location {
+	return Location{
+		Country: strings.TrimSpace(l.Country),
+		Region:  strings.TrimSpace(l.Region),
+		City:    strings.TrimSpace(l.City),
+	}
+}
+
+func (l Location) Validate() error {
+	l = l.Normalized()
+	if l.Country == "" {
+		return fmt.Errorf("masjidboard catalogue: location country is required")
+	}
+	if l.City == "" {
+		return fmt.Errorf("masjidboard catalogue: location city is required")
+	}
+	return nil
+}
+
+func (l Location) key() string {
+	l = l.Normalized()
+	return strings.ToLower(l.Country) + "\x00" + strings.ToLower(l.Region) + "\x00" + strings.ToLower(l.City)
+}
+
+// Partition is the independently refreshable last-known-good catalogue for
+// one configured discovery location.
+type Partition struct {
+	Location    Location  `json:"location"`
+	RetrievedAt time.Time `json:"retrieved_at"`
+	ValidatedAt time.Time `json:"validated_at"`
+	Records     []Record  `json:"records"`
+}
+
+// State is the disk-first catalogue persistence model. Each configured
+// location is retained independently so one failed location refresh cannot
+// invalidate successful or previously cached data from another location.
+type State struct {
+	Partitions []Partition `json:"partitions"`
+}
+
+// Merge returns the deduplicated catalogue view across all persisted location
+// partitions. A record active in any partition is active in the merged view.
+// For duplicate records, the most recently seen copy supplies the metadata.
+// The merged timestamps are the oldest non-zero partition timestamps, making
+// them conservative freshness indicators for the combined view.
+func Merge(state State) Catalogue {
+	byID := make(map[string]Record)
+	var retrievedAt time.Time
+	var validatedAt time.Time
+
+	for _, partition := range state.Partitions {
+		if retrievedAt.IsZero() || (!partition.RetrievedAt.IsZero() && partition.RetrievedAt.Before(retrievedAt)) {
+			retrievedAt = partition.RetrievedAt
+		}
+		if validatedAt.IsZero() || (!partition.ValidatedAt.IsZero() && partition.ValidatedAt.Before(validatedAt)) {
+			validatedAt = partition.ValidatedAt
+		}
+
+		for _, incoming := range partition.Records {
+			existing, ok := byID[incoming.ID]
+			if !ok {
+				byID[incoming.ID] = cloneRecord(incoming)
+				continue
+			}
+
+			chosen := existing
+			if incoming.LastSeenAt.After(existing.LastSeenAt) {
+				chosen = cloneRecord(incoming)
+			}
+			if existing.Status == StatusActive || incoming.Status == StatusActive {
+				chosen.Status = StatusActive
+			}
+			if chosen.DiscoveredAt.IsZero() || (!existing.DiscoveredAt.IsZero() && existing.DiscoveredAt.Before(chosen.DiscoveredAt)) {
+				chosen.DiscoveredAt = existing.DiscoveredAt
+			}
+			if !incoming.DiscoveredAt.IsZero() && (chosen.DiscoveredAt.IsZero() || incoming.DiscoveredAt.Before(chosen.DiscoveredAt)) {
+				chosen.DiscoveredAt = incoming.DiscoveredAt
+			}
+			byID[incoming.ID] = chosen
+		}
+	}
+
+	records := make([]Record, 0, len(byID))
+	for _, record := range byID {
+		records = append(records, record)
+	}
+	sort.Slice(records, func(i, j int) bool { return records[i].ID < records[j].ID })
+
+	return Catalogue{RetrievedAt: retrievedAt, ValidatedAt: validatedAt, Records: records}
 }
 
 // ID returns the stable provider-neutral catalogue identity.

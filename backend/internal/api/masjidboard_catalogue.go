@@ -9,10 +9,10 @@ import (
 )
 
 type masjidBoardCatalogueResponse struct {
-	RetrievedAt *time.Time                       `json:"retrieved_at,omitempty"`
-	ValidatedAt *time.Time                       `json:"validated_at,omitempty"`
-	Count       int                              `json:"count"`
-	Records     []masjidboardcatalogue.Record    `json:"records"`
+	RetrievedAt *time.Time                    `json:"retrieved_at,omitempty"`
+	ValidatedAt *time.Time                    `json:"validated_at,omitempty"`
+	Count       int                           `json:"count"`
+	Records     []masjidboardcatalogue.Record `json:"records"`
 }
 
 func (s *Server) masjidBoardCatalogue(w http.ResponseWriter, r *http.Request) {
@@ -31,12 +31,13 @@ func (s *Server) masjidBoardCatalogue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catalogue, err := masjidboardcatalogue.NewStore(s.masjidBoardCataloguePath).Load()
+	state, err := masjidboardcatalogue.NewStore(s.masjidBoardCataloguePath).Load()
 	if err != nil {
 		s.logger.Warn("Could not load MasjidBoard catalogue", "error", err)
 		writeError(w, http.StatusInternalServerError, "could not load MasjidBoard catalogue")
 		return
 	}
+	catalogue := masjidboardcatalogue.Merge(state)
 
 	query := r.URL.Query()
 	q := normaliseFilter(query.Get("q"))

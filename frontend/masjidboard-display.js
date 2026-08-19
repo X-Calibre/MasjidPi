@@ -8,8 +8,6 @@
     const loadErrorState = document.getElementById("loadErrorState");
     const boardHeaders = document.getElementById("boardHeaders");
     const prayerGrid = document.getElementById("prayerGrid");
-    const jumuahSection = document.getElementById("jumuahSection");
-    const jumuahGrid = document.getElementById("jumuahGrid");
     const currentTime = document.getElementById("currentTime");
     const currentDate = document.getElementById("currentDate");
     const connectionState = document.getElementById("connectionState");
@@ -46,9 +44,7 @@
     }
 
     function setGridCount(count) {
-        const value = String(Math.max(1, count));
-        boardHeaders.style.setProperty("--board-count", value);
-        jumuahGrid.style.setProperty("--board-count", value);
+        boardHeaders.style.setProperty("--board-count", String(Math.max(1, count)));
     }
 
     function makeElement(tag, className, text) {
@@ -131,27 +127,6 @@
         return cell;
     }
 
-    function renderPrayers(boards) {
-        prayerGrid.replaceChildren();
-        const prayers = [
-            ["fajr", "Fajr"],
-            ["dhuhr", "Dhuhr"],
-            ["asr", "Asr"],
-            ["maghrib", "Maghrib"],
-            ["esha", "Esha"],
-        ];
-
-        for (const [key, label] of prayers) {
-            const row = makeElement("div", "prayer-row");
-            row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
-            row.append(makeElement("div", "prayer-label", label));
-            for (const board of boards) {
-                row.append(renderPrayerCell(board, findPrayer(board, key)));
-            }
-            prayerGrid.append(row);
-        }
-    }
-
     function eventTime(service, heading) {
         if (!service || !Array.isArray(service.events)) {
             return null;
@@ -214,19 +189,41 @@
         return cell;
     }
 
-    function renderJumuah(boards) {
-        const hasAnyJumuah = boards.some((board) => Array.isArray(board.jumuah) && board.jumuah.length > 0);
-        jumuahSection.classList.toggle("hidden", !hasAnyJumuah);
-        if (!hasAnyJumuah) {
-            jumuahGrid.replaceChildren();
-            return;
-        }
-
-        jumuahGrid.replaceChildren();
-        jumuahGrid.append(makeElement("div", "jumuah-row-label", "Jumu’ah"));
+    function appendPrayerRow(boards, key, label) {
+        const row = makeElement("div", "prayer-row");
+        row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
+        row.append(makeElement("div", "prayer-label", label));
         for (const board of boards) {
-            jumuahGrid.append(renderJumuahCell(board));
+            row.append(renderPrayerCell(board, findPrayer(board, key)));
         }
+        prayerGrid.append(row);
+    }
+
+    function appendJumuahRow(boards) {
+        const row = makeElement("div", "prayer-row jumuah-row");
+        row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
+        row.append(makeElement("div", "prayer-label", "Jumu’ah"));
+        for (const board of boards) {
+            row.append(renderJumuahCell(board));
+        }
+        prayerGrid.append(row);
+    }
+
+    function renderPrayers(boards) {
+        prayerGrid.replaceChildren();
+
+        const friday = new Date().getDay() === 5;
+        prayerGrid.classList.toggle("friday", friday);
+
+        appendPrayerRow(boards, "fajr", "Fajr");
+        if (friday) {
+            appendJumuahRow(boards);
+        } else {
+            appendPrayerRow(boards, "dhuhr", "Dhuhr");
+        }
+        appendPrayerRow(boards, "asr", "Asr");
+        appendPrayerRow(boards, "maghrib", "Maghrib");
+        appendPrayerRow(boards, "esha", "Esha");
     }
 
     function render(view) {
@@ -244,7 +241,6 @@
         setGridCount(boards.length);
         renderHeaders(boards);
         renderPrayers(boards);
-        renderJumuah(boards);
         showOnly(displayState);
     }
 

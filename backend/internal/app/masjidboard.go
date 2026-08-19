@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/maintenance"
 	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
 )
 
 func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
-}) *masjidboardservice.Service {
+}) (*masjidboardservice.Service, *maintenance.Service) {
 	// Discovery maintenance is independent of selected-board timetable runtime.
 	// It starts even before a board selection exists so the hierarchy can be
 	// available to the configuration WebUI/API.
-	startMasjidBoardMaintenance(ctx, paths, log)
+	maintenanceService := startMasjidBoardMaintenance(ctx, paths, log)
 
 	service, err := masjidboardservice.New(masjidboardservice.Config{
 		SelectionPath: paths.MasjidBoardSelection,
@@ -24,12 +25,12 @@ func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 		// MasjidBoard is intentionally independent from audio playback. Invalid
 		// or unavailable MasjidBoard state must not stop the appliance starting.
 		log.Warn("MasjidBoard service could not start", "error", err)
-		return nil
+		return nil, maintenanceService
 	}
 
 	if !service.Configured() {
 		log.Info("MasjidBoard is not configured")
-		return service
+		return service, maintenanceService
 	}
 
 	log.Info("MasjidBoard configured", "boards", len(service.Selection().Boards))
@@ -70,5 +71,5 @@ func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 		}
 	}()
 
-	return service
+	return service, maintenanceService
 }

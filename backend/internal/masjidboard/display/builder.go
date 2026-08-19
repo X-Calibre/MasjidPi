@@ -1,8 +1,6 @@
 package display
 
 import (
-	"time"
-
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
@@ -104,5 +102,3 @@ func cloneTime(value *model.ClockTime) *model.ClockTime {
 	copy := *value
 	return &copy
 }
-
-var _ = time.Time{}

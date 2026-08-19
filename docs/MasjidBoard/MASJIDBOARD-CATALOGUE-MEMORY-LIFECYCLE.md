@@ -1,108 +1,96 @@
 # MasjidBoard Catalogue Memory Lifecycle
 
-**Status:** Stage 3/4 architecture decision  
+**Status:** Implemented architecture  
 **Branch:** `research/masjidboard-live`
 
 ## Decision
 
 The MasjidBoard catalogue is **disk-first, not permanently memory-resident**.
 
-MasjidPi may be configured with **1–3 discovery locations**. Each location has an independently persisted last-known-good catalogue partition. The WebUI/API sees a merged, deduplicated catalogue view across those partitions.
+MasjidPi may be configured with **one to three discovery locations**. Each location has an independently persisted last-known-good catalogue partition. The WebUI/API sees a merged, deduplicated catalogue view across those partitions.
 
-The selected **1–3 boards** are separate runtime state and are therefore treated differently from the discovery catalogue.
+The selected **one to three boards** are separate runtime-critical state.
 
-## Runtime model
+## Runtime Model
 
 ```text
 Normal runtime
-    -> load 1-3 persisted selected boards when configured
-    -> construct one provider/runtime instance per selected board
+    -> load persisted ordered board selection
+    -> construct one provider/runtime per selected board
     -> retrieve/cache each selected board independently
     -> catalogue partitions remain on disk
 
 User opens board-selection UI
-    -> load catalogue partitions from local storage
-    -> merge + deduplicate records in memory
-    -> browse/search the combined view
+    -> load catalogue partitions
+    -> merge + deduplicate in memory
+    -> browse/search locally
     -> select/reorder 1-3 boards
-    -> persist the ordered selection
-    -> release the merged catalogue when no longer required
+    -> persist selection
+    -> release merged catalogue when no longer required
 
-Catalogue refresh
-    -> load persisted partitions
-    -> refresh each configured location independently
-    -> validate + reconcile that location only
-    -> replace only that successful partition
-    -> keep another location's last-known-good partition on failure
-    -> do not retain a process-lifetime catalogue cache
+Catalogue maintenance
+    -> inspect configured 1-3 discovery locations
+    -> refresh each due/requested location independently
+    -> validate + reconcile only that partition
+    -> replace only successful partitions
+    -> retain another location's last-known-good partition on failure
 ```
 
-## Storage behaviour
+## Discovery Hierarchy vs Scoped Catalogue
 
-`catalogue.Store.Load()` reads and validates the partitioned catalogue file on demand. It does not keep a process-lifetime in-memory copy.
+The global FindMasjid hierarchy and the scoped board catalogue have different purposes.
 
-`catalogue.Store.SavePartition()` is the normal refresh persistence primitive. It:
+The persisted hierarchy tracks which countries, regions/provinces and towns/cities are available for configuration. The scoped catalogue does **not** mirror all boards globally. It contains board records only for the user's configured one to three locations.
 
-- validates the proposed location partition;
-- preserves all other location partitions;
-- avoids rewriting identical state;
-- writes changed state through a temporary file;
-- syncs the temporary file;
-- atomically renames it into place; and
-- leaves the existing persisted last-known-good state unchanged if validation or replacement fails.
+This keeps board data small while still allowing configuration choices to follow changes in the upstream hierarchy.
 
-`catalogue.Store.Save()` remains available for replacing the complete persisted partition set when configuration maintenance explicitly requires it.
+## Storage Behaviour
 
-This design favours low steady-state memory use and avoids unnecessary SD-card writes while providing failure isolation between configured discovery locations.
+`catalogue.Store.Load()` reads and validates the partitioned catalogue on demand.
 
-## Merged catalogue view
+`catalogue.Store.SavePartition()` validates a location partition, preserves all other partitions, suppresses identical writes and atomically replaces changed state. A failed candidate does not replace the persisted last-known-good partition.
 
-The persisted file retains provenance by location:
+The merged catalogue deduplicates by stable provider-neutral catalogue ID. If a board appears in more than one selected discovery location, it appears once to the WebUI/API while partition provenance remains persisted.
 
-```text
-catalogue state
-    partition: Town A
-        retrieved_at
-        validated_at
-        records...
+## Selected-Board State
 
-    partition: Town B
-        retrieved_at
-        validated_at
-        records...
-```
-
-The WebUI/API does not need separate copies of a mosque that appears in more than one location result. `catalogue.Merge()` deduplicates by the stable provider-neutral catalogue ID.
-
-If the same board appears in multiple partitions:
-
-- it appears once in the merged view;
-- an active copy keeps the merged record active;
-- the most recently seen copy supplies mutable metadata; and
-- the earliest discovery timestamp is retained.
-
-The merged `retrieved_at` and `validated_at` values are conservative: they represent the oldest partition timestamps. Per-location freshness remains authoritative for refresh scheduling.
-
-## Selected-board state
-
-Selected-board persistence has a different lifecycle. It is small runtime-critical state and is loaded at startup and retained in memory while MasjidBoard is operating.
-
-The persisted selection is an ordered list of one to three boards once configured. Selection order is significant and may be used directly by the display layer.
-
-Each selected board is independent. A retrieval failure for one selected board must not prevent the other selected boards from continuing to operate.
-
-The resulting memory model is:
+Selected-board persistence is loaded at startup and retained in memory because it is required for normal operation.
 
 ```text
 catalogue partitions       disk-first; load on demand
-merged catalogue view      temporary while browsing/configuring
-selected boards (1-3)      load at startup; retain in memory
-current board data         one independent in-memory state per selected board
-last-known board data      one persisted cache per selected board
+merged catalogue view      temporary for configuration
+selected boards (1-3)      retained in memory
+current board data         independent state per selected board
+last-known-good board data persisted independently per board
 ```
 
-## Consequence for WebUI search
+The selected-board runtime does not depend on discovery being available after configuration.
 
-User-facing catalogue search operates on the locally persisted merged catalogue after loading it when the selection UI is opened. It does not require a remote FindMasjid request for each search operation or keystroke.
+## Refresh Policy
 
-The user may choose and order up to three boards from the merged catalogue. The ordered selection is persisted separately and remains available at normal startup even when discovery is unavailable.
+Scoped catalogue refresh is deliberately low-frequency:
+
+- automatic refresh when due, at most once every seven days based on persisted freshness timestamps; or
+- immediate refresh when explicitly requested through API/WebUI.
+
+Opening the configuration UI does not itself force a remote refresh. Individual selected-board timetable refreshes are independent and run on their own provider schedule.
+
+## Failure Isolation
+
+Failure is isolated at both catalogue-partition and selected-board levels:
+
+- failure refreshing one discovery location does not discard other location partitions;
+- failure refreshing a selected board does not affect other selected boards; and
+- a selected board with last-known-good timetable data remains displayable as stale after a live refresh failure.
+
+## Live Validation
+
+The provider hierarchy was exercised against the live FindMasjid service across its reported countries and region/city structures during development, including upstream irregularities such as blank region values and alternate response shapes.
+
+The selected-board path was then live-tested with three real boards from the persisted local catalogue. All three were retrieved concurrently and returned in configured order. A deliberate failure of one board demonstrated independent last-known-good fallback while the other two remained current.
+
+## Consequence for WebUI Search
+
+Ordinary user-facing board search/filtering operates against the locally persisted merged catalogue. It does not perform a remote FindMasjid request for each search operation or keystroke.
+
+The WebUI/API owns discovery-location configuration and the ordered one-to-three board selection. The physical MasjidBoard display remains presentation-only.

@@ -12,6 +12,25 @@
     const currentDate = document.getElementById("currentDate");
     const connectionState = document.getElementById("connectionState");
 
+    function displayDate() {
+        const value = new URLSearchParams(window.location.search).get("date");
+        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            return new Date();
+        }
+
+        const [year, month, day] = value.split("-").map(Number);
+        const date = new Date(year, month - 1, day);
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+        ) {
+            console.warn(`Ignoring invalid MasjidBoard display date override: ${value}`);
+            return new Date();
+        }
+        return date;
+    }
+
     function formatClock(time) {
         if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute)) {
             return "";
@@ -25,12 +44,13 @@
 
     function updateClock() {
         const now = new Date();
+        const date = displayDate();
         currentTime.textContent = now.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
             hour12: false,
         });
-        currentDate.textContent = now.toLocaleDateString([], {
+        currentDate.textContent = date.toLocaleDateString([], {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -212,7 +232,7 @@
     function renderPrayers(boards) {
         prayerGrid.replaceChildren();
 
-        const friday = new Date().getDay() === 5;
+        const friday = displayDate().getDay() === 5;
         prayerGrid.classList.toggle("friday", friday);
 
         appendPrayerRow(boards, "fajr", "Fajr");

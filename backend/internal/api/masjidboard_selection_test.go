@@ -1,0 +1,80 @@
+package api
+
+import (
+	"context"
+	"io"
+	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+	"time"
+
+	masjidboardcatalogue "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
+	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+)
+
+type fakeSelectionRuntime struct {
+	state selection.State
+}
+
+func (f *fakeSelectionRuntime) Configured() bool { return f.state.Configured() }
+func (f *fakeSelectionRuntime) Selection() selection.State { return f.state }
+func (f *fakeSelectionRuntime) Results() []masjidboardruntime.Result { return nil }
+func (f *fakeSelectionRuntime) Reconfigure(state selection.State) error {
+	f.state = state
+	return nil
+}
+func (f *fakeSelectionRuntime) Refresh(context.Context) []masjidboardruntime.Result { return nil }
+
+func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
+	path := t.TempDir() + "/catalogue.json"
+	now := time.Date(2026, 8, 19, 18, 0, 0, 0, time.UTC)
+	store := masjidboardcatalogue.NewStore(path)
+	if err := store.Save(masjidboardcatalogue.State{Partitions: []masjidboardcatalogue.Partition{{
+		Location:    masjidboardcatalogue.Location{Country: "South Africa", Region: "North West", City: "Brits"},
+		RetrievedAt: now,
+		ValidatedAt: now,
+		Records: []masjidboardcatalogue.Record{{
+			ID: "masjidboardlive:brits-jamia", Provider: "masjidboardlive", ExternalID: "brits-jamia",
+			Name: "Brits Jamia Masjid", City: "Brits", Region: "North West", Country: "South Africa",
+			TimeZoneOffsetMS: 7200000, DiscoveredAt: now, LastSeenAt: now, Status: masjidboardcatalogue.StatusActive,
+		}},
+	}}}); err != nil {
+		t.Fatal(err)
+	}
+
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	server := New(":0", logger, nil, nil, nil, t.TempDir(), "", t.TempDir())
+	server.SetMasjidBoardCataloguePath(path)
+	runtime := &fakeSelectionRuntime{}
+	server.SetMasjidBoardService(runtime)
+
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/selection", strings.NewReader(`{"catalogue_ids":["masjidboardlive:brits-jamia"]}`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	if len(runtime.state.Boards) != 1 || runtime.state.Boards[0].ExternalID != "brits-jamia" || runtime.state.Boards[0].TimeZoneOffsetMS != 7200000 {
+		t.Fatalf("selection=%+v", runtime.state)
+	}
+}
+
+func TestMasjidBoardSelectionPUTRejectsUnknownBoard(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	server := New(":0", logger, nil, nil, nil, t.TempDir(), "", t.TempDir())
+	server.SetMasjidBoardCataloguePath(t.TempDir() + "/catalogue.json")
+	runtime := &fakeSelectionRuntime{}
+	server.SetMasjidBoardService(runtime)
+
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/selection", strings.NewReader(`{"catalogue_ids":["masjidboardlive:missing"]}`))
+	rec := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(rec, req)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+}

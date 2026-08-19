@@ -2,10 +2,13 @@
     "use strict";
 
     const maxLocations = 3;
+    const maxBoards = 3;
     const hierarchyEndpoint = "/api/masjidboard/hierarchy";
     const hierarchyRefreshEndpoint = "/api/masjidboard/hierarchy/refresh";
     const scopeEndpoint = "/api/masjidboard/scope";
+    const catalogueEndpoint = "/api/masjidboard/catalogue";
     const catalogueRefreshEndpoint = "/api/masjidboard/catalogue/refresh";
+    const selectionEndpoint = "/api/masjidboard/selection";
     const statusEndpoint = "/api/masjidboard/status";
 
     const locationConfiguration = document.getElementById("locationConfiguration");
@@ -17,8 +20,18 @@
     const masjidBoardStatus = document.getElementById("masjidBoardStatus");
     const themeToggle = document.getElementById("themeToggle");
 
+    const boardSelection = document.getElementById("boardSelection");
+    const boardSearch = document.getElementById("boardSearch");
+    const availableBoards = document.getElementById("availableBoards");
+    const availableBoardMeta = document.getElementById("availableBoardMeta");
+    const addBoardButton = document.getElementById("addBoardButton");
+    const saveBoardsButton = document.getElementById("saveBoardsButton");
+    const refreshCatalogueButton = document.getElementById("refreshCatalogueButton");
+
     let hierarchy = null;
     let locationRows = [];
+    let catalogueRecords = [];
+    let selectedBoards = [];
 
     function setupTheme() {
         const key = "masjidpi-theme";
@@ -267,6 +280,7 @@
             showBanner("Locations saved. Updating the scoped MasjidBoard catalogue…", "success");
             try {
                 await jsonRequest(catalogueRefreshEndpoint, {method: "POST"});
+                await loadBoardConfiguration();
                 showBanner("Locations saved and MasjidBoard catalogue updated.", "success");
             } catch (error) {
                 showBanner(`Locations saved, but catalogue refresh failed: ${error.message}`, "warning");
@@ -297,6 +311,199 @@
         } finally {
             refreshHierarchyButton.disabled = false;
             refreshHierarchyButton.textContent = "Refresh Locations";
+        }
+    }
+
+    function activeCatalogueRecords() {
+        return catalogueRecords.filter(record => record.status === "active");
+    }
+
+    function recordByID(id) {
+        return catalogueRecords.find(record => record.id === id) || null;
+    }
+
+    function boardLabel(record) {
+        const location = [record.city, record.region, record.country].filter(Boolean).join(", ");
+        return location ? `${record.name} — ${location}` : record.name;
+    }
+
+    function selectedIDSet() {
+        return new Set(selectedBoards.map(board => board.catalogue_id));
+    }
+
+    function renderAvailableBoards() {
+        const query = boardSearch.value.trim().toLowerCase();
+        const selected = selectedIDSet();
+        const records = activeCatalogueRecords()
+            .filter(record => !selected.has(record.id))
+            .filter(record => !query || [record.name, record.city, record.region, record.country]
+                .some(value => String(value || "").toLowerCase().includes(query)))
+            .sort((left, right) => boardLabel(left).localeCompare(boardLabel(right)));
+
+        availableBoards.replaceChildren();
+        for (const record of records) {
+            availableBoards.append(option(record.id, boardLabel(record)));
+        }
+        availableBoardMeta.textContent = `${records.length} available MasjidBoard${records.length === 1 ? "" : "s"}`;
+        addBoardButton.disabled = selectedBoards.length >= maxBoards || records.length === 0;
+        addBoardButton.textContent = selectedBoards.length >= maxBoards ? "Maximum 3 Masjids" : "+ Add Selected Masjid";
+    }
+
+    function renderSelectedBoards() {
+        boardSelection.replaceChildren();
+
+        if (selectedBoards.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "status-detail";
+            empty.textContent = "No MasjidBoards selected yet. Add at least one from the list below.";
+            boardSelection.append(empty);
+        }
+
+        selectedBoards.forEach((board, index) => {
+            const row = document.createElement("div");
+            row.className = "selected-board-row";
+
+            const order = document.createElement("div");
+            order.className = "selected-board-order";
+            order.textContent = String(index + 1);
+
+            const details = document.createElement("div");
+            details.className = "selected-board-details";
+            const name = document.createElement("strong");
+            name.textContent = board.name || board.catalogue_id;
+            const record = recordByID(board.catalogue_id);
+            const meta = document.createElement("small");
+            if (record && record.status === "active") {
+                meta.textContent = [record.city, record.region, record.country].filter(Boolean).join(" · ");
+            } else {
+                meta.className = "board-outside-scope";
+                meta.textContent = "Outside the current location catalogue — remove or replace before saving";
+            }
+            details.append(name, meta);
+
+            const actions = document.createElement("div");
+            actions.className = "selected-board-actions";
+            const up = document.createElement("button");
+            up.type = "button";
+            up.className = "secondary board-order-button";
+            up.textContent = "↑";
+            up.title = "Move up";
+            up.disabled = index === 0;
+            up.addEventListener("click", () => moveSelectedBoard(index, -1));
+
+            const down = document.createElement("button");
+            down.type = "button";
+            down.className = "secondary board-order-button";
+            down.textContent = "↓";
+            down.title = "Move down";
+            down.disabled = index === selectedBoards.length - 1;
+            down.addEventListener("click", () => moveSelectedBoard(index, 1));
+
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "secondary board-remove-button";
+            remove.textContent = "Remove";
+            remove.addEventListener("click", () => {
+                selectedBoards.splice(index, 1);
+                renderBoardConfiguration();
+            });
+
+            actions.append(up, down, remove);
+            row.append(order, details, actions);
+            boardSelection.append(row);
+        });
+
+        const allActive = selectedBoards.every(board => {
+            const record = recordByID(board.catalogue_id);
+            return record && record.status === "active";
+        });
+        saveBoardsButton.disabled = selectedBoards.length < 1 || selectedBoards.length > maxBoards || !allActive;
+    }
+
+    function renderBoardConfiguration() {
+        renderSelectedBoards();
+        renderAvailableBoards();
+    }
+
+    function moveSelectedBoard(index, direction) {
+        const target = index + direction;
+        if (target < 0 || target >= selectedBoards.length) return;
+        const [board] = selectedBoards.splice(index, 1);
+        selectedBoards.splice(target, 0, board);
+        renderBoardConfiguration();
+    }
+
+    function addSelectedBoard() {
+        const id = availableBoards.value;
+        if (!id || selectedBoards.length >= maxBoards) return;
+        const record = recordByID(id);
+        if (!record || record.status !== "active") return;
+        selectedBoards.push({
+            catalogue_id: record.id,
+            provider: record.provider,
+            external_id: record.external_id,
+            name: record.name,
+            time_zone_offset_ms: record.time_zone_offset_ms,
+        });
+        renderBoardConfiguration();
+    }
+
+    async function loadBoardConfiguration() {
+        const [catalogue, selection] = await Promise.all([
+            jsonRequest(catalogueEndpoint),
+            jsonRequest(selectionEndpoint),
+        ]);
+        catalogueRecords = Array.isArray(catalogue.records) ? catalogue.records : [];
+        selectedBoards = Array.isArray(selection.boards) ? selection.boards.slice(0, maxBoards) : [];
+        renderBoardConfiguration();
+    }
+
+    async function saveBoardSelection() {
+        if (selectedBoards.length < 1 || selectedBoards.length > maxBoards) {
+            showBanner("Select between one and three MasjidBoards.", "error");
+            return;
+        }
+        const inactive = selectedBoards.find(board => {
+            const record = recordByID(board.catalogue_id);
+            return !record || record.status !== "active";
+        });
+        if (inactive) {
+            showBanner("Remove or replace MasjidBoards outside the current location catalogue before saving.", "error");
+            return;
+        }
+
+        saveBoardsButton.disabled = true;
+        saveBoardsButton.textContent = "Saving…";
+        try {
+            const response = await jsonRequest(selectionEndpoint, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({catalogue_ids: selectedBoards.map(board => board.catalogue_id)}),
+            });
+            selectedBoards = Array.isArray(response.boards) ? response.boards : [];
+            renderBoardConfiguration();
+            await loadStatus();
+            showBanner("Selected Masjids saved. The display has been updated.", "success");
+        } catch (error) {
+            showBanner(`Could not save selected Masjids: ${error.message}`, "error");
+        } finally {
+            saveBoardsButton.textContent = "Save Selected Masjids";
+            renderSelectedBoards();
+        }
+    }
+
+    async function refreshCatalogue() {
+        refreshCatalogueButton.disabled = true;
+        refreshCatalogueButton.textContent = "Refreshing…";
+        try {
+            await jsonRequest(catalogueRefreshEndpoint, {method: "POST"});
+            await loadBoardConfiguration();
+            showBanner("MasjidBoard catalogue refreshed.", "success");
+        } catch (error) {
+            showBanner(`Could not refresh MasjidBoards: ${error.message}`, "error");
+        } finally {
+            refreshCatalogueButton.disabled = false;
+            refreshCatalogueButton.textContent = "Refresh Masjids";
         }
     }
 
@@ -340,10 +547,21 @@
     addLocationButton.addEventListener("click", () => addLocation());
     saveLocationsButton.addEventListener("click", saveLocations);
     refreshHierarchyButton.addEventListener("click", refreshHierarchy);
+    boardSearch.addEventListener("input", renderAvailableBoards);
+    addBoardButton.addEventListener("click", addSelectedBoard);
+    availableBoards.addEventListener("dblclick", addSelectedBoard);
+    saveBoardsButton.addEventListener("click", saveBoardSelection);
+    refreshCatalogueButton.addEventListener("click", refreshCatalogue);
 
     loadConfiguration().catch(error => {
         locationConfiguration.innerHTML = `<p class="status-detail status-detail-error">Unable to load locations: ${error.message}</p>`;
         showBanner("MasjidBoard location configuration could not be loaded.", "error");
+    });
+    loadBoardConfiguration().catch(error => {
+        boardSelection.innerHTML = `<p class="status-detail status-detail-error">Unable to load MasjidBoards: ${error.message}</p>`;
+        availableBoards.replaceChildren();
+        addBoardButton.disabled = true;
+        saveBoardsButton.disabled = true;
     });
     loadStatus();
 })();

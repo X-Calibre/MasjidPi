@@ -92,5 +92,6 @@ func (c CoreClient) FetchAt(ctx context.Context, now time.Time) (CoreResult, err
 	if err != nil {
 		return CoreResult{}, fmt.Errorf("masjidboardlive: parse Core response: %w", err)
 	}
+	applyCoreJumuahHeadingFallback(&result, html)
 	return result, nil
 }

@@ -10,15 +10,12 @@
     const prayerGrid = document.getElementById("prayerGrid");
     const currentTime = document.getElementById("currentTime");
     const currentDate = document.getElementById("currentDate");
-    const nextPrayer = document.getElementById("nextPrayer");
     const connectionState = document.getElementById("connectionState");
     let latestView = null;
 
     function displayDate() {
         const value = new URLSearchParams(window.location.search).get("date");
-        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-            return new Date();
-        }
+        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date();
 
         const [year, month, day] = value.split("-").map(Number);
         const date = new Date(year, month - 1, day);
@@ -36,43 +33,43 @@
 
     function minutesSinceMidnight(time) { return time.hour * 60 + time.minute; }
 
-    function formatCountdown(minutes) {
-        if (minutes < 1) return "now";
-        const hours = Math.floor(minutes / 60);
-        const remainder = minutes % 60;
-        if (hours === 0) return `${remainder} min`;
-        if (remainder === 0) return `${hours} hr`;
-        return `${hours} hr ${remainder} min`;
+    function countdownText(time, now) {
+        const targetMinutes = minutesSinceMidnight(time);
+        const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+        const remaining = Math.max(0, Math.ceil(targetMinutes - nowMinutes));
+        const hours = Math.floor(remaining / 60);
+        const minutes = remaining % 60;
+        return `in ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     }
 
-    function nextJamaahForBoard(board, now) {
-        if (!Array.isArray(board.prayers)) return null;
+    function findPrayer(board, key) {
+        return Array.isArray(board.prayers) ? board.prayers.find((prayer) => prayer.key === key) : undefined;
+    }
+
+    function eventTime(service, heading) {
+        if (!service || !Array.isArray(service.events)) return null;
+        const event = service.events.find((item) => item.heading === heading && item.time);
+        return event ? event.time : null;
+    }
+
+    function nextAdhanForBoard(board, now, friday) {
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
-        for (const prayer of board.prayers) {
-            if (!prayer.jamaah) continue;
-            const prayerMinutes = minutesSinceMidnight(prayer.jamaah);
-            if (prayerMinutes >= nowMinutes) {
-                return {label: prayer.label, time: prayer.jamaah, minutes: prayerMinutes - nowMinutes};
-            }
-        }
-        return null;
-    }
+        const candidates = [];
 
-    function updateNextPrayer(now) {
-        if (!nextPrayer || !latestView || !latestView.configured || !Array.isArray(latestView.boards)) {
-            if (nextPrayer) nextPrayer.textContent = "";
-            return;
+        for (const key of ["fajr", "dhuhr", "asr", "maghrib", "esha"]) {
+            if (friday && key === "dhuhr") continue;
+            const prayer = findPrayer(board, key);
+            if (prayer && prayer.adhan) candidates.push({kind: "prayer", key, time: prayer.adhan});
         }
-        const candidates = latestView.boards
-            .map((board) => nextJamaahForBoard(board, now))
-            .filter(Boolean);
-        if (candidates.length === 0) {
-            nextPrayer.textContent = "";
-            return;
+
+        if (friday && Array.isArray(board.jumuah) && board.jumuah.length > 0) {
+            const service = board.jumuah[0];
+            const adhan = service.adhan || eventTime(service, "Adhan");
+            if (adhan) candidates.push({kind: "jumuah", key: "jumuah", time: adhan});
         }
-        candidates.sort((a, b) => a.minutes - b.minutes);
-        const next = candidates[0];
-        nextPrayer.textContent = `Next Jamaah · ${next.label} ${formatClock(next.time)} · ${formatCountdown(next.minutes)}`;
+
+        candidates.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
+        return candidates.find((candidate) => minutesSinceMidnight(candidate.time) >= nowMinutes) || null;
     }
 
     function updateClock() {
@@ -80,24 +77,28 @@
         const date = displayDate();
         currentTime.textContent = now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});
         currentDate.textContent = date.toLocaleDateString([], {weekday: "long", day: "numeric", month: "long"});
-        updateNextPrayer(now);
+        if (latestView) renderPrayers((latestView.boards || []).slice(0, 3), now);
     }
 
     function showOnly(element) {
         for (const candidate of [displayState, unconfiguredState, loadErrorState]) candidate.classList.toggle("hidden", candidate !== element);
     }
+
     function setGridCount(count) { boardHeaders.style.setProperty("--board-count", String(Math.max(1, count))); }
+
     function makeElement(tag, className, text) {
         const element = document.createElement(tag);
         if (className) element.className = className;
         if (text !== undefined) element.textContent = text;
         return element;
     }
+
     function boardStateClass(board) {
         if (board.status === "stale") return "stale";
         if (board.status === "unavailable") return "unavailable";
         return "";
     }
+
     function renderHeaders(boards) {
         boardHeaders.replaceChildren();
         boardHeaders.append(makeElement("div", "board-header-spacer"));
@@ -111,30 +112,43 @@
             boardHeaders.append(header);
         }
     }
-    function findPrayer(board, key) { return Array.isArray(board.prayers) ? board.prayers.find((prayer) => prayer.key === key) : undefined; }
-    function appendTimeLine(cell, label, time, dominant, single, extraClass = "") {
+
+    function appendTimeLine(cell, label, time, dominant, single, extraClass = "", countdown = "") {
         if (!time) return;
         const line = makeElement("div", `time-line ${dominant ? "dominant" : "secondary"}${single ? " single-time" : ""}${extraClass ? ` ${extraClass}` : ""}`);
         line.append(makeElement("span", "time-label", label));
-        line.append(makeElement("span", "time-value", formatClock(time)));
+
+        if (countdown) {
+            const valueStack = makeElement("span", "time-value-stack");
+            valueStack.append(makeElement("span", "time-value", formatClock(time)));
+            valueStack.append(makeElement("span", "adhan-countdown", countdown));
+            line.append(valueStack);
+        } else {
+            line.append(makeElement("span", "time-value", formatClock(time)));
+        }
         cell.append(line);
     }
-    function renderPrayerCell(board, prayer) {
+
+    function renderPrayerCell(board, prayer, nextAdhan, now) {
         const cell = makeElement("div", `prayer-cell ${boardStateClass(board)}`.trim());
-        if (board.status === "unavailable" && !prayer) { cell.append(makeElement("div", "unavailable-copy", "No timetable data")); return cell; }
+        if (board.status === "unavailable" && !prayer) {
+            cell.append(makeElement("div", "unavailable-copy", "No timetable data"));
+            return cell;
+        }
         if (!prayer) return cell;
+
         const hasAdhan = Boolean(prayer.adhan), hasJamaah = Boolean(prayer.jamaah);
         const onlyOne = Number(hasAdhan) + Number(hasJamaah) === 1;
-        appendTimeLine(cell, "Adhan", prayer.adhan, onlyOne, onlyOne);
+        const countdown = nextAdhan && nextAdhan.kind === "prayer" && nextAdhan.key === prayer.key
+            ? countdownText(prayer.adhan, now)
+            : "";
+        appendTimeLine(cell, "Adhan", prayer.adhan, onlyOne, onlyOne, "", countdown);
         appendTimeLine(cell, "Jamaah", prayer.jamaah, hasJamaah, onlyOne);
         return cell;
     }
-    function eventTime(service, heading) {
-        if (!service || !Array.isArray(service.events)) return null;
-        const event = service.events.find((item) => item.heading === heading && item.time);
-        return event ? event.time : null;
-    }
+
     function sameTime(left, right) { return left && right && left.hour === right.hour && left.minute === right.minute; }
+
     function jumuahItems(service) {
         const adhan = service.adhan || eventTime(service, "Adhan");
         const salaah = service.effective_salaah || service.jamaah;
@@ -152,57 +166,74 @@
         items.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
         return items;
     }
-    function renderJumuahCell(board) {
+
+    function renderJumuahCell(board, nextAdhan, now) {
         const cell = makeElement("div", `jumuah-cell ${boardStateClass(board)}`.trim());
         const service = Array.isArray(board.jumuah) ? board.jumuah[0] : null;
         if (!service) return cell;
-        for (const item of jumuahItems(service)) appendTimeLine(cell, item.label, item.time, item.kind === "salaah", false, `jumuah-${item.kind}`);
+        for (const item of jumuahItems(service)) {
+            const countdown = item.kind === "adhan" && nextAdhan && nextAdhan.kind === "jumuah"
+                ? countdownText(item.time, now)
+                : "";
+            appendTimeLine(cell, item.label, item.time, item.kind === "salaah", false, `jumuah-${item.kind}`, countdown);
+        }
         return cell;
     }
-    function appendPrayerRow(boards, key, label) {
+
+    function appendPrayerRow(boards, key, label, nextByBoard, now) {
         const row = makeElement("div", "prayer-row");
         row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
         row.append(makeElement("div", "prayer-label prayer-label-card", label));
-        for (const board of boards) row.append(renderPrayerCell(board, findPrayer(board, key)));
+        for (const board of boards) row.append(renderPrayerCell(board, findPrayer(board, key), nextByBoard.get(board.catalogue_id), now));
         prayerGrid.append(row);
     }
-    function appendJumuahRow(boards) {
+
+    function appendJumuahRow(boards, nextByBoard, now) {
         const row = makeElement("div", "prayer-row jumuah-row");
         row.style.setProperty("--board-count", String(Math.max(1, boards.length)));
         row.append(makeElement("div", "prayer-label prayer-label-card", "Jumu’ah"));
-        for (const board of boards) row.append(renderJumuahCell(board));
+        for (const board of boards) row.append(renderJumuahCell(board, nextByBoard.get(board.catalogue_id), now));
         prayerGrid.append(row);
     }
-    function renderPrayers(boards) {
+
+    function renderPrayers(boards, now = new Date()) {
         prayerGrid.replaceChildren();
         const friday = displayDate().getDay() === 5;
+        const nextByBoard = new Map(boards.map((board) => [board.catalogue_id, nextAdhanForBoard(board, now, friday)]));
         prayerGrid.classList.toggle("friday", friday);
-        appendPrayerRow(boards, "fajr", "Fajr");
-        if (friday) appendJumuahRow(boards); else appendPrayerRow(boards, "dhuhr", "Dhuhr");
-        appendPrayerRow(boards, "asr", "Asr");
-        appendPrayerRow(boards, "maghrib", "Maghrib");
-        appendPrayerRow(boards, "esha", "Esha");
+        appendPrayerRow(boards, "fajr", "Fajr", nextByBoard, now);
+        if (friday) appendJumuahRow(boards, nextByBoard, now); else appendPrayerRow(boards, "dhuhr", "Dhuhr", nextByBoard, now);
+        appendPrayerRow(boards, "asr", "Asr", nextByBoard, now);
+        appendPrayerRow(boards, "maghrib", "Maghrib", nextByBoard, now);
+        appendPrayerRow(boards, "esha", "Esha", nextByBoard, now);
     }
+
     function render(view) {
         latestView = view;
-        updateNextPrayer(new Date());
         if (!view || !view.configured) { showOnly(unconfiguredState); return; }
         const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (boards.length === 0) { showOnly(unconfiguredState); return; }
-        setGridCount(boards.length); renderHeaders(boards); renderPrayers(boards); showOnly(displayState);
+        setGridCount(boards.length);
+        renderHeaders(boards);
+        renderPrayers(boards);
+        showOnly(displayState);
     }
+
     async function refresh() {
         try {
             const response = await fetch("/api/masjidboard/display", {cache: "no-store"});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             render(await response.json());
-            connectionState.textContent = ""; connectionState.classList.remove("warning");
+            connectionState.textContent = "";
+            connectionState.classList.remove("warning");
         } catch (error) {
-            connectionState.textContent = "Connection interrupted"; connectionState.classList.add("warning");
+            connectionState.textContent = "Connection interrupted";
+            connectionState.classList.add("warning");
             if (displayState.classList.contains("hidden")) showOnly(loadErrorState);
             console.warn("MasjidBoard display refresh failed", error);
         }
     }
+
     updateClock();
     window.setInterval(updateClock, 1_000);
     refresh();

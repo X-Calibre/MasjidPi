@@ -47,6 +47,8 @@ main() {
         --disable-notifications \
         --disable-translate \
         --disable-pinch \
+        --disable-sync \
+        --password-store=basic \
         --overscroll-history-navigation=0 \
         --user-data-dir=/tmp/masjidpi-display-profile \
         --disk-cache-dir=/tmp/masjidpi-display-cache \

@@ -32,7 +32,7 @@ Jumu'ah (Friday, replacing Dhuhr)
 Asr
 Maghrib
 Esha
-next-Adhan countdown for each selected masjid
+next-timetable-event countdown for each selected masjid
 per-board stale/unavailable indication
 ```
 
@@ -108,36 +108,46 @@ When only one value exists, the remaining value adopts the dominant styling.
 
 The display does not render placeholder times for absent data. For example, Maghrib does not show an empty `Jamaah --:--` row when no Jamaah value is supplied. Its available Adhan time becomes the dominant value in that cell.
 
-## Next-Adhan Countdown
+## Next Timetable Event Countdown
 
-Each selected masjid independently identifies its next upcoming **Adhan** from the timetable currently being displayed.
+Each selected masjid independently identifies its next upcoming **visible timed event** from the timetable currently being displayed.
 
-Only that masjid's next Adhan gets a countdown. The countdown is rendered directly below the Adhan time inside the relevant prayer card so there is no ambiguity about which masjid it belongs to.
+The countdown is not limited to Adhan or Jamaah. On ordinary days the candidate events are the visible Adhan and Jamaah times. On Friday, the visible Jumu'ah events participate instead of Dhuhr, including supplied events such as Adhan, Lecture, Sunan, Khutbah and explicit Salaah/Jamaah.
+
+Only the next event for that masjid gets a countdown. The countdown is rendered directly below that event's time inside the relevant prayer card so there is no ambiguity about which masjid or event it belongs to.
 
 Examples:
 
 ```text
-Adhan       19:07
+Adhan       12:16
             in 15 min
-Jamaah      19:30
+Jamaah      13:15
 ```
 
-and for longer intervals:
+After that Adhan has passed, the countdown moves to the next event:
+
+```text
+Adhan       12:16
+Jamaah      13:15
+            in 59 min
+```
+
+For longer intervals the display uses natural compact wording:
 
 ```text
 in 1 hr
 in 1 hr 15 min
 ```
 
-When the Adhan is due, the countdown may display:
+When the event is due, the countdown may display:
 
 ```text
 now
 ```
 
-The countdown is visually subordinate to the Adhan time but remains clearly readable. It updates from the browser-local clock without requiring an API request every second.
+The countdown is visually subordinate to the event time but remains clearly readable. It updates from the browser-local clock without requiring an API request every second.
 
-On Friday, Dhuhr is excluded from the next-Adhan calculation and the displayed Jumu'ah Adhan participates instead. This keeps countdown semantics aligned with the visible Friday layout.
+The countdown follows the same visibility rules as the timetable itself: Dhuhr is excluded on Friday, Jumu'ah takes its place, and no hidden or fabricated event is used as a countdown target.
 
 ## Jumu'ah Behaviour
 
@@ -199,7 +209,7 @@ One-board and two-board modes preserve the same semantics:
 - same Friday Jumu'ah replacement rule;
 - same Adhan-before-Jamaah reading order;
 - same Jamaah emphasis;
-- same next-Adhan countdown behaviour;
+- same next-timetable-event countdown behaviour;
 - same missing-value omission rules;
 - same stale/unavailable semantics; and
 - same selected-board ordering.
@@ -246,4 +256,4 @@ http://localhost:8080/masjidboard.html
 
 Non-Friday validation should show Dhuhr and no Jumu'ah row. Friday validation should show Jumu'ah in the Dhuhr position and no separate Dhuhr row.
 
-The next-Adhan countdown should appear only in the card containing each board's next upcoming Adhan and should advance automatically from the browser-local clock.
+For each board, the countdown should appear only beneath that board's next upcoming visible timetable event and should move automatically to the following event after the current one has passed.

@@ -6,6 +6,7 @@ import (
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/maintenance"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
 )
 
@@ -73,7 +74,7 @@ func monitorMasjidBoardTimetables(ctx context.Context, service *masjidboardservi
 	}
 }
 
-func logMasjidBoardRefreshResults(results []masjidboardservice.Result, log interface {
+func logMasjidBoardRefreshResults(results []runtime.Result, log interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
 }) {
@@ -85,9 +86,9 @@ func logMasjidBoardRefreshResults(results []masjidboardservice.Result, log inter
 		}
 
 		switch result.Status {
-		case "current":
+		case runtime.StatusCurrent:
 			log.Info("MasjidBoard timetable refreshed", args...)
-		case "stale":
+		case runtime.StatusStale:
 			args = append(args,
 				"last_successful_update", result.LastSuccessfulUpdate,
 				"error", result.UpdateError,

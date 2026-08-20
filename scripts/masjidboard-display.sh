@@ -6,6 +6,16 @@ MASJIDBOARD_URL="${MASJIDBOARD_URL:-http://127.0.0.1:8080/masjidboard.html}"
 MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
 
 find_browser() {
+    # Debian/Raspberry Pi OS wraps Chromium with /usr/bin/chromium and injects
+    # distribution flags from /etc/chromium.d. Those include accessibility and
+    # extension support that are unnecessary for the fixed MasjidBoard kiosk.
+    # Prefer the real binary when present so the appliance controls its own
+    # minimal flag set without changing Chromium system-wide.
+    if [[ -x /usr/lib/chromium/chromium ]]; then
+        printf '%s\n' /usr/lib/chromium/chromium
+        return 0
+    fi
+
     local candidate
     for candidate in chromium chromium-browser; do
         if command -v "$candidate" >/dev/null 2>&1; then
@@ -38,9 +48,12 @@ main() {
 
     exec "$browser" \
         --ozone-platform=wayland \
+        --use-angle=gles \
+        --enable-gpu-rasterization \
         --kiosk \
         --start-maximized \
         --no-first-run \
+        --no-default-browser-check \
         --noerrdialogs \
         --disable-infobars \
         --disable-session-crashed-bubble \

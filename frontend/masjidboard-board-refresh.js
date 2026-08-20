@@ -4,8 +4,19 @@
     const button = document.getElementById("refreshBoardsButton");
     if (!button) return;
 
+    const successKey = "masjidboard-refresh-success";
+    const banner = document.getElementById("configBanner");
+
+    if (sessionStorage.getItem(successKey) === "1") {
+        sessionStorage.removeItem(successKey);
+        if (banner) {
+            banner.textContent = "Timetables refreshed.";
+            banner.className = "config-banner success";
+            window.setTimeout(() => banner.classList.add("hidden"), 6000);
+        }
+    }
+
     button.addEventListener("click", async () => {
-        const original = button.textContent;
         button.disabled = true;
         button.textContent = "Refreshing…";
 
@@ -23,17 +34,15 @@
                 throw new Error(message);
             }
 
-            // Reload the configuration view so the existing status renderer
-            // immediately reflects the freshly fetched board data.
+            sessionStorage.setItem(successKey, "1");
             window.location.reload();
         } catch (error) {
-            const banner = document.getElementById("configBanner");
             if (banner) {
-                banner.textContent = `Could not refresh selected boards: ${error.message}`;
+                banner.textContent = `Could not refresh timetables: ${error.message}`;
                 banner.className = "config-banner error";
             }
             button.disabled = false;
-            button.textContent = original;
+            button.textContent = "Refresh Timetables";
         }
     });
 })();

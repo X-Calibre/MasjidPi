@@ -11,7 +11,10 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"time"
 )
+
+const unchangedCheckpointInterval = 24 * time.Hour
 
 // Store persists one independent last-known-good cache entry per selected
 // board. Cache files are addressed by a hash of the stable catalogue ID so the
@@ -55,7 +58,10 @@ func (s *Store) Load(catalogueID string) (entry Entry, found bool, err error) {
 }
 
 // Save atomically replaces the last-known-good entry after a successful board
-// refresh. Identical entries are not rewritten.
+// refresh. If the timetable itself is unchanged, repeated successful refreshes
+// are not written every time. A daily checkpoint still advances SuccessfulAt
+// so persisted cache freshness remains reasonably representative across
+// restarts without creating an SD-card write every refresh interval.
 func (s *Store) Save(entry Entry) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -70,8 +76,15 @@ func (s *Store) Save(entry Entry) error {
 
 	if data, err := os.ReadFile(path); err == nil {
 		var existing Entry
-		if json.Unmarshal(data, &existing) == nil && reflect.DeepEqual(existing, entry) {
-			return nil
+		if json.Unmarshal(data, &existing) == nil {
+			if reflect.DeepEqual(existing, entry) {
+				return nil
+			}
+			if existing.CatalogueID == entry.CatalogueID &&
+				reflect.DeepEqual(existing.Board, entry.Board) &&
+				entry.SuccessfulAt.Sub(existing.SuccessfulAt) < unchangedCheckpointInterval {
+				return nil
+			}
 		}
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("masjidboard cache: read existing entry: %w", err)

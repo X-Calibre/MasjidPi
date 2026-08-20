@@ -180,20 +180,37 @@ Potential capabilities:
 
 MasjidBoard will be a separate subsystem from audio streaming and playback.
 
-Potential capabilities:
+The active `research/masjidboard-live` implementation has now established the main functional shape of the feature, including:
 
-- Search for and select a masjid
-- Persist the selected masjid
-- Display daily prayer times
-- Display Jumu'ah times
-- Display the next prayer and countdown
-- Cache prayer information locally
-- Continue displaying cached information during temporary outages
-- Periodically refresh MasjidBoard data
-- Expose masjid and prayer information through the MasjidPi API
-- Display prayer information in the Web UI
-- Support future OLED/hardware displays
-- Support an external HDMI display connected to the Raspberry Pi
+- location hierarchy and scoped masjid discovery;
+- selection and ordering of up to three masjids;
+- persisted MasjidBoard selection;
+- live prayer and Jumu'ah timetable retrieval;
+- normalized provider data and resilient Jumu'ah label handling;
+- a dedicated MasjidBoard configuration WebUI;
+- a separate read-only HDMI/browser display page;
+- a responsive default three-board comparison layout;
+- Friday Jumu'ah replacing Dhuhr;
+- per-board next-Adhan countdowns;
+- periodic timetable refresh;
+- manual timetable refresh;
+- last-known-good cache fallback during provider outages;
+- stale/current recovery behaviour;
+- reduced cache writes when timetable data is unchanged; and
+- continued independence from audio playback when MasjidBoard Live is unavailable.
+
+Before this work is considered production-ready, the research implementation still needs production-integration validation, documentation/status cleanup, deployment-path validation on target hardware, and an explicit decision on how it will be integrated into the stable release line.
+
+Future MasjidBoard enhancements may include:
+
+- additional user-selectable display layouts;
+- layouts exposing selected astronomical/calculation times;
+- future OLED/hardware displays;
+- richer announcement/media content where useful;
+- additional display preferences; and
+- broader appliance/platform validation.
+
+The current display should be treated as the **default layout**, not the only long-term layout. Alternative layouts should consume the same normalized MasjidBoard display API so presentation choices remain separate from provider, caching and timetable logic.
 
 MasjidBoard must remain independent of the playback subsystem. Audio playback must continue operating if MasjidBoard is unavailable.
 

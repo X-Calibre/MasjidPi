@@ -2,11 +2,14 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/maintenance"
 	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
 )
+
+const masjidBoardTimetableRefreshInterval = 30 * time.Minute
 
 func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 	Info(msg string, args ...any)
@@ -30,46 +33,78 @@ func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 
 	if !service.Configured() {
 		log.Info("MasjidBoard is not configured")
-		return service, maintenanceService
+	} else {
+		log.Info("MasjidBoard configured", "boards", len(service.Selection().Boards))
 	}
 
-	log.Info("MasjidBoard configured", "boards", len(service.Selection().Boards))
-
-	// Initial board retrieval is asynchronous so an unavailable timetable
-	// provider cannot delay the existing audio appliance startup path.
-	go func() {
-		results := service.Refresh(ctx)
-		for _, result := range results {
-			args := []any{
-				"catalogue_id", result.Selection.CatalogueID,
-				"masjid", result.Selection.Name,
-				"status", result.Status,
-			}
-
-			switch result.Status {
-			case "current":
-				log.Info("MasjidBoard timetable refreshed", args...)
-			case "stale":
-				args = append(args,
-					"last_successful_update", result.LastSuccessfulUpdate,
-					"error", result.UpdateError,
-				)
-				log.Warn("MasjidBoard update failed; using last-known-good timetable", args...)
-			default:
-				args = append(args, "error", result.UpdateError)
-				log.Warn("MasjidBoard timetable unavailable", args...)
-			}
-
-			if result.PersistenceError != nil {
-				log.Warn(
-					"MasjidBoard cache persistence failed",
-					"catalogue_id", result.Selection.CatalogueID,
-					"masjid", result.Selection.Name,
-					"error", result.PersistenceError,
-				)
-			}
-		}
-	}()
+	// Timetable retrieval is asynchronous so an unavailable provider can never
+	// delay the existing audio appliance startup path. The service is checked
+	// periodically even when initially unconfigured so a selection saved through
+	// the WebUI begins receiving automatic refreshes without an application restart.
+	go monitorMasjidBoardTimetables(ctx, service, log)
 
 	return service, maintenanceService
+}
+
+func monitorMasjidBoardTimetables(ctx context.Context, service *masjidboardservice.Service, log interface {
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+}) {
+	refresh := func() {
+		if service == nil || !service.Configured() {
+			return
+		}
+		logMasjidBoardRefreshResults(service.Refresh(ctx), log)
+	}
+
+	// Fetch immediately after startup when configured. Persisted last-known-good
+	// cache data remains available if the live provider cannot be reached.
+	refresh()
+
+	ticker := time.NewTicker(masjidBoardTimetableRefreshInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			refresh()
+		}
+	}
+}
+
+func logMasjidBoardRefreshResults(results []masjidboardservice.Result, log interface {
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+}) {
+	for _, result := range results {
+		args := []any{
+			"catalogue_id", result.Selection.CatalogueID,
+			"masjid", result.Selection.Name,
+			"status", result.Status,
+		}
+
+		switch result.Status {
+		case "current":
+			log.Info("MasjidBoard timetable refreshed", args...)
+		case "stale":
+			args = append(args,
+				"last_successful_update", result.LastSuccessfulUpdate,
+				"error", result.UpdateError,
+			)
+			log.Warn("MasjidBoard update failed; using last-known-good timetable", args...)
+		default:
+			args = append(args, "error", result.UpdateError)
+			log.Warn("MasjidBoard timetable unavailable", args...)
+		}
+
+		if result.PersistenceError != nil {
+			log.Warn(
+				"MasjidBoard cache persistence failed",
+				"catalogue_id", result.Selection.CatalogueID,
+				"masjid", result.Selection.Name,
+				"error", result.PersistenceError,
+			)
+		}
+	}
 }

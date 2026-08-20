@@ -1,23 +1,25 @@
-# MasjidBoard Initial Display Layout
+# MasjidBoard Default Display Layout
 
-**Status:** Initial display frontend implemented  
+**Status:** Initial/default display frontend implemented  
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
 
 Define the first read-only MasjidBoard screen layout and its implemented frontend behaviour.
 
-The initial layout is designed around the most constrained supported case: **three selected masjids displayed simultaneously**. One-board and two-board views expand from the same information hierarchy rather than introduce different semantics.
+This layout is the **default MasjidBoard layout for the current implementation**. It is intentionally not treated as the only long-term presentation. Once the production MasjidBoard setup is more mature, alternative layouts may be designed and exposed as a user preference while continuing to consume the same display API/presentation model.
+
+The default layout is designed around the most constrained supported case: **three selected masjids displayed simultaneously**. One-board and two-board views expand from the same information hierarchy rather than introduce different semantics.
 
 ## Primary Use Case
 
-The screen should help a household answer a practical question quickly:
+The screen should help a household answer practical questions quickly, including:
 
 > If I cannot make the Jamaah at one nearby masjid, what is the next practical option?
 
-This makes side-by-side comparison of Jamaah times the primary design goal.
+Side-by-side comparison of prayer and Jamaah times is therefore the primary design goal.
 
-## Initial Content
+## Default Content
 
 The default screen includes:
 
@@ -30,6 +32,7 @@ Jumu'ah (Friday, replacing Dhuhr)
 Asr
 Maghrib
 Esha
+next-Adhan countdown for each selected masjid
 per-board stale/unavailable indication
 ```
 
@@ -105,29 +108,66 @@ When only one value exists, the remaining value adopts the dominant styling.
 
 The display does not render placeholder times for absent data. For example, Maghrib does not show an empty `Jamaah --:--` row when no Jamaah value is supplied. Its available Adhan time becomes the dominant value in that cell.
 
+## Next-Adhan Countdown
+
+Each selected masjid independently identifies its next upcoming **Adhan** from the timetable currently being displayed.
+
+Only that masjid's next Adhan gets a countdown. The countdown is rendered directly below the Adhan time inside the relevant prayer card so there is no ambiguity about which masjid it belongs to.
+
+Examples:
+
+```text
+Adhan       19:07
+            in 15 min
+Jamaah      19:30
+```
+
+and for longer intervals:
+
+```text
+in 1 hr
+in 1 hr 15 min
+```
+
+When the Adhan is due, the countdown may display:
+
+```text
+now
+```
+
+The countdown is visually subordinate to the Adhan time but remains clearly readable. It updates from the browser-local clock without requiring an API request every second.
+
+On Friday, Dhuhr is excluded from the next-Adhan calculation and the displayed Jumu'ah Adhan participates instead. This keeps countdown semantics aligned with the visible Friday layout.
+
 ## Jumu'ah Behaviour
 
 Jumu'ah is shown only on Friday and occupies the normal Dhuhr row position.
 
-Within a Jumu'ah cell, timed items are displayed in chronological order regardless of the order returned by the provider. The visual hierarchy is:
+Within a Jumu'ah cell, timed items are displayed in chronological order regardless of the order returned by the provider. Source labels are preserved rather than inferred or replaced.
+
+The visual hierarchy is:
 
 ```text
-Salaah      strongest
-Adhan       secondary
-other timed events (Lecture, Sunan, etc.) slightly smaller than Adhan
+explicit Salaah/Jamaah      strongest
+Adhan                       secondary
+other timed events          slightly smaller than Adhan
 ```
 
-Additional timed events remain clearly readable and are not treated as tiny metadata. Duplicate events that resolve to the same displayed Adhan or Salaah time are suppressed.
+If no explicit Salaah/Jamaah time is supplied but a Khutbah time is supplied, **Khutbah remains labelled Khutbah** and takes the dominant visual styling that would otherwise be used for Salaah. It is not reinterpreted as a Salaah time.
+
+Additional timed events such as Lecture and Sunan remain clearly readable and are not treated as tiny metadata. Duplicate events that resolve to the same displayed Adhan or explicit Salaah time are suppressed.
 
 A board may legitimately expose Jumu'ah headings with no associated times. That is not a stale/update failure and no fabricated time or placeholder is shown.
 
-The initial Friday row is allowed slightly more vertical space than an ordinary Dhuhr row so that three timed Jumu'ah events can remain legible without shrinking the overall information hierarchy.
+The Friday row is allowed slightly more vertical space than an ordinary Dhuhr row so that multiple timed Jumu'ah events can remain legible without shrinking the overall information hierarchy.
 
-## Alignment
+## Alignment and Responsiveness
 
 Prayer names form a stable vertical rhythm shared across all selected boards. Equivalent prayer values from different masjids remain horizontally comparable without requiring the viewer to scan separate cards vertically.
 
-The display preserves the user's configured board order. It does not reorder columns automatically by the next Jamaah time.
+The display preserves the user's configured board order. It does not reorder columns automatically by prayer time.
+
+The page is responsive. Card dimensions, typography and spacing adapt with the available viewport while preserving the same information hierarchy. This responsive behaviour is an intentional requirement and should not be lost during future refinements.
 
 ## Board Names
 
@@ -159,15 +199,32 @@ One-board and two-board modes preserve the same semantics:
 - same Friday Jumu'ah replacement rule;
 - same Adhan-before-Jamaah reading order;
 - same Jamaah emphasis;
+- same next-Adhan countdown behaviour;
 - same missing-value omission rules;
 - same stale/unavailable semantics; and
 - same selected-board ordering.
 
 The grid automatically adapts its column count to the number of selected boards, allowing fewer boards to use more width without adding extra information by default.
 
-## Non-Goals for Initial Layout
+## Future Layout Selection
 
-The first layout does not include:
+The current page should be treated as the **default layout**, not a permanent single-layout limitation.
+
+After the MasjidBoard subsystem and appliance deployment path are production-ready, future work may add several alternative presentation layouts and a user preference for selecting between them.
+
+Potential alternative layouts may make different use of the same normalized display data, for example:
+
+- more compact single-masjid layouts;
+- layouts that expose selected astronomical/calculation times;
+- different emphasis for wall-mounted/large-screen use;
+- alternate visual density or typography; and
+- layouts intended for different aspect ratios or display sizes.
+
+Layout selection should remain a frontend/presentation concern. Alternative layouts should consume the same stable MasjidBoard display API rather than duplicating provider or timetable logic.
+
+## Non-Goals for Default Layout
+
+The default layout does not include:
 
 - configuration controls;
 - board/location selection;
@@ -181,10 +238,12 @@ These are either administrative WebUI responsibilities or future display-layout 
 
 ## Validation Boundary
 
-The frontend should be live-tested with the existing three-board selection by opening:
+The frontend should be live-tested with an existing one-, two- or three-board selection by opening:
 
 ```text
 http://localhost:8080/masjidboard.html
 ```
 
 Non-Friday validation should show Dhuhr and no Jumu'ah row. Friday validation should show Jumu'ah in the Dhuhr position and no separate Dhuhr row.
+
+The next-Adhan countdown should appear only in the card containing each board's next upcoming Adhan and should advance automatically from the browser-local clock.

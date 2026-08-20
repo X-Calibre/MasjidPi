@@ -55,20 +55,45 @@
         return event ? event.time : null;
     }
 
-    function nextAdhanForBoard(board, now, friday) {
+    function sameTime(left, right) {
+        return left && right && left.hour === right.hour && left.minute === right.minute;
+    }
+
+    function jumuahItems(service) {
+        const adhan = service.adhan || eventTime(service, "Adhan");
+        const salaah = service.effective_salaah || service.jamaah;
+        const items = [];
+        if (adhan) items.push({label: "Adhan", time: adhan, kind: "adhan"});
+        if (Array.isArray(service.events)) {
+            for (const event of service.events) {
+                if (!event.time || !event.heading || event.heading === "Adhan") continue;
+                if (sameTime(event.time, adhan) || sameTime(event.time, salaah)) continue;
+                const kind = event.heading === "Khutbah" && !salaah ? "salaah" : "event";
+                items.push({label: event.heading, time: event.time, kind});
+            }
+        }
+        if (salaah) items.push({label: "Salaah", time: salaah, kind: "salaah"});
+        items.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
+        return items;
+    }
+
+    function nextEventForBoard(board, now, friday) {
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
         const candidates = [];
 
         for (const key of ["fajr", "dhuhr", "asr", "maghrib", "esha"]) {
             if (friday && key === "dhuhr") continue;
             const prayer = findPrayer(board, key);
-            if (prayer && prayer.adhan) candidates.push({kind: "prayer", key, time: prayer.adhan});
+            if (!prayer) continue;
+            if (prayer.adhan) candidates.push({kind: "prayer", key, event: "adhan", time: prayer.adhan});
+            if (prayer.jamaah) candidates.push({kind: "prayer", key, event: "jamaah", time: prayer.jamaah});
         }
 
         if (friday && Array.isArray(board.jumuah) && board.jumuah.length > 0) {
             const service = board.jumuah[0];
-            const adhan = service.adhan || eventTime(service, "Adhan");
-            if (adhan) candidates.push({kind: "jumuah", key: "jumuah", time: adhan});
+            for (const item of jumuahItems(service)) {
+                candidates.push({kind: "jumuah", label: item.label, time: item.time});
+            }
         }
 
         candidates.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
@@ -124,7 +149,7 @@
         if (countdown) {
             const valueStack = makeElement("span", "time-value-stack");
             valueStack.append(makeElement("span", "time-value", formatClock(time)));
-            valueStack.append(makeElement("span", "adhan-countdown", countdown));
+            valueStack.append(makeElement("span", "event-countdown", countdown));
             line.append(valueStack);
         } else {
             line.append(makeElement("span", "time-value", formatClock(time)));
@@ -132,7 +157,7 @@
         cell.append(line);
     }
 
-    function renderPrayerCell(board, prayer, nextAdhan, now) {
+    function renderPrayerCell(board, prayer, nextEvent, now) {
         const cell = makeElement("div", `prayer-cell ${boardStateClass(board)}`.trim());
         if (board.status === "unavailable" && !prayer) {
             cell.append(makeElement("div", "unavailable-copy", "No timetable data"));
@@ -142,40 +167,23 @@
 
         const hasAdhan = Boolean(prayer.adhan), hasJamaah = Boolean(prayer.jamaah);
         const onlyOne = Number(hasAdhan) + Number(hasJamaah) === 1;
-        const countdown = nextAdhan && nextAdhan.kind === "prayer" && nextAdhan.key === prayer.key
+        const adhanCountdown = nextEvent && nextEvent.kind === "prayer" && nextEvent.key === prayer.key && nextEvent.event === "adhan"
             ? countdownText(prayer.adhan, now)
             : "";
-        appendTimeLine(cell, "Adhan", prayer.adhan, onlyOne, onlyOne, "", countdown);
-        appendTimeLine(cell, "Jamaah", prayer.jamaah, hasJamaah, onlyOne);
+        const jamaahCountdown = nextEvent && nextEvent.kind === "prayer" && nextEvent.key === prayer.key && nextEvent.event === "jamaah"
+            ? countdownText(prayer.jamaah, now)
+            : "";
+        appendTimeLine(cell, "Adhan", prayer.adhan, onlyOne, onlyOne, "", adhanCountdown);
+        appendTimeLine(cell, "Jamaah", prayer.jamaah, hasJamaah, onlyOne, "", jamaahCountdown);
         return cell;
     }
 
-    function sameTime(left, right) { return left && right && left.hour === right.hour && left.minute === right.minute; }
-
-    function jumuahItems(service) {
-        const adhan = service.adhan || eventTime(service, "Adhan");
-        const salaah = service.effective_salaah || service.jamaah;
-        const items = [];
-        if (adhan) items.push({label: "Adhan", time: adhan, kind: "adhan"});
-        if (Array.isArray(service.events)) {
-            for (const event of service.events) {
-                if (!event.time || !event.heading || event.heading === "Adhan") continue;
-                if (sameTime(event.time, adhan) || sameTime(event.time, salaah)) continue;
-                const kind = event.heading === "Khutbah" && !salaah ? "salaah" : "event";
-                items.push({label: event.heading, time: event.time, kind});
-            }
-        }
-        if (salaah) items.push({label: "Salaah", time: salaah, kind: "salaah"});
-        items.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
-        return items;
-    }
-
-    function renderJumuahCell(board, nextAdhan, now) {
+    function renderJumuahCell(board, nextEvent, now) {
         const cell = makeElement("div", `jumuah-cell ${boardStateClass(board)}`.trim());
         const service = Array.isArray(board.jumuah) ? board.jumuah[0] : null;
         if (!service) return cell;
         for (const item of jumuahItems(service)) {
-            const countdown = item.kind === "adhan" && nextAdhan && nextAdhan.kind === "jumuah"
+            const countdown = nextEvent && nextEvent.kind === "jumuah" && nextEvent.label === item.label && sameTime(nextEvent.time, item.time)
                 ? countdownText(item.time, now)
                 : "";
             appendTimeLine(cell, item.label, item.time, item.kind === "salaah", false, `jumuah-${item.kind}`, countdown);
@@ -202,7 +210,7 @@
     function renderPrayers(boards, now = new Date()) {
         prayerGrid.replaceChildren();
         const friday = displayDate().getDay() === 5;
-        const nextByBoard = new Map(boards.map((board) => [board.catalogue_id, nextAdhanForBoard(board, now, friday)]));
+        const nextByBoard = new Map(boards.map((board) => [board.catalogue_id, nextEventForBoard(board, now, friday)]));
         prayerGrid.classList.toggle("friday", friday);
         appendPrayerRow(boards, "fajr", "Fajr", nextByBoard, now);
         if (friday) appendJumuahRow(boards, nextByBoard, now); else appendPrayerRow(boards, "dhuhr", "Dhuhr", nextByBoard, now);

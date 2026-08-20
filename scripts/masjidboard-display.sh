@@ -48,6 +48,13 @@ main() {
         --disable-translate \
         --disable-pinch \
         --disable-sync \
+        --disable-background-networking \
+        --disable-component-extensions-with-background-pages \
+        --disable-component-update \
+        --disable-default-apps \
+        --disable-domain-reliability \
+        --disable-extensions \
+        --disable-features=MediaRouter,OptimizationHints,Translate \
         --password-store=basic \
         --overscroll-history-navigation=0 \
         --user-data-dir=/tmp/masjidpi-display-profile \

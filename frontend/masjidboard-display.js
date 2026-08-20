@@ -26,6 +26,29 @@
         return date;
     }
 
+    function displayNow() {
+        const now = new Date();
+        const value = new URLSearchParams(window.location.search).get("time");
+        if (!value) return now;
+
+        const match = /^(\d{1,2}):(\d{2})$/.exec(value);
+        if (!match) {
+            console.warn(`Ignoring invalid MasjidBoard display time override: ${value}`);
+            return now;
+        }
+
+        const hour = Number(match[1]);
+        const minute = Number(match[2]);
+        if (hour > 23 || minute > 59) {
+            console.warn(`Ignoring invalid MasjidBoard display time override: ${value}`);
+            return now;
+        }
+
+        const date = displayDate();
+        date.setHours(hour, minute, 0, 0);
+        return date;
+    }
+
     function formatClock(time) {
         if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute)) return "";
         return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
@@ -101,7 +124,7 @@
     }
 
     function updateClock() {
-        const now = new Date();
+        const now = displayNow();
         const date = displayDate();
         currentTime.textContent = now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});
         currentDate.textContent = date.toLocaleDateString([], {weekday: "long", day: "numeric", month: "long"});
@@ -207,7 +230,7 @@
         prayerGrid.append(row);
     }
 
-    function renderPrayers(boards, now = new Date()) {
+    function renderPrayers(boards, now = displayNow()) {
         prayerGrid.replaceChildren();
         const friday = displayDate().getDay() === 5;
         const nextByBoard = new Map(boards.map((board) => [board.catalogue_id, nextEventForBoard(board, now, friday)]));

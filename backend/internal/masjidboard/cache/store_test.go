@@ -116,6 +116,82 @@ func TestStoreUnchangedSaveIsNoOp(t *testing.T) {
 	}
 }
 
+func TestStoreUnchangedBoardDoesNotRewriteEveryRefresh(t *testing.T) {
+	dir := t.TempDir()
+	store := NewStore(dir)
+	first := testEntry()
+	if err := store.Save(first); err != nil {
+		t.Fatal(err)
+	}
+	path, err := store.pathFor(first.CatalogueID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	second := first
+	second.SuccessfulAt = first.SuccessfulAt.Add(30 * time.Minute)
+	time.Sleep(20 * time.Millisecond)
+	if err := store.Save(second); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !after.ModTime().Equal(before.ModTime()) {
+		t.Fatalf("unchanged timetable rewrote cache inside checkpoint interval: before=%v after=%v", before.ModTime(), after.ModTime())
+	}
+	got, found, err := store.Load(first.CatalogueID)
+	if err != nil || !found {
+		t.Fatalf("Load() found=%v err=%v", found, err)
+	}
+	if !got.SuccessfulAt.Equal(first.SuccessfulAt) {
+		t.Fatalf("unchanged timetable unexpectedly advanced persisted checkpoint: got=%v want=%v", got.SuccessfulAt, first.SuccessfulAt)
+	}
+}
+
+func TestStoreUnchangedBoardWritesDailyFreshnessCheckpoint(t *testing.T) {
+	dir := t.TempDir()
+	store := NewStore(dir)
+	first := testEntry()
+	if err := store.Save(first); err != nil {
+		t.Fatal(err)
+	}
+	path, err := store.pathFor(first.CatalogueID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	second := first
+	second.SuccessfulAt = first.SuccessfulAt.Add(unchangedCheckpointInterval)
+	time.Sleep(20 * time.Millisecond)
+	if err := store.Save(second); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !after.ModTime().After(before.ModTime()) {
+		t.Fatalf("daily freshness checkpoint did not rewrite cache: before=%v after=%v", before.ModTime(), after.ModTime())
+	}
+	got, found, err := store.Load(first.CatalogueID)
+	if err != nil || !found {
+		t.Fatalf("Load() found=%v err=%v", found, err)
+	}
+	if !got.SuccessfulAt.Equal(second.SuccessfulAt) {
+		t.Fatalf("daily checkpoint successful_at=%v want=%v", got.SuccessfulAt, second.SuccessfulAt)
+	}
+}
+
 func TestStoreSuccessfulRefreshReplacesCache(t *testing.T) {
 	store := NewStore(t.TempDir())
 	first := testEntry()

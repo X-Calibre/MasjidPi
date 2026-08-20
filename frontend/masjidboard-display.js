@@ -56,8 +56,8 @@
 
     function minutesSinceMidnight(time) { return time.hour * 60 + time.minute; }
 
-    function countdownText(time, now) {
-        const targetMinutes = minutesSinceMidnight(time);
+    function countdownText(time, now, dayOffset = 0) {
+        const targetMinutes = minutesSinceMidnight(time) + dayOffset * 24 * 60;
         const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
         const remaining = Math.max(0, Math.ceil(targetMinutes - nowMinutes));
         if (remaining === 0) return "now";
@@ -108,19 +108,33 @@
             if (friday && key === "dhuhr") continue;
             const prayer = findPrayer(board, key);
             if (!prayer) continue;
-            if (prayer.adhan) candidates.push({kind: "prayer", key, event: "adhan", time: prayer.adhan});
-            if (prayer.jamaah) candidates.push({kind: "prayer", key, event: "jamaah", time: prayer.jamaah});
+            if (prayer.adhan) candidates.push({kind: "prayer", key, event: "adhan", time: prayer.adhan, dayOffset: 0});
+            if (prayer.jamaah) candidates.push({kind: "prayer", key, event: "jamaah", time: prayer.jamaah, dayOffset: 0});
         }
 
         if (friday && Array.isArray(board.jumuah) && board.jumuah.length > 0) {
             const service = board.jumuah[0];
             for (const item of jumuahItems(service)) {
-                candidates.push({kind: "jumuah", label: item.label, time: item.time});
+                candidates.push({kind: "jumuah", label: item.label, time: item.time, dayOffset: 0});
             }
         }
 
         candidates.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
-        return candidates.find((candidate) => minutesSinceMidnight(candidate.time) >= nowMinutes) || null;
+        const today = candidates.find((candidate) => minutesSinceMidnight(candidate.time) >= nowMinutes);
+        if (today) return today;
+
+        // Once the final event of the day has passed, continue the countdown
+        // into tomorrow's first visible timetable event. The current board data
+        // supplies the next Fajr times, which keeps the display useful overnight
+        // instead of leaving a masjid without any countdown.
+        const fajr = findPrayer(board, "fajr");
+        if (!fajr) return null;
+
+        const tomorrow = [];
+        if (fajr.adhan) tomorrow.push({kind: "prayer", key: "fajr", event: "adhan", time: fajr.adhan, dayOffset: 1});
+        if (fajr.jamaah) tomorrow.push({kind: "prayer", key: "fajr", event: "jamaah", time: fajr.jamaah, dayOffset: 1});
+        tomorrow.sort((left, right) => minutesSinceMidnight(left.time) - minutesSinceMidnight(right.time));
+        return tomorrow[0] || null;
     }
 
     function updateClock() {
@@ -191,10 +205,10 @@
         const hasAdhan = Boolean(prayer.adhan), hasJamaah = Boolean(prayer.jamaah);
         const onlyOne = Number(hasAdhan) + Number(hasJamaah) === 1;
         const adhanCountdown = nextEvent && nextEvent.kind === "prayer" && nextEvent.key === prayer.key && nextEvent.event === "adhan"
-            ? countdownText(prayer.adhan, now)
+            ? countdownText(prayer.adhan, now, nextEvent.dayOffset || 0)
             : "";
         const jamaahCountdown = nextEvent && nextEvent.kind === "prayer" && nextEvent.key === prayer.key && nextEvent.event === "jamaah"
-            ? countdownText(prayer.jamaah, now)
+            ? countdownText(prayer.jamaah, now, nextEvent.dayOffset || 0)
             : "";
         appendTimeLine(cell, "Adhan", prayer.adhan, onlyOne, onlyOne, "", adhanCountdown);
         appendTimeLine(cell, "Jamaah", prayer.jamaah, hasJamaah, onlyOne, "", jamaahCountdown);
@@ -207,7 +221,7 @@
         if (!service) return cell;
         for (const item of jumuahItems(service)) {
             const countdown = nextEvent && nextEvent.kind === "jumuah" && nextEvent.label === item.label && sameTime(nextEvent.time, item.time)
-                ? countdownText(item.time, now)
+                ? countdownText(item.time, now, nextEvent.dayOffset || 0)
                 : "";
             appendTimeLine(cell, item.label, item.time, item.kind === "salaah", false, `jumuah-${item.kind}`, countdown);
         }

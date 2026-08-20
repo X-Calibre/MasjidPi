@@ -149,6 +149,8 @@ The countdown is visually subordinate to the event time but remains clearly read
 
 The countdown follows the same visibility rules as the timetable itself: Dhuhr is excluded on Friday, Jumu'ah takes its place, and no hidden or fabricated event is used as a countdown target.
 
+When a masjid has no remaining visible event for the current day, its countdown rolls forward to the **following day's first Fajr event** rather than disappearing overnight. This rollover is calculated independently for each selected masjid, so one column can already be counting down to tomorrow's Fajr while another still has a later Esha/Jamaah event remaining tonight.
+
 ## Jumu'ah Behaviour
 
 Jumu'ah is shown only on Friday and occupies the normal Dhuhr row position.
@@ -170,6 +172,8 @@ Additional timed events such as Lecture and Sunan remain clearly readable and ar
 A board may legitimately expose Jumu'ah headings with no associated times. That is not a stale/update failure and no fabricated time or placeholder is shown.
 
 The Friday row is allowed slightly more vertical space than an ordinary Dhuhr row so that multiple timed Jumu'ah events can remain legible without shrinking the overall information hierarchy.
+
+The next-event countdown participates in the Friday sequence. Manual validation has confirmed that it advances correctly through the supplied Jumu'ah events and then continues to later daily events.
 
 ## Alignment and Responsiveness
 
@@ -201,6 +205,28 @@ The weekday shown by that local clock determines whether the Friday Jumu'ah row 
 
 The board timezone remains available in the presentation API for later multi-timezone layout refinement.
 
+## Development Date/Time Overrides
+
+The display supports query-string overrides for repeatable browser testing without changing the host clock.
+
+A Friday can be simulated with:
+
+```text
+/masjidboard.html?date=2026-08-21
+```
+
+A specific clock time can also be supplied:
+
+```text
+/masjidboard.html?date=2026-08-21&time=12:10
+```
+
+The `time=` override drives both the large displayed clock and the next-event calculation. This allows Jumu'ah transitions and countdown movement to be tested deterministically.
+
+Invalid date/time override values are ignored and normal browser-local time is used instead.
+
+These parameters are development/test aids rather than user-facing configuration preferences.
+
 ## One- and Two-Board Adaptation
 
 One-board and two-board modes preserve the same semantics:
@@ -210,6 +236,7 @@ One-board and two-board modes preserve the same semantics:
 - same Adhan-before-Jamaah reading order;
 - same Jamaah emphasis;
 - same next-timetable-event countdown behaviour;
+- same overnight rollover behaviour;
 - same missing-value omission rules;
 - same stale/unavailable semantics; and
 - same selected-board ordering.
@@ -256,4 +283,4 @@ http://localhost:8080/masjidboard.html
 
 Non-Friday validation should show Dhuhr and no Jumu'ah row. Friday validation should show Jumu'ah in the Dhuhr position and no separate Dhuhr row.
 
-For each board, the countdown should appear only beneath that board's next upcoming visible timetable event and should move automatically to the following event after the current one has passed.
+For each board, the countdown should appear only beneath that board's next upcoming visible timetable event and should move automatically to the following event after the current one has passed. After the final event of the day, it should roll forward to the following day's first Fajr event.

@@ -9,7 +9,6 @@
 
     if (!statusRoot) return;
 
-    let rendering = false;
     let bannerBusy = false;
 
     function text(tag, className, value) {
@@ -59,64 +58,59 @@
     }
 
     function renderStatus(status) {
-        rendering = true;
-        try {
-            const boards = Array.isArray(status.boards) ? status.boards : [];
-            statusRoot.replaceChildren();
+        const boards = Array.isArray(status.boards) ? status.boards : [];
+        statusRoot.replaceChildren();
 
-            const summary = document.createElement("div");
-            summary.className = "status-summary";
-            summary.append(detailRow("Configured", status.configured ? "Yes" : "No"));
-            summary.append(detailRow("Selected Masjids", String(boards.length)));
-            statusRoot.append(summary);
+        const summary = document.createElement("div");
+        summary.className = "status-summary";
+        summary.append(detailRow("Configured", status.configured ? "Yes" : "No"));
+        summary.append(detailRow("Selected Masjids", String(boards.length)));
+        statusRoot.append(summary);
 
-            if (!boards.length) return;
+        if (!boards.length) return;
 
-            const list = document.createElement("div");
-            list.className = "status-board-list status-board-list-detailed";
+        const list = document.createElement("div");
+        list.className = "status-board-list status-board-list-detailed";
 
-            for (const board of boards) {
-                const value = board.status || "unknown";
-                const item = document.createElement("article");
-                item.className = `status-board-card status-${value}`;
+        for (const board of boards) {
+            const value = board.status || "unknown";
+            const item = document.createElement("article");
+            item.className = `status-board-card status-${value}`;
 
-                const heading = document.createElement("div");
-                heading.className = "status-board-heading";
-                heading.append(text("strong", "status-board-name", board.name || board.catalogue_id || "MasjidBoard"));
-                heading.append(text("span", `status-board-state ${value}`, stateLabel(value)));
-                item.append(heading);
+            const heading = document.createElement("div");
+            heading.className = "status-board-heading";
+            heading.append(text("strong", "status-board-name", board.name || board.catalogue_id || "MasjidBoard"));
+            heading.append(text("span", `status-board-state ${value}`, stateLabel(value)));
+            item.append(heading);
 
-                const details = document.createElement("div");
-                details.className = "status-board-details";
+            const details = document.createElement("div");
+            details.className = "status-board-details";
 
-                if (board.using_cached_data || value === "stale") {
-                    details.append(text("div", "status-board-note warning", "Using cached timetable data"));
-                }
-                if (value === "unavailable" && !board.board) {
-                    details.append(text("div", "status-board-note error", "No timetable data is currently available"));
-                }
-
-                if (board.last_successful_update) {
-                    details.append(detailRow("Last successful update", formatTimestamp(board.last_successful_update)));
-                }
-                if (board.last_attempt) {
-                    details.append(detailRow("Last attempt", formatTimestamp(board.last_attempt)));
-                }
-                if (board.update_error) {
-                    details.append(detailRow("Update error", board.update_error, "error"));
-                }
-                if (board.persistence_error) {
-                    details.append(detailRow("Cache error", board.persistence_error, "error"));
-                }
-
-                item.append(details);
-                list.append(item);
+            if (board.using_cached_data || value === "stale") {
+                details.append(text("div", "status-board-note warning", "Using cached timetable data"));
+            }
+            if (value === "unavailable" && !board.board) {
+                details.append(text("div", "status-board-note error", "No timetable data is currently available"));
             }
 
-            statusRoot.append(list);
-        } finally {
-            rendering = false;
+            if (board.last_successful_update) {
+                details.append(detailRow("Last successful update", formatTimestamp(board.last_successful_update)));
+            }
+            if (board.last_attempt) {
+                details.append(detailRow("Last attempt", formatTimestamp(board.last_attempt)));
+            }
+            if (board.update_error) {
+                details.append(detailRow("Update error", board.update_error, "error"));
+            }
+            if (board.persistence_error) {
+                details.append(detailRow("Cache error", board.persistence_error, "error"));
+            }
+
+            item.append(details);
+            list.append(item);
         }
+
+        statusRoot.append(list);
     }
 
     async function refreshDetailedStatus() {
@@ -177,7 +171,9 @@
     }
 
     const statusObserver = new MutationObserver(() => {
-        if (!rendering) window.setTimeout(refreshDetailedStatus, 0);
+        if (!statusRoot.querySelector(".status-board-card") && !statusRoot.querySelector(".status-summary")) {
+            window.setTimeout(refreshDetailedStatus, 0);
+        }
     });
     statusObserver.observe(statusRoot, {childList: true, subtree: true});
 
@@ -196,5 +192,5 @@
     }
 
     normalizeRefreshButtons();
-    refreshDetailedStatus();
+    window.setTimeout(refreshDetailedStatus, 50);
 })();

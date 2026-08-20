@@ -37,9 +37,12 @@
         const targetMinutes = minutesSinceMidnight(time);
         const nowMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
         const remaining = Math.max(0, Math.ceil(targetMinutes - nowMinutes));
+        if (remaining === 0) return "now";
+        if (remaining < 60) return `in ${remaining} min`;
         const hours = Math.floor(remaining / 60);
         const minutes = remaining % 60;
-        return `in ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+        if (minutes === 0) return `in ${hours} hr`;
+        return `in ${hours} hr ${minutes} min`;
     }
 
     function findPrayer(board, key) {

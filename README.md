@@ -44,6 +44,16 @@ The installer offers three profiles:
 
 Only the dependencies, backend subsystems, APIs, configuration pages and appliance services required by the selected profile are enabled.
 
+## Screenshots
+
+MasjidPi v1.1.0 includes both the Listen configuration interface and the dedicated MasjidBoard HDMI display. Updated screenshots of the current v1.1.0 interfaces will be added here.
+
+<!-- Suggested screenshot set:
+- Listen Web UI showing masjid selection/playback and audio-device controls
+- MasjidBoard configuration UI showing selected masjids
+- MasjidBoard HDMI display with a three-masjid layout
+-->
+
 ## Installation
 
 ### Recommended — Raspberry Pi / Linux
@@ -87,7 +97,7 @@ Official pre-built releases currently support:
 
 | Model | Status |
 |---|---|
-| Raspberry Pi 3B | ✅ Tested |
+| Raspberry Pi 3B | ✅ v1.1.0 production validated on 64-bit Raspberry Pi OS Lite |
 | Raspberry Pi Zero W | ❌ Not supported |
 
 Other Raspberry Pi models have not yet been fully validated.
@@ -196,7 +206,7 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 MasjidBoard and selectable Listen/Board appliance profiles are included in v1.1.0.
 
-MasjidPi has been validated on a Raspberry Pi 3B running 64-bit Raspberry Pi OS.
+v1.1.0 has been production-validated on a Raspberry Pi 3B running 64-bit Raspberry Pi OS Lite using the public one-line release installer. The combined Listen + Board installation, selected audio output and HDMI MasjidBoard display were verified on a clean OS installation.
 
 ## Acknowledgements
 

@@ -73,12 +73,19 @@ run_selftest() {
 
         info "Checking MasjidBoard display service..."
 
+        for i in {1..50}; do
+            if systemctl is-active --quiet masjidpi-display.service; then
+                success "MasjidBoard display service is running."
+                break
+            fi
+            sleep 0.2
+        done
+
         if ! systemctl is-active --quiet masjidpi-display.service; then
             error "MasjidBoard display service is not running."
+            journalctl -u masjidpi-display.service --no-pager -n 20 || true
             return 1
         fi
-
-        success "MasjidBoard display service is running."
     fi
 
     success "Self test passed."

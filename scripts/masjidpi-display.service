@@ -1,8 +1,7 @@
 [Unit]
 Description=MasjidPi MasjidBoard Display
 After=masjidpi.service network-online.target
-Wants=network-online.target
-Requires=masjidpi.service
+Wants=masjidpi.service network-online.target
 
 [Service]
 Type=simple

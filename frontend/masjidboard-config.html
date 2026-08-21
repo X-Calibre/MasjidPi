@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="masjidboard-config.css">
 </head>
-<body>
+<body data-component-page="board">
 <div class="container">
     <header>
         <div class="header-row">
@@ -16,7 +16,7 @@
                 <p>Prayer time display configuration</p>
             </div>
             <div class="header-actions">
-                <a class="nav-button" href="index.html">Listen</a>
+                <a class="nav-button" data-component="listen" href="index.html">Listen</a>
                 <a class="nav-button" href="masjidboard.html">Open Display</a>
                 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
             </div>
@@ -87,6 +87,7 @@
     <footer class="footer">MasjidPi · MasjidBoard Configuration</footer>
 </div>
 
+<script src="components-ui.js"></script>
 <script src="masjidboard-config.js"></script>
 <script src="masjidboard-board-refresh.js"></script>
 <script src="masjidboard-config-clarity.js"></script>

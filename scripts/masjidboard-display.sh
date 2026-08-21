@@ -5,29 +5,6 @@ set -Eeuo pipefail
 MASJIDBOARD_URL="${MASJIDBOARD_URL:-http://127.0.0.1:8080/masjidboard.html}"
 MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
 
-find_browser() {
-    # Debian/Raspberry Pi OS wraps Chromium with /usr/bin/chromium and injects
-    # distribution flags from /etc/chromium.d. Those include accessibility and
-    # extension support that are unnecessary for the fixed MasjidBoard kiosk.
-    # Prefer the real binary when present so the appliance controls its own
-    # minimal flag set without changing Chromium system-wide.
-    if [[ -x /usr/lib/chromium/chromium ]]; then
-        printf '%s\n' /usr/lib/chromium/chromium
-        return 0
-    fi
-
-    local candidate
-    for candidate in chromium chromium-browser; do
-        if command -v "$candidate" >/dev/null 2>&1; then
-            command -v "$candidate"
-            return 0
-        fi
-    done
-
-    echo "MasjidBoard display: Chromium is not installed." >&2
-    return 1
-}
-
 wait_for_masjidpi() {
     while ! curl --silent --show-error --fail --max-time 2 \
         "$MASJIDPI_READY_URL" >/dev/null 2>&1; do
@@ -36,43 +13,14 @@ wait_for_masjidpi() {
 }
 
 main() {
-    local browser
-    browser="$(find_browser)"
+    if ! command -v cog >/dev/null 2>&1; then
+        echo "MasjidBoard display: Cog is not installed." >&2
+        exit 1
+    fi
 
     wait_for_masjidpi
 
-    # Keep Chromium's disposable profile/cache in tmpfs-backed /tmp so kiosk
-    # browsing does not add avoidable persistent SD-card writes.
-    rm -rf /tmp/masjidpi-display-profile /tmp/masjidpi-display-cache
-    mkdir -p /tmp/masjidpi-display-profile /tmp/masjidpi-display-cache
-
-    exec "$browser" \
-        --ozone-platform=wayland \
-        --use-angle=gles \
-        --enable-gpu-rasterization \
-        --kiosk \
-        --start-maximized \
-        --no-first-run \
-        --no-default-browser-check \
-        --noerrdialogs \
-        --disable-infobars \
-        --disable-session-crashed-bubble \
-        --disable-notifications \
-        --disable-translate \
-        --disable-pinch \
-        --disable-sync \
-        --disable-background-networking \
-        --disable-component-extensions-with-background-pages \
-        --disable-component-update \
-        --disable-default-apps \
-        --disable-domain-reliability \
-        --disable-extensions \
-        --disable-features=MediaRouter,OptimizationHints,Translate \
-        --password-store=basic \
-        --overscroll-history-navigation=0 \
-        --user-data-dir=/tmp/masjidpi-display-profile \
-        --disk-cache-dir=/tmp/masjidpi-display-cache \
-        "$MASJIDBOARD_URL"
+    exec cog --platform=drm "$MASJIDBOARD_URL"
 }
 
 main "$@"

@@ -37,6 +37,7 @@ install_component_services() {
         rm -f /etc/systemd/system/masjidpi-display.service
         rm -f /opt/masjidpi/bin/masjidboard-display
         systemctl daemon-reload
+        systemctl reset-failed masjidpi-display.service 2>/dev/null || true
     fi
 }
 

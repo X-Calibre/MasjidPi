@@ -78,7 +78,24 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
 	mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
 	mux.HandleFunc("/api/version", server.version)
-	mux.Handle("/", fileServer)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		components := currentInstalledComponents()
+
+		switch r.URL.Path {
+		case "/", "/index.html":
+			if !components.Listen && components.Board {
+				http.Redirect(w, r, "/masjidboard-config.html", http.StatusTemporaryRedirect)
+				return
+			}
+		case "/masjidboard-config.html", "/masjidboard.html":
+			if !components.Board {
+				http.Redirect(w, r, "/index.html", http.StatusTemporaryRedirect)
+				return
+			}
+		}
+
+		fileServer.ServeHTTP(w, r)
+	})
 
 	return server
 }

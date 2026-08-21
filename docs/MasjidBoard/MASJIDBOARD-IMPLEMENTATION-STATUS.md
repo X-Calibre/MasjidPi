@@ -1,65 +1,110 @@
 # MasjidBoard Implementation Status
 
-**Status:** Active research implementation / pre-integration  
+**Status:** Functional appliance implementation / final pre-integration work  
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
 
-Record the current implemented state of MasjidBoard on the research branch and distinguish it from earlier design/research documents that describe ideas which have since evolved.
-
-Where older MasjidBoard documents describe a different implementation choice, this document records the current working behaviour.
+Record the current implemented and validated state of MasjidBoard on the research branch. Older research documents may describe approaches that have since been replaced; this document records the current working behaviour.
 
 ## Current Architecture
 
-MasjidBoard is implemented as an independent subsystem inside the existing MasjidPi application process.
+MasjidPi now supports three installation profiles:
 
-The audio/Listen subsystem and MasjidBoard remain functionally independent. A MasjidBoard provider, cache or display failure must not prevent audio playback from starting or continuing.
+```text
+Listen
+Board
+Listen + Board
+```
 
-Current major components include:
+The selected profile is persisted in `/etc/masjidpi/components.env` and is used by the backend, API registration, installer, runtime dependencies, systemd services and installer self-test.
+
+Listen and Board remain independent capabilities built on the common MasjidPi application runtime. A Board provider/cache/display failure must not prevent Listen from operating, and a Board-only appliance does not start MPV.
+
+Current MasjidBoard components include:
 
 - MasjidBoard Live discovery and hierarchy retrieval;
 - persisted location scope;
 - scoped Masjid catalogue;
-- persisted selection of up to three Masjids;
+- persisted selection and ordering of up to three Masjids;
 - MasjidBoard Live Core timetable provider;
 - normalized board/prayer model;
 - per-board last-known-good cache;
 - per-board runtime status and recovery;
 - display presentation API;
-- separate MasjidBoard configuration WebUI;
-- separate read-only MasjidBoard display page.
+- dedicated MasjidBoard configuration WebUI;
+- read-only MasjidBoard display page;
+- Cog/WPE DRM appliance display runtime on Raspberry Pi OS Lite.
 
-The current implementation does **not** use a separate native SDL renderer or a separate `masjidboard.service`. The working display is browser-based and served by MasjidPi. Those older ideas remain historical design exploration rather than current implementation requirements.
+## Component-Aware Appliance Installation
+
+The installer prompts for Listen, Board or Listen + Board on fresh installation and reinstall/update flows. Existing installations show the current profile as the default while still allowing the profile to be changed.
+
+Runtime dependencies are profile-aware:
+
+- Listen installs MPV/FFmpeg/ALSA dependencies;
+- Board installs Cog/WPE display dependencies;
+- combined installs receive both sets.
+
+Backend subsystem startup and API registration are also profile-aware. A disabled component does not expose its API endpoints.
+
+Validated runtime behaviour is:
+
+```text
+Listen only
+    -> masjidpi + mpv
+    -> no Cog
+    -> player API available
+    -> Board API returns 404
+
+Board only
+    -> masjidpi + Cog/WPE
+    -> no mpv
+    -> Board API available
+    -> player API returns 404
+
+Listen + Board
+    -> masjidpi + mpv + Cog/WPE
+    -> both APIs available
+```
+
+The configuration WebUI also hides configuration/navigation for components that are not installed.
+
+Component-profile changes participate in the safe update workflow. Profile state is transactional and can be restored with the previous runtime during rollback. Installer self-tests validate only the components selected for the candidate installation.
+
+Profile transitions between Listen-only, Board-only and Listen + Board have been exercised on Raspberry Pi hardware, including adding and removing each component. Removing Board stops/disables the display runtime, removes the display unit/launcher and clears stale systemd failed-unit state.
+
+## Display Runtime
+
+The production Raspberry Pi display direction is now Cog with WPE WebKit rendering directly through DRM/KMS:
+
+```text
+cog --platform=drm http://127.0.0.1:8080/masjidboard.html
+```
+
+This has been validated on Raspberry Pi OS Lite 64-bit with an HDMI display. It does not require Chromium, a desktop environment, X11, a Wayland compositor or graphical login session.
+
+`masjidpi-display.service` starts the display automatically when Board is installed and restarts it after unexpected Cog termination. Crash/restart behaviour has been tested successfully.
+
+See `MASJIDBOARD-DISPLAY-RUNTIME.md` for the current runtime design and validation details.
 
 ## Discovery and Selection
 
-The configuration UI supports:
+The configuration UI supports refreshing the location hierarchy, selecting/persisting locations, building and refreshing the scoped Masjid catalogue, selecting up to three Masjids, and preserving/reordering the selected display order.
 
-- refreshing the MasjidBoard Live location hierarchy;
-- selecting and persisting up to three locations;
-- building a scoped Masjid catalogue from those locations;
-- refreshing the scoped Masjid list;
-- selecting up to three Masjids;
-- preserving user-defined display column order;
-- reordering/removing selected Masjids.
+Refresh actions remain intentionally distinct:
 
-The audio streaming WebUI and MasjidBoard configuration UI are separate pages with navigation between Listen, configuration and display.
+- **Refresh Location List** — refresh the upstream hierarchy;
+- **Refresh Masjid List** — refresh Masjids available within the selected locations;
+- **Refresh Timetables** — refresh live timetable data for selected Masjids.
 
-## Timetable Retrieval
+## Timetable Retrieval, Cache and Recovery
 
-The MasjidBoard Live Core board page is the working primary timetable source.
+The MasjidBoard Live Core board page is the working primary timetable source. Selected boards refresh independently and a failure for one board does not invalidate the others.
 
-Selected boards are refreshed independently. A failure for one board does not invalidate the others.
+Automatic timetable refresh runs every 30 minutes, with manual refresh available from the configuration UI. Startup refresh is asynchronous.
 
-Automatic timetable refresh currently runs every **30 minutes**. A manual **Refresh Timetables** action is also available from the configuration UI.
-
-A configured board is also refreshed asynchronously at application startup so provider access never blocks the audio appliance startup path.
-
-## Cache and Recovery
-
-Each selected Masjid has an independent last-known-good timetable cache.
-
-Verified runtime behaviour is:
+Each selected Masjid has an independent last-known-good timetable cache. Verified behaviour is:
 
 ```text
 provider available
@@ -74,160 +119,50 @@ provider available again
     -> next successful refresh returns board to current
 ```
 
-This outage/recovery lifecycle has been verified both by automated tests and by a real runtime test in which `masjidboardlive.com` was temporarily made unreachable.
+This lifecycle has been verified in automated tests and a real provider-outage runtime test. Identical timetable data is not rewritten on every refresh.
 
-Unchanged timetable data is not rewritten to disk every 30 minutes. Cache persistence suppresses identical writes, with a periodic freshness checkpoint so persisted successful-retrieval metadata does not become indefinitely old.
+## Default Display
 
-## Configuration UI
+The read-only display is `/masjidboard.html` and supports one, two or three selected Masjids.
 
-The current configuration workflow is:
+The default layout shows current local time/date, selected Masjid names, Fajr, Dhuhr or Friday Jumu'ah, Asr, Maghrib, Esha, per-board stale/unavailable state, and a per-Masjid countdown to the next visible timetable event.
 
-```text
-Locations
-    -> scoped Masjid list
-    -> Selected Masjids
-    -> timetable refresh/status
-    -> display
-```
+Jumu'ah replaces Dhuhr on Friday. Timed Jumu'ah events are displayed chronologically with provider labels preserved. The countdown rolls to the following day's first Fajr event after the final visible event of the day.
 
-Refresh actions are intentionally distinct:
+Alternative layouts remain future presentation work and should consume the same normalized display API.
 
-- **Refresh Location List** — refresh the upstream hierarchy;
-- **Refresh Masjid List** — refresh Masjids available within the selected locations;
-- **Refresh Timetables** — refresh live timetable data for selected Masjids.
+## Validation Completed
 
-Per-board status exposes current/stale/unavailable state, cached-data use, last successful update, last attempt and update errors.
+Automated Go coverage includes API endpoints, hierarchy/discovery, scoped catalogue and reconciliation, selection persistence, provider parsing/normalization, Jumu'ah handling, cache persistence/write suppression, display presentation, runtime behaviour and stale-cache recovery.
 
-## Default Display Layout
-
-The working read-only display is:
-
-```text
-/masjidboard.html
-```
-
-It supports one, two or three selected Masjids and preserves responsive sizing as the viewport changes.
-
-The current layout is the **default layout**, not the intended permanent single-layout limitation. Alternative user-selectable layouts are deferred until the overall MasjidBoard appliance path is more production-ready.
-
-The default layout shows:
-
-- current local time and date;
-- selected Masjid names;
-- Fajr;
-- Dhuhr on Saturday–Thursday;
-- Jumu'ah replacing Dhuhr on Friday;
-- Asr;
-- Maghrib;
-- Esha;
-- per-board stale/unavailable indication;
-- a per-Masjid countdown to the next visible timetable event.
-
-Extended astronomical/calculation values remain available in the normalized data but are intentionally omitted from this initial layout.
-
-## Prayer Presentation Rules
-
-For normal prayers:
-
-```text
-Adhan
-Jamaah
-```
-
-Adhan appears first. When Jamaah is supplied it receives stronger visual emphasis. If only one value exists, that available value receives the dominant styling. Missing values are omitted rather than rendered as placeholders.
-
-## Friday / Jumu'ah Behaviour
-
-Jumu'ah is hidden on non-Friday days and replaces Dhuhr on Friday.
-
-Timed Jumu'ah items are displayed chronologically and source labels are preserved.
-
-Examples include:
-
-- Adhan;
-- Lecture;
-- Sunan;
-- Khutbah;
-- explicit Salaah/Jamaah where supplied.
-
-Khutbah is **not** semantically relabelled as Salaah when an explicit Salaah value is absent. In that case Khutbah may receive the dominant visual treatment so the final supplied Friday event remains prominent, while retaining the correct `Khutbah` label.
-
-## Next-Event Countdown
-
-Each selected Masjid independently identifies its next visible timetable event.
-
-The countdown appears immediately beneath that event's time using concise wording such as:
-
-```text
-in 15 min
-in 1 hr
-in 1 hr 15 min
-now
-```
-
-The next event may therefore be Adhan, Jamaah or a visible Jumu'ah event such as Sunan, Lecture, Khutbah or explicit Salaah.
-
-When the final visible event of the day has passed, the countdown rolls forward to the following day's first Fajr event rather than disappearing overnight.
-
-Friday countdown behaviour has been manually validated across Jumu'ah event transitions.
-
-For development/testing, the display accepts date/time overrides:
-
-```text
-/masjidboard.html?date=2026-08-21&time=12:10
-```
-
-These exist to test Friday and countdown transitions without changing the host clock.
-
-## Current Validation
-
-The branch currently has broad Go test coverage across:
-
-- API endpoints;
-- hierarchy/discovery;
-- scoped catalogue and reconciliation;
-- selection persistence;
-- provider parsing and normalization;
-- Jumu'ah extraction/fallback label recovery;
-- cache persistence/write suppression;
-- display presentation model;
-- per-board runtime behaviour;
-- stale-cache recovery.
-
-The full `go test ./...` suite has been repeatedly validated during development.
-
-Manual browser/runtime validation has covered:
+Manual/runtime validation now includes:
 
 - location and Masjid selection;
-- three-board comparison display;
-- Friday replacement of Dhuhr with Jumu'ah;
-- Jumu'ah chronological event display;
-- next-event countdown transitions;
-- overnight countdown rollover;
-- provider outage -> stale cached display -> recovery to current.
-
-## Deferred / Future Display Work
-
-Not required for the current default layout or branch integration:
-
-- additional selectable display layouts;
-- optional astronomical/calculation-time layouts;
-- announcements/programmes/notices/media presentation;
-- OLED or other small-display variants;
-- layout preferences and theme variants beyond the current page behaviour.
-
-These should consume the normalized MasjidBoard model/display API rather than duplicating provider logic.
+- three-board display;
+- Friday/Jumu'ah behaviour;
+- next-event and overnight countdowns;
+- provider outage/cache/recovery;
+- Raspberry Pi OS Lite HDMI display using Cog/WPE DRM;
+- display process restart recovery;
+- reboot/service restart appliance behaviour;
+- Listen-only appliance operation;
+- Board-only appliance operation;
+- combined Listen + Board operation;
+- transitions among all three component profiles;
+- component-aware API exposure and process startup;
+- component-aware installer dependencies and self-tests;
+- transactional profile/update handling and rollback;
+- Board display-service cleanup when Board is removed.
 
 ## Remaining Pre-Integration Work
 
-Before merging the research branch into the main development line, the focus should be production readiness rather than additional features:
+The major installer/component-profile and Raspberry Pi display-runtime work is now complete. Remaining work before branch integration should be focused:
 
-1. Review installation/runtime paths so all MasjidBoard state directories/files are created and preserved correctly by fresh installs and upgrades.
-2. Validate the combined Listen + Board application on Raspberry Pi hardware, including restart/reboot behaviour and resource usage.
-3. Validate first-run behaviour when MasjidBoard has never been configured and when no cache exists.
-4. Verify permissions/ownership for hierarchy, scope, catalogue, selection and per-board cache files under the production service account.
-5. Review API/frontend error handling for user-friendly messages while retaining diagnostic detail in logs/status data.
-6. Run a final full regression pass covering Listen/audio functionality to ensure MasjidBoard changes have not affected the stable playback appliance path.
-7. Perform a final documentation cleanup and integration review, then prepare the branch for merge/release planning.
+1. Verify production ownership/permissions and preservation of hierarchy, scope, catalogue, selection and per-board cache files across fresh install/update paths.
+2. Perform first-run validation with Board installed but no MasjidBoard configuration/cache.
+3. Review user-facing API/frontend error messages while retaining diagnostic detail in logs/status data.
+4. Run a final Listen/audio regression pass after the complete branch changes.
+5. Perform longer-duration Raspberry Pi stability/resource testing and practical HDMI power-cycle/reconnect testing.
+6. Complete final documentation/integration review and prepare the branch for merge/release planning.
 
-Additional display layouts and richer optional board content are explicitly **not blockers** for this integration milestone.
+Additional layouts and richer optional Board content are not blockers for this integration milestone.

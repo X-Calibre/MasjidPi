@@ -103,7 +103,6 @@ main() {
         trap cleanup_update EXIT
         prepare_update
         activate_update "$RELEASE_VERSION"
-        install_component_services
     else
         stop_service
         install_runtime

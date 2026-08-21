@@ -22,33 +22,34 @@ The current release provides:
 - Persistent settings
 - Playback, network and MPV recovery
 - Audio-device recovery
+- MasjidBoard Live masjid discovery and selection
+- Prayer and Jumu'ah timetable display
+- Up to three selected MasjidBoard displays
+- Next-event countdowns and timetable refresh
+- Last-known-good MasjidBoard cache fallback
+- Dedicated HDMI Board appliance runtime using Cog/WPE on DRM/KMS
+- Selectable Listen, Board, and Listen + Board appliance profiles
 - Raspberry Pi runtime and systemd integration
 - Pre-built release packages
 - Bundled installer
 - Upgrade installation preserving configuration and runtime data
-- Safe update workflow
-- Safer update and recovery behaviour
-- Validation of a newly installed version before considering an update successful
-- Recovery/rollback path if an update fails
-- First-run and production installation workflow improvements
-- Application-level SD-card write optimisations, including in-memory state caching, reduced logging, atomic state writes, and in-memory catalogue processing
-- Security dependency update for the Go network/HTML parsing stack
+- Safe update workflow with validation and rollback
+- Application-level SD-card write optimisations
+- Security dependency updates
 
-The v1.0.8 release was tested successfully on a Raspberry Pi 3 B and established the current stable appliance baseline. v1.0.10 added application-level SD-card write and filesystem-activity optimisations, and v1.0.11 adds the dependency security fix while retaining that baseline.
+v1.1.0 has been production-validated on a Raspberry Pi 3B running 64-bit Raspberry Pi OS Lite. The public one-line installer was tested from a clean OS installation using the Listen + Board profile. Installation, release checksum verification, both systemd services, Listen audio playback through the selected output device, and the HDMI MasjidBoard display were all verified successfully. Listen-only, Board-only, and profile-transition behaviour were also validated during pre-release appliance testing.
 
-The Updates & Recovery work and application-level SD-card write optimisation are now considered complete. Remaining reliability work should prioritise measured OS-level appliance behaviour and simplicity rather than unnecessary configuration options.
-
-MasjidBoard is being developed on `research/masjidboard-live`. The research implementation has progressed beyond the original browser-demo stage into a working Raspberry Pi appliance implementation and is now in final pre-integration validation.
+The Updates & Recovery work, application-level SD-card write optimisation, and initial MasjidBoard appliance integration are considered complete for v1.1.0. Further reliability work should be driven by measured appliance behaviour rather than unnecessary configuration.
 
 ---
 
 ## Remaining Work
 
-There are no outstanding application-level Updates & Recovery or SD-card write optimisation items at this stage.
+There are no outstanding release-blocking items for v1.1.0.
 
 OS-level SD-card behaviour should be measured on Raspberry Pi hardware before deciding whether appliance-specific changes to journald, swap, or other system services are justified.
 
-Current MasjidBoard work is focused on final production validation and integration rather than additional core functionality.
+Longer-duration appliance testing, HDMI disconnect/reconnect behaviour, and broader hardware validation can continue as ongoing reliability work without blocking the current release.
 
 ---
 
@@ -56,7 +57,7 @@ Current MasjidBoard work is focused on final production validation and integrati
 
 ### MasjidPi Core / Listen / Board
 
-MasjidPi is evolving from the original audio-focused application into a modular home appliance built around shared MasjidPi functionality and two independent capabilities: Listen and Board.
+MasjidPi is a modular home appliance built around shared MasjidPi functionality and two independent capabilities: Listen and Board.
 
 The repository remains a single MasjidPi repository. The architecture is conceptually:
 
@@ -92,7 +93,7 @@ Board contains the MasjidBoard-specific functionality:
 - HDMI display UI
 - Appliance display runtime
 
-Listen and Board remain independent capabilities. Neither subsystem requires the other to operate, and audio playback must continue operating if MasjidBoard or its upstream provider is unavailable.
+Listen and Board remain independent capabilities. Neither subsystem requires the other to operate, and audio playback continues operating if MasjidBoard or its upstream provider is unavailable.
 
 The installer supports three appliance profiles:
 
@@ -100,7 +101,7 @@ The installer supports three appliance profiles:
 - Board
 - Listen + Board
 
-Only the dependencies, backend subsystems, APIs, configuration pages and appliance services required by the selected profile should be active.
+Only the dependencies, backend subsystems, APIs, configuration pages and appliance services required by the selected profile are active.
 
 ---
 
@@ -156,7 +157,7 @@ Potential capabilities:
 
 ### MasjidBoard
 
-MasjidBoard is a separate subsystem from audio streaming and playback. The active `research/masjidboard-live` implementation now provides the main appliance functionality.
+MasjidBoard is a separate subsystem from audio streaming and playback and is included in v1.1.0.
 
 Implemented and validated capabilities include:
 
@@ -182,17 +183,10 @@ Implemented and validated capabilities include:
 - Component-aware runtime dependencies, APIs and configuration UI
 - Transactional component-profile changes with update validation and rollback protection
 - Successful Raspberry Pi appliance validation of Listen-only, Board-only and combined Listen + Board profiles
+- Successful clean production installation of v1.1.0 using the public release installer
+- Verified HDMI display output and Listen audio playback on the production installation
 
 The current display is the **default layout**, not the only long-term layout. Alternative user-selectable layouts should consume the same normalized MasjidBoard display API so presentation remains separate from provider, caching and timetable logic.
-
-Remaining pre-integration work is intentionally narrow:
-
-- Verify production ownership, permissions and preservation of MasjidBoard state across fresh installs and upgrades
-- Complete clean first-run validation with no existing MasjidBoard configuration or cache
-- Complete final user-facing error-message cleanup while retaining useful diagnostics
-- Run a final Listen/audio regression pass
-- Perform longer-duration appliance and HDMI disconnect/reconnect testing where practical
-- Complete final documentation/integration review and prepare the research branch for merge/release planning
 
 Future MasjidBoard enhancements may include:
 

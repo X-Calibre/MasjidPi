@@ -59,6 +59,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 		httpServer:        &http.Server{Addr: addr, Handler: mux},
 	}
 
+	mux.HandleFunc("/api/components", server.components)
 	mux.HandleFunc("/api/player/play", server.play)
 	mux.HandleFunc("/api/player/stop", server.stop)
 	mux.HandleFunc("/api/player/status", server.status)

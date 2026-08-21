@@ -54,6 +54,11 @@ cleanup_failed_install() {
 
     if [[ "$status" -ne 0 && "${INSTALL_MODE:-}" == "install" && "$INSTALL_SUCCEEDED" != true ]]; then
         warn "Installation did not complete. Cleaning up the application runtime..."
+
+        if systemctl is-active --quiet masjidpi-display.service 2>/dev/null; then
+            systemctl stop masjidpi-display.service || true
+        fi
+
         stop_service || true
         rm -rf "$INSTALL_DIR"
         rm -rf "$UPDATE_STAGING" "$UPDATE_BACKUP"

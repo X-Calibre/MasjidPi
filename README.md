@@ -105,12 +105,45 @@ Official pre-built releases currently support:
 
 ### Raspberry Pi
 
-| Model | Status |
-|---|---|
-| Raspberry Pi 3B | ✅ v1.1.0 production validated on 64-bit Raspberry Pi OS Lite |
-| Raspberry Pi Zero W | ❌ Not supported |
+The Raspberry Pi 3B is the current production-validated Raspberry Pi reference platform. Other models in the table below are performance expectations based on their CPU architecture, memory and the measured Pi 3B workload; they should not be treated as production-validated until tested on real hardware.
 
-Other Raspberry Pi models have not yet been fully validated.
+| Raspberry Pi product | Listen | Listen + Board | Status / expectation |
+|---|---|---|---|
+| Raspberry Pi Zero W | ❌ | ❌ | Not supported. ARMv6 platform; runtime compatibility problems have been confirmed during testing. |
+| Raspberry Pi 1 family | ❌ | ❌ | Not supported. ARMv6 platform in the same compatibility class as the Zero W. |
+| Raspberry Pi 2 Model B v1.1 | 🟡 | 🟡 | Likely capable, but older 32-bit Cortex-A7 hardware and not a priority support target. |
+| Raspberry Pi 2 Model B v1.2 | 🟢 expected | 🟡/🟢 expected | Pi 3-class Cortex-A53 architecture at a lower clock speed; expected to be usable but not validated. |
+| Raspberry Pi Zero 2 W | 🟢 expected | 🟡/🟢 expected | Strong Listen candidate. Quad-core Cortex-A53 CPU should be sufficient; 512 MB RAM is the main constraint for the full Board display stack. |
+| Raspberry Pi 3A+ | 🟢 expected | 🟡/🟢 expected | Faster Cortex-A53 CPU than the validated Pi 3B, but only 512 MB RAM. Full appliance use should be validated for memory headroom. |
+| **Raspberry Pi 3B** | **✅ validated** | **✅ validated** | Current reference platform. Comfortable CPU, RAM and thermal headroom on 64-bit Raspberry Pi OS Lite. |
+| Raspberry Pi 3B+ | 🟢 expected | 🟢 expected | Same 1 GB memory class as the Pi 3B with a faster Cortex-A53 CPU; expected to perform at least as well as the reference platform. |
+| Raspberry Pi 4 family | 🟢 expected | 🟢 expected | Substantially more CPU performance than required. 1 GB or more RAM provides ample headroom. |
+| Raspberry Pi 5 family | 🟢 expected | 🟢 expected | Far more CPU performance than MasjidPi currently requires. |
+| Compute Module 3 / 3+ | 🟢 expected | 🟢 expected | Pi 3-class platform; suitability depends on the carrier, RAM variant and required audio/display hardware. |
+| Compute Module 4 | 🟢 expected | 🟢 expected | Pi 4-class performance with ample headroom; suitable for embedded appliance designs. |
+| Compute Module 5 | 🟢 expected | 🟢 expected | Pi 5-class performance; substantially more performance than currently required. |
+
+**Legend:** ✅ production validated · 🟢 expected to run well · 🟡 expected to be usable but with limitations or additional validation required · ❌ not supported.
+
+#### Raspberry Pi 3B performance baseline
+
+A production-style **Listen + Board** installation was measured on a Raspberry Pi 3B running 64-bit Debian 13 / Raspberry Pi OS Lite-class software with four Cortex-A53 cores at up to 1.2 GHz and approximately 905 MiB usable RAM.
+
+With Listen actively running alongside the Cog/WPE MasjidBoard display:
+
+- approximately **337 MiB RAM used** and **567 MiB available**
+- **no swap usage** after a fresh boot
+- MasjidPi backend approximately **15 MiB RSS** and about **2% CPU**
+- `mpv` approximately **75–80 MiB RSS** and about **7% CPU**
+- WPE web renderer approximately **190–195 MiB RSS** and about **31% CPU** during the sample
+- CPU temperature approximately **58–60 °C**
+- `vcgencmd get_throttled` remained **`0x0`**, with no thermal or undervoltage throttling recorded
+
+With the Board display service stopped and Listen left running, system memory use fell to approximately **195 MiB**, with about **709 MiB available** and no swap use. The measured system-level overhead of enabling the Board display stack was therefore roughly **140–150 MiB** in this test.
+
+These results indicate that the Pi 3B has substantial headroom for the complete MasjidPi appliance. They also suggest that 512 MB Cortex-A53 devices such as the Pi Zero 2 W and Pi 3A+ are strong candidates: Listen should fit comfortably, while Listen + Board appears viable but still requires real-device and long-duration validation because of the reduced memory headroom.
+
+Long-duration soak testing and validation across additional Raspberry Pi models are still planned. Performance expectations above may be revised as hardware testing expands.
 
 MasjidPi requires `systemd`. Listen requires an ALSA-compatible audio device. Board requires a supported DRM/KMS display environment and the Cog/WPE packages installed by the production installer.
 

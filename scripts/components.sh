@@ -31,16 +31,24 @@ load_existing_components() {
 }
 
 select_components() {
+    local existing_profile=""
     if load_existing_components; then
-        info "Preserving installed MasjidPi component profile: $(component_profile)"
-        return 0
+        existing_profile="$(component_profile)"
     fi
 
     if [[ ! -t 0 ]]; then
+        if [[ -n "$existing_profile" ]]; then
+            info "Non-interactive installation detected; preserving installed MasjidPi component profile: $existing_profile"
+            return 0
+        fi
         info "Non-interactive installation detected; installing Listen + Board."
         INSTALL_LISTEN=true
         INSTALL_BOARD=true
         return 0
+    fi
+
+    if [[ -n "$existing_profile" ]]; then
+        printf '\nCurrent MasjidPi component profile: %s\n' "$existing_profile"
     fi
 
     cat <<'EOF'
@@ -51,10 +59,17 @@ Select MasjidPi components to install:
   3) Listen + Board
 EOF
 
+    local default_choice=3
+    case "$existing_profile" in
+        listen) default_choice=1 ;;
+        board) default_choice=2 ;;
+        listen,board) default_choice=3 ;;
+    esac
+
     local choice
     while true; do
-        read -r -p "Choice [3]: " choice
-        choice="${choice:-3}"
+        read -r -p "Choice [$default_choice]: " choice
+        choice="${choice:-$default_choice}"
         case "$choice" in
             1)
                 INSTALL_LISTEN=true

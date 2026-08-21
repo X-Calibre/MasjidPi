@@ -1,174 +1,175 @@
 # MasjidBoard Raspberry Pi Display Runtime
 
-**Status:** Initial appliance-display implementation / hardware validation required  
+**Status:** Cog/DRM appliance runtime validated on Raspberry Pi OS Lite 64-bit  
 **Branch:** `research/masjidboard-live`
 
 ## Purpose
 
-Define how the existing browser-based MasjidBoard display becomes an automatic Raspberry Pi appliance display rather than requiring a user to browse manually to `/masjidboard.html`.
+Document the working MasjidBoard HDMI appliance display runtime.
 
-The current default display remains:
+MasjidPi is intended to be a home appliance. When Board is installed, the attached HDMI display is therefore the normal MasjidBoard presentation path rather than a user manually opening the page in another browser.
+
+The display page remains:
 
 ```text
 http://127.0.0.1:8080/masjidboard.html
 ```
 
-The appliance runtime is responsible for launching that page full-screen on an attached TV/monitor after boot.
+## Validated Runtime
 
-## Current Direction
-
-The first production candidate is a Chromium kiosk running in the Raspberry Pi OS graphical session.
-
-Raspberry Pi OS uses Wayland with the `labwc` compositor by default from Bookworm onward. Raspberry Pi's current kiosk guidance also uses Chromium launched from `labwc` autostart. MasjidPi should follow that supported platform direction rather than build a separate X11-only kiosk stack.
-
-The intended runtime path is:
+The working appliance renderer is **Cog with WPE WebKit using the DRM platform directly**:
 
 ```text
-Raspberry Pi boots
+cog --platform=drm http://127.0.0.1:8080/masjidboard.html
+```
+
+This was validated on Raspberry Pi OS Lite 64-bit. A full desktop environment, Chromium, X11, Wayland compositor and graphical login session are not required.
+
+The appliance path is:
+
+```text
+Raspberry Pi OS Lite boots
         ↓
 MasjidPi backend starts
         ↓
-graphical Wayland/labwc session starts
+masjidpi-display.service starts
         ↓
-MasjidBoard kiosk launcher waits for MasjidPi HTTP API
+Cog/WPE renders directly through DRM/KMS
         ↓
-Chromium opens /masjidboard.html in kiosk mode
-        ↓
-TV/monitor shows MasjidBoard automatically
+TV/monitor shows MasjidBoard
 ```
 
-## Browser-Based Display Decision
+This is substantially better aligned with the MasjidPi appliance goal than the earlier Chromium/labwc prototype direction.
 
-The working HTML/CSS/JavaScript display is retained as the renderer for the initial appliance implementation.
+## Why Cog / WPE
 
-This avoids duplicating the presentation in SDL/framebuffer code and preserves:
+The existing HTML/CSS/JavaScript display remains the renderer, while Cog provides a lightweight embedded browser shell designed for this kind of appliance use.
+
+This preserves:
 
 - the existing responsive layout;
 - Friday/Jumu'ah behaviour;
 - per-Masjid countdowns;
 - stale/current presentation;
 - one-, two- and three-board layouts;
-- future selectable layout support through the same display API.
+- future selectable layouts through the same display API.
 
-A native renderer is not required unless later Raspberry Pi measurements show that the browser approach is unsuitable on supported hardware.
+It also avoids maintaining a second native framebuffer/SDL presentation implementation.
 
-## Initial Launcher
+## Installation
 
-The research branch contains:
+Board installations require:
 
 ```text
-scripts/masjidboard-display.sh
+cog
+libwpewebkit-2.0-1
 ```
 
-The launcher:
+The installer installs these only when Board is selected. Listen-only installations do not require Cog/WPE.
 
-- locates `chromium` or `chromium-browser`;
-- waits for the local MasjidPi API before opening the kiosk;
-- opens `http://127.0.0.1:8080/masjidboard.html` full-screen;
-- uses Wayland explicitly;
-- suppresses first-run/crash/notification browser UI;
-- stores Chromium profile/cache data under `/tmp` to avoid unnecessary persistent SD-card writes.
-
-The target URL and readiness URL can be overridden for development with:
+The installed component profile is stored in:
 
 ```text
-MASJIDBOARD_URL
-MASJIDPI_READY_URL
+/etc/masjidpi/components.env
 ```
 
-## Session Startup
-
-For Raspberry Pi OS Desktop/labwc, the intended automatic startup mechanism is the user's:
+Supported profiles are:
 
 ```text
-~/.config/labwc/autostart
+listen
+board
+listen,board
 ```
 
-The final installer is expected to add a MasjidPi-managed kiosk launch entry there, preferably through `lwrespawn` where available so the browser is relaunched after an unexpected exit.
+## Display Service
 
-Conceptually:
+Board installs use the dedicated systemd unit:
 
 ```text
-/usr/bin/lwrespawn /opt/masjidpi/bin/masjidboard-display &
+masjidpi-display.service
 ```
 
-The exact installed path and installer behaviour will be finalized after hardware testing.
+The service launches the installed display wrapper, which starts Cog against the local MasjidBoard page using the DRM platform.
 
-## Raspberry Pi OS Lite
+The service is enabled and started when Board is installed. When Board is removed from the component profile, the installer stops and disables the display service, removes its unit/runtime launcher and clears any stale failed-unit state.
 
-Existing MasjidPi audio deployments have used Raspberry Pi OS Lite. Lite does not include the complete graphical desktop/session stack required by a browser kiosk.
+The display service is configured to restart after an unexpected Cog exit. This recovery behaviour has been tested by terminating Cog and confirming that systemd launches a replacement process and the Board returns to the HDMI display.
 
-Before production integration, MasjidPi must choose and validate one of these approaches:
+## Backend Independence
 
-1. use Raspberry Pi OS Desktop for appliances that enable MasjidBoard display; or
-2. install a minimal Wayland/labwc/Chromium session on top of Lite.
+`masjidpi.service` remains the common application service because it supplies the shared HTTP/API runtime and whichever installed subsystems are enabled.
 
-The initial hardware test should determine whether the Desktop image is sufficiently lightweight on a Raspberry Pi 3 B running Listen + Board + Chromium. If resource use is acceptable, using the supported Raspberry Pi OS graphical environment is preferred over maintaining a custom minimal display stack.
-
-## Failure Isolation
-
-The display is optional relative to Listen and the MasjidBoard backend.
-
-Expected behaviour:
+Component startup is profile-aware:
 
 ```text
-No monitor / graphical display unavailable
-    -> Listen continues
-    -> MasjidBoard backend continues
+Listen only
+    -> MasjidPi backend + MPV
+    -> no Board subsystem
+    -> no Cog display
 
-Chromium exits unexpectedly
-    -> display launcher/session restarts Chromium
-    -> Listen remains unaffected
+Board only
+    -> MasjidPi backend + Board subsystem + Cog display
+    -> no MPV
+
+Listen + Board
+    -> MasjidPi backend + MPV + Board subsystem + Cog display
+```
+
+Listen and Board remain functionally independent. Board does not control playback and Listen does not require Board.
+
+## Validated Raspberry Pi Behaviour
+
+The Cog/DRM runtime has been tested successfully on Raspberry Pi hardware with an HDMI Samsung display.
+
+Validated behaviour includes:
+
+- correct MasjidBoard rendering over HDMI;
+- automatic startup under systemd;
+- Cog crash/restart recovery;
+- MasjidPi service restart while the display runtime remains operational;
+- reboot recovery;
+- Board-only operation with no MPV process;
+- Listen-only operation with no Cog process or Board API;
+- combined Listen + Board operation;
+- component-profile transitions between Listen, Board and Listen + Board;
+- component-aware installer self-tests;
+- transactional update/profile handling and rollback;
+- cleanup of the Board display service when Board is removed.
+
+During combined Listen + Board testing on a roughly 1 GB Raspberry Pi, the system retained useful available memory and ran without swap pressure during the measured test. Cog/WPE is still the largest application memory consumer, so longer-duration appliance testing remains useful, but the runtime has demonstrated that Raspberry Pi OS Lite is viable for this display approach.
+
+## Expected Failure Isolation
+
+```text
+Display process exits
+    -> systemd restarts Cog
+    -> Listen remains independent
 
 MasjidPi backend restarts
-    -> existing display may show connection interruption
-    -> page resumes when backend returns
+    -> display may temporarily lose the local page/API
+    -> display recovers when the backend returns
 
 MasjidBoard Live unavailable
-    -> cached timetable remains displayed
-    -> browser remains running
+    -> cached timetable remains available where possible
+    -> display remains running
     -> Listen remains unaffected
+
+Board not installed
+    -> no Cog/WPE display service
+    -> Board API is not registered
 ```
 
-## Hardware Support Boundary
+## Remaining Production Work
 
-Raspberry Pi's current kiosk guidance requires a Raspberry Pi 3 or newer with at least 1 GB RAM for Chromium/Firefox kiosk use. The Raspberry Pi 3 B therefore meets the documented minimum, but combined MasjidPi Listen + Board + browser resource use still needs direct measurement.
+The display runtime itself is now established. Remaining work should focus on production polish rather than replacing the renderer:
 
-## Hardware Validation Plan
+- longer-duration stability/resource testing on supported Raspberry Pi hardware;
+- monitor/HDMI power-cycle and disconnect/reconnect behaviour where practical;
+- final user-facing error presentation;
+- release/integration validation after the research branch is merged.
 
-The first full test should be on the Raspberry Pi 3 B and an HDMI TV/monitor.
-
-Validate:
-
-```text
-1. boot with monitor connected
-2. automatic graphical login/session
-3. automatic MasjidBoard kiosk launch
-4. correct 1920x1080 or monitor-native layout
-5. no visible browser chrome
-6. Listen playback operates concurrently
-7. CPU and RAM usage during idle display
-8. Chromium crash/relaunch
-9. MasjidPi service restart while kiosk remains active
-10. provider/network outage with cached display
-11. reboot recovery
-12. monitor power off/on
-13. HDMI disconnect/reconnect where practical
-```
-
-## Production Integration Still Required
-
-After the hardware prototype is validated:
-
-- install Chromium/display dependencies when Board display is enabled;
-- install the launcher into the runtime rather than running it from the source tree;
-- configure graphical auto-login/session startup;
-- add the labwc autostart entry safely and idempotently;
-- preserve user/session configuration on upgrades;
-- decide how a Listen-only appliance opts out of browser dependencies;
-- include display checks in installation/self-test where appropriate;
-- document supported Raspberry Pi OS image requirements.
+A Chromium/labwc desktop kiosk is no longer the preferred production direction for Raspberry Pi appliances. It may remain useful for development or alternative platforms, but the Raspberry Pi appliance target should use Cog/WPE DRM unless later testing establishes a concrete reason to change it.
 
 ## Future Layouts
 
-Automatic display startup is independent of layout selection. Future user-selectable MasjidBoard layouts should still be served through the same browser-based display runtime and normalized display API unless hardware testing establishes a reason to change renderer technology.
+Automatic display startup is independent of layout selection. Future user-selectable MasjidBoard layouts should continue to use the same browser-based display runtime and normalized display API unless hardware testing establishes a reason to change renderer technology.

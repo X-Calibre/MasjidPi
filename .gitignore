@@ -34,3 +34,9 @@ Thumbs.db
 backend/data/livemasjid.js
 backend/data/*.html
 backend/build/
+# Local MasjidBoard runtime state
+backend/data/masjidboard_cache/
+backend/data/masjidboard_catalogue.json
+backend/data/masjidboard_hierarchy.json
+backend/data/masjidboard_scope.json
+backend/data/masjidboard_selection.json

@@ -192,9 +192,9 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 ## Project Status
 
-**Current stable release: v1.0.11**
+**Current stable release: v1.1.0**
 
-MasjidBoard and selectable Listen/Board appliance profiles are currently being prepared for the next feature release.
+MasjidBoard and selectable Listen/Board appliance profiles are included in v1.1.0.
 
 MasjidPi has been validated on a Raspberry Pi 3B running 64-bit Raspberry Pi OS.
 

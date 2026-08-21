@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining production work, and plann
 
 ## Current Status
 
-**v1.0.11 is the current release.**
+**v1.1.0 is the current release.**
 
 The current release provides:
 

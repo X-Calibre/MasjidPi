@@ -3,14 +3,11 @@
 COMPONENTS_FILE="/etc/masjidpi/components.env"
 INSTALL_LISTEN=true
 INSTALL_BOARD=true
+PREVIOUS_COMPONENT_PROFILE=""
 
-load_existing_components() {
-    if [[ ! -f "$COMPONENTS_FILE" ]]; then
-        return 1
-    fi
+set_component_profile() {
+    local value="$1"
 
-    local value
-    value="$(sed -n 's/^MASJIDPI_COMPONENTS=//p' "$COMPONENTS_FILE" | tail -1)"
     case "$value" in
         listen)
             INSTALL_LISTEN=true
@@ -30,10 +27,21 @@ load_existing_components() {
     esac
 }
 
+load_existing_components() {
+    if [[ ! -f "$COMPONENTS_FILE" ]]; then
+        return 1
+    fi
+
+    local value
+    value="$(sed -n 's/^MASJIDPI_COMPONENTS=//p' "$COMPONENTS_FILE" | tail -1)"
+    set_component_profile "$value"
+}
+
 select_components() {
     local existing_profile=""
     if load_existing_components; then
         existing_profile="$(component_profile)"
+        PREVIOUS_COMPONENT_PROFILE="$existing_profile"
     fi
 
     if [[ ! -t 0 ]]; then
@@ -110,4 +118,14 @@ save_components() {
     printf 'MASJIDPI_COMPONENTS=%s\n' "$(component_profile)" > "$COMPONENTS_FILE"
     chmod 0644 "$COMPONENTS_FILE"
     success "Installed component profile saved to $COMPONENTS_FILE."
+}
+
+restore_previous_components() {
+    if [[ -z "$PREVIOUS_COMPONENT_PROFILE" ]]; then
+        return 0
+    fi
+
+    set_component_profile "$PREVIOUS_COMPONENT_PROFILE" || return 1
+    save_components
+    info "Restored previous MasjidPi component profile: $PREVIOUS_COMPONENT_PROFILE"
 }

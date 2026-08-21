@@ -6,7 +6,7 @@
     <title>MasjidPi</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-component-page="listen">
 <div class="container">
     <header>
         <div class="header-row">
@@ -15,7 +15,7 @@
                 <p>Masjid Audio Streaming</p>
             </div>
             <div class="header-actions">
-                <a class="nav-button" href="masjidboard-config.html">MasjidBoard</a>
+                <a class="nav-button" data-component="board" href="masjidboard-config.html">MasjidBoard</a>
                 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
             </div>
         </div>
@@ -87,6 +87,7 @@
 </div>
 
 <div id="toastContainer" class="toast-container"></div>
+<script src="components-ui.js"></script>
 <script src="app.js"></script>
 <script src="volume-control.js"></script>
 <script src="masjid-selector.js"></script>

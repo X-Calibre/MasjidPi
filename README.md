@@ -46,13 +46,23 @@ Only the dependencies, backend subsystems, APIs, configuration pages and applian
 
 ## Screenshots
 
-MasjidPi v1.1.0 includes both the Listen configuration interface and the dedicated MasjidBoard HDMI display. Updated screenshots of the current v1.1.0 interfaces will be added here.
+### MasjidBoard HDMI display
 
-<!-- Suggested screenshot set:
-- Listen Web UI showing masjid selection/playback and audio-device controls
-- MasjidBoard configuration UI showing selected masjids
-- MasjidBoard HDMI display with a three-masjid layout
--->
+The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. The default three-masjid layout shows Adhan/Jamaah times, Friday Jumu'ah information and next-event countdowns.
+
+![MasjidBoard three-masjid HDMI display](docs/images/masjidboard-display.png)
+
+### MasjidBoard configuration
+
+The configuration interface lets you choose up to three locations and MasjidBoards, order them for the HDMI display, refresh timetable data and see the current cache/update status.
+
+![MasjidBoard configuration interface](docs/images/masjidboard-configuration.png)
+
+### Listen
+
+Listen provides live masjid audio streaming with favourites, catalogue search, playback controls, volume and audio-output selection.
+
+![MasjidPi Listen interface](docs/images/masjidpi-listen.png)
 
 ## Installation
 

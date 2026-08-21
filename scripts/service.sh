@@ -65,9 +65,12 @@ start_service() {
 
     if $INSTALL_BOARD; then
         info "Starting MasjidBoard display service..."
-        systemctl restart masjidpi-display.service
+        if ! systemctl restart masjidpi-display.service; then
+            error "MasjidBoard display service failed to start."
+            journalctl -u masjidpi-display.service --no-pager -n 20 || true
+            return 1
+        fi
     fi
 
     success "MasjidPi service started."
-
 }

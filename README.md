@@ -1,14 +1,19 @@
 # MasjidPi
 
-MasjidPi is a lightweight internet radio for Raspberry Pi, designed for listening to live masjid streams from around the world.
+MasjidPi is a lightweight home appliance for staying connected to your masjid.
 
-It provides a simple web interface for finding masājid, selecting streams, managing favourites and controlling playback.
+It can be installed with one or both of two independent capabilities:
 
-![MasjidPi Web Interface](docs/images/UI-v1.0.11.png)
+- **Listen** — live masjid audio streaming, favourites, playback recovery, volume control and audio-device selection.
+- **Board** — prayer and Jumu'ah times displayed as a dedicated HDMI MasjidBoard appliance.
+
+The two capabilities share the same MasjidPi core but remain independently operable.
 
 ## Features
 
-- Browse and search live masjid streams
+### Listen
+
+- Browse and search LiveMasjid streams
 - Save favourite masājid
 - Play and stop streams
 - Select the audio output device
@@ -16,8 +21,28 @@ It provides a simple web interface for finding masājid, selecting streams, mana
 - Automatic recovery from audio-device interruptions
 - Persistent settings and favourites
 - Resume playback after reboot
-- Run as a system service
-- Update the LiveMasjid catalogue from the Web UI
+
+### Board
+
+- Masjid search and selection through MasjidBoard Live
+- Prayer and Jumu'ah timetable display
+- Up to three selected masjids
+- Responsive one-, two- and three-board HDMI layouts
+- Next-event countdowns
+- Automatic timetable refresh
+- Last-known-good cache fallback during upstream outages
+- Dedicated Raspberry Pi OS Lite display runtime using Cog/WPE directly on DRM/KMS
+- Automatic display startup and recovery through systemd
+
+### Appliance profiles
+
+The installer offers three profiles:
+
+1. Listen
+2. Board
+3. Listen + Board
+
+Only the dependencies, backend subsystems, APIs, configuration pages and appliance services required by the selected profile are enabled.
 
 ## Installation
 
@@ -29,13 +54,13 @@ Install the latest official release with:
 curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
-The installer automatically detects the supported CPU architecture, checks the local installation environment, downloads the latest release, verifies its checksum, installs MasjidPi as a system service and validates the running installation before reporting success.
+On an interactive terminal, the installer prompts you to choose **Listen**, **Board**, or **Listen + Board**. It detects the supported CPU architecture, verifies the downloaded release, installs the selected appliance profile and validates the running installation before reporting success.
 
 **No Git checkout or Go installation is required.**
 
 For detailed installation information, see the [Installation Guide](docs/INSTALL.md).
 
-### Open the Web UI
+### Configuration Web UI
 
 Once installed, open MasjidPi from another device on the same network:
 
@@ -49,7 +74,7 @@ For example:
 http://192.168.1.50:8080
 ```
 
-The browser is only a remote control. It does not need to remain open for MasjidPi to continue playing or recovering from interruptions.
+The configuration UI only exposes pages relevant to the installed component profile. The browser does not need to remain open for Listen playback or the Board HDMI display to continue operating.
 
 ## Supported Hardware
 
@@ -67,54 +92,52 @@ Official pre-built releases currently support:
 
 Other Raspberry Pi models have not yet been fully validated.
 
-MasjidPi requires an ALSA-compatible audio device and `systemd`.
+MasjidPi requires `systemd`. Listen requires an ALSA-compatible audio device. Board requires a supported DRM/KMS display environment and the Cog/WPE packages installed by the production installer.
 
 ## How It Works
 
-MasjidPi runs entirely on the Raspberry Pi.
+MasjidPi runs as an appliance service on the host device.
 
-The Raspberry Pi stores:
-
-- configuration
-- favourites
-- selected stream
-- playback state
-- the local masjid catalogue
-
-Your phone, tablet or computer simply connects to the Web UI.
-
-This means multiple devices can control the same MasjidPi installation without each device maintaining its own settings.
-
-## Configuration
-
-Persistent configuration is stored in:
-
-```text
-/etc/masjidpi/config.yaml
-```
-
-The active masjid catalogue is stored in:
-
-```text
-/var/lib/masjidpi/catalogue.json
-```
-
-Application files are installed under:
+Shared application files are installed under:
 
 ```text
 /opt/masjidpi
 ```
 
+Persistent configuration is stored under:
+
+```text
+/etc/masjidpi/config.yaml
+```
+
+Installed component profile state is stored under:
+
+```text
+/etc/masjidpi/components.env
+```
+
+Persistent runtime data is stored under:
+
+```text
+/var/lib/masjidpi
+```
+
 The Web UI runs on port `8080`.
 
-The **Update Catalogue** button in the Web UI downloads the latest LiveMasjid catalogue and updates the active catalogue automatically.
+When Board is installed, `masjidpi-display.service` launches Cog directly on DRM/KMS and displays the local MasjidBoard page over HDMI. When Board is not installed, that service is absent.
 
 ## Useful Commands
 
-Check the service:
+Check the main service:
 
 ```bash
 sudo systemctl status masjidpi --no-pager
+```
+
+Check the Board display service when Board is installed:
+
+```bash
+sudo systemctl status masjidpi-display --no-pager
 ```
 
 View logs:
@@ -129,21 +152,27 @@ Restart MasjidPi:
 sudo systemctl restart masjidpi
 ```
 
-Check playback status:
+Check installed components:
+
+```bash
+curl -s http://127.0.0.1:8080/api/components
+```
+
+Listen installations can check playback status with:
 
 ```bash
 curl -s http://127.0.0.1:8080/api/player/status
 ```
 
-## Development
-
-MasjidPi is written in Go with a web-based frontend.
-
-Run from the source tree:
+Board installations can check Board status with:
 
 ```bash
-make run
+curl -s http://127.0.0.1:8080/api/masjidboard/status
 ```
+
+## Development
+
+MasjidPi is written in Go with a web-based configuration frontend.
 
 Run tests:
 
@@ -159,21 +188,23 @@ cd MasjidPi
 sudo ./scripts/install.sh --source
 ```
 
-See [ROADMAP.md](ROADMAP.md) for the current development roadmap.
+See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/MasjidBoard/` for detailed MasjidBoard design and implementation notes.
 
 ## Project Status
 
 **Current stable release: v1.0.11**
 
-MasjidPi is actively developed and has been validated on a Raspberry Pi 3B running 64-bit ARM64 Linux.
+MasjidBoard and selectable Listen/Board appliance profiles are currently being prepared for the next feature release.
+
+MasjidPi has been validated on a Raspberry Pi 3B running 64-bit Raspberry Pi OS.
 
 ## Acknowledgements
 
 MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal). We gratefully acknowledge the eBilal contributors and the work they did to make a Raspberry Pi-based masjid audio receiver available as an open-source project.
 
-MasjidPi relies on [LiveMasjid](https://www.livemasjid.com/) for the live masjid streams and the related stream and status data that make the service possible. We gratefully acknowledge the LiveMasjid team for providing and maintaining this service.
+MasjidPi relies on [LiveMasjid](https://www.livemasjid.com/) for live masjid streams and stream-status data, and on [MasjidBoard Live](https://masjidboardlive.com/) for MasjidBoard timetable data. We gratefully acknowledge the teams maintaining these services.
 
-MasjidPi is an independent project and is not affiliated with or endorsed by eBilal or LiveMasjid.
+MasjidPi is an independent project and is not affiliated with or endorsed by eBilal, LiveMasjid or MasjidBoard Live.
 
 ## License
 

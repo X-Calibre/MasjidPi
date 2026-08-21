@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 source "$SCRIPT_DIR/os.sh"
 source "$SCRIPT_DIR/version.sh"
+source "$SCRIPT_DIR/components.sh"
 source "$SCRIPT_DIR/packages.sh"
 source "$SCRIPT_DIR/go.sh"
 source "$SCRIPT_DIR/github.sh"
@@ -70,6 +71,7 @@ main() {
     detect_os
     detect_arch
     detect_install_mode
+    select_components
 
     if [ "$INSTALL_MODE" = "install" ]; then
         info "Fresh installation detected."
@@ -90,14 +92,18 @@ main() {
         prepare_release
     fi
 
+    save_components
+
     if [ "$INSTALL_MODE" = "update" ]; then
         trap cleanup_update EXIT
         prepare_update
         activate_update "$RELEASE_VERSION"
+        install_component_services
     else
         stop_service
         install_runtime
         install_service
+        install_component_services
         start_service
         run_selftest "$RELEASE_VERSION"
     fi

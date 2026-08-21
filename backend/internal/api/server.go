@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
@@ -42,6 +43,7 @@ type Server struct {
 func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir(frontend))
+	installed := components.Current()
 
 	preferencesPath := "/var/lib/masjidpi/preferences.json"
 	if home := os.Getenv("MASJIDPI_HOME"); home != "" {
@@ -59,36 +61,45 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 		httpServer:        &http.Server{Addr: addr, Handler: mux},
 	}
 
+	// Core appliance APIs are always available.
 	mux.HandleFunc("/api/components", server.components)
-	mux.HandleFunc("/api/player/play", server.play)
-	mux.HandleFunc("/api/player/stop", server.stop)
-	mux.HandleFunc("/api/player/status", server.status)
-	mux.HandleFunc("/api/player/volume", server.volume)
-	mux.HandleFunc("/api/streams", server.streamsList)
-	mux.HandleFunc("/api/favourites", server.favouritesHandler)
-	mux.HandleFunc("/api/preferences", server.preferencesHandler)
-	mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
-	mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
-	mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
-	mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
-	mux.HandleFunc("/api/masjidboard/hierarchy", server.masjidBoardHierarchy)
-	mux.HandleFunc("/api/masjidboard/hierarchy/refresh", server.masjidBoardHierarchyRefresh)
-	mux.HandleFunc("/api/masjidboard/scope", server.masjidBoardScope)
-	mux.HandleFunc("/api/masjidboard/catalogue", server.masjidBoardCatalogue)
-	mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
-	mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
 	mux.HandleFunc("/api/version", server.version)
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		components := currentInstalledComponents()
 
+	// Listen APIs only exist when the Listen component is installed. This keeps
+	// Board-only appliances from exposing non-functional playback surfaces.
+	if installed.Listen {
+		mux.HandleFunc("/api/player/play", server.play)
+		mux.HandleFunc("/api/player/stop", server.stop)
+		mux.HandleFunc("/api/player/status", server.status)
+		mux.HandleFunc("/api/player/volume", server.volume)
+		mux.HandleFunc("/api/streams", server.streamsList)
+		mux.HandleFunc("/api/favourites", server.favouritesHandler)
+		mux.HandleFunc("/api/preferences", server.preferencesHandler)
+		mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
+	}
+
+	// Board APIs only exist when the Board component is installed.
+	if installed.Board {
+		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
+		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
+		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
+		mux.HandleFunc("/api/masjidboard/hierarchy", server.masjidBoardHierarchy)
+		mux.HandleFunc("/api/masjidboard/hierarchy/refresh", server.masjidBoardHierarchyRefresh)
+		mux.HandleFunc("/api/masjidboard/scope", server.masjidBoardScope)
+		mux.HandleFunc("/api/masjidboard/catalogue", server.masjidBoardCatalogue)
+		mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
+		mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
+	}
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/", "/index.html":
-			if !components.Listen && components.Board {
+			if !installed.Listen && installed.Board {
 				http.Redirect(w, r, "/masjidboard-config.html", http.StatusTemporaryRedirect)
 				return
 			}
 		case "/masjidboard-config.html", "/masjidboard.html":
-			if !components.Board {
+			if !installed.Board {
 				http.Redirect(w, r, "/index.html", http.StatusTemporaryRedirect)
 				return
 			}

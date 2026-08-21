@@ -28,3 +28,7 @@ jobs:
       - name: Run Go tests
         working-directory: backend
         run: go test ./...
+
+      - name: Validate shell scripts
+        shell: bash
+        run: bash -n scripts/*.sh

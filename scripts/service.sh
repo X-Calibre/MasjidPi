@@ -16,6 +16,31 @@ install_service() {
     success "Systemd service installed and enabled."
 }
 
+install_component_services() {
+    if $INSTALL_BOARD; then
+        if [[ ! -f "$PROJECT_ROOT/scripts/masjidboard-display.sh" || ! -f "$PROJECT_ROOT/scripts/masjidpi-display.service" ]]; then
+            die "MasjidBoard display runtime files are missing."
+        fi
+
+        install -m 0755 "$PROJECT_ROOT/scripts/masjidboard-display.sh" \
+            /opt/masjidpi/bin/masjidboard-display
+        install -m 0644 "$PROJECT_ROOT/scripts/masjidpi-display.service" \
+            /etc/systemd/system/masjidpi-display.service
+
+        systemctl daemon-reload
+        systemctl enable masjidpi-display.service
+        success "MasjidBoard display service installed and enabled."
+    else
+        if systemctl list-unit-files masjidpi-display.service >/dev/null 2>&1; then
+            systemctl disable --now masjidpi-display.service || true
+        fi
+        rm -f /etc/systemd/system/masjidpi-display.service
+        rm -f /opt/masjidpi/bin/masjidboard-display
+        systemctl daemon-reload
+        systemctl reset-failed masjidpi-display.service 2>/dev/null || true
+    fi
+}
+
 stop_service() {
 
     if systemctl is-active --quiet masjidpi; then
@@ -39,6 +64,14 @@ start_service() {
         return 1
     fi
 
-    success "MasjidPi service started."
+    if $INSTALL_BOARD; then
+        info "Starting MasjidBoard display service..."
+        if ! systemctl restart masjidpi-display.service; then
+            error "MasjidBoard display service failed to start."
+            journalctl -u masjidpi-display.service --no-pager -n 20 || true
+            return 1
+        fi
+    fi
 
+    success "MasjidPi service started."
 }

@@ -8,14 +8,23 @@ For a supported 64-bit Linux system, install the latest official release with:
 curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
+On an interactive terminal, the production installer prompts for the appliance profile:
+
+1. Listen
+2. Board
+3. Listen + Board
+
 The bootstrap installer:
 
 1. Detects the CPU architecture.
 2. Retrieves the latest GitHub release.
 3. Downloads the matching release archive and `SHA256SUMS`.
 4. Verifies the release checksum before extraction.
-5. Validates the release contents.
-6. Runs the bundled production installer.
+5. Validates required release contents.
+6. Reconnects the bundled installer to the controlling terminal when available so component selection remains interactive.
+7. Runs the bundled production installer.
+
+If no controlling terminal is available, the installer uses its documented non-interactive default profile.
 
 No Git checkout or Go installation is required for an official release.
 
@@ -31,9 +40,14 @@ The production installer expects:
 - Debian, Ubuntu, Linux Mint or Raspberry Pi OS
 - `systemd` running as PID 1
 - `apt-get`
-- an ALSA-compatible audio device
 
-Raspberry Pi 3B has been validated with 64-bit Raspberry Pi OS.
+Component-specific requirements are installed only when needed:
+
+- **Listen** installs MPV, FFmpeg and ALSA tools and requires an ALSA-compatible audio device for playback.
+- **Board** installs Cog and WPE WebKit and uses a DRM/KMS display runtime for the dedicated HDMI board.
+- **Listen + Board** installs both dependency sets.
+
+Raspberry Pi 3B has been validated with 64-bit Raspberry Pi OS. Board has also been validated as a dedicated Raspberry Pi OS Lite HDMI appliance using Cog/WPE directly on DRM/KMS.
 
 32-bit ARM (`armv6l` / `armv7l`) does not currently have an official pre-built release.
 
@@ -51,38 +65,74 @@ Persistent configuration is stored under:
 /etc/masjidpi/config.yaml
 ```
 
-The active LiveMasjid catalogue is stored under:
+The installed component profile is stored under:
 
 ```text
-/var/lib/masjidpi/catalogue.json
+/etc/masjidpi/components.env
 ```
 
-The installer installs and enables:
+Persistent runtime data is stored under:
+
+```text
+/var/lib/masjidpi
+```
+
+The main application service is:
 
 ```text
 masjidpi.service
 ```
 
+When Board is installed, the installer also installs and enables:
+
+```text
+masjidpi-display.service
+```
+
+When Board is removed from the selected profile, the display service and launcher are removed and stale systemd failure state is cleared.
+
 The Web UI listens on port `8080`.
 
-Existing configuration and catalogue data are preserved when upgrading an existing installation.
+Existing configuration and runtime data are preserved when upgrading an existing installation or changing component profile.
 
 ## Installation validation
 
 The installer does not consider installation successful merely because the systemd service starts.
 
-After starting MasjidPi it verifies:
+Every profile validates:
 
-- the systemd service is running
+- the main systemd service is running
 - the HTTP interface responds
 - the `/api/version` endpoint responds
 - the running version matches the expected release version
-- the player status endpoint responds
-- an ALSA audio device is available when one is exposed by the system
+
+Listen profiles additionally validate:
+
+- `/api/player/status` responds
+- an audio device is reported when one is exposed by the system
+
+Board profiles additionally validate:
+
+- `/api/masjidboard/status` responds
+- `masjidpi-display.service` reaches the running state
+
+The self-test is component-aware, so APIs and hardware belonging to an uninstalled component are not required.
 
 If a fresh installation fails, the installer removes the incomplete application runtime rather than leaving a partially installed `/opt/masjidpi` tree behind.
 
-For an existing installation, the safe update workflow stages the new runtime, validates it, and automatically rolls back to the previous runtime if validation fails.
+For an existing installation, the safe update workflow stages the new runtime, applies the selected component profile, validates the result and automatically restores the previous runtime/profile if validation fails.
+
+## Changing component profile
+
+Re-run the installer on an existing installation to change between:
+
+- Listen
+- Board
+- Listen + Board
+
+The current profile is shown as the default selection. Profile changes are transactional and preserve persistent configuration/data.
+
+For example, changing from Board to Listen removes the Cog display service and starts the MPV playback subsystem. Changing from Listen to Board removes the MPV runtime subsystem and installs the display service.
 
 ## Source installation
 
@@ -94,14 +144,20 @@ cd MasjidPi
 sudo ./scripts/install.sh --source
 ```
 
-It builds MasjidPi locally and then uses the same service installation and validation workflow as a release installation.
+It builds MasjidPi locally and then uses the same component selection, service installation and validation workflow as a release installation.
 
 ## Troubleshooting
 
-Check the service:
+Check the main service:
 
 ```bash
 sudo systemctl status masjidpi --no-pager
+```
+
+Check the Board display service when Board is installed:
+
+```bash
+sudo systemctl status masjidpi-display --no-pager
 ```
 
 View recent logs:
@@ -110,17 +166,28 @@ View recent logs:
 sudo journalctl -u masjidpi --no-pager -n 100
 ```
 
-Follow logs while troubleshooting:
+Follow Board display logs:
 
 ```bash
-sudo journalctl -u masjidpi -f
+sudo journalctl -u masjidpi-display -f
 ```
 
-Check the local API:
+Check installed components:
 
 ```bash
-curl -s http://127.0.0.1:8080/api/version
+curl -s http://127.0.0.1:8080/api/components
+```
+
+For Listen:
+
+```bash
 curl -s http://127.0.0.1:8080/api/player/status
+```
+
+For Board:
+
+```bash
+curl -s http://127.0.0.1:8080/api/masjidboard/status
 ```
 
 If installation stops before MasjidPi is running, correct the reported prerequisite or systemd problem and run the installer again.

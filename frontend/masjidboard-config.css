@@ -1,0 +1,245 @@
+.config-intro {
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: -8px;
+    margin-bottom: 18px;
+}
+
+.section-heading-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+.section-heading-row > div { flex: 1; }
+.compact-button { flex: 0 0 auto; padding: 10px 12px; font-size: 14px; }
+
+.location-configuration {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.location-row {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--field);
+    padding: 16px;
+}
+.location-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.location-row-title { font-weight: bold; }
+.location-remove {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    font-size: 13px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+.location-remove:hover { background: var(--field-hover); color: var(--text); }
+
+.location-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+.location-field label { margin-top: 0; font-size: 13px; }
+.location-field select:disabled { opacity: .55; cursor: not-allowed; }
+
+.configuration-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+.configuration-actions button { flex: 1; }
+.config-meta {
+    display: block;
+    margin-top: 12px;
+    color: var(--subtle);
+    line-height: 1.4;
+}
+.config-banner {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--field);
+}
+.config-banner.success { color: var(--accent); }
+.config-banner.error { color: #ff8a8a; }
+.config-banner.warning { color: var(--warning); }
+
+.board-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.selected-board-row {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--field);
+}
+.selected-board-order {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-weight: bold;
+    color: var(--accent);
+}
+.selected-board-details {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.selected-board-details strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.selected-board-details small { color: var(--subtle); }
+.selected-board-details small.board-outside-scope { color: var(--warning); }
+.selected-board-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.board-order-button,
+.board-remove-button {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    font-size: 13px;
+}
+.board-order-button { min-width: 36px; }
+
+.board-picker {
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+}
+.board-picker label { margin-top: 14px; }
+.board-picker input[type="search"] { margin-bottom: 10px; }
+.board-picker select {
+    min-height: 190px;
+    padding: 6px;
+}
+.board-picker select option { padding: 9px 8px; }
+.board-picker .config-meta { margin: 8px 0 10px; }
+.board-picker > button { width: 100%; }
+.board-save-actions { margin-top: 12px; }
+
+.status-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.status-summary .status-board-detail {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--field);
+}
+.status-board-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+.status-board-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--field);
+}
+.status-board-state { color: var(--muted); text-transform: capitalize; }
+.status-board-state.current { color: var(--accent); }
+.status-board-state.stale { color: var(--warning); }
+.status-board-state.unavailable { color: #ff8a8a; }
+
+.status-board-list-detailed {
+    gap: 12px;
+    margin-top: 0;
+}
+.status-board-card {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--field);
+}
+.status-board-card.status-stale { border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.status-board-card.status-unavailable { border-color: rgba(255, 138, 138, .45); }
+.status-board-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+}
+.status-board-name {
+    min-width: 0;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+.status-board-details {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+.status-board-detail {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.35;
+}
+.status-board-detail-label { flex: 1 1 auto; }
+.status-board-detail-value {
+    flex: 0 1 auto;
+    color: var(--text);
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+.status-board-detail.error .status-board-detail-value { color: #ff8a8a; }
+.status-board-note {
+    padding: 8px 10px;
+    border-radius: 7px;
+    background: var(--card);
+    color: var(--muted);
+    font-size: 13px;
+}
+.status-board-note.warning { color: var(--warning); }
+.status-board-note.error { color: #ff8a8a; }
+
+@media (max-width: 680px) {
+    .section-heading-row { flex-direction: column; }
+    .compact-button { width: 100%; }
+    .location-fields { grid-template-columns: 1fr; }
+    .configuration-actions { flex-direction: column; }
+    .selected-board-row { grid-template-columns: 30px minmax(0, 1fr); }
+    .selected-board-actions { grid-column: 1 / -1; justify-content: flex-end; }
+    .status-summary { grid-template-columns: 1fr; }
+    .status-board-heading,
+    .status-board-detail { align-items: flex-start; }
+    .status-board-detail { flex-direction: column; gap: 3px; }
+    .status-board-detail-value { text-align: left; }
+}

@@ -10,6 +10,7 @@ User=root
 WorkingDirectory=/opt/masjidpi
 
 Environment=MASJIDPI_HOME=/opt/masjidpi
+EnvironmentFile=-/etc/masjidpi/components.env
 
 ExecStart=/opt/masjidpi/bin/masjidpi
 

@@ -47,9 +47,19 @@ rollback_update() {
         return 1
     fi
 
+    if ! restore_previous_components; then
+        error "Unable to restore the previous MasjidPi component profile."
+        return 1
+    fi
+
+    if ! install_component_services; then
+        error "Unable to restore component services during rollback."
+        return 1
+    fi
+
     if start_service && run_selftest; then
         rm -f "$UPDATE_MARKER"
-        success "Previous MasjidPi version restored successfully."
+        success "Previous MasjidPi version and component profile restored successfully."
         return 0
     fi
 
@@ -82,6 +92,8 @@ activate_update() {
             die "Previous MasjidPi runtime could not be restored."
         fi
 
+        restore_previous_components || true
+        install_component_services || true
         rm -f "$UPDATE_MARKER"
 
         if start_service && run_selftest; then
@@ -91,7 +103,7 @@ activate_update() {
         die "Update cancelled and previous MasjidPi runtime failed validation."
     fi
 
-    if start_service && run_selftest "$expected_version"; then
+    if install_component_services && start_service && run_selftest "$expected_version"; then
         rm -rf "$UPDATE_BACKUP"
         rm -f "$UPDATE_MARKER"
         success "MasjidPi ${expected_version} installed and validated."

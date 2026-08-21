@@ -44,19 +44,48 @@ run_selftest() {
 
     success "Application version verified."
 
-    info "Checking player status endpoint..."
+    if $INSTALL_LISTEN; then
+        info "Checking player status endpoint..."
 
-    if ! curl -fs http://localhost:8080/api/player/status >/dev/null 2>&1; then
-        error "Player status endpoint failed."
-        return 1
+        if ! curl -fs http://localhost:8080/api/player/status >/dev/null 2>&1; then
+            error "Player status endpoint failed."
+            return 1
+        fi
+
+        success "Player status endpoint is responding."
+
+        if aplay -l >/dev/null 2>&1; then
+            success "Audio device detected."
+        else
+            warn "No audio device found."
+        fi
     fi
 
-    success "Player status endpoint is responding."
+    if $INSTALL_BOARD; then
+        info "Checking MasjidBoard status endpoint..."
 
-    if aplay -l >/dev/null 2>&1; then
-        success "Audio device detected."
-    else
-        warn "No audio device found."
+        if ! curl -fs http://localhost:8080/api/masjidboard/status >/dev/null 2>&1; then
+            error "MasjidBoard status endpoint failed."
+            return 1
+        fi
+
+        success "MasjidBoard status endpoint is responding."
+
+        info "Checking MasjidBoard display service..."
+
+        for i in {1..50}; do
+            if systemctl is-active --quiet masjidpi-display.service; then
+                success "MasjidBoard display service is running."
+                break
+            fi
+            sleep 0.2
+        done
+
+        if ! systemctl is-active --quiet masjidpi-display.service; then
+            error "MasjidBoard display service is not running."
+            journalctl -u masjidpi-display.service --no-pager -n 20 || true
+            return 1
+        fi
     fi
 
     success "Self test passed."

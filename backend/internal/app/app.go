@@ -10,6 +10,7 @@ import (
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/api"
 	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
+	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
 	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
@@ -35,6 +36,26 @@ func Run() error {
 		return fmt.Errorf("load configuration: %w", err)
 	}
 	log.Info("Configuration loaded")
+
+	installed := components.Current()
+	log.Info("Installed component profile", "listen", installed.Listen, "board", installed.Board)
+	if !installed.Listen && !installed.Board {
+		return fmt.Errorf("no MasjidPi components are installed")
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	// A Board-only appliance does not initialize the stream catalogue, MPV,
+	// playback persistence, audio-device monitoring, or LiveMasjid status feed.
+	if !installed.Listen {
+		server := api.New(cfg.HTTP.Address, log, nil, nil, nil, paths.Frontend, paths.Catalogue, paths.DataRoot)
+		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
+		server.SetMasjidBoardService(masjidBoardService)
+		server.SetMasjidBoardMaintenance(masjidBoardMaintenance)
+		server.SetMasjidBoardConfigurationPaths(paths.MasjidBoardHierarchy, paths.MasjidBoardScope, paths.MasjidBoardCatalogue)
+		return runHTTPServer(ctx, server, log)
+	}
 
 	streamStore, err := stream.New(paths.Catalogue)
 	if err != nil {
@@ -104,9 +125,6 @@ func Run() error {
 	log.Info("Player status", "status", status)
 	log.Info("Connected to MPV", "version", mpvVersion)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
 	liveStatus := livestatus.New("livemasjid.com", 1883, log)
 	liveStatus.Start(ctx)
 	defer liveStatus.Close()
@@ -120,6 +138,14 @@ func Run() error {
 	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
 	server.SetAudioDeviceState(audioDeviceState)
 
+	// MasjidBoard remains completely absent on Listen-only appliances.
+	if installed.Board {
+		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
+		server.SetMasjidBoardService(masjidBoardService)
+		server.SetMasjidBoardMaintenance(masjidBoardMaintenance)
+		server.SetMasjidBoardConfigurationPaths(paths.MasjidBoardHierarchy, paths.MasjidBoardScope, paths.MasjidBoardCatalogue)
+	}
+
 	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)
 	if err != nil {
 		return fmt.Errorf("parse catalogue refresh interval: %w", err)
@@ -129,6 +155,13 @@ func Run() error {
 	}
 	go monitorCatalogueRefresh(ctx, catalogueRefreshInterval, paths.Catalogue, streamStore, log)
 
+	return runHTTPServer(ctx, server, log)
+}
+
+func runHTTPServer(ctx context.Context, server *api.Server, log interface {
+	Info(msg string, args ...any)
+	Error(msg string, args ...any)
+}) error {
 	go func() {
 		<-ctx.Done()
 		log.Info("Shutdown requested")

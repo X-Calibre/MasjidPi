@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 source "$SCRIPT_DIR/os.sh"
 source "$SCRIPT_DIR/version.sh"
+source "$SCRIPT_DIR/components.sh"
 source "$SCRIPT_DIR/packages.sh"
 source "$SCRIPT_DIR/go.sh"
 source "$SCRIPT_DIR/github.sh"
@@ -53,6 +54,11 @@ cleanup_failed_install() {
 
     if [[ "$status" -ne 0 && "${INSTALL_MODE:-}" == "install" && "$INSTALL_SUCCEEDED" != true ]]; then
         warn "Installation did not complete. Cleaning up the application runtime..."
+
+        if systemctl is-active --quiet masjidpi-display.service 2>/dev/null; then
+            systemctl stop masjidpi-display.service || true
+        fi
+
         stop_service || true
         rm -rf "$INSTALL_DIR"
         rm -rf "$UPDATE_STAGING" "$UPDATE_BACKUP"
@@ -70,6 +76,7 @@ main() {
     detect_os
     detect_arch
     detect_install_mode
+    select_components
 
     if [ "$INSTALL_MODE" = "install" ]; then
         info "Fresh installation detected."
@@ -90,6 +97,8 @@ main() {
         prepare_release
     fi
 
+    save_components
+
     if [ "$INSTALL_MODE" = "update" ]; then
         trap cleanup_update EXIT
         prepare_update
@@ -98,6 +107,7 @@ main() {
         stop_service
         install_runtime
         install_service
+        install_component_services
         start_service
         run_selftest "$RELEASE_VERSION"
     fi

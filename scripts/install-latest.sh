@@ -66,8 +66,20 @@ main() {
     [[ -f "$release_dir/VERSION" ]] || die "Release version file is missing."
     [[ -f "$release_dir/frontend/index.html" ]] || die "Release frontend is missing."
     [[ -x "$release_dir/scripts/install.sh" ]] || die "Release installer is missing."
+    [[ -f "$release_dir/scripts/masjidpi.service" ]] || die "Release service file is missing."
+    [[ -f "$release_dir/scripts/masjidpi-display.service" ]] || die "MasjidBoard display service file is missing."
 
     info "Installing MasjidPi ${latest_tag}..."
+
+    # The recommended install command pipes this bootstrap script into bash,
+    # which means stdin is not a TTY. Reconnect the bundled installer to the
+    # controlling terminal when one exists so users are prompted to choose
+    # Listen, Board, or Listen + Board. Unattended installs retain the bundled
+    # installer's documented non-interactive default.
+    if [[ -r /dev/tty && -w /dev/tty ]]; then
+        exec "$release_dir/scripts/install.sh" </dev/tty >/dev/tty
+    fi
+
     exec "$release_dir/scripts/install.sh"
 }
 

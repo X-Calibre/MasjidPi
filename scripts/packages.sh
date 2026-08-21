@@ -15,13 +15,13 @@ install_packages() {
         ca-certificates \
         tar
 
-    # The backend currently initializes the playback subsystem for every
-    # profile. Keep its runtime dependencies installed until Listen is fully
-    # split from the common backend lifecycle.
-    apt-get install -y \
-        mpv \
-        ffmpeg \
-        alsa-utils
+    if $INSTALL_LISTEN; then
+        info "Installing Listen runtime dependencies..."
+        apt-get install -y \
+            mpv \
+            ffmpeg \
+            alsa-utils
+    fi
 
     if $INSTALL_BOARD; then
         info "Installing MasjidBoard display dependencies..."

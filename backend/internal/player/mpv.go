@@ -67,11 +67,8 @@ func (m *MPV) Close() error {
 
 func (m *MPV) execute(command ...any) (*Response, error) {
 	cmd := Command{Command: command}
-	if err := m.ipc.Send(cmd); err != nil {
-		return nil, err
-	}
 	var resp Response
-	if err := m.ipc.Receive(&resp); err != nil {
+	if err := m.ipc.RoundTrip(cmd, &resp); err != nil {
 		return nil, err
 	}
 	if resp.Error != "" && resp.Error != "success" {

@@ -1,6 +1,6 @@
 # MasjidPi Roadmap
 
-MasjidPi is a lightweight Raspberry Pi home appliance that keeps people connected to their masjid through live audio and masjid information.
+MasjidPi is a lightweight home appliance that keeps people connected to their masjid through live audio and masjid information.
 
 The roadmap focuses on the current product, remaining production work, and planned future features.
 
@@ -38,6 +38,8 @@ The v1.0.8 release was tested successfully on a Raspberry Pi 3 B and established
 
 The Updates & Recovery work and application-level SD-card write optimisation are now considered complete. Remaining reliability work should prioritise measured OS-level appliance behaviour and simplicity rather than unnecessary configuration options.
 
+MasjidBoard is being developed on `research/masjidboard-live`. The research implementation has progressed beyond the original browser-demo stage into a working Raspberry Pi appliance implementation and is now in final pre-integration validation.
+
 ---
 
 ## Remaining Work
@@ -46,48 +48,31 @@ There are no outstanding application-level Updates & Recovery or SD-card write o
 
 OS-level SD-card behaviour should be measured on Raspberry Pi hardware before deciding whether appliance-specific changes to journald, swap, or other system services are justified.
 
-Future work should otherwise focus on planned capabilities and further reliability improvements where they provide clear user value.
+Current MasjidBoard work is focused on final production validation and integration rather than additional core functionality.
 
 ---
 
-## Planned Architecture
+## Architecture
 
 ### MasjidPi Core / Listen / Board
 
-MasjidPi v2 will evolve from the current audio-focused application into a modular home appliance built around a shared MasjidPi core and independent product capabilities.
+MasjidPi is evolving from the original audio-focused application into a modular home appliance built around shared MasjidPi functionality and two independent capabilities: Listen and Board.
 
-The repository will remain a single MasjidPi repository initially, with the code organised conceptually as:
+The repository remains a single MasjidPi repository. The architecture is conceptually:
 
-```text
-MasjidPi/
-├── core/
-├── listen/
-├── board/
-├── cmd/
-├── frontend/
-├── configs/
-├── hardware/
-├── scripts/
-└── docs/
-```
+**MasjidPi Core → Listen**
+
+and independently:
+
+**MasjidPi Core → Board**
 
 #### MasjidPi Core
 
-Core will contain functionality shared by Listen and Board, such as:
-
-- Configuration
-- Persistent state
-- Masjid selection and shared masjid data
-- Catalogue and shared data access
-- Networking and common service behaviour
-- Common API/client functionality
-- Shared Raspberry Pi/platform integration where appropriate
-
-Core should provide reusable foundations rather than becoming a general-purpose dumping ground for unrelated code.
+Core contains functionality shared by Listen and Board, including configuration, persistent state, networking, common API behaviour and Raspberry Pi/platform integration where appropriate.
 
 #### MasjidPi Listen
 
-Listen will contain the audio-specific functionality:
+Listen contains the audio-specific functionality:
 
 - Stream playback
 - MPV integration
@@ -98,31 +83,24 @@ Listen will contain the audio-specific functionality:
 
 #### MasjidPi Board
 
-Board will contain the MasjidBoard-specific functionality:
+Board contains the MasjidBoard-specific functionality:
 
-- Prayer times
-- Jumu'ah times
+- Prayer and Jumu'ah times
 - Next-event and countdown information
 - MasjidBoard data retrieval and caching
-- Display-oriented UI
-- External HDMI display support
-- Future display/hardware integration
+- MasjidBoard configuration UI
+- HDMI display UI
+- Appliance display runtime
 
-Listen and Board must remain independent capabilities. Neither subsystem should require the other to operate. In particular, audio playback must continue operating if MasjidBoard is unavailable.
+Listen and Board remain independent capabilities. Neither subsystem requires the other to operate, and audio playback must continue operating if MasjidBoard or its upstream provider is unavailable.
 
-The intended high-level architecture is:
+The installer supports three appliance profiles:
 
-**MasjidPi Core → Listen**
+- Listen
+- Board
+- Listen + Board
 
-and independently:
-
-**MasjidPi Core → Board**
-
-The application/UI layer may combine information from both capabilities, but Board must not directly control Listen or playback.
-
-The initial implementation should remain a single repository. Core should only be extracted into a separate repository if a future technical need justifies doing so.
-
-This restructuring is a v2 architectural target and should not unnecessarily disrupt the stable v1.x release.
+Only the dependencies, backend subsystems, APIs, configuration pages and appliance services required by the selected profile should be active.
 
 ---
 
@@ -178,59 +156,52 @@ Potential capabilities:
 
 ### MasjidBoard
 
-MasjidBoard will be a separate subsystem from audio streaming and playback.
+MasjidBoard is a separate subsystem from audio streaming and playback. The active `research/masjidboard-live` implementation now provides the main appliance functionality.
 
-The active `research/masjidboard-live` implementation has now established the main functional shape of the feature, including:
+Implemented and validated capabilities include:
 
-- location hierarchy and scoped masjid discovery;
-- selection and ordering of up to three masjids;
-- persisted MasjidBoard location scope and selection;
-- live prayer and Jumu'ah timetable retrieval from the MasjidBoard Live Core board source;
-- normalized provider data and resilient Jumu'ah label handling;
-- a dedicated MasjidBoard configuration WebUI;
-- a separate read-only HDMI/browser display page;
-- a responsive default one-, two- or three-board comparison layout;
-- Friday Jumu'ah replacing Dhuhr;
-- chronological Jumu'ah event presentation with source labels preserved;
-- a per-board countdown to the next visible timetable event, including overnight rollover to the next day's Fajr;
-- 30-minute automatic timetable refresh plus manual timetable refresh;
-- per-board last-known-good cache fallback during provider outages;
-- stale/current recovery behaviour validated in both automated tests and a real runtime outage test;
-- reduced cache writes when timetable data is unchanged; and
-- continued independence from audio playback when MasjidBoard Live is unavailable.
+- Location hierarchy and scoped masjid discovery
+- Selection and ordering of up to three masjids
+- Persisted location scope and selection
+- Live prayer and Jumu'ah timetable retrieval from MasjidBoard Live
+- Normalized provider data and resilient Jumu'ah handling
+- Dedicated MasjidBoard configuration Web UI
+- Read-only HDMI display page
+- Responsive one-, two- and three-board comparison layout
+- Friday Jumu'ah replacement of Dhuhr
+- Chronological Jumu'ah event presentation
+- Per-board next-event countdown, including overnight rollover to the next day's Fajr
+- 30-minute automatic timetable refresh and manual refresh
+- Per-board last-known-good cache fallback during provider outages
+- Stale/current recovery after provider outages
+- Reduced cache writes when timetable data is unchanged
+- Independence from Listen when MasjidBoard Live is unavailable
+- Raspberry Pi OS Lite appliance display using Cog/WPE directly on DRM/KMS
+- Automatic systemd-managed HDMI display startup and recovery
+- Component-aware installation of Listen, Board or Listen + Board
+- Component-aware runtime dependencies, APIs and configuration UI
+- Transactional component-profile changes with update validation and rollback protection
+- Successful Raspberry Pi appliance validation of Listen-only, Board-only and combined Listen + Board profiles
 
-The current display should be treated as the **default layout**, not the only long-term layout. Alternative user-selectable layouts are intentionally deferred until the overall MasjidBoard appliance path is more production-ready. They should consume the same normalized MasjidBoard display API so presentation choices remain separate from provider, caching and timetable logic.
+The current display is the **default layout**, not the only long-term layout. Alternative user-selectable layouts should consume the same normalized MasjidBoard display API so presentation remains separate from provider, caching and timetable logic.
 
-Before this work is considered production-ready, the research implementation still needs a focused pre-integration pass covering:
+Remaining pre-integration work is intentionally narrow:
 
-- installer/upgrade handling for all MasjidBoard runtime directories and persisted files;
-- production ownership and permissions for hierarchy, scope, catalogue, selection and per-board cache data;
-- first-run behaviour with no MasjidBoard configuration and no existing cache;
-- combined Listen + Board validation on Raspberry Pi hardware, including reboot/restart and resource usage;
-- final user-facing error-message cleanup while retaining diagnostic detail for troubleshooting;
-- a full Listen/audio regression pass to confirm the stable playback appliance path remains unaffected; and
-- final merge/release planning for the research branch.
+- Verify production ownership, permissions and preservation of MasjidBoard state across fresh installs and upgrades
+- Complete clean first-run validation with no existing MasjidBoard configuration or cache
+- Complete final user-facing error-message cleanup while retaining useful diagnostics
+- Run a final Listen/audio regression pass
+- Perform longer-duration appliance and HDMI disconnect/reconnect testing where practical
+- Complete final documentation/integration review and prepare the research branch for merge/release planning
 
 Future MasjidBoard enhancements may include:
 
-- additional user-selectable display layouts;
-- layouts exposing selected astronomical/calculation times;
-- future OLED/hardware displays;
-- richer announcement/media content where useful;
-- additional display preferences; and
-- broader appliance/platform validation.
-
-MasjidBoard must remain independent of the playback subsystem. Audio playback must continue operating if MasjidBoard is unavailable.
-
-The intended architecture is:
-
-**MasjidBoard → Application/UI**
-
-and independently:
-
-**Stream Catalogue → Playback → MPV → Audio Device**
-
-The application/UI layer may combine information from both systems, but MasjidBoard must not directly control playback.
+- Additional user-selectable display layouts
+- Layouts exposing selected astronomical/calculation times
+- OLED or other hardware displays
+- Richer announcement/media content where useful
+- Additional display preferences
+- Broader appliance/platform validation
 
 ### Home Assistant Integration
 
@@ -257,14 +228,14 @@ Potential capabilities:
 MasjidPi should remain:
 
 - A simple home appliance for people who want to stay connected to their masjid
-- Lightweight enough for Raspberry Pi hardware
+- Lightweight enough for supported Raspberry Pi hardware
 - Simple to install and operate
 - Reliable during network interruptions
 - Usable without a separate server
-- Focused on listening to mosque streams while expanding to masjid information
+- Focused on bringing live masjid audio and useful masjid information into the home
 - Easy to maintain and update
 - Independent of browser-local configuration
-- Modular, with Listen and Board capabilities separated from shared Core functionality
+- Modular, with Listen and Board capabilities separated from shared functionality
 - Resilient when optional external services are unavailable
 - Portable across appropriate hardware platforms without unnecessarily duplicating the application
 - Focused on appliance simplicity rather than exposing unnecessary configuration

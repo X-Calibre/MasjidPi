@@ -62,16 +62,17 @@ jobs:
             cp data/catalogue.json "../$package_dir/catalogue.json"
             popd >/dev/null
 
-            # The HTTP server serves the embedded release frontend from the
-            # directory next to the executable. Keep the complete frontend in
-            # every release package so / serves index.html and its assets.
+            # The HTTP server serves the release frontend from the directory
+            # next to the executable. Keep the complete frontend in every
+            # release package so all selected component UIs are available.
             cp -R frontend "$package_dir/frontend"
 
-            # Include the complete installer so a downloaded release can be
-            # installed without cloning the source repository.
+            # Include the complete installer and service definitions so a
+            # downloaded release can install Listen, Board, or both without a
+            # source checkout.
             mkdir -p "$package_dir/scripts"
             cp scripts/*.sh "$package_dir/scripts/"
-            cp scripts/masjidpi.service "$package_dir/scripts/"
+            cp scripts/*.service "$package_dir/scripts/"
 
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
 
@@ -81,8 +82,11 @@ jobs:
             test -f "$package_dir/VERSION"
             test -f "$package_dir/frontend/index.html"
             test -f "$package_dir/frontend/app.js"
+            test -f "$package_dir/frontend/masjidboard.html"
             test -f "$package_dir/scripts/install.sh"
+            test -f "$package_dir/scripts/masjidboard-display.sh"
             test -f "$package_dir/scripts/masjidpi.service"
+            test -f "$package_dir/scripts/masjidpi-display.service"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \
               "${PACKAGE_NAME}-linux-${arch}"

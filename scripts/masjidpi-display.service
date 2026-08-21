@@ -1,0 +1,21 @@
+[Unit]
+Description=MasjidPi MasjidBoard Display
+After=masjidpi.service network-online.target
+Wants=network-online.target
+Requires=masjidpi.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/masjidpi
+Environment=MASJIDPI_HOME=/opt/masjidpi
+ExecStart=/opt/masjidpi/bin/masjidboard-display
+Restart=always
+RestartSec=5
+
+# Keep display failures from flooding the journal on an appliance.
+LogRateLimitIntervalSec=30s
+LogRateLimitBurst=20
+
+[Install]
+WantedBy=multi-user.target

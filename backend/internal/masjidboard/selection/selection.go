@@ -51,7 +51,7 @@ type State struct {
 	Boards               []Board `json:"boards"`
 	Layout               string  `json:"layout,omitempty"`
 	Theme                string  `json:"theme,omitempty"`
-	SlideDurationSeconds int `json:"slide_duration_seconds,omitempty"`
+	SlideDurationSeconds int     `json:"slide_duration_seconds,omitempty"`
 }
 
 func (s State) Configured() bool { return len(s.Boards) > 0 }

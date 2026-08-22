@@ -17,7 +17,7 @@ type masjidBoardLayoutResponse struct {
 type masjidBoardLayoutRequest struct {
 	Layout               string `json:"layout"`
 	Theme                string `json:"theme"`
-	SlideDurationSeconds int `json:"slide_duration_seconds"`
+	SlideDurationSeconds int    `json:"slide_duration_seconds"`
 }
 
 type masjidBoardLayoutSetter interface{ SetLayout(string) error }

@@ -49,8 +49,8 @@ func TestValidateAllowsOneToThreeBoards(t *testing.T) {
 
 func TestPortraitDisplayPreferences(t *testing.T) {
 	state := State{
-		Boards: []Board{selected("brits-jamia", "Brits Jamia Masjid", 7200000)},
-		Layout: LayoutPortrait,
+		Boards:               []Board{selected("brits-jamia", "Brits Jamia Masjid", 7200000)},
+		Layout:               LayoutPortrait,
 		SlideDurationSeconds: 30,
 	}
 	if err := Validate(state); err != nil {

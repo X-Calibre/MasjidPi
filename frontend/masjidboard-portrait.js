@@ -40,9 +40,9 @@
 
     function formatEvent(event) {
         if (!event) return {name: "No upcoming event", time: null};
-        if (event.kind === "jumuah") return {name: `Jumu’ah · ${event.label || "Salaah"}`, time: event.time};
+        if (event.kind === "jumuah") return {name: `Jumuâah Â· ${event.label || "Salaah"}`, time: event.time};
         const prayer = prayerLabels[event.key] || event.key;
-        return {name: `${prayer} · ${event.event === "jamaah" ? "Salaah" : "Adhan"}`, time: event.time};
+        return {name: `${prayer} Â· ${event.event === "jamaah" ? "Jamaah" : "Adhan"}`, time: event.time};
     }
 
     function dailyItems(board) {
@@ -66,7 +66,7 @@
         slide.append(heading);
         const table = element("div", "portrait-times");
         const head = element("div", "portrait-time-row portrait-time-head");
-        head.append(element("span", "", "Salaah"), element("span", "", "Adhan"), element("span", "", "Salaah"));
+        head.append(element("span", "", "Salaah"), element("span", "", "Adhan"), element("span", "", "Jamaah"));
         table.append(head);
         const now = utils.displayNow();
         const friday = utils.displayDate().getDay() === 5;
@@ -77,8 +77,8 @@
             if (next && next.kind === "prayer" && next.key === key) row.classList.add("upcoming");
             row.append(
                 element("span", "", prayerLabels[key]),
-                element("strong", "", prayer && prayer.adhan ? utils.formatClock(prayer.adhan) : "—"),
-                element("strong", "", prayer && prayer.jamaah ? utils.formatClock(prayer.jamaah) : "—"),
+                element("strong", "", prayer && prayer.adhan ? utils.formatClock(prayer.adhan) : "â"),
+                element("strong", "", prayer && prayer.jamaah ? utils.formatClock(prayer.jamaah) : "â"),
             );
             table.append(row);
         }

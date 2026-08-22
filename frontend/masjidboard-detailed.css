@@ -1,16 +1,16 @@
 /* Detailed MasjidBoard layout refinements. Loaded only by the display page;
    selectors are gated by .detailed-layout so Standard remains unchanged. */
-.detailed-layout .timetable-stage { flex:1 1 72%; }
+.detailed-layout .timetable-stage { flex:0 1 68%; }
 .detailed-layout .additional-times {
-    flex:0 0 min(28vw,430px);
-    min-width:300px;
+    flex:1 0 min(30vw,460px);
+    min-width:320px;
 }
 
 /* Detailed prayer rows gain one shared Adhan/Jamaah label column. Keep this
    column compact, but wide enough that Jamaah never spills out of its card. */
 .detailed-layout .comparison-grid,
 .detailed-layout .prayer-row:not(.jumuah-row) {
-    grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,1fr));
+    grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,.92fr));
 }
 .detailed-layout .board-headers::before {
     content:"";
@@ -82,14 +82,15 @@
 .additional-time-value { white-space:nowrap; }
 
 @media (max-width:1100px) {
-    .detailed-layout .additional-times { min-width:270px; }
+    .detailed-layout .additional-times { min-width:280px; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row:not(.jumuah-row) {
-        grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
+        grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,.9fr));
     }
 }
 
 @media (max-width:760px) {
+    .detailed-layout .timetable-stage { flex:1 1 auto; }
     .detailed-layout .additional-times { min-width:0; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row:not(.jumuah-row) {

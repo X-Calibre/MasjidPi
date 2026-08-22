@@ -28,9 +28,5 @@ func validate(cfg *Config) error {
 		return fmt.Errorf("playback retry_interval: %w", err)
 	}
 
-	if _, err := time.ParseDuration(cfg.Playback.ReconnectDelay); err != nil {
-		return fmt.Errorf("playback reconnect_delay: %w", err)
-	}
-
 	return nil
 }

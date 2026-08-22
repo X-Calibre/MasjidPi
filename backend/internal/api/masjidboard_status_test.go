@@ -19,8 +19,8 @@ type fakeMasjidBoardStatusProvider struct {
 	results    []masjidboardruntime.Result
 }
 
-func (f fakeMasjidBoardStatusProvider) Configured() bool { return f.configured }
-func (f fakeMasjidBoardStatusProvider) Selection() selection.State { return f.selection }
+func (f fakeMasjidBoardStatusProvider) Configured() bool                     { return f.configured }
+func (f fakeMasjidBoardStatusProvider) Selection() selection.State           { return f.selection }
 func (f fakeMasjidBoardStatusProvider) Results() []masjidboardruntime.Result { return f.results }
 
 func TestMasjidBoardStatusReturnsUnconfiguredState(t *testing.T) {
@@ -49,36 +49,36 @@ func TestMasjidBoardStatusPreservesSelectionOrderAndStaleFlag(t *testing.T) {
 	attempt := time.Date(2026, 8, 18, 19, 0, 0, 0, time.UTC)
 	success := attempt.Add(-time.Hour)
 	first := selection.Board{
-		CatalogueID: "masjidboardlive:brits-jamia",
-		Provider: "masjidboardlive",
-		ExternalID: "brits-jamia",
-		Name: "Brits Jamia Masjid",
+		CatalogueID:      "masjidboardlive:brits-jamia",
+		Provider:         "masjidboardlive",
+		ExternalID:       "brits-jamia",
+		Name:             "Brits Jamia Masjid",
 		TimeZoneOffsetMS: 7200000,
 	}
 	second := selection.Board{
-		CatalogueID: "masjidboardlive:brits-taqwa",
-		Provider: "masjidboardlive",
-		ExternalID: "brits-taqwa",
-		Name: "Masjid Taqwa",
+		CatalogueID:      "masjidboardlive:brits-taqwa",
+		Provider:         "masjidboardlive",
+		ExternalID:       "brits-taqwa",
+		Name:             "Masjid Taqwa",
 		TimeZoneOffsetMS: 7200000,
 	}
 	cached := model.Board{Identity: model.BoardIdentity{ID: "brits-jamia", Name: "Brits Jamia Masjid", TimeZone: "GMT+02:00"}}
 
 	s := &Server{masjidBoardService: fakeMasjidBoardStatusProvider{
 		configured: true,
-		selection: selection.State{Boards: []selection.Board{first, second}},
+		selection:  selection.State{Boards: []selection.Board{first, second}},
 		results: []masjidboardruntime.Result{
 			{
-				Selection: first,
-				Board: &cached,
-				Status: masjidboardruntime.StatusStale,
-				LastAttempt: attempt,
+				Selection:            first,
+				Board:                &cached,
+				Status:               masjidboardruntime.StatusStale,
+				LastAttempt:          attempt,
 				LastSuccessfulUpdate: success,
-				UpdateError: errors.New("upstream unavailable"),
+				UpdateError:          errors.New("upstream unavailable"),
 			},
 			{
-				Selection: second,
-				Status: masjidboardruntime.StatusUnavailable,
+				Selection:   second,
+				Status:      masjidboardruntime.StatusUnavailable,
 				LastAttempt: attempt,
 				UpdateError: errors.New("no live data"),
 			},

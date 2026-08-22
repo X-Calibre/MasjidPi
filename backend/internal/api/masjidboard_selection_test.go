@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	masjidboardcatalogue "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
@@ -19,8 +20,8 @@ type fakeSelectionRuntime struct {
 	state selection.State
 }
 
-func (f *fakeSelectionRuntime) Configured() bool { return f.state.Configured() }
-func (f *fakeSelectionRuntime) Selection() selection.State { return f.state }
+func (f *fakeSelectionRuntime) Configured() bool                     { return f.state.Configured() }
+func (f *fakeSelectionRuntime) Selection() selection.State           { return f.state }
 func (f *fakeSelectionRuntime) Results() []masjidboardruntime.Result { return nil }
 func (f *fakeSelectionRuntime) Reconfigure(state selection.State) error {
 	f.state = state
@@ -46,7 +47,8 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	server := New(":0", logger, nil, nil, nil, t.TempDir(), "", t.TempDir())
+	root := t.TempDir()
+	server := New(Config{Address: ":0", Frontend: root, PreferencesPath: root + "/preferences.json", Installed: components.Installed{Listen: true, Board: true}}, Dependencies{Logger: logger})
 	server.SetMasjidBoardCataloguePath(path)
 	runtime := &fakeSelectionRuntime{}
 	server.SetMasjidBoardService(runtime)
@@ -66,7 +68,8 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 
 func TestMasjidBoardSelectionPUTRejectsUnknownBoard(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	server := New(":0", logger, nil, nil, nil, t.TempDir(), "", t.TempDir())
+	root := t.TempDir()
+	server := New(Config{Address: ":0", Frontend: root, PreferencesPath: root + "/preferences.json", Installed: components.Installed{Listen: true, Board: true}}, Dependencies{Logger: logger})
 	server.SetMasjidBoardCataloguePath(t.TempDir() + "/catalogue.json")
 	runtime := &fakeSelectionRuntime{}
 	server.SetMasjidBoardService(runtime)

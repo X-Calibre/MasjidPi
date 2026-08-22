@@ -12,7 +12,9 @@ import (
 
 func TestCatalogueSourceFetchMapsDiscoveryRecords(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil { t.Fatal(err) }
+		if err := r.ParseForm(); err != nil {
+			t.Fatal(err)
+		}
 		if r.PostForm.Get("type") != "masjid" || r.PostForm.Get("countryName") != "South Africa" || r.PostForm.Get("provinceName") != "North West" || r.PostForm.Get("cityName") != "Brits" {
 			t.Fatalf("form=%#v", r.PostForm)
 		}
@@ -23,8 +25,12 @@ func TestCatalogueSourceFetchMapsDiscoveryRecords(t *testing.T) {
 	now := time.Date(2026, 8, 19, 12, 0, 0, 0, time.UTC)
 	source := CatalogueSource{Client: DiscoveryClient{HTTPClient: server.Client(), Endpoint: server.URL}}
 	got, err := source.Fetch(context.Background(), masjidboardcatalogue.Location{Country: "South Africa", Region: "North West", City: "Brits"}, now)
-	if err != nil { t.Fatal(err) }
-	if len(got.Records) != 1 { t.Fatalf("records=%+v", got.Records) }
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Records) != 1 {
+		t.Fatalf("records=%+v", got.Records)
+	}
 	record := got.Records[0]
 	if record.ID != "masjidboardlive:brits-jamia" || record.Name != "Brits Jamia Masjid" || record.Region != "North West" || record.Country != "South Africa" || record.TimeZoneOffsetMS != 7200000 {
 		t.Fatalf("record=%+v", record)
@@ -32,5 +38,7 @@ func TestCatalogueSourceFetchMapsDiscoveryRecords(t *testing.T) {
 	if record.ProviderMetadata["mbl_id"] != "MBL11517PRP" || record.ProviderMetadata["last_updated"] == "" {
 		t.Fatalf("metadata=%+v", record.ProviderMetadata)
 	}
-	if !got.RetrievedAt.Equal(now) || !got.ValidatedAt.Equal(now) { t.Fatalf("timestamps=%+v", got) }
+	if !got.RetrievedAt.Equal(now) || !got.ValidatedAt.Equal(now) {
+		t.Fatalf("timestamps=%+v", got)
+	}
 }

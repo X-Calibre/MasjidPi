@@ -20,18 +20,18 @@ const (
 // MasjidBoard catalogue entry. Timetable data belongs to the board provider,
 // not to the catalogue.
 type Record struct {
-	ID                 string            `json:"id"`
-	Provider           string            `json:"provider"`
-	ExternalID         string            `json:"external_id"`
-	Name               string            `json:"name"`
-	City               string            `json:"city,omitempty"`
-	Region             string            `json:"region,omitempty"`
-	Country            string            `json:"country,omitempty"`
-	TimeZoneOffsetMS   int64             `json:"time_zone_offset_ms"`
-	ProviderMetadata   map[string]string `json:"provider_metadata,omitempty"`
-	DiscoveredAt       time.Time         `json:"discovered_at"`
-	LastSeenAt         time.Time         `json:"last_seen_at"`
-	Status             Status            `json:"status"`
+	ID               string            `json:"id"`
+	Provider         string            `json:"provider"`
+	ExternalID       string            `json:"external_id"`
+	Name             string            `json:"name"`
+	City             string            `json:"city,omitempty"`
+	Region           string            `json:"region,omitempty"`
+	Country          string            `json:"country,omitempty"`
+	TimeZoneOffsetMS int64             `json:"time_zone_offset_ms"`
+	ProviderMetadata map[string]string `json:"provider_metadata,omitempty"`
+	DiscoveredAt     time.Time         `json:"discovered_at"`
+	LastSeenAt       time.Time         `json:"last_seen_at"`
+	Status           Status            `json:"status"`
 }
 
 // Catalogue is one last-known-good discovery snapshot. It is used for

@@ -64,7 +64,6 @@ func TestManagerStopsRetryingWhenMountGoesOffline(t *testing.T) {
 	availability := &fakeAvailability{available: true, known: true, events: make(chan string, 4)}
 	manager := New(fake, Config{
 		RetryInterval:       20 * time.Millisecond,
-		ReconnectDelay:      20 * time.Millisecond,
 		StatusCheckInterval: 10 * time.Millisecond,
 	})
 	manager.SetAvailability(availability)

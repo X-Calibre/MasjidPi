@@ -18,8 +18,8 @@ type masjidBoardLayoutRequest struct {
 	Theme  string `json:"theme"`
 }
 
-type masjidBoardLayoutSetter interface { SetLayout(string) error }
-type masjidBoardThemeSetter interface { SetTheme(string) error }
+type masjidBoardLayoutSetter interface{ SetLayout(string) error }
+type masjidBoardThemeSetter interface{ SetTheme(string) error }
 
 func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 	current := func() masjidBoardLayoutResponse {

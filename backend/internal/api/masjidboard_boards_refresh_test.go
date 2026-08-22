@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
@@ -17,8 +18,8 @@ type fakeBoardRefreshRuntime struct {
 	state        selection.State
 }
 
-func (f *fakeBoardRefreshRuntime) Configured() bool { return f.state.Configured() }
-func (f *fakeBoardRefreshRuntime) Selection() selection.State { return f.state }
+func (f *fakeBoardRefreshRuntime) Configured() bool                     { return f.state.Configured() }
+func (f *fakeBoardRefreshRuntime) Selection() selection.State           { return f.state }
 func (f *fakeBoardRefreshRuntime) Results() []masjidboardruntime.Result { return nil }
 func (f *fakeBoardRefreshRuntime) Reconfigure(state selection.State) error {
 	f.state = state
@@ -31,7 +32,8 @@ func (f *fakeBoardRefreshRuntime) Refresh(context.Context) []masjidboardruntime.
 
 func TestMasjidBoardBoardsRefresh(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	server := New(":0", logger, nil, nil, nil, t.TempDir(), "", t.TempDir())
+	root := t.TempDir()
+	server := New(Config{Address: ":0", Frontend: root, PreferencesPath: root + "/preferences.json", Installed: components.Installed{Listen: true, Board: true}}, Dependencies{Logger: logger})
 	runtime := &fakeBoardRefreshRuntime{}
 	server.SetMasjidBoardService(runtime)
 

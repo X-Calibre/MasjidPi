@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+migrate_legacy_preferences() {
+    local legacy_path="$INSTALL_DIR/backend/data/preferences.json"
+    local persistent_path="/var/lib/masjidpi/preferences.json"
+
+    if [[ ! -f "$legacy_path" || -f "$persistent_path" ]]; then
+        return
+    fi
+
+    mkdir -p /var/lib/masjidpi
+    cp "$legacy_path" "$persistent_path"
+    chmod 0600 "$persistent_path"
+    info "Migrated saved Web UI preferences to persistent storage."
+}
+
 install_runtime() {
 
     local target_dir="${RUNTIME_TARGET:-$INSTALL_DIR}"

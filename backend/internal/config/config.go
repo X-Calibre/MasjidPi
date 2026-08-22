@@ -33,8 +33,7 @@ type StreamConfig struct {
 
 // PlaybackConfig contains playback retry settings.
 type PlaybackConfig struct {
-	RetryInterval  string `yaml:"retry_interval"`
-	ReconnectDelay string `yaml:"reconnect_delay"`
+	RetryInterval string `yaml:"retry_interval"`
 }
 
 // Load reads a YAML configuration file from disk.

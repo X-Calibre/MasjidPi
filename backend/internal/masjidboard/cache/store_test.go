@@ -11,7 +11,7 @@ import (
 
 func testEntry() Entry {
 	return Entry{
-		CatalogueID: "masjidboardlive:brits-jamia",
+		CatalogueID:  "masjidboardlive:brits-jamia",
 		SuccessfulAt: time.Date(2026, 8, 18, 18, 42, 0, 0, time.UTC),
 		Board: model.Board{
 			Identity: model.BoardIdentity{

@@ -4,7 +4,7 @@ build_project() {
 
     info "Building MasjidPi..."
 
-    cd "$PROJECT_ROOT/backend"
+    cd "$PROJECT_ROOT/backend" || die "Unable to enter backend source directory."
 
     mkdir -p build
 

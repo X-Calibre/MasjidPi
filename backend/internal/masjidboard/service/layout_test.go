@@ -12,9 +12,9 @@ func TestSetLayoutPersistsWithoutChangingBoards(t *testing.T) {
 	store := selection.NewStore(path)
 	state := selection.State{Boards: []selection.Board{{
 		CatalogueID: "masjidboardlive:test",
-		Provider: "masjidboardlive",
-		ExternalID: "test",
-		Name: "Test Masjid",
+		Provider:    "masjidboardlive",
+		ExternalID:  "test",
+		Name:        "Test Masjid",
 	}}}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)
@@ -48,9 +48,9 @@ func TestSetLayoutPersistsWithoutChangingBoards(t *testing.T) {
 func TestSetLayoutRejectsUnsupportedValue(t *testing.T) {
 	service := &Service{selection: selection.State{Boards: []selection.Board{{
 		CatalogueID: "masjidboardlive:test",
-		Provider: "masjidboardlive",
-		ExternalID: "test",
-		Name: "Test Masjid",
+		Provider:    "masjidboardlive",
+		ExternalID:  "test",
+		Name:        "Test Masjid",
 	}}}}
 	if err := service.SetLayout("wide"); err == nil {
 		t.Fatal("SetLayout() expected unsupported-layout error")

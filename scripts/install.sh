@@ -77,6 +77,7 @@ main() {
     detect_arch
     detect_install_mode
     select_components
+    migrate_legacy_preferences
 
     if [ "$INSTALL_MODE" = "install" ]; then
         info "Fresh installation detected."

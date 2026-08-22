@@ -49,11 +49,12 @@ func Run() error {
 	// A Board-only appliance does not initialize the stream catalogue, MPV,
 	// playback persistence, audio-device monitoring, or LiveMasjid status feed.
 	if !installed.Listen {
-		server := api.New(cfg.HTTP.Address, log, nil, nil, nil, paths.Frontend, paths.Catalogue, paths.DataRoot)
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
-		server.SetMasjidBoardService(masjidBoardService)
-		server.SetMasjidBoardMaintenance(masjidBoardMaintenance)
-		server.SetMasjidBoardConfigurationPaths(paths.MasjidBoardHierarchy, paths.MasjidBoardScope, paths.MasjidBoardCatalogue)
+		server := newAPIServer(cfg, paths, installed, api.Dependencies{
+			Logger:                 log,
+			MasjidBoardService:     masjidBoardService,
+			MasjidBoardMaintenance: masjidBoardMaintenance,
+		})
 		return runHTTPServer(ctx, server, log)
 	}
 
@@ -135,16 +136,21 @@ func Run() error {
 	go monitorAudioDevice(ctx, playbackManager, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
-	server := api.New(cfg.HTTP.Address, log, playbackManager, streamStore, favourites, paths.Frontend, paths.Catalogue, paths.DataRoot)
-	server.SetAudioDeviceState(audioDeviceState)
+	dependencies := api.Dependencies{
+		Logger:           log,
+		Playback:         playbackManager,
+		Streams:          streamStore,
+		Favourites:       favourites,
+		AudioDeviceState: audioDeviceState,
+	}
 
 	// MasjidBoard remains completely absent on Listen-only appliances.
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
-		server.SetMasjidBoardService(masjidBoardService)
-		server.SetMasjidBoardMaintenance(masjidBoardMaintenance)
-		server.SetMasjidBoardConfigurationPaths(paths.MasjidBoardHierarchy, paths.MasjidBoardScope, paths.MasjidBoardCatalogue)
+		dependencies.MasjidBoardService = masjidBoardService
+		dependencies.MasjidBoardMaintenance = masjidBoardMaintenance
 	}
+	server := newAPIServer(cfg, paths, installed, dependencies)
 
 	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)
 	if err != nil {
@@ -156,6 +162,20 @@ func Run() error {
 	go monitorCatalogueRefresh(ctx, catalogueRefreshInterval, paths.Catalogue, streamStore, log)
 
 	return runHTTPServer(ctx, server, log)
+}
+
+func newAPIServer(cfg *config.Config, paths config.Paths, installed components.Installed, dependencies api.Dependencies) *api.Server {
+	return api.New(api.Config{
+		Address:                  cfg.HTTP.Address,
+		Frontend:                 paths.Frontend,
+		CatalogueFile:            paths.Catalogue,
+		CatalogueDataRoot:        paths.DataRoot,
+		PreferencesPath:          paths.PreferencesState,
+		Installed:                installed,
+		MasjidBoardHierarchyPath: paths.MasjidBoardHierarchy,
+		MasjidBoardCataloguePath: paths.MasjidBoardCatalogue,
+		MasjidBoardScopePath:     paths.MasjidBoardScope,
+	}, dependencies)
 }
 
 func runHTTPServer(ctx context.Context, server *api.Server, log interface {
@@ -271,9 +291,5 @@ func newPlaybackConfig(cfg *config.Config) (playback.Config, error) {
 	if err != nil {
 		return playback.Config{}, err
 	}
-	reconnectDelay, err := time.ParseDuration(cfg.Playback.ReconnectDelay)
-	if err != nil {
-		return playback.Config{}, err
-	}
-	return playback.Config{RetryInterval: retryInterval, ReconnectDelay: reconnectDelay}, nil
+	return playback.Config{RetryInterval: retryInterval}, nil
 }

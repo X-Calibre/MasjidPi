@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"path/filepath"
 	"sync"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 type AudioDevice struct {
@@ -76,34 +77,7 @@ func (s *AudioDeviceState) Save(name string) error {
 		return nil
 	}
 
-	if err := os.MkdirAll(filepath.Dir(s.path), 0755); err != nil {
-		return err
-	}
-
-	data, err := json.Marshal(AudioDevice{Name: name})
-	if err != nil {
-		return err
-	}
-
-	tmp, err := os.CreateTemp(filepath.Dir(s.path), ".audio-device-*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0644); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpName, s.path); err != nil {
+	if err := atomicfile.WriteJSON(s.path, AudioDevice{Name: name}, 0644); err != nil {
 		return err
 	}
 

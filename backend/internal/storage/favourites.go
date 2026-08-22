@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"path/filepath"
 	"reflect"
 	"sync"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 type FavouritesState struct {
@@ -45,34 +46,7 @@ func (f *Favourites) Save(ids []string) error {
 		return nil
 	}
 
-	if err := os.MkdirAll(filepath.Dir(f.path), 0755); err != nil {
-		return err
-	}
-
-	data, err := json.Marshal(FavouritesState{IDs: ids})
-	if err != nil {
-		return err
-	}
-
-	tmp, err := os.CreateTemp(filepath.Dir(f.path), ".favourites-*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0600); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpName, f.path); err != nil {
+	if err := atomicfile.WriteJSON(f.path, FavouritesState{IDs: ids}, 0600); err != nil {
 		return err
 	}
 

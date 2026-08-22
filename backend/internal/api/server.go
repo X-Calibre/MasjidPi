@@ -4,8 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
@@ -38,28 +36,53 @@ type Server struct {
 	masjidBoardScopePath        string
 	catalogueFile               string
 	catalogueDataRoot           string
+	installed                   components.Installed
 }
 
-func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *stream.Store, favourites *storage.Favourites, frontend, catalogueFile, catalogueDataRoot string) *Server {
-	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir(frontend))
-	installed := components.Current()
+type Config struct {
+	Address                  string
+	Frontend                 string
+	CatalogueFile            string
+	CatalogueDataRoot        string
+	PreferencesPath          string
+	Installed                components.Installed
+	MasjidBoardHierarchyPath string
+	MasjidBoardCataloguePath string
+	MasjidBoardScopePath     string
+}
 
-	preferencesPath := "/var/lib/masjidpi/preferences.json"
-	if home := os.Getenv("MASJIDPI_HOME"); home != "" {
-		preferencesPath = filepath.Join(home, "backend", "data", "preferences.json")
-	}
+type Dependencies struct {
+	Logger                 *slog.Logger
+	Playback               *playback.Manager
+	Streams                *stream.Store
+	Favourites             *storage.Favourites
+	AudioDeviceState       *storage.AudioDeviceState
+	MasjidBoardService     masjidBoardStatusProvider
+	MasjidBoardMaintenance masjidBoardMaintenance
+}
+
+func New(config Config, dependencies Dependencies) *Server {
+	mux := http.NewServeMux()
+	fileServer := http.FileServer(http.Dir(config.Frontend))
 
 	server := &Server{
-		logger:            logger,
-		playback:          playback,
-		streams:           streams,
-		favourites:        favourites,
-		preferences:       storage.NewPreferences(preferencesPath),
-		catalogueFile:     catalogueFile,
-		catalogueDataRoot: catalogueDataRoot,
-		httpServer:        &http.Server{Addr: addr, Handler: mux},
+		logger:                   dependencies.Logger,
+		playback:                 dependencies.Playback,
+		streams:                  dependencies.Streams,
+		favourites:               dependencies.Favourites,
+		preferences:              storage.NewPreferences(config.PreferencesPath),
+		audioDeviceState:         dependencies.AudioDeviceState,
+		masjidBoardService:       dependencies.MasjidBoardService,
+		masjidBoardMaintenance:   dependencies.MasjidBoardMaintenance,
+		masjidBoardHierarchyPath: config.MasjidBoardHierarchyPath,
+		masjidBoardCataloguePath: config.MasjidBoardCataloguePath,
+		masjidBoardScopePath:     config.MasjidBoardScopePath,
+		catalogueFile:            config.CatalogueFile,
+		catalogueDataRoot:        config.CatalogueDataRoot,
+		installed:                config.Installed,
+		httpServer:               &http.Server{Addr: config.Address, Handler: mux},
 	}
+	server.SetMasjidBoardService(dependencies.MasjidBoardService)
 
 	// Core appliance APIs are always available.
 	mux.HandleFunc("/api/components", server.components)
@@ -67,7 +90,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 
 	// Listen APIs only exist when the Listen component is installed. This keeps
 	// Board-only appliances from exposing non-functional playback surfaces.
-	if installed.Listen {
+	if config.Installed.Listen {
 		mux.HandleFunc("/api/player/play", server.play)
 		mux.HandleFunc("/api/player/stop", server.stop)
 		mux.HandleFunc("/api/player/status", server.status)
@@ -79,7 +102,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	}
 
 	// Board APIs only exist when the Board component is installed.
-	if installed.Board {
+	if config.Installed.Board {
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
 		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
@@ -95,12 +118,12 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/", "/index.html":
-			if !installed.Listen && installed.Board {
+			if !config.Installed.Listen && config.Installed.Board {
 				http.Redirect(w, r, "/masjidboard-config.html", http.StatusTemporaryRedirect)
 				return
 			}
 		case "/masjidboard-config.html", "/masjidboard.html":
-			if !installed.Board {
+			if !config.Installed.Board {
 				http.Redirect(w, r, "/index.html", http.StatusTemporaryRedirect)
 				return
 			}

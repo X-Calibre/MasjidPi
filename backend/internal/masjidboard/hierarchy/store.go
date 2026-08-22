@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"reflect"
 	"sync"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 // Store persists the lightweight global discovery hierarchy. State is read on
@@ -69,40 +70,8 @@ func (s *Store) Save(state State) error {
 		return fmt.Errorf("masjidboard hierarchy: read current hierarchy: %w", err)
 	}
 
-	dir := filepath.Dir(s.path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("masjidboard hierarchy: create storage directory: %w", err)
-	}
-
-	data, err := json.Marshal(state)
-	if err != nil {
-		return fmt.Errorf("masjidboard hierarchy: encode hierarchy: %w", err)
-	}
-
-	tmp, err := os.CreateTemp(dir, ".masjidboard-hierarchy-*.tmp")
-	if err != nil {
-		return fmt.Errorf("masjidboard hierarchy: create temporary file: %w", err)
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0600); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard hierarchy: set temporary file mode: %w", err)
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard hierarchy: write temporary file: %w", err)
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard hierarchy: sync temporary file: %w", err)
-	}
-	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("masjidboard hierarchy: close temporary file: %w", err)
-	}
-	if err := os.Rename(tmpName, s.path); err != nil {
-		return fmt.Errorf("masjidboard hierarchy: replace hierarchy: %w", err)
+	if err := atomicfile.WriteJSON(s.path, state, 0600); err != nil {
+		return fmt.Errorf("masjidboard hierarchy: persist hierarchy: %w", err)
 	}
 	return nil
 }

@@ -13,11 +13,11 @@ import (
 type fakePlayer struct {
 	mu sync.Mutex
 
-	playCalls  []string
-	stopCalls  int
-	volume     int
+	playCalls   []string
+	stopCalls   int
+	volume      int
 	volumeCalls []int
-	statuses   []*player.Status
+	statuses    []*player.Status
 }
 
 func (f *fakePlayer) Play(url string) error {
@@ -195,7 +195,6 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 
 	manager := New(fake, Config{
 		RetryInterval:       10 * time.Millisecond,
-		ReconnectDelay:      10 * time.Millisecond,
 		StartupGracePeriod:  1 * time.Millisecond,
 		StatusCheckInterval: 10 * time.Millisecond,
 	})
@@ -221,7 +220,6 @@ func TestManagerRestoresVolumeAfterPlayerRecovery(t *testing.T) {
 
 	manager := New(fake, Config{
 		RetryInterval:       10 * time.Millisecond,
-		ReconnectDelay:      10 * time.Millisecond,
 		StartupGracePeriod:  1 * time.Millisecond,
 		StatusCheckInterval: 10 * time.Millisecond,
 	})

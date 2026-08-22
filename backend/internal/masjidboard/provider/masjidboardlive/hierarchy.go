@@ -198,7 +198,7 @@ func parseHierarchyPairs(raw []byte, allowBlankName bool) ([]HierarchyEntry, err
 // parseDirectCityResponse recognises the FindMasjid response used when a
 // country skips the province level:
 //
-//   [<city rows>, <grouping rows>, "changeToCity"]
+//	[<city rows>, <grouping rows>, "changeToCity"]
 //
 // Only the primary city rows are relevant to MasjidPi.
 func parseDirectCityResponse(raw []byte) ([]HierarchyEntry, bool, error) {

@@ -55,7 +55,8 @@ prepare_release() {
     local base_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_VERSION}"
     local url="${base_url}/${archive_name}"
     local checksums_url="${base_url}/SHA256SUMS"
-    local download_dir="$(mktemp -d /tmp/masjidpi-release.XXXXXX)"
+    local download_dir
+    download_dir="$(mktemp -d /tmp/masjidpi-release.XXXXXX)"
 
     RELEASE_DIR="$download_dir/masjidpi-${RELEASE_VERSION}-linux-${RELEASE_ARCH}"
 

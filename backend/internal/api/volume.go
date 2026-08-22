@@ -9,7 +9,7 @@ import (
 )
 
 type VolumeRequest struct {
-	Volume      *int  `json:"volume,omitempty"`
+	Volume      *int   `json:"volume,omitempty"`
 	AudioDevice string `json:"audio_device,omitempty"`
 	Persist     *bool  `json:"persist,omitempty"`
 }

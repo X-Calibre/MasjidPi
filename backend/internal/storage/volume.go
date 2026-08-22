@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"path/filepath"
 	"sync"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 type VolumeState struct {
@@ -15,10 +16,10 @@ type VolumeState struct {
 }
 
 type Volume struct {
-	path string
-	mu sync.Mutex
+	path   string
+	mu     sync.Mutex
 	loaded bool
-	state VolumeState
+	state  VolumeState
 }
 
 func NewVolume(path string) *Volume {
@@ -53,40 +54,13 @@ func (v *Volume) Save(device string, volume int) error {
 		return nil
 	}
 
-	if err := os.MkdirAll(filepath.Dir(v.path), 0755); err != nil {
-		return err
-	}
-
 	if v.state.Volumes == nil {
 		v.state.Volumes = make(map[string]int)
 	}
 	v.state.Volumes[device] = volume
 	v.state.Volume = nil
 
-	data, err := json.Marshal(v.state)
-	if err != nil {
-		return err
-	}
-
-	tmp, err := os.CreateTemp(filepath.Dir(v.path), ".volume-*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0600); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpName, v.path); err != nil {
+	if err := atomicfile.WriteJSON(v.path, v.state, 0600); err != nil {
 		return err
 	}
 

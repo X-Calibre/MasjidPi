@@ -6,23 +6,23 @@ import (
 )
 
 type Paths struct {
-	AppRoot               string
-	DataRoot              string
-	ConfigRoot            string
-	Config                string
-	Catalogue             string
-	PlaybackState         string
-	AudioDeviceState      string
-	VolumeState           string
-	FavouritesState       string
-	PreferencesState      string
-	MasjidBoardHierarchy  string
-	MasjidBoardCatalogue  string
-	MasjidBoardScope      string
-	MasjidBoardSelection  string
-	MasjidBoardCache      string
-	Frontend              string
-	Version               string
+	AppRoot              string
+	DataRoot             string
+	ConfigRoot           string
+	Config               string
+	Catalogue            string
+	PlaybackState        string
+	AudioDeviceState     string
+	VolumeState          string
+	FavouritesState      string
+	PreferencesState     string
+	MasjidBoardHierarchy string
+	MasjidBoardCatalogue string
+	MasjidBoardScope     string
+	MasjidBoardSelection string
+	MasjidBoardCache     string
+	Frontend             string
+	Version              string
 }
 
 func NewPaths(base string) Paths {

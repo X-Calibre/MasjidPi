@@ -27,6 +27,7 @@
     const addBoardButton = document.getElementById("addBoardButton");
     const saveBoardsButton = document.getElementById("saveBoardsButton");
     const refreshCatalogueButton = document.getElementById("refreshCatalogueButton");
+    const refreshBoardsButton = document.getElementById("refreshBoardsButton");
 
     let hierarchy = null;
     let locationRows = [];
@@ -78,6 +79,37 @@
         element.textContent = text;
         element.selected = selected;
         return element;
+    }
+
+    function textElement(tag, className, value) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        element.textContent = value;
+        return element;
+    }
+
+    function statusDetail(label, value, className = "") {
+        const row = document.createElement("div");
+        row.className = `status-board-detail${className ? ` ${className}` : ""}`;
+        row.append(textElement("span", "status-board-detail-label", label));
+        row.append(textElement("span", "status-board-detail-value", value));
+        return row;
+    }
+
+    function statusLabel(value) {
+        return {current: "Current", stale: "Stale", unavailable: "Unavailable"}[value] || "Unknown";
+    }
+
+    function formatTimestamp(value) {
+        if (!value) return "Not yet";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "Unknown";
+        const now = new Date();
+        const sameDay = date.toDateString() === now.toDateString();
+        const time = date.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+        return sameDay ? `Today, ${time}` : date.toLocaleString([], {
+            year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+        });
     }
 
     function countries() {
@@ -281,7 +313,8 @@
             try {
                 await jsonRequest(catalogueRefreshEndpoint, {method: "POST"});
                 await loadBoardConfiguration();
-                showBanner("Locations saved and MasjidBoard catalogue updated.", "success");
+                const count = activeCatalogueRecords().length;
+                showBanner(`Locations saved · ${count} Masjid${count === 1 ? "" : "s"} available`, "success");
             } catch (error) {
                 showBanner(`Locations saved, but catalogue refresh failed: ${error.message}`, "warning");
             }
@@ -305,12 +338,12 @@
             for (const location of selected) addLocation(location);
             ensureOneLocation();
             updateHierarchyMeta();
-            showBanner("Location hierarchy refreshed.", "success");
+            showBanner("Location list refreshed.", "success");
         } catch (error) {
             showBanner(`Could not refresh locations: ${error.message}`, "error");
         } finally {
             refreshHierarchyButton.disabled = false;
-            refreshHierarchyButton.textContent = "Refresh Locations";
+            refreshHierarchyButton.textContent = "Refresh Location List";
         }
     }
 
@@ -483,7 +516,8 @@
             selectedBoards = Array.isArray(response.boards) ? response.boards : [];
             renderBoardConfiguration();
             await loadStatus();
-            showBanner("Selected Masjids saved. The display has been updated.", "success");
+            const count = selectedBoards.length;
+            showBanner(`${count} Masjid${count === 1 ? "" : "s"} saved · display updated`, "success");
         } catch (error) {
             showBanner(`Could not save selected Masjids: ${error.message}`, "error");
         } finally {
@@ -498,12 +532,28 @@
         try {
             await jsonRequest(catalogueRefreshEndpoint, {method: "POST"});
             await loadBoardConfiguration();
-            showBanner("MasjidBoard catalogue refreshed.", "success");
+            const count = activeCatalogueRecords().length;
+            showBanner(`Masjid list refreshed · ${count} Masjid${count === 1 ? "" : "s"} available`, "success");
         } catch (error) {
             showBanner(`Could not refresh MasjidBoards: ${error.message}`, "error");
         } finally {
             refreshCatalogueButton.disabled = false;
-            refreshCatalogueButton.textContent = "Refresh Masjids";
+            refreshCatalogueButton.textContent = "Refresh Masjid List";
+        }
+    }
+
+    async function refreshBoards() {
+        refreshBoardsButton.disabled = true;
+        refreshBoardsButton.textContent = "Refreshing…";
+        try {
+            await jsonRequest("/api/masjidboard/boards/refresh", {method: "POST"});
+            await loadStatus();
+            showBanner("Timetables refreshed.", "success");
+        } catch (error) {
+            showBanner(`Could not refresh timetables: ${error.message}`, "error");
+        } finally {
+            refreshBoardsButton.disabled = false;
+            refreshBoardsButton.textContent = "Refresh Timetables";
         }
     }
 
@@ -513,27 +563,34 @@
             const boards = Array.isArray(status.boards) ? status.boards : [];
             masjidBoardStatus.replaceChildren();
 
-            const configured = document.createElement("div");
-            configured.className = "status-row";
-            configured.innerHTML = `<span>Configured</span><strong>${status.configured ? "Yes" : "No"}</strong>`;
-            const count = document.createElement("div");
-            count.className = "status-row";
-            count.innerHTML = `<span>Selected boards</span><strong>${boards.length}</strong>`;
-            masjidBoardStatus.append(configured, count);
+            const summary = document.createElement("div");
+            summary.className = "status-summary";
+            summary.append(statusDetail("Configured", status.configured ? "Yes" : "No"));
+            summary.append(statusDetail("Selected Masjids", String(boards.length)));
+            masjidBoardStatus.append(summary);
 
             if (boards.length) {
                 const list = document.createElement("div");
-                list.className = "status-board-list";
+                list.className = "status-board-list status-board-list-detailed";
                 for (const board of boards) {
-                    const item = document.createElement("div");
-                    item.className = "status-board-item";
-                    const name = document.createElement("span");
-                    name.textContent = board.name || board.catalogue_id || "MasjidBoard";
-                    const state = document.createElement("span");
                     const value = board.status || "unknown";
-                    state.className = `status-board-state ${value}`;
-                    state.textContent = value;
-                    item.append(name, state);
+                    const item = document.createElement("article");
+                    item.className = `status-board-card status-${value}`;
+                    const heading = document.createElement("div");
+                    heading.className = "status-board-heading";
+                    heading.append(textElement("strong", "status-board-name", board.name || board.catalogue_id || "MasjidBoard"));
+                    heading.append(textElement("span", `status-board-state ${value}`, statusLabel(value)));
+                    item.append(heading);
+
+                    const details = document.createElement("div");
+                    details.className = "status-board-details";
+                    if (board.using_cached_data || value === "stale") details.append(textElement("div", "status-board-note warning", "Using cached timetable data"));
+                    if (value === "unavailable" && !board.board) details.append(textElement("div", "status-board-note error", "No timetable data is currently available"));
+                    if (board.last_successful_update) details.append(statusDetail("Last successful update", formatTimestamp(board.last_successful_update)));
+                    if (board.last_attempt) details.append(statusDetail("Last attempt", formatTimestamp(board.last_attempt)));
+                    if (board.update_error) details.append(statusDetail("Update error", board.update_error, "error"));
+                    if (board.persistence_error) details.append(statusDetail("Cache error", board.persistence_error, "error"));
+                    item.append(details);
                     list.append(item);
                 }
                 masjidBoardStatus.append(list);
@@ -552,6 +609,7 @@
     availableBoards.addEventListener("dblclick", addSelectedBoard);
     saveBoardsButton.addEventListener("click", saveBoardSelection);
     refreshCatalogueButton.addEventListener("click", refreshCatalogue);
+    refreshBoardsButton.addEventListener("click", refreshBoards);
 
     loadConfiguration().catch(error => {
         locationConfiguration.innerHTML = `<p class="status-detail status-detail-error">Unable to load locations: ${error.message}</p>`;

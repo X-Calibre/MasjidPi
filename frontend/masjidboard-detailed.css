@@ -151,6 +151,17 @@
     white-space:nowrap;
 }
 
+/* Full-HD displays have enough overall room, but the three-masjid layout can
+   squeeze the two left label columns. Give those labels a little more width
+   while preserving the established font sizes, row heights and Daily Times
+   proportions. Larger 1440p displays continue to use the base layout above. */
+@media (min-width:1101px) and (max-width:2000px) {
+    .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
+    .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
+        grid-template-columns:minmax(175px,.46fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
+    }
+}
+
 @media (max-width:1100px) {
     .detailed-layout .additional-times {
         flex-basis:clamp(190px,18vw,225px);

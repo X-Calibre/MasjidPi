@@ -1,16 +1,17 @@
 /* Detailed MasjidBoard layout refinements. Loaded only by the display page;
    selectors are gated by .detailed-layout so Standard remains unchanged. */
-.detailed-layout .timetable-stage { flex:0 1 68%; }
+.detailed-layout .timetable-stage { flex:1 1 auto; }
 .detailed-layout .additional-times {
-    flex:1 0 min(30vw,460px);
-    min-width:320px;
+    flex:0 0 clamp(210px,16vw,255px);
+    min-width:210px;
+    max-width:255px;
 }
 
 /* Detailed prayer rows gain one shared Adhan/Jamaah label column. Keep this
    column compact, but wide enough that Jamaah never spills out of its card. */
 .detailed-layout .comparison-grid,
 .detailed-layout .prayer-row:not(.jumuah-row) {
-    grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,.92fr));
+    grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,1fr));
 }
 .detailed-layout .board-headers::before {
     content:"";
@@ -77,21 +78,48 @@
     background:linear-gradient(180deg,rgba(13,29,24,.98),rgba(9,23,19,.98));
 }
 
-.additional-times-heading { font-size:clamp(1.55rem,2.1vw,2.25rem); }
-.additional-time-label { font-size:clamp(.98rem,1.2vw,1.3rem); }
-.additional-time-value { white-space:nowrap; }
+.additional-times-heading { font-size:clamp(1.45rem,1.8vw,1.9rem); }
+.additional-times-source { padding-bottom:clamp(10px,1.2vh,14px); }
+.additional-times-list {
+    justify-content:space-between;
+    gap:0;
+}
+.additional-time-row {
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:6px;
+    padding:clamp(9px,1.1vh,14px) 0;
+    border-bottom:1px solid var(--line);
+}
+.additional-time-row:last-child { border-bottom:0; }
+.additional-time-label {
+    font-size:clamp(.84rem,.95vw,1rem);
+    line-height:1.15;
+}
+.additional-time-value {
+    color:var(--accent);
+    font-size:clamp(1.15rem,1.45vw,1.5rem);
+    font-weight:820;
+    line-height:1;
+    white-space:nowrap;
+}
 
 @media (max-width:1100px) {
-    .detailed-layout .additional-times { min-width:280px; }
+    .detailed-layout .additional-times {
+        flex-basis:clamp(190px,18vw,225px);
+        min-width:190px;
+        max-width:225px;
+    }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row:not(.jumuah-row) {
-        grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,.9fr));
+        grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
 }
 
 @media (max-width:760px) {
     .detailed-layout .timetable-stage { flex:1 1 auto; }
-    .detailed-layout .additional-times { min-width:0; }
+    .detailed-layout .additional-times { min-width:0; max-width:none; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row:not(.jumuah-row) {
         grid-template-columns:72px 82px repeat(var(--board-count),minmax(0,1fr));
@@ -99,4 +127,5 @@
     .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
     .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
     .detailed-layout .shared-jamaah { font-size:clamp(.86rem,3.2vw,1.05rem); }
+    .additional-time-row { padding:8px 0; }
 }

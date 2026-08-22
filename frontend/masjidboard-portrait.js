@@ -39,9 +39,9 @@
 
     function formatEvent(event) {
         if (!event) return {name: "No upcoming event", time: null};
-        if (event.kind === "jumuah") return {name: `Jumu'ah - ${event.label || "Salaah"}`, time: event.time};
+        if (event.kind === "jumuah") return {name: `Jumu'ah\n${event.label || "Salaah"}`, time: event.time};
         const prayer = prayerLabels[event.key] || event.key;
-        return {name: `${prayer} - ${event.event === "jamaah" ? "Jamaah" : "Adhan"}`, time: event.time};
+        return {name: `${prayer}\n${event.event === "jamaah" ? "Jamaah" : "Adhan"}`, time: event.time};
     }
 
     function dailyItems(board) {
@@ -88,15 +88,18 @@
     function dailySlide(board) {
         const slide = element("article", "portrait-slide");
         const heading = element("header", "portrait-slide-heading");
-        heading.append(element("small", "", board.name), element("h2", "", "Other daily times"));
+        heading.append(element("small", "", "DAILY TIMES"), element("h2", "", board.name));
         slide.append(heading);
-        const grid = element("div", "portrait-daily-grid");
+        const table = element("div", "portrait-times portrait-daily-times");
+        const head = element("div", "portrait-time-row portrait-time-head portrait-daily-row");
+        head.append(element("span", "", "Daily time"), element("span", "", "Time"));
+        table.append(head);
         for (const item of dailyItems(board)) {
-            const card = element("div", "portrait-daily-card");
-            card.append(element("span", "", item.label), element("strong", "", utils.formatClock(item.time)));
-            grid.append(card);
+            const row = element("div", "portrait-time-row portrait-daily-row");
+            row.append(element("span", "", item.label), element("strong", "", utils.formatClock(item.time)));
+            table.append(row);
         }
-        slide.append(grid);
+        slide.append(table);
         return slide;
     }
 

@@ -205,5 +205,8 @@ func (s *Service) Results() []runtime.Result {
 }
 
 func cloneSelection(state selection.State) selection.State {
-	return selection.State{Boards: append([]selection.Board(nil), state.Boards...)}
+	return selection.State{
+		Boards: append([]selection.Board(nil), state.Boards...),
+		Layout: state.Layout,
+	}
 }

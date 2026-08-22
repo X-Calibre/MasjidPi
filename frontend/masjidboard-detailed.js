@@ -119,12 +119,14 @@
     function transformRow(row, preferredLabels) {
         if (row.querySelector(":scope > .shared-time-labels")) return;
 
-        const cells = Array.from(row.querySelectorAll(":scope > .prayer-cell"));
+        const cells = Array.from(row.children).filter((child) =>
+            child.classList.contains("prayer-cell") || child.classList.contains("jumuah-cell")
+        );
         if (cells.length === 0) return;
 
         const available = new Set();
         for (const cell of cells) {
-            for (const label of cell.querySelectorAll(".time-label")) {
+            for (const label of cell.querySelectorAll(":scope > .time-line > .time-label")) {
                 const text = label.textContent.trim();
                 if (text) available.add(text);
             }

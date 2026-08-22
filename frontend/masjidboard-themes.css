@@ -23,6 +23,29 @@ body[data-board-theme="black-white"] {
     --text:#fff; --muted:#bcbcbc; --accent:#fff; --warning:#d7d7d7; --danger:#fff;
 }
 
+/* Portrait uses the same saved theme preference, mapped onto its compact
+   appliance-specific surfaces while retaining strong text contrast. */
+body.portrait-layout[data-board-theme]:not([data-board-theme="emerald"]) {
+    --portrait-bg:var(--bg);
+    --portrait-panel:var(--panel);
+    --portrait-raised:var(--panel-soft);
+    --portrait-line:color-mix(in srgb,var(--text) 30%,transparent);
+    --portrait-text:var(--text);
+    --portrait-muted:var(--muted);
+    --portrait-accent:var(--accent);
+    --portrait-accent-bg:color-mix(in srgb,var(--accent) 16%,var(--panel));
+    --portrait-countdown:var(--warning);
+    --portrait-header-bg:color-mix(in srgb,var(--panel) 82%,var(--bg));
+    --portrait-strong-line:color-mix(in srgb,var(--text) 42%,transparent);
+    --portrait-secondary-text:color-mix(in srgb,var(--text) 88%,var(--muted));
+    --portrait-heading-accent:var(--accent);
+    --portrait-table-head:var(--panel-soft);
+    --portrait-upcoming-bg:color-mix(in srgb,var(--accent) 14%,var(--panel));
+    --portrait-upcoming-line:var(--accent);
+    --portrait-dot:color-mix(in srgb,var(--muted) 55%,var(--panel));
+    --portrait-dot-line:var(--muted);
+}
+
 body[data-board-theme]:not([data-board-theme="emerald"]) .board-header { background:var(--panel); }
 body[data-board-theme]:not([data-board-theme="emerald"]) .prayer-label-card,
 body[data-board-theme]:not([data-board-theme="emerald"]) .shared-time-labels {

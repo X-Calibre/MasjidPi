@@ -160,7 +160,7 @@ func (s *Service) updateDisplayPreference(update func(*selection.State), label s
 		return fmt.Errorf("masjidboard service: persist %s: %w", label, err)
 	}
 	s.mu.Lock()
-	s.selection.Layout, s.selection.Theme = state.Layout, state.Theme
+	s.selection = cloneSelection(state)
 	s.mu.Unlock()
 	return nil
 }

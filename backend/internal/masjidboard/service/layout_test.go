@@ -15,7 +15,7 @@ func TestSetLayoutPersistsWithoutChangingBoards(t *testing.T) {
 		Provider: "masjidboardlive",
 		ExternalID: "test",
 		Name: "Test Masjid",
-	}}
+	}}}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)
 	}

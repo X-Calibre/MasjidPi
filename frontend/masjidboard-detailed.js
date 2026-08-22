@@ -200,7 +200,8 @@
             const response = await fetch("/api/masjidboard/display", {cache: "no-store"});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const view = await response.json();
-            const boards = Array.isArray(view.boards) ? view.boards : [];
+            const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
+            document.body.dataset.boardCount = String(Math.max(1, boards.length));
             render(boards[0] || null);
             addSharedPrayerLabels();
         } catch (error) {

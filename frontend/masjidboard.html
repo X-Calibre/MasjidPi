@@ -23,9 +23,12 @@
     </section>
 
     <section id="displayState" class="display-state hidden">
-        <div class="timetable-stage">
-            <div id="boardHeaders" class="comparison-grid board-headers"></div>
-            <div id="prayerGrid" class="prayer-grid"></div>
+        <div class="detailed-layout-shell">
+            <div class="timetable-stage">
+                <div id="boardHeaders" class="comparison-grid board-headers"></div>
+                <div id="prayerGrid" class="prayer-grid"></div>
+            </div>
+            <aside id="additionalTimes" class="additional-times" aria-label="Additional times"></aside>
         </div>
     </section>
 
@@ -36,5 +39,6 @@
 </main>
 
 <script src="masjidboard-display.js"></script>
+<script src="masjidboard-detailed.js"></script>
 </body>
 </html>

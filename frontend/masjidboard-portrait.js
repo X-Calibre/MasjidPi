@@ -91,9 +91,6 @@
         heading.append(element("small", "", "DAILY TIMES"), element("h2", "", board.name));
         slide.append(heading);
         const table = element("div", "portrait-times portrait-daily-times");
-        const head = element("div", "portrait-time-row portrait-time-head portrait-daily-row");
-        head.append(element("span", "", "Daily time"), element("span", "", "Time"));
-        table.append(head);
         for (const item of dailyItems(board)) {
             const row = element("div", "portrait-time-row portrait-daily-row");
             row.append(element("span", "", item.label), element("strong", "", utils.formatClock(item.time)));

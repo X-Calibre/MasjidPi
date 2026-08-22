@@ -6,10 +6,10 @@ import "time"
 // Identity and the five daily prayer times are the required core.
 // Everything else is optional enrichment.
 type Board struct {
-	Identity       BoardIdentity
-	DateContext    DateContext
-	PrayerTimes    PrayerTimes
-	Astronomical   *AstronomicalTimes
+	Identity      BoardIdentity
+	DateContext   DateContext
+	PrayerTimes   PrayerTimes
+	Astronomical  *AstronomicalTimes
 	Announcements []Announcement
 	Programmes    []Programme
 	Notices       []Notice
@@ -31,8 +31,8 @@ type BoardIdentity struct {
 // moon-sighting context so a cached board can keep its Islamic date current
 // without needing another network refresh at sunset.
 type DateContext struct {
-	GregorianDate        time.Time
-	IslamicDate          string
+	GregorianDate         time.Time
+	IslamicDate           string
 	IslamicDateAdjustment int
 	ForceIslamicDate30    bool
 }

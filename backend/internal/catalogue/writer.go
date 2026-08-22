@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
-	"path/filepath"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 )
 
@@ -23,28 +23,5 @@ func WriteCatalogue(filename string, streams []stream.Stream) error {
 		return err
 	}
 
-	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
-		return err
-	}
-
-	tmp, err := os.CreateTemp(filepath.Dir(filename), ".catalogue-*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0644); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-
-	return os.Rename(tmpName, filename)
+	return atomicfile.Write(filename, data, 0644)
 }

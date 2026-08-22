@@ -11,9 +11,9 @@ import (
 // Entry is the last successfully retrieved and validated timetable for one
 // selected MasjidBoard. Failed refresh attempts must never replace this data.
 type Entry struct {
-	CatalogueID string      `json:"catalogue_id"`
-	SuccessfulAt time.Time  `json:"successful_at"`
-	Board       model.Board `json:"board"`
+	CatalogueID  string      `json:"catalogue_id"`
+	SuccessfulAt time.Time   `json:"successful_at"`
+	Board        model.Board `json:"board"`
 }
 
 // Validate verifies that a cache entry is safe to use as last-known-good data.

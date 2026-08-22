@@ -25,7 +25,7 @@ type Board struct {
 	Date                 Date                      `json:"date"`
 	Prayers              []Prayer                  `json:"prayers,omitempty"`
 	Jumuah               []JumuahService           `json:"jumuah,omitempty"`
-	Astronomical         *Astronomical              `json:"astronomical,omitempty"`
+	Astronomical         *Astronomical             `json:"astronomical,omitempty"`
 }
 
 type Date struct {

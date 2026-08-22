@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"path/filepath"
 	"sync"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 type PreferencesState struct {
@@ -46,34 +47,7 @@ func (p *Preferences) Save(state PreferencesState) error {
 		return nil
 	}
 
-	if err := os.MkdirAll(filepath.Dir(p.path), 0755); err != nil {
-		return err
-	}
-
-	data, err := json.Marshal(state)
-	if err != nil {
-		return err
-	}
-
-	tmp, err := os.CreateTemp(filepath.Dir(p.path), ".preferences-*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0600); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpName, p.path); err != nil {
+	if err := atomicfile.WriteJSON(p.path, state, 0600); err != nil {
 		return err
 	}
 

@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 const unchangedCheckpointInterval = 24 * time.Hour
@@ -90,38 +92,8 @@ func (s *Store) Save(entry Entry) error {
 		return fmt.Errorf("masjidboard cache: read existing entry: %w", err)
 	}
 
-	if err := os.MkdirAll(s.dir, 0755); err != nil {
-		return fmt.Errorf("masjidboard cache: create storage directory: %w", err)
-	}
-	data, err := json.Marshal(entry)
-	if err != nil {
-		return fmt.Errorf("masjidboard cache: encode entry: %w", err)
-	}
-
-	tmp, err := os.CreateTemp(s.dir, ".masjidboard-cache-*.tmp")
-	if err != nil {
-		return fmt.Errorf("masjidboard cache: create temporary file: %w", err)
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0600); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard cache: set temporary file mode: %w", err)
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard cache: write temporary file: %w", err)
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard cache: sync temporary file: %w", err)
-	}
-	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("masjidboard cache: close temporary file: %w", err)
-	}
-	if err := os.Rename(tmpName, path); err != nil {
-		return fmt.Errorf("masjidboard cache: replace entry: %w", err)
+	if err := atomicfile.WriteJSON(path, entry, 0600); err != nil {
+		return fmt.Errorf("masjidboard cache: persist entry: %w", err)
 	}
 	return nil
 }

@@ -41,7 +41,6 @@ func TestValidateRejectsInvalidDurations(t *testing.T) {
 	}{
 		{"refresh interval", func(cfg *Config) { cfg.Streams.RefreshInterval = "not-a-duration" }},
 		{"retry interval", func(cfg *Config) { cfg.Playback.RetryInterval = "not-a-duration" }},
-		{"reconnect delay", func(cfg *Config) { cfg.Playback.ReconnectDelay = "not-a-duration" }},
 	}
 
 	for _, tt := range tests {

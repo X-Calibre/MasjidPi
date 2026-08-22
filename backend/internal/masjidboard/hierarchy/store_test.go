@@ -16,8 +16,8 @@ func testHierarchyState() State {
 			Name:  "South Africa",
 			Count: 615,
 			Regions: []Region{{
-				Name:  "North West",
-				Count: 23,
+				Name:   "North West",
+				Count:  23,
 				Cities: []Location{{Name: "Brits", Count: 3}},
 			}},
 		}},

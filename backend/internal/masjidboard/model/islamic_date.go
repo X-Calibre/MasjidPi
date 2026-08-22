@@ -122,8 +122,8 @@ func kuwaitiCalendar(t time.Time) (date IslamicDate, previousMonth int) {
 	ee := math.Floor((bb - dd) / 30.6001)
 
 	const (
-		islamicCycleDays = 10631.0
-		islamicYearDays  = islamicCycleDays / 30.0
+		islamicCycleDays  = 10631.0
+		islamicYearDays   = islamicCycleDays / 30.0
 		epochAstronomical = 1948084.0
 	)
 	shift := 8.01 / 60.0

@@ -21,7 +21,7 @@ func TestNormalizeAudioDevices(t *testing.T) {
 	}
 
 	want := []struct {
-		name string
+		name  string
 		label string
 	}{
 		{"auto", "Default audio output"},

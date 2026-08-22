@@ -115,23 +115,23 @@ func parseMasjidDiscovery(rows []json.RawMessage) (DiscoveryResult, error) {
 	entries := make([]CatalogueEntry, 0, len(rows)-1)
 	for i, raw := range rows[1:] {
 		var record struct {
-			Masjid           string `json:"masjid"`
-			FajrJamaat       string `json:"fajr_jamaat"`
-			ZuhrJamaat       string `json:"zuhr_jamaat"`
-			AsrJamaat        string `json:"asr_jamaat"`
-			MaghribAdhan     string `json:"maghrib_adhan"`
-			EshaJamaat       string `json:"esha_jamaat"`
-			LastUpdated      string `json:"last_updated"`
-			MBLID            string `json:"MBL_ID"`
-			City             string `json:"city"`
-			Sunset           string `json:"sunset"`
-			TimeZoneMilli    string `json:"time_zone_milli"`
-			WebURL           string `json:"web_url"`
-			JumuahKhutbah    string `json:"jumuah_khutbah"`
-			RamadhaanActive  string `json:"ramadhaanactive"`
-			DateAdjust       string `json:"date_adjust"`
-			MoonSeen         string `json:"moon_seen"`
-			LadiesFacility   string `json:"ladies_facility"`
+			Masjid          string `json:"masjid"`
+			FajrJamaat      string `json:"fajr_jamaat"`
+			ZuhrJamaat      string `json:"zuhr_jamaat"`
+			AsrJamaat       string `json:"asr_jamaat"`
+			MaghribAdhan    string `json:"maghrib_adhan"`
+			EshaJamaat      string `json:"esha_jamaat"`
+			LastUpdated     string `json:"last_updated"`
+			MBLID           string `json:"MBL_ID"`
+			City            string `json:"city"`
+			Sunset          string `json:"sunset"`
+			TimeZoneMilli   string `json:"time_zone_milli"`
+			WebURL          string `json:"web_url"`
+			JumuahKhutbah   string `json:"jumuah_khutbah"`
+			RamadhaanActive string `json:"ramadhaanactive"`
+			DateAdjust      string `json:"date_adjust"`
+			MoonSeen        string `json:"moon_seen"`
+			LadiesFacility  string `json:"ladies_facility"`
 		}
 		if err := json.Unmarshal(raw, &record); err != nil {
 			return DiscoveryResult{}, fmt.Errorf("masjidboardlive: decode discovery record %d: %w", i+1, err)

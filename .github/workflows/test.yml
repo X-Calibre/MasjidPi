@@ -25,10 +25,25 @@ jobs:
           go-version-file: backend/go.mod
           cache: true
 
-      - name: Run Go tests
+      - name: Check Go formatting
         working-directory: backend
-        run: go test ./...
+        run: test -z "$(gofmt -l .)"
+
+      - name: Run Go vet
+        working-directory: backend
+        run: go vet ./...
+
+      - name: Run Go tests with race detector
+        working-directory: backend
+        run: go test -race ./...
 
       - name: Validate shell scripts
         shell: bash
-        run: bash -n scripts/*.sh
+        run: |
+          bash -n scripts/*.sh
+          # These files are sourced by install.sh, so their shared globals look
+          # unused when ShellCheck analyses each file independently.
+          shellcheck -e SC1091,SC2034 scripts/*.sh
+
+      - name: Validate JavaScript syntax
+        run: node --check frontend/*.js

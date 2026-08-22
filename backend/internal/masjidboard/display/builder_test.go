@@ -11,10 +11,10 @@ import (
 
 func selected(id, name string) selection.Board {
 	return selection.Board{
-		CatalogueID: "masjidboardlive:" + id,
-		Provider: "masjidboardlive",
-		ExternalID: id,
-		Name: name,
+		CatalogueID:      "masjidboardlive:" + id,
+		Provider:         "masjidboardlive",
+		ExternalID:       id,
+		Name:             name,
 		TimeZoneOffsetMS: 7200000,
 	}
 }
@@ -26,11 +26,11 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	two := selected("two", "Two")
 	updated := time.Date(2026, 8, 19, 19, 0, 0, 0, time.FixedZone("SAST", 2*60*60))
 	board := model.Board{
-		Identity: model.BoardIdentity{ID: "two", Name: "Two Live", TimeZone: "GMT+02:00"},
+		Identity:    model.BoardIdentity{ID: "two", Name: "Two Live", TimeZone: "GMT+02:00"},
 		DateContext: model.DateContext{GregorianDate: time.Date(2026, 8, 19, 0, 0, 0, 0, updated.Location())},
 		PrayerTimes: model.PrayerTimes{
-			Fajr: model.PrayerTime{Adhan: ct(5, 40), Jamaah: ct(6, 0)},
-			Asr: model.PrayerTime{Adhan: ct(16, 40), Jamaah: ct(17, 0)},
+			Fajr:   model.PrayerTime{Adhan: ct(5, 40), Jamaah: ct(6, 0)},
+			Asr:    model.PrayerTime{Adhan: ct(16, 40), Jamaah: ct(17, 0)},
 			Jumuah: []model.JumuahService{{Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
 		},
 		Astronomical: &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
@@ -76,9 +76,9 @@ func TestBuildMarksCachedBoardStaleWithoutDiagnostics(t *testing.T) {
 	board := model.Board{Identity: model.BoardIdentity{ID: "brits-jamia", Name: "Brits Jamia Masjid", TimeZone: "GMT+02:00"}}
 
 	view := Build(true, selection.State{Boards: []selection.Board{selectedBoard}}, []masjidboardruntime.Result{{
-		Selection: selectedBoard,
-		Board: &board,
-		Status: masjidboardruntime.StatusStale,
+		Selection:            selectedBoard,
+		Board:                &board,
+		Status:               masjidboardruntime.StatusStale,
 		LastSuccessfulUpdate: updated,
 	}})
 

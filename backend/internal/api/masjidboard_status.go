@@ -14,19 +14,19 @@ type masjidBoardStatusResponse struct {
 }
 
 type masjidBoardStatusItem struct {
-	CatalogueID          string                   `json:"catalogue_id"`
-	Provider             string                   `json:"provider"`
-	ExternalID           string                   `json:"external_id"`
-	Name                 string                   `json:"name"`
-	TimeZoneOffsetMS     int64                    `json:"time_zone_offset_ms"`
+	CatalogueID          string                    `json:"catalogue_id"`
+	Provider             string                    `json:"provider"`
+	ExternalID           string                    `json:"external_id"`
+	Name                 string                    `json:"name"`
+	TimeZoneOffsetMS     int64                     `json:"time_zone_offset_ms"`
 	Status               masjidboardruntime.Status `json:"status"`
-	UsingCachedData      bool                     `json:"using_cached_data"`
-	UpdateFailed         bool                     `json:"update_failed"`
-	LastAttempt          *time.Time               `json:"last_attempt,omitempty"`
-	LastSuccessfulUpdate *time.Time               `json:"last_successful_update,omitempty"`
-	UpdateError          string                   `json:"update_error,omitempty"`
-	PersistenceError     string                   `json:"persistence_error,omitempty"`
-	Board                *model.Board             `json:"board,omitempty"`
+	UsingCachedData      bool                      `json:"using_cached_data"`
+	UpdateFailed         bool                      `json:"update_failed"`
+	LastAttempt          *time.Time                `json:"last_attempt,omitempty"`
+	LastSuccessfulUpdate *time.Time                `json:"last_successful_update,omitempty"`
+	UpdateError          string                    `json:"update_error,omitempty"`
+	PersistenceError     string                    `json:"persistence_error,omitempty"`
+	Board                *model.Board              `json:"board,omitempty"`
 }
 
 func (s *Server) masjidBoardStatus(w http.ResponseWriter, r *http.Request) {

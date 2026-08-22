@@ -53,8 +53,8 @@ func TestValidateAllowsBlankRegion(t *testing.T) {
 		RetrievedAt: now,
 		ValidatedAt: now,
 		Countries: []Country{{
-			Name:  "South Africa",
-			Count: 1,
+			Name:    "South Africa",
+			Count:   1,
 			Regions: []Region{{Name: "", Count: 1, Cities: []Location{{Name: "Unknown Town", Count: 1}}}},
 		}},
 	}

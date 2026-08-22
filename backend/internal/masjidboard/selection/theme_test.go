@@ -27,7 +27,14 @@ func TestValidateRejectsUnsupportedTheme(t *testing.T) {
 func TestStorePreservesTheme(t *testing.T) {
 	store := NewStore(t.TempDir() + "/selection.json")
 	state := State{Boards: []Board{selected("test", "Test Masjid", 0)}, Theme: ThemeRuby}
-	if err := store.Save(state); err != nil { t.Fatal(err) }
-	got, err := store.Load(); if err != nil { t.Fatal(err) }
-	if got.EffectiveTheme() != ThemeRuby { t.Fatalf("theme=%q", got.EffectiveTheme()) }
+	if err := store.Save(state); err != nil {
+		t.Fatal(err)
+	}
+	got, err := store.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.EffectiveTheme() != ThemeRuby {
+		t.Fatalf("theme=%q", got.EffectiveTheme())
+	}
 }

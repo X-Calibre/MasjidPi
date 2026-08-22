@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"reflect"
 	"sync"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
 // Store persists the small runtime selection state. Unlike the full catalogue,
@@ -58,40 +59,8 @@ func (s *Store) Save(state State) error {
 		return nil
 	}
 
-	dir := filepath.Dir(s.path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("masjidboard selection: create storage directory: %w", err)
-	}
-
-	data, err := json.Marshal(state)
-	if err != nil {
-		return fmt.Errorf("masjidboard selection: encode state: %w", err)
-	}
-
-	tmp, err := os.CreateTemp(dir, ".masjidboard-selection-*.tmp")
-	if err != nil {
-		return fmt.Errorf("masjidboard selection: create temporary file: %w", err)
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-
-	if err := tmp.Chmod(0600); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard selection: set temporary file mode: %w", err)
-	}
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard selection: write temporary file: %w", err)
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("masjidboard selection: sync temporary file: %w", err)
-	}
-	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("masjidboard selection: close temporary file: %w", err)
-	}
-	if err := os.Rename(tmpName, s.path); err != nil {
-		return fmt.Errorf("masjidboard selection: replace state: %w", err)
+	if err := atomicfile.WriteJSON(s.path, state, 0600); err != nil {
+		return fmt.Errorf("masjidboard selection: persist state: %w", err)
 	}
 
 	s.state = state

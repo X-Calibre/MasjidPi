@@ -56,7 +56,7 @@ func TestUpdaterScheduledSkipsFreshHierarchy(t *testing.T) {
 	store := &fakeHierarchyStore{state: State{
 		RetrievedAt: now.Add(-24 * time.Hour),
 		ValidatedAt: now.Add(-24 * time.Hour),
-		Countries: []Country{{Name: "South Africa", Count: 1, Regions: []Region{{Name: "North West", Count: 1, Cities: []Location{{Name: "Brits", Count: 1}}}}}},
+		Countries:   []Country{{Name: "South Africa", Count: 1, Regions: []Region{{Name: "North West", Count: 1, Cities: []Location{{Name: "Brits", Count: 1}}}}}},
 	}}
 	source := &fakeHierarchySource{}
 
@@ -170,13 +170,13 @@ func TestUpdaterRejectsCityCountExceedingRegionAndPreservesLastKnownGood(t *test
 	old := State{
 		RetrievedAt: now.Add(-8 * 24 * time.Hour),
 		ValidatedAt: now.Add(-8 * 24 * time.Hour),
-		Countries: []Country{{Name: "South Africa", Count: 1, Regions: []Region{{Name: "North West", Count: 1, Cities: []Location{{Name: "Brits", Count: 1}}}}}},
+		Countries:   []Country{{Name: "South Africa", Count: 1, Regions: []Region{{Name: "North West", Count: 1, Cities: []Location{{Name: "Brits", Count: 1}}}}}},
 	}
 	store := &fakeHierarchyStore{state: old}
 	source := &fakeHierarchySource{
 		countries: []Location{{Name: "South Africa", Count: 2}},
-		regions: map[string][]Location{"South Africa": {{Name: "North West", Count: 2}}},
-		cities: map[string][]Location{"South Africa|North West": {{Name: "Brits", Count: 3}}},
+		regions:   map[string][]Location{"South Africa": {{Name: "North West", Count: 2}}},
+		cities:    map[string][]Location{"South Africa|North West": {{Name: "Brits", Count: 3}}},
 	}
 
 	result, err := (Updater{Source: source, Store: store}).RefreshManual(context.Background(), now)

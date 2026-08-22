@@ -20,13 +20,13 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	second := selection.Board{CatalogueID: "masjidboardlive:two", Provider: "masjidboardlive", ExternalID: "two", Name: "Two", TimeZoneOffsetMS: 7200000}
 	updated := time.Date(2026, 8, 19, 19, 0, 0, 0, time.UTC)
 	cached := model.Board{
-		Identity: model.BoardIdentity{ID: "one", Name: "One Masjid", TimeZone: "GMT+02:00"},
+		Identity:    model.BoardIdentity{ID: "one", Name: "One Masjid", TimeZone: "GMT+02:00"},
 		PrayerTimes: model.PrayerTimes{Asr: model.PrayerTime{Jamaah: &model.ClockTime{Hour: 16, Minute: 45}}},
 	}
 
 	s := &Server{masjidBoardService: fakeMasjidBoardStatusProvider{
 		configured: true,
-		selection: selection.State{Boards: []selection.Board{first, second}},
+		selection:  selection.State{Boards: []selection.Board{first, second}},
 		results: []masjidboardruntime.Result{
 			{Selection: first, Board: &cached, Status: masjidboardruntime.StatusStale, LastSuccessfulUpdate: updated, UpdateError: errors.New("secret diagnostic")},
 			{Selection: second, Status: masjidboardruntime.StatusUnavailable, UpdateError: errors.New("another diagnostic")},

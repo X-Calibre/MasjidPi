@@ -74,7 +74,7 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		},
 		DateContext: model.DateContext{
 			GregorianDate: dateOnly(localNow, loc),
-			IslamicDate:    stringValueFromRow(rows[rowClock], 5),
+			IslamicDate:   stringValueFromRow(rows[rowClock], 5),
 		},
 		PrayerTimes:  prayers,
 		Astronomical: astronomical,

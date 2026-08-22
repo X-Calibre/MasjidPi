@@ -17,5 +17,5 @@ func (s *Server) components(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	writeJSON(w, http.StatusOK, components.Current())
+	writeJSON(w, http.StatusOK, s.installed)
 }

@@ -97,7 +97,7 @@ func buildCoordinator(state selection.State, cacheStore runtime.CacheStore, fact
 	}
 
 	items := make([]runtime.Item, 0, len(state.Boards))
-	for i, board := range state.Boards) {
+	for i, board := range state.Boards {
 		p, err := factory(board)
 		if err != nil {
 			return nil, fmt.Errorf("masjidboard service: construct provider %d: %w", i+1, err)

@@ -83,7 +83,14 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 		byID[record.ID] = record
 	}
 
-	selected := selection.State{Boards: make([]selection.Board, 0, len(request.CatalogueIDs))}
+	currentLayout := selection.LayoutStandard
+	if s.masjidBoardService != nil {
+		currentLayout = s.masjidBoardService.Selection().EffectiveLayout()
+	}
+	selected := selection.State{
+		Boards: make([]selection.Board, 0, len(request.CatalogueIDs)),
+		Layout: currentLayout,
+	}
 	seen := make(map[string]struct{}, len(request.CatalogueIDs))
 	for _, rawID := range request.CatalogueIDs {
 		id := strings.TrimSpace(rawID)

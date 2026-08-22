@@ -71,6 +71,23 @@
         const friday = utils.displayDate().getDay() === 5;
         const next = utils.nextEventForBoard(board, now, friday);
         for (const key of ["fajr", "dhuhr", "asr", "maghrib", "esha"]) {
+            if (friday && key === "dhuhr") {
+                const service = Array.isArray(board.jumuah) ? board.jumuah[0] : null;
+                const items = service ? utils.jumuahItems(service) : [];
+                const adhan = items.find((item) => item.kind === "adhan");
+                // jumuahItems identifies an explicit Salaah/Jamaah as the
+                // salaah item, or uses Khutbah when no such time is supplied.
+                const jamaah = items.find((item) => item.kind === "salaah");
+                const row = element("div", "portrait-time-row");
+                if (next && next.kind === "jumuah") row.classList.add("upcoming");
+                row.append(
+                    element("span", "", "Jumu'ah"),
+                    element("strong", "", adhan ? utils.formatClock(adhan.time) : "-"),
+                    element("strong", "", jamaah ? utils.formatClock(jamaah.time) : "-"),
+                );
+                table.append(row);
+                continue;
+            }
             const prayer = utils.findPrayer(board, key);
             const row = element("div", "portrait-time-row");
             if (next && next.kind === "prayer" && next.key === key) row.classList.add("upcoming");

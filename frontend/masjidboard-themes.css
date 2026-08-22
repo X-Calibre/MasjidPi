@@ -34,7 +34,7 @@ body.portrait-layout[data-board-theme]:not([data-board-theme="emerald"]) {
     --portrait-muted:var(--muted);
     --portrait-accent:var(--accent);
     --portrait-accent-bg:color-mix(in srgb,var(--accent) 16%,var(--panel));
-    --portrait-countdown:var(--warning);
+    --portrait-countdown:var(--accent);
     --portrait-header-bg:color-mix(in srgb,var(--panel) 82%,var(--bg));
     --portrait-strong-line:color-mix(in srgb,var(--text) 42%,transparent);
     --portrait-secondary-text:color-mix(in srgb,var(--text) 88%,var(--muted));

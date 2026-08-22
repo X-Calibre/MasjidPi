@@ -26,6 +26,23 @@
     font-size:clamp(1.75rem,2.35vw,2.65rem);
 }
 
+/* Detailed mode is denser than Standard. Keep prayer names prominent, but
+   slightly reduce their scaling ceiling so long names such as Maghrib remain
+   comfortably inside the label card. */
+.detailed-layout .prayer-label {
+    font-size:clamp(1.8rem,2.25vw,2.55rem);
+    padding-inline:clamp(8px,.75vw,12px);
+}
+
+/* Countdowns are supporting information in Detailed mode. Keep them readable
+   without letting them crowd the prayer times above and below. */
+.detailed-layout .event-countdown {
+    font-size:clamp(.78rem,.9vw,1rem);
+    line-height:1;
+    margin-top:2px;
+    white-space:nowrap;
+}
+
 /* With fewer masjids, use the recovered horizontal space for the columns
    that carry labels and for the Daily Times panel rather than making the
    masjid cells excessively wide. */
@@ -165,7 +182,7 @@
 @media (min-width:1101px) and (max-width:2000px) {
     .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
     .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
-        grid-template-columns:minmax(190px,.50fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
+        grid-template-columns:minmax(205px,.53fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
     }
 }
 

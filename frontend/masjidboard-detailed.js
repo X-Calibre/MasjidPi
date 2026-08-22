@@ -7,6 +7,7 @@
     document.body.classList.add("detailed-layout");
     const panel = document.getElementById("additionalTimes");
     const prayerGrid = document.getElementById("prayerGrid");
+    const detailedGregorianDate = document.getElementById("detailedGregorianDate");
     const detailedIslamicDate = document.getElementById("detailedIslamicDate");
     const refreshIntervalMs = 60_000;
     const islamicWeekdays = [
@@ -94,6 +95,15 @@
         return new Date(year, month - 1, day);
     }
 
+    function formatGregorianDate(board) {
+        return boardGregorianDate(board).toLocaleDateString([], {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    }
+
     function islamicWeekday(board) {
         const date = boardGregorianDate(board);
         const sunset = board && board.astronomical ? board.astronomical.sunset : null;
@@ -106,18 +116,17 @@
         return islamicWeekdays[date.getDay()];
     }
 
-    function renderIslamicDate(board) {
+    function renderDetailedDates(board) {
+        if (detailedGregorianDate) {
+            detailedGregorianDate.textContent = formatGregorianDate(board);
+        }
         if (!detailedIslamicDate) return;
         const islamicDate = board && board.date ? board.date.islamic : "";
-        if (!islamicDate) {
-            detailedIslamicDate.textContent = "";
-            return;
-        }
-        detailedIslamicDate.textContent = `${islamicWeekday(board)}, ${islamicDate}`;
+        detailedIslamicDate.textContent = islamicDate ? `${islamicWeekday(board)}, ${islamicDate}` : "";
     }
 
     function render(board) {
-        renderIslamicDate(board);
+        renderDetailedDates(board);
         panel.replaceChildren();
 
         const heading = document.createElement("div");

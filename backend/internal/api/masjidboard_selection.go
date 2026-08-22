@@ -17,121 +17,55 @@ type masjidBoardSelectionManager interface {
 	Refresh(context.Context) []masjidboardruntime.Result
 }
 
-type masjidBoardSelectionRequest struct {
-	CatalogueIDs []string `json:"catalogue_ids"`
-}
-
-type masjidBoardSelectionResponse struct {
-	Configured bool              `json:"configured"`
-	Boards     []selection.Board `json:"boards"`
-}
+type masjidBoardSelectionRequest struct { CatalogueIDs []string `json:"catalogue_ids"` }
+type masjidBoardSelectionResponse struct { Configured bool `json:"configured"`; Boards []selection.Board `json:"boards"` }
 
 func (s *Server) masjidBoardSelection(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodGet:
-		s.writeMasjidBoardSelection(w)
-	case http.MethodPut:
-		s.updateMasjidBoardSelection(w, r)
-	default:
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	case http.MethodGet: s.writeMasjidBoardSelection(w)
+	case http.MethodPut: s.updateMasjidBoardSelection(w, r)
+	default: writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 	}
 }
 
 func (s *Server) writeMasjidBoardSelection(w http.ResponseWriter) {
-	if s.masjidBoardService == nil {
-		writeJSON(w, http.StatusOK, masjidBoardSelectionResponse{Boards: []selection.Board{}})
-		return
-	}
-	state := s.masjidBoardService.Selection()
-	boards := state.Boards
-	if boards == nil {
-		boards = []selection.Board{}
-	}
+	if s.masjidBoardService == nil { writeJSON(w, http.StatusOK, masjidBoardSelectionResponse{Boards: []selection.Board{}}); return }
+	state := s.masjidBoardService.Selection(); boards := state.Boards; if boards == nil { boards = []selection.Board{} }
 	writeJSON(w, http.StatusOK, masjidBoardSelectionResponse{Configured: state.Configured(), Boards: boards})
 }
 
 func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Request) {
-	if s.masjidBoardSelectionManager == nil {
-		writeError(w, http.StatusServiceUnavailable, "MasjidBoard selection service is unavailable")
-		return
-	}
-	if strings.TrimSpace(s.masjidBoardCataloguePath) == "" {
-		writeError(w, http.StatusServiceUnavailable, "MasjidBoard catalogue is unavailable")
-		return
-	}
+	if s.masjidBoardSelectionManager == nil { writeError(w, http.StatusServiceUnavailable, "MasjidBoard selection service is unavailable"); return }
+	if strings.TrimSpace(s.masjidBoardCataloguePath) == "" { writeError(w, http.StatusServiceUnavailable, "MasjidBoard catalogue is unavailable"); return }
 
 	var request masjidBoardSelectionRequest
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&request); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request body")
-		return
-	}
-	if len(request.CatalogueIDs) < selection.MinBoards || len(request.CatalogueIDs) > selection.MaxBoards {
-		writeError(w, http.StatusBadRequest, "select between 1 and 3 boards")
-		return
-	}
+	decoder := json.NewDecoder(r.Body); decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&request); err != nil { writeError(w, http.StatusBadRequest, "invalid request body"); return }
+	if len(request.CatalogueIDs) < selection.MinBoards || len(request.CatalogueIDs) > selection.MaxBoards { writeError(w, http.StatusBadRequest, "select between 1 and 3 boards"); return }
 
 	state, err := masjidboardcatalogue.NewStore(s.masjidBoardCataloguePath).Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	if err != nil { writeError(w, http.StatusInternalServerError, err.Error()); return }
 	merged := masjidboardcatalogue.Merge(state)
-	byID := make(map[string]masjidboardcatalogue.Record, len(merged.Records))
-	for _, record := range merged.Records {
-		byID[record.ID] = record
-	}
+	byID := make(map[string]masjidboardcatalogue.Record, len(merged.Records)); for _, record := range merged.Records { byID[record.ID] = record }
 
-	currentLayout := selection.LayoutStandard
+	currentLayout, currentTheme := selection.LayoutStandard, selection.ThemeEmerald
 	if s.masjidBoardService != nil {
-		currentLayout = s.masjidBoardService.Selection().EffectiveLayout()
+		current := s.masjidBoardService.Selection()
+		currentLayout, currentTheme = current.EffectiveLayout(), current.EffectiveTheme()
 	}
-	selected := selection.State{
-		Boards: make([]selection.Board, 0, len(request.CatalogueIDs)),
-		Layout: currentLayout,
-	}
+	selected := selection.State{Boards: make([]selection.Board, 0, len(request.CatalogueIDs)), Layout: currentLayout, Theme: currentTheme}
 	seen := make(map[string]struct{}, len(request.CatalogueIDs))
 	for _, rawID := range request.CatalogueIDs {
 		id := strings.TrimSpace(rawID)
-		if id == "" {
-			writeError(w, http.StatusBadRequest, "catalogue ID is required")
-			return
-		}
-		if _, exists := seen[id]; exists {
-			writeError(w, http.StatusBadRequest, "duplicate catalogue ID")
-			return
-		}
-		seen[id] = struct{}{}
-
+		if id == "" { writeError(w, http.StatusBadRequest, "catalogue ID is required"); return }
+		if _, exists := seen[id]; exists { writeError(w, http.StatusBadRequest, "duplicate catalogue ID"); return }; seen[id] = struct{}{}
 		record, ok := byID[id]
-		if !ok || record.Status != masjidboardcatalogue.StatusActive {
-			writeError(w, http.StatusBadRequest, "selected board is not active in the local catalogue: "+id)
-			return
-		}
-		board, err := selection.FromCatalogueRecord(record)
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err.Error())
-			return
-		}
+		if !ok || record.Status != masjidboardcatalogue.StatusActive { writeError(w, http.StatusBadRequest, "selected board is not active in the local catalogue: "+id); return }
+		board, err := selection.FromCatalogueRecord(record); if err != nil { writeError(w, http.StatusBadRequest, err.Error()); return }
 		selected.Boards = append(selected.Boards, board)
 	}
-
-	if err := s.masjidBoardSelectionManager.Reconfigure(selected); err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	// A selection change should produce display data immediately instead of
-	// requiring an application restart. Bound the live fetch so a slow provider
-	// cannot hold the configuration request indefinitely.
-	ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second)
-	defer cancel()
-	s.masjidBoardSelectionManager.Refresh(ctx)
-
-	boards := selected.Boards
-	if boards == nil {
-		boards = []selection.Board{}
-	}
+	if err := s.masjidBoardSelectionManager.Reconfigure(selected); err != nil { writeError(w, http.StatusInternalServerError, err.Error()); return }
+	ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second); defer cancel(); s.masjidBoardSelectionManager.Refresh(ctx)
+	boards := selected.Boards; if boards == nil { boards = []selection.Board{} }
 	writeJSON(w, http.StatusOK, masjidBoardSelectionResponse{Configured: true, Boards: boards})
 }

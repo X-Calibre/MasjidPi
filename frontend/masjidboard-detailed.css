@@ -79,27 +79,29 @@
 }
 
 .additional-times-heading { font-size:clamp(1.45rem,1.8vw,1.9rem); }
-.additional-times-source { padding-bottom:clamp(10px,1.2vh,14px); }
+.additional-times-source { padding-bottom:clamp(8px,1vh,12px); }
 .additional-times-list {
-    justify-content:space-between;
+    justify-content:flex-start;
     gap:0;
 }
 .additional-time-row {
+    flex:0 0 auto;
     flex-direction:column;
     align-items:flex-start;
     justify-content:center;
-    gap:6px;
-    padding:clamp(9px,1.1vh,14px) 0;
+    gap:5px;
+    padding:clamp(11px,1.25vh,16px) 0;
     border-bottom:1px solid var(--line);
 }
 .additional-time-row:last-child { border-bottom:0; }
 .additional-time-label {
-    font-size:clamp(.84rem,.95vw,1rem);
+    font-size:clamp(.96rem,1.08vw,1.12rem);
+    font-weight:680;
     line-height:1.15;
 }
 .additional-time-value {
     color:var(--accent);
-    font-size:clamp(1.15rem,1.45vw,1.5rem);
+    font-size:clamp(1.28rem,1.58vw,1.65rem);
     font-weight:820;
     line-height:1;
     white-space:nowrap;
@@ -127,5 +129,5 @@
     .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
     .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
     .detailed-layout .shared-jamaah { font-size:clamp(.86rem,3.2vw,1.05rem); }
-    .additional-time-row { padding:8px 0; }
+    .additional-time-row { padding:9px 0; }
 }

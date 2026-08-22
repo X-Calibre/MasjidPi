@@ -89,7 +89,7 @@
     function dailySlide(board) {
         const slide = element("article", "portrait-slide");
         const heading = element("header", "portrait-slide-heading");
-        heading.append(element("small", "", "MASJID 1"), element("h2", "", "Other daily times"));
+        heading.append(element("small", "", board.name), element("h2", "", "Other daily times"));
         slide.append(heading);
         const grid = element("div", "portrait-daily-grid");
         for (const item of dailyItems(board)) {

@@ -70,7 +70,7 @@
         }
 
         add(items, "Asr Starts", chooseAsrStart(board, astronomical));
-        add(items, "Maghrib Starts", astronomical.sunset);
+        add(items, "Sunset", astronomical.sunset);
         add(items, "Esha Starts", astronomical.esha_start);
 
         items.sort((left, right) => minutes(left.time) - minutes(right.time));

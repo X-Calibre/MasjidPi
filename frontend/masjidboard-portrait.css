@@ -62,7 +62,7 @@ body.portrait-layout {
 .portrait-time-head { height:48px; border:0; color:var(--portrait-secondary-text); background:var(--portrait-table-head); font-size:16px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
 .portrait-time-head span:nth-child(n+2) { text-align:right; }
 .portrait-time-row.upcoming { outline:1px solid var(--portrait-upcoming-line); outline-offset:-1px; background:var(--portrait-upcoming-bg); box-shadow:inset 6px 0 var(--portrait-accent); }
-.portrait-daily-row { height:72px; grid-template-columns:1fr auto; }
+.portrait-daily-row { height:78px; grid-template-columns:1fr auto; }
 .portrait-daily-row strong { min-width:110px; }
 .portrait-footer { position:absolute; z-index:2; bottom:19px; left:28px; right:28px; display:flex; align-items:center; justify-content:space-between; color:var(--portrait-muted); font-size:11px; }
 .portrait-dots { display:flex; gap:8px; }

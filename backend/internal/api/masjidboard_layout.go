@@ -16,6 +16,10 @@ type masjidBoardLayoutRequest struct {
 	Layout string `json:"layout"`
 }
 
+type masjidBoardLayoutSetter interface {
+	SetLayout(string) error
+}
+
 func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -25,8 +29,9 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJSON(w, http.StatusOK, masjidBoardLayoutResponse{Layout: layout})
 	case http.MethodPut:
-		if s.masjidBoardService == nil || s.masjidBoardSelectionManager == nil {
-			writeError(w, http.StatusServiceUnavailable, "MasjidBoard selection service is unavailable")
+		setter, ok := s.masjidBoardService.(masjidBoardLayoutSetter)
+		if !ok || setter == nil {
+			writeError(w, http.StatusServiceUnavailable, "MasjidBoard layout service is unavailable")
 			return
 		}
 
@@ -43,18 +48,11 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "layout must be standard or detailed")
 			return
 		}
-
-		state := s.masjidBoardService.Selection()
-		if !state.Configured() {
-			writeError(w, http.StatusConflict, "select at least one MasjidBoard before choosing a display layout")
+		if err := setter.SetLayout(layout); err != nil {
+			writeError(w, http.StatusConflict, err.Error())
 			return
 		}
-		state.Layout = layout
-		if err := s.masjidBoardSelectionManager.Reconfigure(state); err != nil {
-			writeError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		writeJSON(w, http.StatusOK, masjidBoardLayoutResponse{Layout: state.EffectiveLayout()})
+		writeJSON(w, http.StatusOK, masjidBoardLayoutResponse{Layout: layout})
 	default:
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 	}

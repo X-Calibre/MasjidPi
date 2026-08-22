@@ -27,9 +27,14 @@ type BoardIdentity struct {
 }
 
 // DateContext describes the date and timezone to which the board applies.
+// IslamicDateAdjustment and ForceIslamicDate30 preserve the upstream
+// moon-sighting context so a cached board can keep its Islamic date current
+// without needing another network refresh at sunset.
 type DateContext struct {
-	GregorianDate time.Time
-	IslamicDate   string
+	GregorianDate        time.Time
+	IslamicDate          string
+	IslamicDateAdjustment int
+	ForceIslamicDate30    bool
 }
 
 // PrayerTimes contains the five daily prayers and optional Friday Jumu'ah
@@ -90,18 +95,18 @@ func (s JumuahService) EffectiveSalaah() *ClockTime {
 }
 
 type AstronomicalTimes struct {
-	Suhur          *ClockTime
-	FajrStart      *ClockTime
-	Sunrise        *ClockTime
-	Ishraaq        *ClockTime
-	Duha           *ClockTime
-	IstiwaCaution  *ClockTime
-	Istiwa         *ClockTime
-	ZawaalEnd      *ClockTime
-	AsrShafii      *ClockTime
-	AsrHanafi      *ClockTime
-	Sunset         *ClockTime
-	EshaStart      *ClockTime
+	Suhur         *ClockTime
+	FajrStart     *ClockTime
+	Sunrise       *ClockTime
+	Ishraaq       *ClockTime
+	Duha          *ClockTime
+	IstiwaCaution *ClockTime
+	Istiwa        *ClockTime
+	ZawaalEnd     *ClockTime
+	AsrShafii     *ClockTime
+	AsrHanafi     *ClockTime
+	Sunset        *ClockTime
+	EshaStart     *ClockTime
 }
 
 type Announcement struct {

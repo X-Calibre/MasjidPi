@@ -20,6 +20,29 @@
     grid-column:3;
 }
 
+/* Detailed headers are deliberately a little smaller than Standard so long
+   masjid names fit comfortably across the denser comparison layout. */
+.detailed-layout .board-name {
+    font-size:clamp(1.75rem,2.35vw,2.65rem);
+}
+
+/* Detailed mode is denser than Standard. Keep prayer names prominent, but
+   slightly reduce their scaling ceiling so long names such as Maghrib remain
+   comfortably inside the label card. */
+.detailed-layout .prayer-label {
+    font-size:clamp(1.8rem,2.25vw,2.55rem);
+    padding-inline:clamp(8px,.75vw,12px);
+}
+
+/* Countdowns are supporting information in Detailed mode. Keep them readable
+   without letting them crowd the prayer times above and below. */
+.detailed-layout .event-countdown {
+    font-size:clamp(.78rem,.9vw,1rem);
+    line-height:1;
+    margin-top:2px;
+    white-space:nowrap;
+}
+
 /* With fewer masjids, use the recovered horizontal space for the columns
    that carry labels and for the Daily Times panel rather than making the
    masjid cells excessively wide. */
@@ -149,6 +172,18 @@
     font-weight:840;
     line-height:1;
     white-space:nowrap;
+}
+
+/* Full-HD displays have enough overall room, but the three-masjid layout can
+   squeeze the two left label columns. Give those labels a little more width
+   while preserving the established row heights and Daily Times proportions.
+   The prayer-name column gets the larger share so long names such as Maghrib
+   retain comfortable horizontal padding. */
+@media (min-width:1101px) and (max-width:2000px) {
+    .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
+    .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
+        grid-template-columns:minmax(205px,.53fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
+    }
 }
 
 @media (max-width:1100px) {

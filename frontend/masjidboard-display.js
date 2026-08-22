@@ -10,6 +10,8 @@
     const prayerGrid = document.getElementById("prayerGrid");
     const currentTime = document.getElementById("currentTime");
     const currentDate = document.getElementById("currentDate");
+    const detailedGregorianDate = document.getElementById("detailedGregorianDate");
+    const detailedIslamicDate = document.getElementById("detailedIslamicDate");
     const connectionState = document.getElementById("connectionState");
     let latestView = null;
 
@@ -52,6 +54,24 @@
     function formatClock(time) {
         if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute)) return "";
         return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
+    }
+
+    function formatFullGregorian(value) {
+        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            return displayDate().toLocaleDateString([], {weekday: "long", day: "numeric", month: "long", year: "numeric"});
+        }
+        const [year, month, day] = value.split("-").map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString([], {
+            weekday: "long", day: "numeric", month: "long", year: "numeric"
+        });
+    }
+
+    function renderDetailedDates(boards) {
+        if (!detailedGregorianDate || !detailedIslamicDate) return;
+        const source = Array.isArray(boards) && boards.length > 0 ? boards[0] : null;
+        const date = source && source.date ? source.date : {};
+        detailedGregorianDate.textContent = formatFullGregorian(date.gregorian);
+        detailedIslamicDate.textContent = date.islamic || "";
     }
 
     function minutesSinceMidnight(time) { return time.hour * 60 + time.minute; }
@@ -123,10 +143,6 @@
         const today = candidates.find((candidate) => minutesSinceMidnight(candidate.time) >= nowMinutes);
         if (today) return today;
 
-        // Once the final event of the day has passed, continue the countdown
-        // into tomorrow's first visible timetable event. The current board data
-        // supplies the next Fajr times, which keeps the display useful overnight
-        // instead of leaving a masjid without any countdown.
         const fajr = findPrayer(board, "fajr");
         if (!fajr) return null;
 
@@ -262,6 +278,7 @@
         const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (boards.length === 0) { showOnly(unconfiguredState); return; }
         setGridCount(boards.length);
+        renderDetailedDates(boards);
         renderHeaders(boards);
         renderPrayers(boards);
         showOnly(displayState);

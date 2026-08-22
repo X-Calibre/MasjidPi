@@ -1,6 +1,8 @@
 package display
 
 import (
+	"time"
+
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
@@ -11,6 +13,14 @@ import (
 // cached timetable is still returned with status=unavailable so the display
 // can represent the slot without inventing data.
 func Build(configured bool, selected selection.State, results []masjidboardruntime.Result) View {
+	return BuildAt(configured, selected, results, time.Now())
+}
+
+// BuildAt is the deterministic form of Build used by tests. Recalculating the
+// Islamic date while building the view means cached timetable data still rolls
+// over at the same sunset boundary as MasjidBoard Live, without waiting for a
+// network refresh.
+func BuildAt(configured bool, selected selection.State, results []masjidboardruntime.Result, now time.Time) View {
 	byID := make(map[string]masjidboardruntime.Result, len(results))
 	for _, result := range results {
 		byID[result.Selection.CatalogueID] = result
@@ -37,14 +47,14 @@ func Build(configured bool, selected selection.State, results []masjidboardrunti
 			item.LastSuccessfulUpdate = &updated
 		}
 		if result.Board != nil {
-			populateBoard(&item, *result.Board)
+			populateBoard(&item, *result.Board, now)
 		}
 		view.Boards = append(view.Boards, item)
 	}
 	return view
 }
 
-func populateBoard(out *Board, board model.Board) {
+func populateBoard(out *Board, board model.Board, now time.Time) {
 	out.Name = board.Identity.Name
 	out.AlternateName = board.Identity.AlternateName
 	out.TimeZone = board.Identity.TimeZone
@@ -52,6 +62,26 @@ func populateBoard(out *Board, board model.Board) {
 		out.Date.Gregorian = board.DateContext.GregorianDate.Format("2006-01-02")
 	}
 	out.Date.Islamic = board.DateContext.IslamicDate
+
+	// A non-empty stored Islamic date marks a board whose provider supplied the
+	// calculation context. Recalculate from the current clock so cached data is
+	// not stuck on the pre-sunset date until the next provider refresh.
+	if board.DateContext.IslamicDate != "" {
+		loc := now.Location()
+		if !board.DateContext.GregorianDate.IsZero() {
+			loc = board.DateContext.GregorianDate.Location()
+		}
+		var sunset *model.ClockTime
+		if board.Astronomical != nil {
+			sunset = board.Astronomical.Sunset
+		}
+		out.Date.Islamic = model.CalculateIslamicDate(
+			now.In(loc),
+			sunset,
+			board.DateContext.IslamicDateAdjustment,
+			board.DateContext.ForceIslamicDate30,
+		).String()
+	}
 
 	out.Prayers = []Prayer{
 		{Key: "fajr", Label: "Fajr", Adhan: displayTime(board.PrayerTimes.Fajr.Adhan), Jamaah: displayTime(board.PrayerTimes.Fajr.Jamaah)},

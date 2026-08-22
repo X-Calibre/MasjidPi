@@ -50,11 +50,16 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "layout or theme is required")
 			return
 		}
+		if layout != "" && layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
+			writeError(w, http.StatusBadRequest, "layout must be standard or detailed")
+			return
+		}
+		if theme != "" && !selection.ThemeSupported(theme) {
+			writeError(w, http.StatusBadRequest, "unsupported MasjidBoard theme")
+			return
+		}
+
 		if layout != "" {
-			if layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
-				writeError(w, http.StatusBadRequest, "layout must be standard or detailed")
-				return
-			}
 			setter, ok := s.masjidBoardService.(masjidBoardLayoutSetter)
 			if !ok || setter == nil {
 				writeError(w, http.StatusServiceUnavailable, "MasjidBoard layout service is unavailable")
@@ -66,10 +71,6 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if theme != "" {
-			if !selection.ThemeSupported(theme) {
-				writeError(w, http.StatusBadRequest, "unsupported MasjidBoard theme")
-				return
-			}
 			setter, ok := s.masjidBoardService.(masjidBoardThemeSetter)
 			if !ok || setter == nil {
 				writeError(w, http.StatusServiceUnavailable, "MasjidBoard theme service is unavailable")

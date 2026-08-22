@@ -7,10 +7,9 @@
     max-width:255px;
 }
 
-/* Detailed prayer rows gain one shared Adhan/Jamaah label column. Keep this
-   column compact, but wide enough that Jamaah never spills out of its card. */
+/* Detailed rows gain one shared label column. */
 .detailed-layout .comparison-grid,
-.detailed-layout .prayer-row:not(.jumuah-row) {
+.detailed-layout .prayer-row {
     grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,1fr));
 }
 .detailed-layout .board-headers::before {
@@ -41,41 +40,45 @@
     font-weight:680;
     line-height:1;
 }
-.detailed-layout .shared-jamaah {
+.detailed-layout .shared-jamaah,
+.detailed-layout .shared-khutbah {
     color:var(--text);
     font-size:clamp(1.25rem,1.6vw,1.75rem);
     font-weight:790;
 }
 
-.detailed-layout .prayer-row:not(.jumuah-row) .prayer-cell {
+.detailed-layout .prayer-row .prayer-cell {
     display:grid;
     grid-template-rows:repeat(var(--time-slot-count),minmax(0,1fr));
     gap:0;
 }
-.detailed-layout .prayer-row:not(.jumuah-row) .time-line.shared-label-value {
+.detailed-layout .prayer-row .time-line.shared-label-value {
     align-items:center;
     justify-content:center;
 }
-.detailed-layout .prayer-row:not(.jumuah-row) .time-line.shared-label-value .time-label {
+.detailed-layout .prayer-row .time-line.shared-label-value .time-label {
     display:none;
 }
-.detailed-layout .prayer-row:not(.jumuah-row) .time-line.shared-label-value .time-value-stack {
+.detailed-layout .prayer-row .time-line.shared-label-value .time-value-stack {
     align-items:center;
 }
-.detailed-layout .shared-time-placeholder { min-height:1px; }
-
-/* With the extra shared-label column, Masjid 1 moves to the third grid cell. */
-.detailed-layout .board-headers .board-header:first-of-type,
-.detailed-layout .prayer-row:not(.jumuah-row) > .prayer-cell:first-of-type,
-.detailed-layout .jumuah-row > :nth-child(2) {
-    border-color:rgba(231,200,87,.20);
-    background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98));
+.detailed-layout .shared-time-placeholder {
+    min-height:1px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.detailed-layout .shared-missing-value {
+    color:rgba(232,240,236,.28);
+    font-size:clamp(1.2rem,1.6vw,1.7rem);
+    font-weight:650;
 }
 
-/* Override the earlier nth-child source tint for ordinary detailed prayer rows. */
-.detailed-layout .prayer-row:not(.jumuah-row) > :nth-child(2) {
-    border-color:var(--line);
-    background:linear-gradient(180deg,rgba(13,29,24,.98),rgba(9,23,19,.98));
+/* With the shared-label column, Masjid 1 is the third grid cell. */
+.detailed-layout .board-headers .board-header:first-of-type,
+.detailed-layout .prayer-row > .prayer-cell:first-of-type {
+    border-color:rgba(231,200,87,.20);
+    background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98));
 }
 
 /* Daily Times is a compact stack of evenly spaced mini-cards. */
@@ -131,7 +134,7 @@
         max-width:225px;
     }
     .detailed-layout .comparison-grid,
-    .detailed-layout .prayer-row:not(.jumuah-row) {
+    .detailed-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
     .additional-times-list { gap:5px; }
@@ -142,12 +145,13 @@
     .detailed-layout .timetable-stage { flex:1 1 auto; }
     .detailed-layout .additional-times { min-width:0; max-width:none; }
     .detailed-layout .comparison-grid,
-    .detailed-layout .prayer-row:not(.jumuah-row) {
+    .detailed-layout .prayer-row {
         grid-template-columns:72px 82px repeat(var(--board-count),minmax(0,1fr));
     }
     .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
     .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
-    .detailed-layout .shared-jamaah { font-size:clamp(.86rem,3.2vw,1.05rem); }
+    .detailed-layout .shared-jamaah,
+    .detailed-layout .shared-khutbah { font-size:clamp(.86rem,3.2vw,1.05rem); }
     .additional-times-list { gap:5px; }
     .additional-time-row { flex:0 0 auto; padding:9px 8px; }
 }

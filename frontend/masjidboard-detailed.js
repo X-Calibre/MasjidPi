@@ -7,7 +7,17 @@
     document.body.classList.add("detailed-layout");
     const panel = document.getElementById("additionalTimes");
     const prayerGrid = document.getElementById("prayerGrid");
+    const detailedIslamicDate = document.getElementById("detailedIslamicDate");
     const refreshIntervalMs = 60_000;
+    const islamicWeekdays = [
+        "Al-Ahad",
+        "Al-Ithnayn",
+        "Ath-Thulatha",
+        "Al-Arbi'a",
+        "Al-Khamis",
+        "Al-Jumu'ah",
+        "As-Sabt",
+    ];
 
     function validTime(time) {
         return time && Number.isInteger(time.hour) && Number.isInteger(time.minute);
@@ -77,7 +87,37 @@
         return items;
     }
 
+    function boardGregorianDate(board) {
+        const value = board && board.date ? board.date.gregorian : "";
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date();
+        const [year, month, day] = value.split("-").map(Number);
+        return new Date(year, month - 1, day);
+    }
+
+    function islamicWeekday(board) {
+        const date = boardGregorianDate(board);
+        const sunset = board && board.astronomical ? board.astronomical.sunset : null;
+        if (validTime(sunset)) {
+            const now = new Date();
+            const rolloverSeconds = sunset.hour * 3600 + sunset.minute * 60 + 185;
+            const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            if (nowSeconds >= rolloverSeconds) date.setDate(date.getDate() + 1);
+        }
+        return islamicWeekdays[date.getDay()];
+    }
+
+    function renderIslamicDate(board) {
+        if (!detailedIslamicDate) return;
+        const islamicDate = board && board.date ? board.date.islamic : "";
+        if (!islamicDate) {
+            detailedIslamicDate.textContent = "";
+            return;
+        }
+        detailedIslamicDate.textContent = `${islamicWeekday(board)}, ${islamicDate}`;
+    }
+
     function render(board) {
+        renderIslamicDate(board);
         panel.replaceChildren();
 
         const heading = document.createElement("div");

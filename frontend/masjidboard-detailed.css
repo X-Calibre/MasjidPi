@@ -47,7 +47,8 @@
     font-weight:790;
 }
 
-.detailed-layout .prayer-row .prayer-cell {
+.detailed-layout .prayer-row .prayer-cell,
+.detailed-layout .prayer-row .jumuah-cell {
     display:grid;
     grid-template-rows:repeat(var(--time-slot-count),minmax(0,1fr));
     gap:0;
@@ -76,7 +77,8 @@
 
 /* With the shared-label column, Masjid 1 is the third grid cell. */
 .detailed-layout .board-headers .board-header:first-of-type,
-.detailed-layout .prayer-row > .prayer-cell:first-of-type {
+.detailed-layout .prayer-row > .prayer-cell:first-of-type,
+.detailed-layout .prayer-row > .jumuah-cell:first-of-type {
     border-color:rgba(231,200,87,.20);
     background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98));
 }

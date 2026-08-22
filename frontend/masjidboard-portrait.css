@@ -9,7 +9,7 @@ body.portrait-layout {
     --portrait-muted:#c5cec8;
     --portrait-accent:#55d69e;
     --portrait-accent-bg:#123a2c;
-    --portrait-countdown:#f2b84b;
+    --portrait-countdown:var(--accent);
     --portrait-countdown-text:#211600;
     --portrait-header-bg:#111814;
     --portrait-strong-line:#738179;

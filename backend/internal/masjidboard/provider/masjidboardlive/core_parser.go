@@ -21,6 +21,8 @@ type CoreMetadata struct {
 	LiveStreamURL      string
 	RamadhaanHide      string
 	SundayDhuhrText    string
+	IslamicDateAdjust  int
+	ForceDate30        string
 }
 
 // CoreResult is the normalised result of parsing the public Core board data
@@ -32,8 +34,8 @@ type CoreResult struct {
 
 var coreFieldRE = regexp.MustCompile(`(?m)^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*("(?:\\.|[^"\\])*")\s*,?\s*$`)
 
-// ParseCoreObject normalises the verified 36-field JavaScript data object used
-// by public MasjidBoard Live Core boards. Identity and timezone come from the
+// ParseCoreObject normalises the verified JavaScript data object used by
+// public MasjidBoard Live Core boards. Identity and timezone come from the
 // discovery/catalogue layer because the embedded Core object does not contain
 // enough information to construct the normalised Board identity by itself.
 func ParseCoreObject(raw []byte, identity model.BoardIdentity, now time.Time) (CoreResult, error) {
@@ -90,11 +92,33 @@ func ParseCoreObject(raw []byte, identity model.BoardIdentity, now time.Time) (C
 		prayers.Jumuah = []model.JumuahService{*jumuah}
 	}
 
+	islamicDateAdjust := 0
+	if value := strings.TrimSpace(fields["islamicDateAdjust"]); value != "" {
+		islamicDateAdjust, err = strconv.Atoi(value)
+		if err != nil {
+			return CoreResult{}, fmt.Errorf("masjidboardlive: Core field islamicDateAdjust value %q: %w", value, err)
+		}
+	}
+	forceDate30 := strings.ToUpper(strings.TrimSpace(fields["forceDate30"]))
+
+	var sunset *model.ClockTime
+	if astronomical != nil {
+		sunset = astronomical.Sunset
+	}
+	localNow := now.In(loc)
+	islamicDate := model.CalculateIslamicDate(
+		localNow,
+		sunset,
+		islamicDateAdjust,
+		forceDate30 == "N",
+	).String()
+
 	return CoreResult{
 		Board: model.Board{
 			Identity: identity,
 			DateContext: model.DateContext{
 				GregorianDate: dateOnly(now, loc),
+				IslamicDate:   islamicDate,
 			},
 			PrayerTimes:  prayers,
 			Astronomical: astronomical,
@@ -108,6 +132,8 @@ func ParseCoreObject(raw []byte, identity model.BoardIdentity, now time.Time) (C
 			LiveStreamURL:      fields["liveStreamURL"],
 			RamadhaanHide:      fields["ramadaanHide"],
 			SundayDhuhrText:    fields["sunday_zuhr_text"],
+			IslamicDateAdjust:  islamicDateAdjust,
+			ForceDate30:        forceDate30,
 		},
 	}, nil
 }

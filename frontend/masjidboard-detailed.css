@@ -6,10 +6,11 @@
     min-width:300px;
 }
 
-/* Detailed prayer rows gain one compact shared Adhan/Jamaah label column. */
+/* Detailed prayer rows gain one shared Adhan/Jamaah label column. Keep this
+   column compact, but wide enough that Jamaah never spills out of its card. */
 .detailed-layout .comparison-grid,
 .detailed-layout .prayer-row:not(.jumuah-row) {
-    grid-template-columns:minmax(145px,.40fr) minmax(88px,.22fr) repeat(var(--board-count),minmax(0,1fr));
+    grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,1fr));
 }
 .detailed-layout .board-headers::before {
     content:"";
@@ -33,14 +34,15 @@
     align-items:center;
     justify-content:center;
     text-align:center;
+    white-space:nowrap;
     color:var(--muted);
-    font-size:clamp(1.1rem,1.35vw,1.5rem);
+    font-size:clamp(1.05rem,1.25vw,1.4rem);
     font-weight:680;
     line-height:1;
 }
 .detailed-layout .shared-jamaah {
     color:var(--text);
-    font-size:clamp(1.4rem,1.85vw,2rem);
+    font-size:clamp(1.25rem,1.6vw,1.75rem);
     font-weight:790;
 }
 
@@ -83,7 +85,7 @@
     .detailed-layout .additional-times { min-width:270px; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row:not(.jumuah-row) {
-        grid-template-columns:minmax(105px,.32fr) minmax(76px,.19fr) repeat(var(--board-count),minmax(0,1fr));
+        grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
 }
 
@@ -91,9 +93,9 @@
     .detailed-layout .additional-times { min-width:0; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row:not(.jumuah-row) {
-        grid-template-columns:72px 60px repeat(var(--board-count),minmax(0,1fr));
+        grid-template-columns:72px 82px repeat(var(--board-count),minmax(0,1fr));
     }
     .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
-    .detailed-layout .shared-time-label { font-size:clamp(.8rem,3vw,1rem); }
-    .detailed-layout .shared-jamaah { font-size:clamp(.9rem,3.5vw,1.15rem); }
+    .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
+    .detailed-layout .shared-jamaah { font-size:clamp(.86rem,3.2vw,1.05rem); }
 }

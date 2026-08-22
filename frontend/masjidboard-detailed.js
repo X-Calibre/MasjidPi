@@ -116,50 +116,69 @@
         panel.append(list);
     }
 
+    function transformRow(row, preferredLabels) {
+        if (row.querySelector(":scope > .shared-time-labels")) return;
+
+        const cells = Array.from(row.querySelectorAll(":scope > .prayer-cell"));
+        if (cells.length === 0) return;
+
+        const available = new Set();
+        for (const cell of cells) {
+            for (const label of cell.querySelectorAll(".time-label")) {
+                const text = label.textContent.trim();
+                if (text) available.add(text);
+            }
+        }
+        const labels = preferredLabels.filter((label) => available.has(label));
+        if (labels.length === 0) return;
+
+        row.style.setProperty("--time-slot-count", String(labels.length));
+        const shared = document.createElement("div");
+        shared.className = "shared-time-labels";
+
+        for (const wanted of labels) {
+            const label = document.createElement("div");
+            label.className = `shared-time-label shared-${wanted.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+            label.textContent = wanted;
+            shared.append(label);
+        }
+
+        const prayerLabel = row.querySelector(":scope > .prayer-label-card");
+        if (!prayerLabel) return;
+        prayerLabel.insertAdjacentElement("afterend", shared);
+
+        for (const cell of cells) {
+            const existing = new Map(
+                Array.from(cell.querySelectorAll(":scope > .time-line")).map((line) => [line.querySelector(".time-label")?.textContent.trim(), line])
+            );
+            const fragment = document.createDocumentFragment();
+            for (const wanted of labels) {
+                const line = existing.get(wanted);
+                if (line) {
+                    line.classList.add("shared-label-value");
+                    fragment.append(line);
+                } else {
+                    const placeholder = document.createElement("div");
+                    placeholder.className = "time-line shared-label-value shared-time-placeholder";
+                    const dash = document.createElement("span");
+                    dash.className = "shared-missing-value";
+                    dash.textContent = "—";
+                    placeholder.append(dash);
+                    fragment.append(placeholder);
+                }
+            }
+            cell.replaceChildren(fragment);
+        }
+    }
+
     function addSharedPrayerLabels() {
         if (!prayerGrid) return;
 
         for (const row of prayerGrid.querySelectorAll(".prayer-row:not(.jumuah-row)")) {
-            if (row.querySelector(":scope > .shared-time-labels")) continue;
-
-            const cells = Array.from(row.querySelectorAll(":scope > .prayer-cell"));
-            const labels = ["Adhan", "Jamaah"].filter((wanted) =>
-                cells.some((cell) => Array.from(cell.querySelectorAll(".time-label")).some((label) => label.textContent === wanted))
-            );
-            if (labels.length === 0) continue;
-
-            row.style.setProperty("--time-slot-count", String(labels.length));
-            const shared = document.createElement("div");
-            shared.className = "shared-time-labels";
-
-            for (const wanted of labels) {
-                const label = document.createElement("div");
-                label.className = `shared-time-label shared-${wanted.toLowerCase()}`;
-                label.textContent = wanted;
-                shared.append(label);
-            }
-
-            const prayerLabel = row.querySelector(":scope > .prayer-label-card");
-            prayerLabel.insertAdjacentElement("afterend", shared);
-
-            for (const cell of cells) {
-                const existing = new Map(
-                    Array.from(cell.querySelectorAll(":scope > .time-line")).map((line) => [line.querySelector(".time-label")?.textContent, line])
-                );
-                const fragment = document.createDocumentFragment();
-                for (const wanted of labels) {
-                    const line = existing.get(wanted);
-                    if (line) {
-                        line.classList.add("shared-label-value");
-                        fragment.append(line);
-                    } else {
-                        const placeholder = document.createElement("div");
-                        placeholder.className = "time-line shared-label-value shared-time-placeholder";
-                        fragment.append(placeholder);
-                    }
-                }
-                cell.replaceChildren(fragment);
-            }
+            transformRow(row, ["Adhan", "Jamaah"]);
+        }
+        for (const row of prayerGrid.querySelectorAll(".prayer-row.jumuah-row")) {
+            transformRow(row, ["Adhan", "Sunan", "Khutbah"]);
         }
     }
 

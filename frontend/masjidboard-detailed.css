@@ -20,6 +20,28 @@
     grid-column:3;
 }
 
+/* With fewer masjids, use the recovered horizontal space for the columns
+   that carry labels and for the Daily Times panel rather than making the
+   masjid cells excessively wide. */
+.detailed-layout[data-board-count="2"] .additional-times {
+    flex-basis:clamp(260px,20vw,320px);
+    min-width:260px;
+    max-width:320px;
+}
+.detailed-layout[data-board-count="2"] .comparison-grid,
+.detailed-layout[data-board-count="2"] .prayer-row {
+    grid-template-columns:minmax(190px,.52fr) minmax(145px,.36fr) repeat(var(--board-count),minmax(0,1fr));
+}
+.detailed-layout[data-board-count="1"] .additional-times {
+    flex-basis:clamp(300px,24vw,380px);
+    min-width:300px;
+    max-width:380px;
+}
+.detailed-layout[data-board-count="1"] .comparison-grid,
+.detailed-layout[data-board-count="1"] .prayer-row {
+    grid-template-columns:minmax(235px,.62fr) minmax(175px,.43fr) repeat(var(--board-count),minmax(0,1fr));
+}
+
 .detailed-layout .shared-time-labels {
     border:1px solid var(--line);
     border-radius:var(--radius);
@@ -139,15 +161,39 @@
     .detailed-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
+    .detailed-layout[data-board-count="2"] .additional-times {
+        flex-basis:clamp(220px,22vw,270px);
+        min-width:220px;
+        max-width:270px;
+    }
+    .detailed-layout[data-board-count="2"] .comparison-grid,
+    .detailed-layout[data-board-count="2"] .prayer-row {
+        grid-template-columns:minmax(135px,.42fr) minmax(120px,.31fr) repeat(var(--board-count),minmax(0,1fr));
+    }
+    .detailed-layout[data-board-count="1"] .additional-times {
+        flex-basis:clamp(250px,26vw,310px);
+        min-width:250px;
+        max-width:310px;
+    }
+    .detailed-layout[data-board-count="1"] .comparison-grid,
+    .detailed-layout[data-board-count="1"] .prayer-row {
+        grid-template-columns:minmax(165px,.50fr) minmax(140px,.36fr) repeat(var(--board-count),minmax(0,1fr));
+    }
     .additional-times-list { gap:5px; }
     .additional-time-row { padding:7px 6px; }
 }
 
 @media (max-width:760px) {
     .detailed-layout .timetable-stage { flex:1 1 auto; }
-    .detailed-layout .additional-times { min-width:0; max-width:none; }
+    .detailed-layout .additional-times,
+    .detailed-layout[data-board-count="1"] .additional-times,
+    .detailed-layout[data-board-count="2"] .additional-times { min-width:0; max-width:none; }
     .detailed-layout .comparison-grid,
-    .detailed-layout .prayer-row {
+    .detailed-layout .prayer-row,
+    .detailed-layout[data-board-count="1"] .comparison-grid,
+    .detailed-layout[data-board-count="1"] .prayer-row,
+    .detailed-layout[data-board-count="2"] .comparison-grid,
+    .detailed-layout[data-board-count="2"] .prayer-row {
         grid-template-columns:72px 82px repeat(var(--board-count),minmax(0,1fr));
     }
     .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }

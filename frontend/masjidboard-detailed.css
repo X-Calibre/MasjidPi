@@ -78,31 +78,48 @@
     background:linear-gradient(180deg,rgba(13,29,24,.98),rgba(9,23,19,.98));
 }
 
-.additional-times-heading { font-size:clamp(1.45rem,1.8vw,1.9rem); }
-.additional-times-source { padding-bottom:clamp(8px,1vh,12px); }
+/* Daily Times is a compact stack of evenly spaced mini-cards. */
+.additional-times-heading {
+    font-size:clamp(1.45rem,1.8vw,1.9rem);
+}
+.additional-times-source {
+    padding-bottom:clamp(8px,1vh,12px);
+}
 .additional-times-list {
-    justify-content:flex-start;
-    gap:0;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:clamp(6px,.65vh,9px);
+    padding-top:clamp(6px,.7vh,10px);
 }
 .additional-time-row {
-    flex:0 0 auto;
+    flex:1 1 0;
+    min-height:0;
     flex-direction:column;
-    align-items:flex-start;
+    align-items:center;
     justify-content:center;
+    text-align:center;
     gap:5px;
-    padding:clamp(11px,1.25vh,16px) 0;
-    border-bottom:1px solid var(--line);
+    padding:clamp(8px,.8vh,11px) clamp(7px,.6vw,10px);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:clamp(10px,.8vw,13px);
+    background:linear-gradient(180deg,rgba(19,42,33,.96),rgba(12,31,24,.96));
 }
-.additional-time-row:last-child { border-bottom:0; }
+.additional-time-row:last-child {
+    border-bottom:1px solid rgba(255,255,255,.10);
+}
 .additional-time-label {
-    font-size:clamp(.96rem,1.08vw,1.12rem);
+    color:var(--text);
+    font-size:clamp(.92rem,1vw,1.05rem);
     font-weight:680;
-    line-height:1.15;
+    line-height:1.12;
 }
 .additional-time-value {
     color:var(--accent);
     font-size:clamp(1.28rem,1.58vw,1.65rem);
-    font-weight:820;
+    font-weight:840;
     line-height:1;
     white-space:nowrap;
 }
@@ -117,6 +134,8 @@
     .detailed-layout .prayer-row:not(.jumuah-row) {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
+    .additional-times-list { gap:5px; }
+    .additional-time-row { padding:7px 6px; }
 }
 
 @media (max-width:760px) {
@@ -129,5 +148,6 @@
     .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
     .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
     .detailed-layout .shared-jamaah { font-size:clamp(.86rem,3.2vw,1.05rem); }
-    .additional-time-row { padding:9px 0; }
+    .additional-times-list { gap:5px; }
+    .additional-time-row { flex:0 0 auto; padding:9px 8px; }
 }

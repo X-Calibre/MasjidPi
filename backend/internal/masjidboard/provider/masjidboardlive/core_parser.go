@@ -100,6 +100,7 @@ func ParseCoreObject(raw []byte, identity model.BoardIdentity, now time.Time) (C
 		}
 	}
 	forceDate30 := strings.ToUpper(strings.TrimSpace(fields["forceDate30"]))
+	forceIslamicDate30 := forceDate30 == "N"
 
 	var sunset *model.ClockTime
 	if astronomical != nil {
@@ -110,15 +111,17 @@ func ParseCoreObject(raw []byte, identity model.BoardIdentity, now time.Time) (C
 		localNow,
 		sunset,
 		islamicDateAdjust,
-		forceDate30 == "N",
+		forceIslamicDate30,
 	).String()
 
 	return CoreResult{
 		Board: model.Board{
 			Identity: identity,
 			DateContext: model.DateContext{
-				GregorianDate: dateOnly(now, loc),
-				IslamicDate:   islamicDate,
+				GregorianDate:         dateOnly(now, loc),
+				IslamicDate:           islamicDate,
+				IslamicDateAdjustment: islamicDateAdjust,
+				ForceIslamicDate30:    forceIslamicDate30,
 			},
 			PrayerTimes:  prayers,
 			Astronomical: astronomical,

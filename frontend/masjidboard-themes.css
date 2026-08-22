@@ -1,5 +1,6 @@
-/* Curated HDMI MasjidBoard colour themes. This file changes colour only;
-   Standard/Detailed geometry remains owned by the existing layout styles. */
+/* Curated HDMI MasjidBoard colour themes. Emerald deliberately falls through
+   to the existing display CSS so current installations retain their exact
+   colours. All other themes override colour only, never layout geometry. */
 
 body[data-board-theme="midnight"] {
     --bg:#050b14; --panel:#0b1624; --panel-soft:#102238; --line:rgba(173,207,255,.12);
@@ -22,33 +23,30 @@ body[data-board-theme="black-white"] {
     --text:#fff; --muted:#bcbcbc; --accent:#fff; --warning:#d7d7d7; --danger:#fff;
 }
 
-/* Theme-aware surfaces override legacy palette literals while preserving all
-   sizing, spacing, responsive behaviour and card structure. */
-body[data-board-theme] .board-header { background:var(--panel); }
-body[data-board-theme] .prayer-label-card,
-body[data-board-theme] .shared-time-labels {
+body[data-board-theme]:not([data-board-theme="emerald"]) .board-header { background:var(--panel); }
+body[data-board-theme]:not([data-board-theme="emerald"]) .prayer-label-card,
+body[data-board-theme]:not([data-board-theme="emerald"]) .shared-time-labels {
     background:linear-gradient(180deg,var(--panel),var(--panel-soft));
 }
-body[data-board-theme] .prayer-cell,
-body[data-board-theme] .jumuah-cell {
+body[data-board-theme]:not([data-board-theme="emerald"]) .prayer-cell,
+body[data-board-theme]:not([data-board-theme="emerald"]) .jumuah-cell {
     background:linear-gradient(180deg,var(--panel-soft),var(--panel));
 }
-body[data-board-theme] .additional-times {
+body[data-board-theme]:not([data-board-theme="emerald"]) .additional-times {
     background:linear-gradient(180deg,var(--panel-soft),var(--panel));
     border-color:color-mix(in srgb,var(--accent) 22%,transparent);
 }
-body[data-board-theme] .additional-time-row {
+body[data-board-theme]:not([data-board-theme="emerald"]) .additional-time-row {
     background:linear-gradient(180deg,var(--panel-soft),var(--panel));
     border-color:var(--line);
 }
-body[data-board-theme] .time-line.secondary .time-value,
-body[data-board-theme] .time-line.jumuah-event .time-value,
-body[data-board-theme] .additional-time-label { color:var(--muted); }
+body[data-board-theme]:not([data-board-theme="emerald"]) .time-line.secondary .time-value,
+body[data-board-theme]:not([data-board-theme="emerald"]) .time-line.jumuah-event .time-value,
+body[data-board-theme]:not([data-board-theme="emerald"]) .additional-time-label { color:var(--muted); }
 
-/* Masjid 1 remains subtly identified as the source of Detailed Daily Times. */
-body[data-board-theme].detailed-layout .board-headers .board-header:first-of-type,
-body[data-board-theme].detailed-layout .prayer-row > .prayer-cell:first-of-type,
-body[data-board-theme].detailed-layout .prayer-row > .jumuah-cell:first-of-type {
+body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .board-headers .board-header:first-of-type,
+body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .prayer-row > .prayer-cell:first-of-type,
+body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .prayer-row > .jumuah-cell:first-of-type {
     border-color:color-mix(in srgb,var(--accent) 28%,transparent);
     background:linear-gradient(180deg,color-mix(in srgb,var(--panel-soft) 88%,var(--accent) 12%),var(--panel));
 }

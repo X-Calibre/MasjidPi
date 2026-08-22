@@ -8,9 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.1.0 is the current stable release.**
-
-**v1.2.0 is the next release candidate.**
+**v1.2.0 is the current stable release.**
 
 The current product provides:
 
@@ -47,24 +45,15 @@ v1.2.0 extends the MasjidBoard appliance experience with:
 - Live theme updates and automatic Standard/Detailed switching from the Web UI without restarting the display service
 - MPV IPC response-ordering reliability improvements with concurrent-response tests
 
-The v1.2.0 Board presentation changes have been validated on a Raspberry Pi 3B with a native 1080p TV. Final release-candidate install/update validation is completed before the v1.2.0 tag is published.
+The published v1.2.0 ARM64 release was validated on the Raspberry Pi 3B reference appliance with a native 1080p TV. The public `install-latest.sh` upgrade path preserved the Listen + Board profile, selected audio device, selected masjids, saved Detailed layout and saved colour theme. Listen playback and the HDMI MasjidBoard display were verified after installation.
 
 ---
 
 ## Remaining Work
 
-There are no known feature blockers for v1.2.0.
+There are no known release-blocking items for v1.2.0.
 
-Before release, complete the final release-candidate checks:
-
-- Run the full backend test suite from clean `main`
-- Validate the release candidate on the Raspberry Pi reference appliance
-- Confirm Listen playback and selected audio output remain correct after update
-- Confirm the Board HDMI display starts automatically and retains the saved layout/theme
-- Confirm Standard/Detailed and theme changes still update the TV from the Web UI without shell access
-- Tag `v1.2.0` only after the release-candidate validation passes
-
-Ongoing reliability work that does not block v1.2.0:
+Ongoing reliability work:
 
 - Longer-duration appliance soak testing
 - HDMI disconnect/reconnect testing

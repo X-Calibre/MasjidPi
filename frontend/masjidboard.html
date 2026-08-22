@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark light">
-    <title>MasjidBoard · MasjidPi</title>
+    <title>MasjidBoard Â· MasjidPi</title>
     <link rel="stylesheet" href="masjidboard-display.css">
     <link rel="stylesheet" href="masjidboard-detailed.css">
     <link rel="stylesheet" href="masjidboard-date-header.css">
@@ -20,9 +20,9 @@
         </div>
         <div class="clock-block">
             <time id="currentTime" class="current-time">--:--</time>
-            <time id="currentDate" class="current-date">Loading date…</time>
+            <time id="currentDate" class="current-date">Loading dateâ¦</time>
         </div>
-        <div id="connectionState" class="connection-state" role="status">Connecting…</div>
+        <div id="connectionState" class="connection-state" role="status">Connectingâ¦</div>
     </header>
 
     <section id="unconfiguredState" class="empty-state hidden">
@@ -47,17 +47,19 @@
 
     <section id="portraitState" class="portrait-state hidden" aria-label="Portrait MasjidBoard display">
         <header class="portrait-header">
-            <div class="portrait-primary-row"><span class="portrait-masjid-number">M1</span><div><small>PRIMARY MASJID</small><strong id="portraitPrimaryName"></strong></div><span id="portraitBoardStatus" class="portrait-status"></span></div>
-            <time id="portraitClock" class="portrait-clock">--:--</time>
-            <div class="portrait-dates"><time id="portraitGregorianDate"></time><div id="portraitIslamicDate"></div></div>
+            <div class="portrait-primary-row"><strong id="portraitPrimaryName"></strong><span id="portraitBoardStatus" class="portrait-status"></span></div>
+            <div class="portrait-clock-row">
+                <time id="portraitClock" class="portrait-clock">--:--</time>
+                <div class="portrait-dates"><time id="portraitGregorianDate"></time><div id="portraitIslamicDate"></div></div>
+            </div>
             <div class="portrait-next">
-                <div class="portrait-next-name"><small>UP NEXT</small><strong id="portraitNextName">—</strong></div>
+                <div class="portrait-next-name"><small>UP NEXT</small><strong id="portraitNextName">â</strong></div>
                 <time id="portraitNextTime">--:--</time>
                 <div id="portraitCountdown" class="portrait-countdown"></div>
             </div>
         </header>
         <div id="portraitSlides" class="portrait-slides"></div>
-        <footer class="portrait-footer"><div id="portraitDots" class="portrait-dots"></div><span>Swipe up to listen ↑</span></footer>
+        <footer class="portrait-footer"><div id="portraitDots" class="portrait-dots"></div><span>Swipe up to listen â</span></footer>
     </section>
 </main>
 

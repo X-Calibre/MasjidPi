@@ -13,7 +13,19 @@ const (
 
 	LayoutStandard = "standard"
 	LayoutDetailed = "detailed"
+
+	ThemeEmerald    = "emerald"
+	ThemeMidnight   = "midnight"
+	ThemeSlate      = "slate"
+	ThemeRuby       = "ruby"
+	ThemeLight      = "light"
+	ThemeBlackWhite = "black-white"
 )
+
+var supportedThemes = map[string]struct{}{
+	ThemeEmerald: {}, ThemeMidnight: {}, ThemeSlate: {},
+	ThemeRuby: {}, ThemeLight: {}, ThemeBlackWhite: {},
+}
 
 // Board is the minimal last-known identity required to keep a selected
 // MasjidBoard usable without loading or refreshing the full catalogue.
@@ -26,26 +38,36 @@ type Board struct {
 }
 
 // State is the ordered set of boards selected by the user. Order is
-// significant and is preserved for display/UI purposes. Layout controls the
-// default HDMI/display presentation. An empty Layout is treated as Standard so
-// selections written by older MasjidPi versions remain valid.
+// significant and is preserved for display/UI purposes. Layout and Theme
+// control the HDMI presentation. Empty values are treated as the historic
+// Standard/Emerald defaults so selections written by older versions remain
+// valid.
 type State struct {
 	Boards []Board `json:"boards"`
 	Layout string  `json:"layout,omitempty"`
+	Theme  string  `json:"theme,omitempty"`
 }
 
-// Configured reports whether the state contains a user configuration.
-func (s State) Configured() bool {
-	return len(s.Boards) > 0
-}
+func (s State) Configured() bool { return len(s.Boards) > 0 }
 
-// EffectiveLayout returns the persisted layout, defaulting older/empty state to
-// the Standard display.
 func (s State) EffectiveLayout() string {
 	if strings.TrimSpace(s.Layout) == LayoutDetailed {
 		return LayoutDetailed
 	}
 	return LayoutStandard
+}
+
+func (s State) EffectiveTheme() string {
+	theme := strings.TrimSpace(strings.ToLower(s.Theme))
+	if _, ok := supportedThemes[theme]; ok {
+		return theme
+	}
+	return ThemeEmerald
+}
+
+func ThemeSupported(theme string) bool {
+	_, ok := supportedThemes[strings.TrimSpace(strings.ToLower(theme))]
+	return ok
 }
 
 // Validate verifies a configured selection. An empty State is the internal
@@ -61,6 +83,10 @@ func Validate(state State) error {
 	layout := strings.TrimSpace(state.Layout)
 	if layout != "" && layout != LayoutStandard && layout != LayoutDetailed {
 		return fmt.Errorf("masjidboard selection: unsupported display layout %q", state.Layout)
+	}
+	theme := strings.TrimSpace(strings.ToLower(state.Theme))
+	if theme != "" && !ThemeSupported(theme) {
+		return fmt.Errorf("masjidboard selection: unsupported display theme %q", state.Theme)
 	}
 
 	seen := make(map[string]struct{}, len(state.Boards))
@@ -93,18 +119,13 @@ func Validate(state State) error {
 	return nil
 }
 
-// FromCatalogueRecord creates a persisted selection entry from a catalogue
-// record while retaining only the fields required for runtime operation.
 func FromCatalogueRecord(record catalogue.Record) (Board, error) {
 	if err := catalogue.ValidateRecord(record); err != nil {
 		return Board{}, err
 	}
 	return Board{
-		CatalogueID:      record.ID,
-		Provider:         record.Provider,
-		ExternalID:       record.ExternalID,
-		Name:             record.Name,
-		TimeZoneOffsetMS: record.TimeZoneOffsetMS,
+		CatalogueID: record.ID, Provider: record.Provider, ExternalID: record.ExternalID,
+		Name: record.Name, TimeZoneOffsetMS: record.TimeZoneOffsetMS,
 	}, nil
 }
 

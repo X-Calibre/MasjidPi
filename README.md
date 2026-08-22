@@ -258,11 +258,11 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 ## Project Status
 
-**Current stable release: v1.2.0**
+**Current stable release: v1.2.1**
 
-v1.2.0 adds the Detailed MasjidBoard layout, masjid-adjusted Islamic date and weekday display, 1080p layout refinements, six Board colour themes with live HDMI updates, and MPV IPC response-ordering reliability improvements.
+v1.2.1 is a maintenance release that moves Web UI preferences into persistent runtime storage, migrates preferences from older installations, simplifies application and playback state management, consolidates atomic JSON persistence, and removes fragile observer-based MasjidBoard configuration UI layers.
 
-The published v1.2.0 ARM64 release was installed through the public `install-latest.sh` workflow on the Raspberry Pi 3B reference appliance. The upgrade preserved the Listen + Board profile, selected audio output, selected masjids, Detailed layout and saved colour theme; Listen playback and the HDMI MasjidBoard display were verified after installation.
+The v1.2.1 source upgrade was validated on the Raspberry Pi 3B reference appliance. Legacy preferences migrated successfully to `/var/lib/masjidpi`, Listen and Board recovered after reboot with their saved state intact, and the MasjidBoard configuration page and HDMI display passed smoke testing.
 
 ## Acknowledgements
 

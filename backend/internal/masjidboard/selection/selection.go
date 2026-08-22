@@ -13,6 +13,11 @@ const (
 
 	LayoutStandard = "standard"
 	LayoutDetailed = "detailed"
+	LayoutPortrait = "portrait"
+
+	DefaultSlideDurationSeconds = 15
+	MinSlideDurationSeconds     = 5
+	MaxSlideDurationSeconds     = 60
 
 	ThemeEmerald    = "emerald"
 	ThemeMidnight   = "midnight"
@@ -43,18 +48,29 @@ type Board struct {
 // Standard/Emerald defaults so selections written by older versions remain
 // valid.
 type State struct {
-	Boards []Board `json:"boards"`
-	Layout string  `json:"layout,omitempty"`
-	Theme  string  `json:"theme,omitempty"`
+	Boards               []Board `json:"boards"`
+	Layout               string  `json:"layout,omitempty"`
+	Theme                string  `json:"theme,omitempty"`
+	SlideDurationSeconds int `json:"slide_duration_seconds,omitempty"`
 }
 
 func (s State) Configured() bool { return len(s.Boards) > 0 }
 
 func (s State) EffectiveLayout() string {
-	if strings.TrimSpace(s.Layout) == LayoutDetailed {
+	switch strings.TrimSpace(s.Layout) {
+	case LayoutDetailed:
 		return LayoutDetailed
+	case LayoutPortrait:
+		return LayoutPortrait
 	}
 	return LayoutStandard
+}
+
+func (s State) EffectiveSlideDurationSeconds() int {
+	if s.SlideDurationSeconds >= MinSlideDurationSeconds && s.SlideDurationSeconds <= MaxSlideDurationSeconds {
+		return s.SlideDurationSeconds
+	}
+	return DefaultSlideDurationSeconds
 }
 
 func (s State) EffectiveTheme() string {
@@ -81,8 +97,12 @@ func Validate(state State) error {
 	}
 
 	layout := strings.TrimSpace(state.Layout)
-	if layout != "" && layout != LayoutStandard && layout != LayoutDetailed {
+	if layout != "" && layout != LayoutStandard && layout != LayoutDetailed && layout != LayoutPortrait {
 		return fmt.Errorf("masjidboard selection: unsupported display layout %q", state.Layout)
+	}
+	if state.SlideDurationSeconds != 0 &&
+		(state.SlideDurationSeconds < MinSlideDurationSeconds || state.SlideDurationSeconds > MaxSlideDurationSeconds) {
+		return fmt.Errorf("masjidboard selection: slide duration must be between %d and %d seconds", MinSlideDurationSeconds, MaxSlideDurationSeconds)
 	}
 	theme := strings.TrimSpace(strings.ToLower(state.Theme))
 	if theme != "" && !ThemeSupported(theme) {

@@ -118,10 +118,17 @@ func (s *Service) Reconfigure(state selection.State) error {
 
 func (s *Service) SetLayout(layout string) error {
 	layout = strings.TrimSpace(strings.ToLower(layout))
-	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
+	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed && layout != selection.LayoutPortrait {
 		return fmt.Errorf("masjidboard service: unsupported display layout %q", layout)
 	}
 	return s.updateDisplayPreference(func(state *selection.State) { state.Layout = layout }, "layout")
+}
+
+func (s *Service) SetSlideDurationSeconds(seconds int) error {
+	if seconds < selection.MinSlideDurationSeconds || seconds > selection.MaxSlideDurationSeconds {
+		return fmt.Errorf("masjidboard service: slide duration must be between %d and %d seconds", selection.MinSlideDurationSeconds, selection.MaxSlideDurationSeconds)
+	}
+	return s.updateDisplayPreference(func(state *selection.State) { state.SlideDurationSeconds = seconds }, "slide duration")
 }
 
 func (s *Service) SetTheme(theme string) error {

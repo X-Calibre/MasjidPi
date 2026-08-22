@@ -29,11 +29,11 @@ display_url() {
 
     local layout
     layout="$(saved_layout || true)"
-    if [[ "$layout" == "detailed" ]]; then
+    if [[ "$layout" == "detailed" || "$layout" == "portrait" ]]; then
         if [[ "$MASJIDBOARD_BASE_URL" == *\?* ]]; then
-            printf '%s&layout=detailed\n' "$MASJIDBOARD_BASE_URL"
+            printf '%s&layout=%s\n' "$MASJIDBOARD_BASE_URL" "$layout"
         else
-            printf '%s?layout=detailed\n' "$MASJIDBOARD_BASE_URL"
+            printf '%s?layout=%s\n' "$MASJIDBOARD_BASE_URL" "$layout"
         fi
         return
     fi

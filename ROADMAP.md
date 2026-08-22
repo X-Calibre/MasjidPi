@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.2.0 is the current stable release.**
+**v1.2.1 is the current stable release.**
 
 The current product provides:
 
@@ -47,11 +47,25 @@ v1.2.0 extends the MasjidBoard appliance experience with:
 
 The published v1.2.0 ARM64 release was validated on the Raspberry Pi 3B reference appliance with a native 1080p TV. The public `install-latest.sh` upgrade path preserved the Listen + Board profile, selected audio device, selected masjids, saved Detailed layout and saved colour theme. Listen playback and the HDMI MasjidBoard display were verified after installation.
 
+### v1.2.1 maintenance release
+
+v1.2.1 improves maintainability and upgrade persistence without changing the Core / Listen / Board architecture:
+
+- Web UI preferences now use persistent runtime storage under `/var/lib/masjidpi`
+- Existing preferences are migrated automatically from the legacy installation path
+- API construction and application component startup are simpler and more explicit
+- Playback runtime state and retry handling are easier to maintain
+- Atomic JSON file replacement is shared across Listen and MasjidBoard stores
+- MasjidBoard configuration actions and messages are owned directly by the main page controller
+- CI now checks Go formatting, vet, race-enabled tests, ShellCheck and JavaScript syntax
+
+The v1.2.1 source upgrade was validated on the Raspberry Pi 3B reference appliance. Preference migration, Listen and Board service startup, saved-state recovery after reboot, the MasjidBoard configuration page and the HDMI display all passed appliance testing.
+
 ---
 
 ## Remaining Work
 
-There are no known release-blocking items for v1.2.0.
+There are no known release-blocking items for v1.2.1.
 
 Ongoing reliability work:
 

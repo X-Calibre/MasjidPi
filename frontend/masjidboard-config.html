@@ -64,6 +64,26 @@
     <section class="card">
         <div class="section-heading-row">
             <div>
+                <h2>HDMI Display Layout</h2>
+                <p class="config-intro">Choose which MasjidBoard layout is shown automatically on the appliance HDMI output.</p>
+            </div>
+        </div>
+        <div class="board-picker">
+            <label for="displayLayout">Layout</label>
+            <select id="displayLayout">
+                <option value="standard">Standard</option>
+                <option value="detailed">Detailed</option>
+            </select>
+            <div id="displayLayoutMeta" class="config-meta">Loading current HDMI display layout…</div>
+        </div>
+        <div class="configuration-actions board-save-actions">
+            <button id="saveDisplayLayoutButton" type="button">Save HDMI Layout</button>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="section-heading-row">
+            <div>
                 <h2>MasjidBoard Status</h2>
                 <p class="config-intro">Current timetable data for the selected MasjidBoards.</p>
             </div>
@@ -76,6 +96,7 @@
 </div>
 <script src="components-ui.js"></script>
 <script src="masjidboard-config.js"></script>
+<script src="masjidboard-layout-config.js"></script>
 <script src="masjidboard-board-refresh.js"></script>
 <script src="masjidboard-config-clarity.js"></script>
 </body>

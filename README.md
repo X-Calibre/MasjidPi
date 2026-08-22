@@ -28,11 +28,18 @@ The two capabilities share the same MasjidPi core but remain independently opera
 - Prayer and Jumu'ah timetable display
 - Up to three selected masjids
 - Responsive one-, two- and three-board HDMI layouts
+- **Standard** and **Detailed** user-selectable HDMI layouts
+- Detailed layout with shared Adhan/Jamaah headings and a Daily Times panel
+- Gregorian date plus masjid-adjusted Islamic date with Islamic weekday transliteration
+- Islamic-date rollover aligned to MasjidBoard Live sunset/date-adjustment behaviour
+- Six curated colour themes: **Emerald, Midnight, Slate, Ruby, Light, and Black & White**
+- Live theme changes and Standard/Detailed layout switching from the Web UI without restarting the display service
 - Next-event countdowns
 - Automatic timetable refresh
 - Last-known-good cache fallback during upstream outages
 - Dedicated Raspberry Pi OS Lite display runtime using Cog/WPE directly on DRM/KMS
 - Automatic display startup and recovery through systemd
+- 1080p-validated Detailed layout on the Raspberry Pi reference appliance
 
 ### Appliance profiles
 
@@ -48,13 +55,13 @@ Only the dependencies, backend subsystems, APIs, configuration pages and applian
 
 ### MasjidBoard HDMI display
 
-The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. The default three-masjid layout shows Adhan/Jamaah times, Friday Jumu'ah information and next-event countdowns.
+The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select Standard or Detailed presentation. Detailed mode adds full Gregorian/Islamic dates and Daily Times while retaining up to three masjid columns, Friday Jumu'ah information and next-event countdowns. Board colour themes are also user-selectable from the Web UI.
 
 ![MasjidBoard three-masjid HDMI display](docs/images/masjidboard-display.png)
 
 ### MasjidBoard configuration
 
-The configuration interface lets you choose up to three locations and MasjidBoards, order them for the HDMI display, refresh timetable data and see the current cache/update status.
+The configuration interface lets you choose up to three locations and MasjidBoards, order them for the HDMI display, select the HDMI layout and colour theme, refresh timetable data and see the current cache/update status.
 
 ![MasjidBoard configuration interface](docs/images/masjidboard-configuration.png)
 
@@ -177,7 +184,7 @@ Persistent runtime data is stored under:
 
 The Web UI runs on port `8080`.
 
-When Board is installed, `masjidpi-display.service` launches Cog directly on DRM/KMS and displays the local MasjidBoard page over HDMI. When Board is not installed, that service is absent.
+When Board is installed, `masjidpi-display.service` launches Cog directly on DRM/KMS and displays the local MasjidBoard page over HDMI. When Board is not installed, that service is absent. Saved Board layout/theme preferences are read by the display page itself so user changes can appear on HDMI without shell access or a service restart.
 
 ## Useful Commands
 
@@ -223,6 +230,12 @@ Board installations can check Board status with:
 curl -s http://127.0.0.1:8080/api/masjidboard/status
 ```
 
+Board installations can check the saved HDMI presentation settings with:
+
+```bash
+curl -s http://127.0.0.1:8080/api/masjidboard/layout
+```
+
 ## Development
 
 MasjidPi is written in Go with a web-based configuration frontend.
@@ -247,9 +260,11 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 **Current stable release: v1.1.0**
 
-MasjidBoard and selectable Listen/Board appliance profiles are included in v1.1.0.
+**Next release candidate: v1.2.0**
 
-v1.1.0 has been production-validated on a Raspberry Pi 3B running 64-bit Raspberry Pi OS Lite using the public one-line release installer. The combined Listen + Board installation, selected audio output and HDMI MasjidBoard display were verified on a clean OS installation.
+v1.2.0 adds the Detailed MasjidBoard layout, masjid-adjusted Islamic date and weekday display, 1080p layout refinements, six Board colour themes with live HDMI updates, and MPV IPC response-ordering reliability improvements.
+
+The v1.2.0 Board presentation changes have been validated on the Raspberry Pi 3B reference appliance with a native 1080p TV. A final release-candidate install/update validation is performed before tagging the release.
 
 ## Acknowledgements
 

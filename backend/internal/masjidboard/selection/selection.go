@@ -10,6 +10,9 @@ import (
 const (
 	MinBoards = 1
 	MaxBoards = 3
+
+	LayoutStandard = "standard"
+	LayoutDetailed = "detailed"
 )
 
 // Board is the minimal last-known identity required to keep a selected
@@ -23,18 +26,26 @@ type Board struct {
 }
 
 // State is the ordered set of boards selected by the user. Order is
-// significant and is preserved for display/UI purposes.
-//
-// The zero value represents an unconfigured MasjidBoard installation and is
-// returned when no persisted selection exists. A configured State must contain
-// between MinBoards and MaxBoards boards.
+// significant and is preserved for display/UI purposes. Layout controls the
+// default HDMI/display presentation. An empty Layout is treated as Standard so
+// selections written by older MasjidPi versions remain valid.
 type State struct {
 	Boards []Board `json:"boards"`
+	Layout string  `json:"layout,omitempty"`
 }
 
 // Configured reports whether the state contains a user configuration.
 func (s State) Configured() bool {
 	return len(s.Boards) > 0
+}
+
+// EffectiveLayout returns the persisted layout, defaulting older/empty state to
+// the Standard display.
+func (s State) EffectiveLayout() string {
+	if strings.TrimSpace(s.Layout) == LayoutDetailed {
+		return LayoutDetailed
+	}
+	return LayoutStandard
 }
 
 // Validate verifies a configured selection. An empty State is the internal
@@ -45,6 +56,11 @@ func Validate(state State) error {
 	}
 	if len(state.Boards) > MaxBoards {
 		return fmt.Errorf("masjidboard selection: %d boards selected; maximum is %d", len(state.Boards), MaxBoards)
+	}
+
+	layout := strings.TrimSpace(state.Layout)
+	if layout != "" && layout != LayoutStandard && layout != LayoutDetailed {
+		return fmt.Errorf("masjidboard selection: unsupported display layout %q", state.Layout)
 	}
 
 	seen := make(map[string]struct{}, len(state.Boards))

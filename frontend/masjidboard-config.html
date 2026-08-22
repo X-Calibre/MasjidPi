@@ -17,7 +17,8 @@
             </div>
             <div class="header-actions">
                 <a class="nav-button" data-component="listen" href="index.html">Listen</a>
-                <a class="nav-button" href="masjidboard.html">Open Display</a>
+                <a class="nav-button" href="masjidboard.html">Standard Display</a>
+                <a class="nav-button" href="masjidboard.html?layout=detailed">Detailed Display</a>
                 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
             </div>
         </div>
@@ -33,11 +34,7 @@
             </div>
             <button id="refreshHierarchyButton" class="secondary compact-button" type="button">Refresh Location List</button>
         </div>
-
-        <div id="locationConfiguration" class="location-configuration">
-            <p class="status-detail">Loading location hierarchy…</p>
-        </div>
-
+        <div id="locationConfiguration" class="location-configuration"><p class="status-detail">Loading location hierarchy…</p></div>
         <div class="configuration-actions">
             <button id="addLocationButton" class="secondary" type="button">+ Add Location</button>
             <button id="saveLocationsButton" type="button">Save Locations</button>
@@ -49,15 +46,11 @@
         <div class="section-heading-row">
             <div>
                 <h2>Selected Masjids</h2>
-                <p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order.</p>
+                <p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order. In Detailed Display, the first masjid also supplies the additional times.</p>
             </div>
             <button id="refreshCatalogueButton" class="secondary compact-button" type="button">Refresh Masjid List</button>
         </div>
-
-        <div id="boardSelection" class="board-selection">
-            <p class="status-detail">Loading available MasjidBoards…</p>
-        </div>
-
+        <div id="boardSelection" class="board-selection"><p class="status-detail">Loading available MasjidBoards…</p></div>
         <div class="board-picker">
             <label for="boardSearch">Find a Masjid</label>
             <input id="boardSearch" type="search" placeholder="Search available masjids…" autocomplete="off">
@@ -65,9 +58,26 @@
             <div id="availableBoardMeta" class="config-meta"></div>
             <button id="addBoardButton" class="secondary" type="button">+ Add Selected Masjid</button>
         </div>
+        <div class="configuration-actions board-save-actions"><button id="saveBoardsButton" type="button">Save Selected Masjids</button></div>
+    </section>
 
+    <section class="card">
+        <div class="section-heading-row">
+            <div>
+                <h2>HDMI Display Layout</h2>
+                <p class="config-intro">Choose which MasjidBoard layout is shown automatically on the appliance HDMI output.</p>
+            </div>
+        </div>
+        <div class="display-layout-picker">
+            <label for="displayLayout">Layout</label>
+            <select id="displayLayout">
+                <option value="standard">Standard</option>
+                <option value="detailed">Detailed</option>
+            </select>
+            <div id="displayLayoutMeta" class="config-meta">Loading current HDMI display layout…</div>
+        </div>
         <div class="configuration-actions board-save-actions">
-            <button id="saveBoardsButton" type="button">Save Selected Masjids</button>
+            <button id="saveDisplayLayoutButton" type="button">Save HDMI Layout</button>
         </div>
     </section>
 
@@ -79,16 +89,14 @@
             </div>
             <button id="refreshBoardsButton" class="secondary compact-button" type="button">Refresh Timetables</button>
         </div>
-        <div id="masjidBoardStatus">
-            <p class="status-detail">Loading MasjidBoard status…</p>
-        </div>
+        <div id="masjidBoardStatus"><p class="status-detail">Loading MasjidBoard status…</p></div>
     </section>
 
     <footer class="footer">MasjidPi · MasjidBoard Configuration</footer>
 </div>
-
 <script src="components-ui.js"></script>
 <script src="masjidboard-config.js"></script>
+<script src="masjidboard-layout-config.js"></script>
 <script src="masjidboard-board-refresh.js"></script>
 <script src="masjidboard-config-clarity.js"></script>
 </body>

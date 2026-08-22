@@ -89,6 +89,7 @@ func New(addr string, logger *slog.Logger, playback *playback.Manager, streams *
 		mux.HandleFunc("/api/masjidboard/catalogue", server.masjidBoardCatalogue)
 		mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
 		mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
+		mux.HandleFunc("/api/masjidboard/layout", server.masjidBoardLayout)
 	}
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

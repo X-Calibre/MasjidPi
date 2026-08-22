@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
@@ -147,6 +148,41 @@ func (s *Service) Reconfigure(state selection.State) error {
 	return nil
 }
 
+// SetLayout persists only the HDMI/display presentation preference. It leaves
+// the active runtime coordinator and current timetable results untouched.
+func (s *Service) SetLayout(layout string) error {
+	if s == nil {
+		return fmt.Errorf("masjidboard service: service is unavailable")
+	}
+	layout = strings.TrimSpace(strings.ToLower(layout))
+	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
+		return fmt.Errorf("masjidboard service: unsupported display layout %q", layout)
+	}
+
+	s.mu.RLock()
+	state := cloneSelection(s.selection)
+	selectionStore := s.selectionStore
+	s.mu.RUnlock()
+	if !state.Configured() {
+		return fmt.Errorf("masjidboard service: select at least one board before choosing a display layout")
+	}
+	if selectionStore == nil {
+		return fmt.Errorf("masjidboard service: selection store is unavailable")
+	}
+	state.Layout = layout
+	if err := selection.Validate(state); err != nil {
+		return err
+	}
+	if err := selectionStore.Save(state); err != nil {
+		return fmt.Errorf("masjidboard service: persist layout: %w", err)
+	}
+
+	s.mu.Lock()
+	s.selection.Layout = layout
+	s.mu.Unlock()
+	return nil
+}
+
 // Configured reports whether MasjidBoard has a persisted user selection.
 func (s *Service) Configured() bool {
 	if s == nil {
@@ -205,5 +241,8 @@ func (s *Service) Results() []runtime.Result {
 }
 
 func cloneSelection(state selection.State) selection.State {
-	return selection.State{Boards: append([]selection.Board(nil), state.Boards...)}
+	return selection.State{
+		Boards: append([]selection.Board(nil), state.Boards...),
+		Layout: state.Layout,
+	}
 }

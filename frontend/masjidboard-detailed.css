@@ -1,0 +1,205 @@
+/* Detailed MasjidBoard layout refinements. Loaded only by the display page;
+   selectors are gated by .detailed-layout so Standard remains unchanged. */
+.detailed-layout .timetable-stage { flex:1 1 auto; }
+.detailed-layout .additional-times {
+    flex:0 0 clamp(210px,16vw,255px);
+    min-width:210px;
+    max-width:255px;
+}
+
+/* Detailed rows gain one shared label column. */
+.detailed-layout .comparison-grid,
+.detailed-layout .prayer-row {
+    grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,1fr));
+}
+.detailed-layout .board-headers::before {
+    content:"";
+    grid-column:2;
+}
+.detailed-layout .board-headers .board-header:first-of-type {
+    grid-column:3;
+}
+
+/* With fewer masjids, use the recovered horizontal space for the columns
+   that carry labels and for the Daily Times panel rather than making the
+   masjid cells excessively wide. */
+.detailed-layout[data-board-count="2"] .additional-times {
+    flex-basis:clamp(260px,20vw,320px);
+    min-width:260px;
+    max-width:320px;
+}
+.detailed-layout[data-board-count="2"] .comparison-grid,
+.detailed-layout[data-board-count="2"] .prayer-row {
+    grid-template-columns:minmax(190px,.52fr) minmax(145px,.36fr) repeat(var(--board-count),minmax(0,1fr));
+}
+.detailed-layout[data-board-count="1"] .additional-times {
+    flex-basis:clamp(300px,24vw,380px);
+    min-width:300px;
+    max-width:380px;
+}
+.detailed-layout[data-board-count="1"] .comparison-grid,
+.detailed-layout[data-board-count="1"] .prayer-row {
+    grid-template-columns:minmax(235px,.62fr) minmax(175px,.43fr) repeat(var(--board-count),minmax(0,1fr));
+}
+
+.detailed-layout .shared-time-labels {
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(13,29,24,.98),rgba(9,23,19,.98));
+    display:grid;
+    grid-template-rows:repeat(var(--time-slot-count),minmax(0,1fr));
+    min-height:0;
+    padding:clamp(10px,.85vw,14px);
+}
+.detailed-layout .shared-time-label {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    white-space:nowrap;
+    color:var(--muted);
+    font-size:clamp(1.05rem,1.25vw,1.4rem);
+    font-weight:680;
+    line-height:1;
+}
+.detailed-layout .shared-jamaah,
+.detailed-layout .shared-khutbah {
+    color:var(--text);
+    font-size:clamp(1.25rem,1.6vw,1.75rem);
+    font-weight:790;
+}
+
+.detailed-layout .prayer-row .prayer-cell,
+.detailed-layout .prayer-row .jumuah-cell {
+    display:grid;
+    grid-template-rows:repeat(var(--time-slot-count),minmax(0,1fr));
+    gap:0;
+}
+.detailed-layout .prayer-row .time-line.shared-label-value {
+    align-items:center;
+    justify-content:center;
+}
+.detailed-layout .prayer-row .time-line.shared-label-value .time-label {
+    display:none;
+}
+.detailed-layout .prayer-row .time-line.shared-label-value .time-value-stack {
+    align-items:center;
+}
+.detailed-layout .shared-time-placeholder {
+    min-height:1px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.detailed-layout .shared-missing-value {
+    color:rgba(232,240,236,.28);
+    font-size:clamp(1.2rem,1.6vw,1.7rem);
+    font-weight:650;
+}
+
+/* With the shared-label column, Masjid 1 is the third grid cell. */
+.detailed-layout .board-headers .board-header:first-of-type,
+.detailed-layout .prayer-row > .prayer-cell:first-of-type,
+.detailed-layout .prayer-row > .jumuah-cell:first-of-type {
+    border-color:rgba(231,200,87,.20);
+    background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98));
+}
+
+/* Daily Times is a compact stack of evenly spaced mini-cards. */
+.additional-times-heading {
+    font-size:clamp(1.45rem,1.8vw,1.9rem);
+}
+.additional-times-source {
+    padding-bottom:clamp(8px,1vh,12px);
+}
+.additional-times-list {
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:clamp(6px,.65vh,9px);
+    padding-top:clamp(6px,.7vh,10px);
+}
+.additional-time-row {
+    flex:1 1 0;
+    min-height:0;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:5px;
+    padding:clamp(8px,.8vh,11px) clamp(7px,.6vw,10px);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:clamp(10px,.8vw,13px);
+    background:linear-gradient(180deg,rgba(19,42,33,.96),rgba(12,31,24,.96));
+}
+.additional-time-row:last-child {
+    border-bottom:1px solid rgba(255,255,255,.10);
+}
+.additional-time-label {
+    color:var(--text);
+    font-size:clamp(.92rem,1vw,1.05rem);
+    font-weight:680;
+    line-height:1.12;
+}
+.additional-time-value {
+    color:var(--accent);
+    font-size:clamp(1.28rem,1.58vw,1.65rem);
+    font-weight:840;
+    line-height:1;
+    white-space:nowrap;
+}
+
+@media (max-width:1100px) {
+    .detailed-layout .additional-times {
+        flex-basis:clamp(190px,18vw,225px);
+        min-width:190px;
+        max-width:225px;
+    }
+    .detailed-layout .comparison-grid,
+    .detailed-layout .prayer-row {
+        grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
+    }
+    .detailed-layout[data-board-count="2"] .additional-times {
+        flex-basis:clamp(220px,22vw,270px);
+        min-width:220px;
+        max-width:270px;
+    }
+    .detailed-layout[data-board-count="2"] .comparison-grid,
+    .detailed-layout[data-board-count="2"] .prayer-row {
+        grid-template-columns:minmax(135px,.42fr) minmax(120px,.31fr) repeat(var(--board-count),minmax(0,1fr));
+    }
+    .detailed-layout[data-board-count="1"] .additional-times {
+        flex-basis:clamp(250px,26vw,310px);
+        min-width:250px;
+        max-width:310px;
+    }
+    .detailed-layout[data-board-count="1"] .comparison-grid,
+    .detailed-layout[data-board-count="1"] .prayer-row {
+        grid-template-columns:minmax(165px,.50fr) minmax(140px,.36fr) repeat(var(--board-count),minmax(0,1fr));
+    }
+    .additional-times-list { gap:5px; }
+    .additional-time-row { padding:7px 6px; }
+}
+
+@media (max-width:760px) {
+    .detailed-layout .timetable-stage { flex:1 1 auto; }
+    .detailed-layout .additional-times,
+    .detailed-layout[data-board-count="1"] .additional-times,
+    .detailed-layout[data-board-count="2"] .additional-times { min-width:0; max-width:none; }
+    .detailed-layout .comparison-grid,
+    .detailed-layout .prayer-row,
+    .detailed-layout[data-board-count="1"] .comparison-grid,
+    .detailed-layout[data-board-count="1"] .prayer-row,
+    .detailed-layout[data-board-count="2"] .comparison-grid,
+    .detailed-layout[data-board-count="2"] .prayer-row {
+        grid-template-columns:72px 82px repeat(var(--board-count),minmax(0,1fr));
+    }
+    .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
+    .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
+    .detailed-layout .shared-jamaah,
+    .detailed-layout .shared-khutbah { font-size:clamp(.86rem,3.2vw,1.05rem); }
+    .additional-times-list { gap:5px; }
+    .additional-time-row { flex:0 0 auto; padding:9px 8px; }
+}

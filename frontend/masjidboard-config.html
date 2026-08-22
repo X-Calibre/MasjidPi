@@ -11,10 +11,7 @@
 <div class="container">
     <header>
         <div class="header-row">
-            <div>
-                <h1>MasjidBoard</h1>
-                <p>Prayer time display configuration</p>
-            </div>
+            <div><h1>MasjidBoard</h1><p>Prayer time display configuration</p></div>
             <div class="header-actions">
                 <a class="nav-button" data-component="listen" href="index.html">Listen</a>
                 <a class="nav-button" href="masjidboard.html">Standard Display</a>
@@ -27,29 +24,14 @@
     <div id="configBanner" class="config-banner hidden" role="status"></div>
 
     <section class="card">
-        <div class="section-heading-row">
-            <div>
-                <h2>Locations</h2>
-                <p class="config-intro">Choose up to three locations whose MasjidBoards should be available for selection.</p>
-            </div>
-            <button id="refreshHierarchyButton" class="secondary compact-button" type="button">Refresh Location List</button>
-        </div>
+        <div class="section-heading-row"><div><h2>Locations</h2><p class="config-intro">Choose up to three locations whose MasjidBoards should be available for selection.</p></div><button id="refreshHierarchyButton" class="secondary compact-button" type="button">Refresh Location List</button></div>
         <div id="locationConfiguration" class="location-configuration"><p class="status-detail">Loading location hierarchy…</p></div>
-        <div class="configuration-actions">
-            <button id="addLocationButton" class="secondary" type="button">+ Add Location</button>
-            <button id="saveLocationsButton" type="button">Save Locations</button>
-        </div>
+        <div class="configuration-actions"><button id="addLocationButton" class="secondary" type="button">+ Add Location</button><button id="saveLocationsButton" type="button">Save Locations</button></div>
         <small id="hierarchyMeta" class="config-meta"></small>
     </section>
 
     <section class="card">
-        <div class="section-heading-row">
-            <div>
-                <h2>Selected Masjids</h2>
-                <p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order. In Detailed Display, the first masjid also supplies the additional times.</p>
-            </div>
-            <button id="refreshCatalogueButton" class="secondary compact-button" type="button">Refresh Masjid List</button>
-        </div>
+        <div class="section-heading-row"><div><h2>Selected Masjids</h2><p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order. In Detailed Display, the first masjid also supplies the additional times.</p></div><button id="refreshCatalogueButton" class="secondary compact-button" type="button">Refresh Masjid List</button></div>
         <div id="boardSelection" class="board-selection"><p class="status-detail">Loading available MasjidBoards…</p></div>
         <div class="board-picker">
             <label for="boardSearch">Find a Masjid</label>
@@ -62,33 +44,30 @@
     </section>
 
     <section class="card">
-        <div class="section-heading-row">
-            <div>
-                <h2>HDMI Display Layout</h2>
-                <p class="config-intro">Choose which MasjidBoard layout is shown automatically on the appliance HDMI output.</p>
-            </div>
-        </div>
+        <div class="section-heading-row"><div><h2>HDMI Display</h2><p class="config-intro">Choose the layout and colour theme shown automatically on the appliance HDMI output.</p></div></div>
         <div class="display-layout-picker">
             <label for="displayLayout">Layout</label>
-            <select id="displayLayout">
-                <option value="standard">Standard</option>
-                <option value="detailed">Detailed</option>
-            </select>
-            <div id="displayLayoutMeta" class="config-meta">Loading current HDMI display layout…</div>
+            <select id="displayLayout"><option value="standard">Standard</option><option value="detailed">Detailed</option></select>
+            <div id="displayLayoutMeta" class="config-meta">Loading current HDMI display settings…</div>
         </div>
-        <div class="configuration-actions board-save-actions">
-            <button id="saveDisplayLayoutButton" type="button">Save HDMI Layout</button>
-        </div>
+
+        <fieldset class="board-theme-picker">
+            <legend>Colour Theme</legend>
+            <div class="board-theme-grid">
+                <label class="board-theme-option theme-emerald"><input type="radio" name="boardTheme" value="emerald"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Emerald</strong><small>Green &amp; gold</small></label>
+                <label class="board-theme-option theme-midnight"><input type="radio" name="boardTheme" value="midnight"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Midnight</strong><small>Navy &amp; blue</small></label>
+                <label class="board-theme-option theme-slate"><input type="radio" name="boardTheme" value="slate"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Slate</strong><small>Charcoal &amp; gold</small></label>
+                <label class="board-theme-option theme-ruby"><input type="radio" name="boardTheme" value="ruby"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Ruby</strong><small>Burgundy &amp; rose</small></label>
+                <label class="board-theme-option theme-light"><input type="radio" name="boardTheme" value="light"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Light</strong><small>Warm light display</small></label>
+                <label class="board-theme-option theme-black-white"><input type="radio" name="boardTheme" value="black-white"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Black &amp; White</strong><small>Monochrome</small></label>
+            </div>
+        </fieldset>
+
+        <div class="configuration-actions board-save-actions"><button id="saveDisplayLayoutButton" type="button">Save HDMI Display</button></div>
     </section>
 
     <section class="card">
-        <div class="section-heading-row">
-            <div>
-                <h2>MasjidBoard Status</h2>
-                <p class="config-intro">Current timetable data for the selected MasjidBoards.</p>
-            </div>
-            <button id="refreshBoardsButton" class="secondary compact-button" type="button">Refresh Timetables</button>
-        </div>
+        <div class="section-heading-row"><div><h2>MasjidBoard Status</h2><p class="config-intro">Current timetable data for the selected MasjidBoards.</p></div><button id="refreshBoardsButton" class="secondary compact-button" type="button">Refresh Timetables</button></div>
         <div id="masjidBoardStatus"><p class="status-detail">Loading MasjidBoard status…</p></div>
     </section>
 

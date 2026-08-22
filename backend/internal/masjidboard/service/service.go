@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
@@ -96,7 +97,7 @@ func buildCoordinator(state selection.State, cacheStore runtime.CacheStore, fact
 	}
 
 	items := make([]runtime.Item, 0, len(state.Boards))
-	for i, board := range state.Boards {
+	for i, board := range state.Boards) {
 		p, err := factory(board)
 		if err != nil {
 			return nil, fmt.Errorf("masjidboard service: construct provider %d: %w", i+1, err)
@@ -143,6 +144,41 @@ func (s *Service) Reconfigure(state selection.State) error {
 	s.selection = cloneSelection(state)
 	s.runtime = coordinator
 	s.results = nil
+	s.mu.Unlock()
+	return nil
+}
+
+// SetLayout persists only the HDMI/display presentation preference. It leaves
+// the active runtime coordinator and current timetable results untouched.
+func (s *Service) SetLayout(layout string) error {
+	if s == nil {
+		return fmt.Errorf("masjidboard service: service is unavailable")
+	}
+	layout = strings.TrimSpace(strings.ToLower(layout))
+	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
+		return fmt.Errorf("masjidboard service: unsupported display layout %q", layout)
+	}
+
+	s.mu.RLock()
+	state := cloneSelection(s.selection)
+	selectionStore := s.selectionStore
+	s.mu.RUnlock()
+	if !state.Configured() {
+		return fmt.Errorf("masjidboard service: select at least one board before choosing a display layout")
+	}
+	if selectionStore == nil {
+		return fmt.Errorf("masjidboard service: selection store is unavailable")
+	}
+	state.Layout = layout
+	if err := selection.Validate(state); err != nil {
+		return err
+	}
+	if err := selectionStore.Save(state); err != nil {
+		return fmt.Errorf("masjidboard service: persist layout: %w", err)
+	}
+
+	s.mu.Lock()
+	s.selection.Layout = layout
 	s.mu.Unlock()
 	return nil
 }

@@ -1,0 +1,62 @@
+/* Curated HDMI MasjidBoard colour themes. Emerald deliberately falls through
+   to the existing display CSS so current installations retain their exact
+   colours. All other themes override colour only, never layout geometry. */
+
+body[data-board-theme="midnight"] {
+    --bg:#050b14; --panel:#0b1624; --panel-soft:#102238; --line:rgba(173,207,255,.12);
+    --text:#f4f8ff; --muted:#9eafc3; --accent:#70b7ff; --warning:#f0c36b; --danger:#ff918c;
+}
+body[data-board-theme="slate"] {
+    --bg:#0b0d0f; --panel:#171b1f; --panel-soft:#20262b; --line:rgba(255,255,255,.11);
+    --text:#f5f5f3; --muted:#aeb1b2; --accent:#d6b65e; --warning:#e9bd68; --danger:#ef928a;
+}
+body[data-board-theme="ruby"] {
+    --bg:#120608; --panel:#241015; --panel-soft:#32151d; --line:rgba(255,210,214,.11);
+    --text:#fff7f7; --muted:#c8a9ad; --accent:#f09a9f; --warning:#efbd68; --danger:#ff817c;
+}
+body[data-board-theme="light"] {
+    --bg:#f2efe7; --panel:#fffdf8; --panel-soft:#ece8dd; --line:rgba(35,43,39,.15);
+    --text:#17201c; --muted:#66716c; --accent:#816b20; --warning:#956715; --danger:#a93b36;
+}
+body[data-board-theme="black-white"] {
+    --bg:#000; --panel:#101010; --panel-soft:#1a1a1a; --line:rgba(255,255,255,.19);
+    --text:#fff; --muted:#bcbcbc; --accent:#fff; --warning:#d7d7d7; --danger:#fff;
+}
+
+body[data-board-theme]:not([data-board-theme="emerald"]) .board-header { background:var(--panel); }
+body[data-board-theme]:not([data-board-theme="emerald"]) .prayer-label-card,
+body[data-board-theme]:not([data-board-theme="emerald"]) .shared-time-labels {
+    background:linear-gradient(180deg,var(--panel),var(--panel-soft));
+}
+body[data-board-theme]:not([data-board-theme="emerald"]) .prayer-cell,
+body[data-board-theme]:not([data-board-theme="emerald"]) .jumuah-cell {
+    background:linear-gradient(180deg,var(--panel-soft),var(--panel));
+}
+body[data-board-theme]:not([data-board-theme="emerald"]) .additional-times {
+    background:linear-gradient(180deg,var(--panel-soft),var(--panel));
+    border-color:color-mix(in srgb,var(--accent) 22%,transparent);
+}
+body[data-board-theme]:not([data-board-theme="emerald"]) .additional-time-row {
+    background:linear-gradient(180deg,var(--panel-soft),var(--panel));
+    border-color:var(--line);
+}
+body[data-board-theme]:not([data-board-theme="emerald"]) .time-line.secondary .time-value,
+body[data-board-theme]:not([data-board-theme="emerald"]) .time-line.jumuah-event .time-value,
+body[data-board-theme]:not([data-board-theme="emerald"]) .additional-time-label { color:var(--muted); }
+
+body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .board-headers .board-header:first-of-type,
+body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .prayer-row > .prayer-cell:first-of-type,
+body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .prayer-row > .jumuah-cell:first-of-type {
+    border-color:color-mix(in srgb,var(--accent) 28%,transparent);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--panel-soft) 88%,var(--accent) 12%),var(--panel));
+}
+
+body[data-board-theme="light"] .event-countdown,
+body[data-board-theme="light"] .prayer-label,
+body[data-board-theme="light"] .additional-time-value,
+body[data-board-theme="light"] .additional-times-heading,
+body[data-board-theme="light"] .detailed-islamic-date { color:var(--accent); }
+
+body[data-board-theme="black-white"] .board-header.stale,
+body[data-board-theme="black-white"] .prayer-cell.stale,
+body[data-board-theme="black-white"] .jumuah-cell.stale { border-style:dashed; }

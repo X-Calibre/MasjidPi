@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark">
+    <meta name="color-scheme" content="dark light">
     <title>MasjidBoard · MasjidPi</title>
     <link rel="stylesheet" href="masjidboard-display.css">
     <link rel="stylesheet" href="masjidboard-detailed.css">
     <link rel="stylesheet" href="masjidboard-date-header.css">
+    <link rel="stylesheet" href="masjidboard-themes.css">
 </head>
-<body>
+<body data-board-theme="emerald">
 <main class="board-shell" aria-live="polite">
     <header class="board-topbar">
         <div id="detailedDateBlock" class="detailed-date-block" aria-label="Current date">
@@ -44,6 +45,7 @@
     </section>
 </main>
 
+<script src="masjidboard-theme.js"></script>
 <script src="masjidboard-display.js"></script>
 <script src="masjidboard-detailed.js"></script>
 </body>

@@ -1,0 +1,58 @@
+.board-theme-picker {
+    margin:18px 0 0;
+    padding:0;
+    border:0;
+}
+.board-theme-picker legend {
+    margin-bottom:10px;
+    font-weight:600;
+}
+.board-theme-grid {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+}
+.board-theme-option {
+    position:relative;
+    display:grid;
+    grid-template-columns:48px minmax(0,1fr);
+    grid-template-rows:auto auto;
+    column-gap:12px;
+    align-items:center;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--field);
+    cursor:pointer;
+}
+.board-theme-option:hover { background:var(--field-hover); }
+.board-theme-option:has(input:checked) {
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px var(--accent);
+}
+.board-theme-option input {
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+}
+.board-theme-option strong { align-self:end; }
+.board-theme-option small { color:var(--subtle); align-self:start; }
+.theme-swatch {
+    grid-row:1 / 3;
+    width:48px;
+    height:42px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    overflow:hidden;
+    border:1px solid rgba(127,127,127,.3);
+    border-radius:8px;
+}
+.theme-swatch i { display:block; }
+.theme-emerald .theme-swatch i:nth-child(1){background:#06100d}.theme-emerald .theme-swatch i:nth-child(2){background:#10231c}.theme-emerald .theme-swatch i:nth-child(3){background:#e7c857}
+.theme-midnight .theme-swatch i:nth-child(1){background:#050b14}.theme-midnight .theme-swatch i:nth-child(2){background:#102238}.theme-midnight .theme-swatch i:nth-child(3){background:#70b7ff}
+.theme-slate .theme-swatch i:nth-child(1){background:#0b0d0f}.theme-slate .theme-swatch i:nth-child(2){background:#20262b}.theme-slate .theme-swatch i:nth-child(3){background:#d6b65e}
+.theme-ruby .theme-swatch i:nth-child(1){background:#120608}.theme-ruby .theme-swatch i:nth-child(2){background:#32151d}.theme-ruby .theme-swatch i:nth-child(3){background:#f09a9f}
+.theme-light .theme-swatch i:nth-child(1){background:#f2efe7}.theme-light .theme-swatch i:nth-child(2){background:#fffdf8}.theme-light .theme-swatch i:nth-child(3){background:#816b20}
+.theme-black-white .theme-swatch i:nth-child(1){background:#000}.theme-black-white .theme-swatch i:nth-child(2){background:#fff}.theme-black-white .theme-swatch i:nth-child(3){background:#777}
+@media (max-width:760px){.board-theme-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.board-theme-grid{grid-template-columns:1fr}}

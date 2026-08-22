@@ -10,31 +10,32 @@ import (
 
 type masjidBoardLayoutResponse struct {
 	Layout string `json:"layout"`
+	Theme  string `json:"theme"`
 }
 
 type masjidBoardLayoutRequest struct {
 	Layout string `json:"layout"`
+	Theme  string `json:"theme"`
 }
 
-type masjidBoardLayoutSetter interface {
-	SetLayout(string) error
-}
+type masjidBoardLayoutSetter interface { SetLayout(string) error }
+type masjidBoardThemeSetter interface { SetTheme(string) error }
 
 func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
+	current := func() masjidBoardLayoutResponse {
+		response := masjidBoardLayoutResponse{Layout: selection.LayoutStandard, Theme: selection.ThemeEmerald}
+		if s.masjidBoardService != nil {
+			state := s.masjidBoardService.Selection()
+			response.Layout = state.EffectiveLayout()
+			response.Theme = state.EffectiveTheme()
+		}
+		return response
+	}
+
 	switch r.Method {
 	case http.MethodGet:
-		layout := selection.LayoutStandard
-		if s.masjidBoardService != nil {
-			layout = s.masjidBoardService.Selection().EffectiveLayout()
-		}
-		writeJSON(w, http.StatusOK, masjidBoardLayoutResponse{Layout: layout})
+		writeJSON(w, http.StatusOK, current())
 	case http.MethodPut:
-		setter, ok := s.masjidBoardService.(masjidBoardLayoutSetter)
-		if !ok || setter == nil {
-			writeError(w, http.StatusServiceUnavailable, "MasjidBoard layout service is unavailable")
-			return
-		}
-
 		var request masjidBoardLayoutRequest
 		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
@@ -44,15 +45,43 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 		}
 
 		layout := strings.TrimSpace(strings.ToLower(request.Layout))
-		if layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
+		theme := strings.TrimSpace(strings.ToLower(request.Theme))
+		if layout == "" && theme == "" {
+			writeError(w, http.StatusBadRequest, "layout or theme is required")
+			return
+		}
+		if layout != "" && layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
 			writeError(w, http.StatusBadRequest, "layout must be standard or detailed")
 			return
 		}
-		if err := setter.SetLayout(layout); err != nil {
-			writeError(w, http.StatusConflict, err.Error())
+		if theme != "" && !selection.ThemeSupported(theme) {
+			writeError(w, http.StatusBadRequest, "unsupported MasjidBoard theme")
 			return
 		}
-		writeJSON(w, http.StatusOK, masjidBoardLayoutResponse{Layout: layout})
+
+		if layout != "" {
+			setter, ok := s.masjidBoardService.(masjidBoardLayoutSetter)
+			if !ok || setter == nil {
+				writeError(w, http.StatusServiceUnavailable, "MasjidBoard layout service is unavailable")
+				return
+			}
+			if err := setter.SetLayout(layout); err != nil {
+				writeError(w, http.StatusConflict, err.Error())
+				return
+			}
+		}
+		if theme != "" {
+			setter, ok := s.masjidBoardService.(masjidBoardThemeSetter)
+			if !ok || setter == nil {
+				writeError(w, http.StatusServiceUnavailable, "MasjidBoard theme service is unavailable")
+				return
+			}
+			if err := setter.SetTheme(theme); err != nil {
+				writeError(w, http.StatusConflict, err.Error())
+				return
+			}
+		}
+		writeJSON(w, http.StatusOK, current())
 	default:
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 	}

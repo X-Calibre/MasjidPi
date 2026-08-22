@@ -10,7 +10,6 @@
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
     const primaryName = document.getElementById("portraitPrimaryName");
-    const boardStatus = document.getElementById("portraitBoardStatus");
     const clock = document.getElementById("portraitClock");
     const gregorianDate = document.getElementById("portraitGregorianDate");
     const islamicDate = document.getElementById("portraitIslamicDate");
@@ -40,9 +39,9 @@
 
     function formatEvent(event) {
         if (!event) return {name: "No upcoming event", time: null};
-        if (event.kind === "jumuah") return {name: `Jumuâah Â· ${event.label || "Salaah"}`, time: event.time};
+        if (event.kind === "jumuah") return {name: `Jumu'ah - ${event.label || "Salaah"}`, time: event.time};
         const prayer = prayerLabels[event.key] || event.key;
-        return {name: `${prayer} Â· ${event.event === "jamaah" ? "Jamaah" : "Adhan"}`, time: event.time};
+        return {name: `${prayer} - ${event.event === "jamaah" ? "Jamaah" : "Adhan"}`, time: event.time};
     }
 
     function dailyItems(board) {
@@ -77,8 +76,8 @@
             if (next && next.kind === "prayer" && next.key === key) row.classList.add("upcoming");
             row.append(
                 element("span", "", prayerLabels[key]),
-                element("strong", "", prayer && prayer.adhan ? utils.formatClock(prayer.adhan) : "â"),
-                element("strong", "", prayer && prayer.jamaah ? utils.formatClock(prayer.jamaah) : "â"),
+                element("strong", "", prayer && prayer.adhan ? utils.formatClock(prayer.adhan) : "-"),
+                element("strong", "", prayer && prayer.jamaah ? utils.formatClock(prayer.jamaah) : "-"),
             );
             table.append(row);
         }
@@ -153,8 +152,6 @@
         const boards = view && Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (!view || !view.configured || boards.length === 0) return;
         primaryName.textContent = boards[0].name;
-        boardStatus.textContent = boards[0].status === "stale" ? "STALE" : boards[0].status === "unavailable" ? "OFFLINE" : "ONLINE";
-        boardStatus.dataset.status = boards[0].status || "online";
         renderSlides(boards);
         updateHeader();
         state.classList.remove("hidden");

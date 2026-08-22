@@ -20,6 +20,12 @@
     grid-column:3;
 }
 
+/* Detailed headers are deliberately a little smaller than Standard so long
+   masjid names fit comfortably across the denser comparison layout. */
+.detailed-layout .board-name {
+    font-size:clamp(1.75rem,2.35vw,2.65rem);
+}
+
 /* With fewer masjids, use the recovered horizontal space for the columns
    that carry labels and for the Daily Times panel rather than making the
    masjid cells excessively wide. */
@@ -153,12 +159,13 @@
 
 /* Full-HD displays have enough overall room, but the three-masjid layout can
    squeeze the two left label columns. Give those labels a little more width
-   while preserving the established font sizes, row heights and Daily Times
-   proportions. Larger 1440p displays continue to use the base layout above. */
+   while preserving the established row heights and Daily Times proportions.
+   The prayer-name column gets the larger share so long names such as Maghrib
+   retain comfortable horizontal padding. */
 @media (min-width:1101px) and (max-width:2000px) {
     .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
     .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
-        grid-template-columns:minmax(175px,.46fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
+        grid-template-columns:minmax(190px,.50fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
     }
 }
 

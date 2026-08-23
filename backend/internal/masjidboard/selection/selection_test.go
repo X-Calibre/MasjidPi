@@ -67,6 +67,19 @@ func TestPortraitDisplayPreferences(t *testing.T) {
 	}
 }
 
+func TestLegacyLayoutsResolveToLandscape(t *testing.T) {
+	board := selected("brits-jamia", "Brits Jamia Masjid", 7200000)
+	for _, layout := range []string{"", "standard", "detailed", LayoutLandscape} {
+		state := State{Boards: []Board{board}, Layout: layout}
+		if err := Validate(state); err != nil {
+			t.Fatalf("Validate(layout=%q) error = %v", layout, err)
+		}
+		if got := state.EffectiveLayout(); got != LayoutLandscape {
+			t.Fatalf("EffectiveLayout(layout=%q) = %q", layout, got)
+		}
+	}
+}
+
 func TestValidateRejectsFourthBoard(t *testing.T) {
 	state := State{Boards: []Board{
 		selected("a", "A", 0),

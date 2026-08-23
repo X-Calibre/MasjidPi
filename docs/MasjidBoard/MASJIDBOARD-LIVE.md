@@ -564,7 +564,7 @@ Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
 Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
-The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. The Detailed layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of the screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
+The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
 
 ## Notice and Announcement Display Fixtures
 
@@ -637,12 +637,12 @@ Therefore the next investigation is narrowly defined:
 
 The existing fixtures should be the starting point for parser tests. New captures are needed only to validate freshness and edge cases, not to repeat the completed schema discovery.
 
-### Detailed-layout fixture mode
+### Landscape fixture mode
 
-The Detailed display supports an explicit development-only fixture mode:
+The default Landscape display supports an explicit development-only fixture mode:
 
 ```text
-/masjidboard.html?layout=detailed&notice-fixtures=1
+/masjidboard.html?notice-fixtures=1
 ```
 
 This injects anonymised funeral, Nikah, Eid, long-announcement, Arabic and compact community samples into the frontend card renderer. The set exercises two-thirds/one-third, three-card and full-panel pages. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.

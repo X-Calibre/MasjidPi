@@ -500,6 +500,53 @@ This row contains alternate-language versions of the daily Salah/related values,
 
 Rows 24–28 contain additional board configuration, translation, ticker, poster, and display settings. These require no assumption-driven modelling at this stage. Only fields whose semantics are verified from the source and/or multiple live boards should be promoted into the normalised MasjidBoard model.
 
+## Existing Payload Content Audit
+
+An August 2026 review confirmed that a new MasjidBoard Live discovery exercise is **not** required before work begins on notices and other community content. The repository already contains captured 29-row Premium responses in `docs/MasjidBoard/*.json` and `docs/MasjidBoard/fixtures/*.json`, and the row mapping above already documents the relevant content.
+
+The existing captures contain the following information:
+
+| Content | Existing upstream location | Current MasjidPi state |
+|---|---|---|
+| Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Present in captured payloads; not parsed or exposed by the display API |
+| Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Present in captured payloads; `model.NoticeTypeNikah` exists, but the provider does not populate it |
+| Funeral notice | Row 14; deceased name/relation, address, pickup, cemetery, salaah venue/time and visibility flag | Present in captured payloads; `model.NoticeTypeFuneral` exists, but the provider does not populate it |
+| Taleem/Dawah/Gasht programmes | Rows 10 and 15; programme details, dates/times and visibility flags | Present in captured payloads; `model.Programme` exists, but the provider does not populate it |
+| Community posters | Row 16; ten image identifiers with visibility flags | Present in captured payloads; `model.Media` exists, but the provider does not populate it |
+| Eid notice | Row 17; date, venue, address, lecture, salaah and visibility flag | Present in captured payloads; `model.NoticeTypeEid` exists, but the provider does not populate it |
+| Standard posters | Row 18; ten image identifiers, visibility flags and layout settings | Present in captured payloads; not parsed or exposed |
+| Large posters | Row 19; ten image identifiers, visibility flags and durations | Present in captured payloads; not parsed or exposed |
+| Banking/contributions | Row 20; heading, bank/account details, branch code and display flag | Present in captured payloads; `model.Banking` exists, but the provider does not populate it |
+| Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Present in captured payloads; `model.NoticeTypeWellWish` exists, but the provider does not populate it |
+| New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Present in captured payloads; `model.NewMoon` exists only as a placeholder and is not populated |
+
+### What is already implemented
+
+The normalised `model.Board` already reserves collections or objects for `Announcements`, `Programmes`, `Notices`, `Media`, `Banking` and `NewMoon`. Notice types already include general, Nikah, funeral, well-wishes and Eid. This means the high-level domain boundary was deliberately prepared for this content and should be extended rather than redesigned.
+
+The current provider parser intentionally normalises only the verified core rows:
+
+- row 1: Jumu'ah;
+- row 2: clock/identity context;
+- row 3: daily prayer times;
+- row 5: astronomical times; and
+- row 6: masjid identity/configuration.
+
+The current display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah and astronomical information only. They do not yet include announcement, programme, notice, media, banking or new-moon fields.
+
+### Core versus Premium payloads
+
+MasjidPi currently retrieves the public Core board data for normal operation. The Core validation found no announcements, community content, posters, programmes or notices in its embedded `data` object. The richer content listed above is confirmed in the captured Premium 29-row payloads.
+
+Therefore the next investigation is narrowly defined:
+
+1. Confirm whether the existing 29-row Premium endpoint can be used reliably and legitimately for selected Core-listed boards, or whether a separate provider/capability boundary is required.
+2. Revalidate the already-mapped rows against a small number of current payloads, focusing on visibility flags, optional fields and lifecycle behaviour rather than rediscovering field names.
+3. Add defensive parsers that populate the existing normalised model.
+4. Extend caching and the display API only after parsing tests prove the content can be normalised safely.
+
+The existing fixtures should be the starting point for parser tests. New captures are needed only to validate freshness and edge cases, not to repeat the completed schema discovery.
+
 ## Architectural Decisions
 
 ### MasjidBoard is a separate application capability

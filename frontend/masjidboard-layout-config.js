@@ -46,11 +46,11 @@
     }
 
     function normaliseLayout(layout) {
-        return ["standard", "detailed", "portrait"].includes(layout) ? layout : "standard";
+        return layout === "portrait" ? "portrait" : "landscape";
     }
 
     function describe(layout, theme) {
-        const layoutName = {standard: "Standard", detailed: "Detailed", portrait: "Portrait"}[normaliseLayout(layout)];
+        const layoutName = {landscape: "Landscape (1920 × 1080)", portrait: "Portrait (600 × 1024)"}[normaliseLayout(layout)];
         return `${layoutName} layout with the ${themeNames[theme] || "Emerald"} theme will be used automatically on HDMI output.`;
     }
 
@@ -86,7 +86,7 @@
             const layout = normaliseLayout(state && state.layout);
             const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";
             select.value = layout; setTheme(theme); meta.textContent = describe(layout, theme);
-            showBanner(`HDMI display saved: ${{standard: "Standard", detailed: "Detailed", portrait: "Portrait"}[layout]}, ${themeNames[theme]}.`);
+            showBanner(`HDMI display saved: ${{landscape: "Landscape", portrait: "Portrait"}[layout]}, ${themeNames[theme]}.`);
         } catch (error) {
             showBanner(`Could not save HDMI display settings: ${error.message}`, "error");
         } finally {

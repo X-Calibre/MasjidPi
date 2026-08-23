@@ -210,6 +210,7 @@ Future MasjidBoard enhancements may include:
 - Richer announcement/media content where useful
 - Additional display preferences
 - Broader appliance/platform validation
+- Improve the unconfigured Board screen so it tells the user to open the MasjidPi Web UI using the Raspberry Pi hostname or IP address (for example, `http://masjidpi.local:8080` or `http://<device-ip>:8080`) and complete device configuration
 
 ### Home Assistant Integration
 

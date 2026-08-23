@@ -10,15 +10,6 @@
     const detailedGregorianDate = document.getElementById("detailedGregorianDate");
     const detailedIslamicDate = document.getElementById("detailedIslamicDate");
     const refreshIntervalMs = 60_000;
-    const islamicWeekdays = [
-        "Al-Ahad",
-        "Al-Ithnayn",
-        "Ath-Thulatha",
-        "Al-Arbi'a",
-        "Al-Khamis",
-        "Al-Jumu'ah",
-        "As-Sabt",
-    ];
 
     function validTime(time) {
         return time && Number.isInteger(time.hour) && Number.isInteger(time.minute);
@@ -88,41 +79,13 @@
         return items;
     }
 
-    function boardGregorianDate(board) {
-        const value = board && board.date ? board.date.gregorian : "";
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date();
-        const [year, month, day] = value.split("-").map(Number);
-        return new Date(year, month - 1, day);
-    }
-
-    function formatGregorianDate(board) {
-        return boardGregorianDate(board).toLocaleDateString([], {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        });
-    }
-
-    function islamicWeekday(board) {
-        const date = boardGregorianDate(board);
-        const sunset = board && board.astronomical ? board.astronomical.sunset : null;
-        if (validTime(sunset)) {
-            const now = new Date();
-            const rolloverSeconds = sunset.hour * 3600 + sunset.minute * 60 + 185;
-            const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            if (nowSeconds >= rolloverSeconds) date.setDate(date.getDate() + 1);
-        }
-        return islamicWeekdays[date.getDay()];
-    }
-
     function renderDetailedDates(board) {
         if (detailedGregorianDate) {
-            detailedGregorianDate.textContent = formatGregorianDate(board);
+            detailedGregorianDate.textContent = window.MasjidBoardDate.formatGregorianDate(board);
         }
         if (!detailedIslamicDate) return;
         const islamicDate = board && board.date ? board.date.islamic : "";
-        detailedIslamicDate.textContent = islamicDate ? `${islamicWeekday(board)}, ${islamicDate}` : "";
+        detailedIslamicDate.textContent = islamicDate ? `${window.MasjidBoardDate.islamicWeekday(board)}, ${islamicDate}` : "";
     }
 
     function render(board) {

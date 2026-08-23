@@ -133,6 +133,16 @@
         return tomorrow[0] || null;
     }
 
+    window.MasjidBoardDisplayUtils = {
+        countdownText,
+        displayDate,
+        displayNow,
+        findPrayer,
+        formatClock,
+        jumuahItems,
+        nextEventForBoard,
+    };
+
     function updateClock() {
         const now = displayNow();
         const date = displayDate();

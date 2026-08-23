@@ -47,6 +47,26 @@ func TestValidateAllowsOneToThreeBoards(t *testing.T) {
 	}
 }
 
+func TestPortraitDisplayPreferences(t *testing.T) {
+	state := State{
+		Boards:               []Board{selected("brits-jamia", "Brits Jamia Masjid", 7200000)},
+		Layout:               LayoutPortrait,
+		SlideDurationSeconds: 30,
+	}
+	if err := Validate(state); err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	if got := state.EffectiveLayout(); got != LayoutPortrait {
+		t.Fatalf("EffectiveLayout() = %q", got)
+	}
+	if got := state.EffectiveSlideDurationSeconds(); got != 30 {
+		t.Fatalf("EffectiveSlideDurationSeconds() = %d", got)
+	}
+	if got := (State{}).EffectiveSlideDurationSeconds(); got != DefaultSlideDurationSeconds {
+		t.Fatalf("default slide duration = %d", got)
+	}
+}
+
 func TestValidateRejectsFourthBoard(t *testing.T) {
 	state := State{Boards: []Board{
 		selected("a", "A", 0),

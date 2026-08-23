@@ -124,10 +124,17 @@ func (s *Service) Reconfigure(state selection.State) error {
 
 func (s *Service) SetLayout(layout string) error {
 	layout = strings.TrimSpace(strings.ToLower(layout))
-	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed {
+	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed && layout != selection.LayoutPortrait {
 		return fmt.Errorf("masjidboard service: unsupported display layout %q", layout)
 	}
 	return s.updateDisplayPreference(func(state *selection.State) { state.Layout = layout }, "layout")
+}
+
+func (s *Service) SetSlideDurationSeconds(seconds int) error {
+	if seconds < selection.MinSlideDurationSeconds || seconds > selection.MaxSlideDurationSeconds {
+		return fmt.Errorf("masjidboard service: slide duration must be between %d and %d seconds", selection.MinSlideDurationSeconds, selection.MaxSlideDurationSeconds)
+	}
+	return s.updateDisplayPreference(func(state *selection.State) { state.SlideDurationSeconds = seconds }, "slide duration")
 }
 
 func (s *Service) SetTheme(theme string) error {
@@ -159,7 +166,7 @@ func (s *Service) updateDisplayPreference(update func(*selection.State), label s
 		return fmt.Errorf("masjidboard service: persist %s: %w", label, err)
 	}
 	s.mu.Lock()
-	s.selection.Layout, s.selection.Theme = state.Layout, state.Theme
+	s.selection = cloneSelection(state)
 	s.mu.Unlock()
 	return nil
 }
@@ -211,5 +218,7 @@ func (s *Service) Results() []runtime.Result {
 }
 
 func cloneSelection(state selection.State) selection.State {
-	return selection.State{Boards: append([]selection.Board(nil), state.Boards...), Layout: state.Layout, Theme: state.Theme}
+	copy := state
+	copy.Boards = append([]selection.Board(nil), state.Boards...)
+	return copy
 }

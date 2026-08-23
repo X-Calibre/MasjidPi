@@ -17,17 +17,16 @@
     }
 
     function currentLayout() {
-        return new URLSearchParams(window.location.search).get("layout") === "detailed"
-            ? "detailed"
-            : "standard";
+        const layout = new URLSearchParams(window.location.search).get("layout");
+        return ["detailed", "portrait"].includes(layout) ? layout : "standard";
     }
 
     function applyLayout(layout) {
-        const wanted = layout === "detailed" ? "detailed" : "standard";
+        const wanted = ["detailed", "portrait"].includes(layout) ? layout : "standard";
         if (wanted === currentLayout()) return false;
 
         const url = new URL(window.location.href);
-        if (wanted === "detailed") url.searchParams.set("layout", "detailed");
+        if (wanted !== "standard") url.searchParams.set("layout", wanted);
         else url.searchParams.delete("layout");
 
         // Preserve development/test parameters such as date, time and theme.

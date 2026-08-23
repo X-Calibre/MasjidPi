@@ -637,6 +637,16 @@ Therefore the next investigation is narrowly defined:
 
 The existing fixtures should be the starting point for parser tests. New captures are needed only to validate freshness and edge cases, not to repeat the completed schema discovery.
 
+### Detailed-layout fixture mode
+
+The Detailed display supports an explicit development-only fixture mode:
+
+```text
+/masjidboard.html?layout=detailed&notice-fixtures=1
+```
+
+This injects anonymised funeral, Nikah, Eid, long-announcement and Arabic samples into the frontend card renderer. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.
+
 ## Architectural Decisions
 
 ### MasjidBoard is a separate application capability

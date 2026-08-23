@@ -1,17 +1,16 @@
-/* Detailed MasjidBoard layout refinements. Loaded only by the display page;
-   selectors are gated by .detailed-layout so Standard remains unchanged. */
-.detailed-layout .board-shell {
+/* Default 1920 × 1080 Landscape MasjidBoard layout. */
+.landscape-layout .board-shell {
     display:grid;
     grid-template-columns:minmax(0,3fr) minmax(280px,1fr);
     grid-template-rows:auto minmax(0,1fr);
     column-gap:clamp(10px,1vw,16px);
 }
-.detailed-layout .board-topbar { grid-column:1; grid-row:1; }
-.detailed-layout .display-state { grid-column:1; grid-row:2; }
-.detailed-layout .empty-state { grid-column:1 / span 2; grid-row:1 / span 2; }
-.detailed-layout .detailed-layout-shell { flex-direction:column; gap:clamp(8px,.9vh,12px); }
-.detailed-layout .timetable-stage { flex:1 1 auto; }
-.detailed-layout .additional-times {
+.landscape-layout .board-topbar { grid-column:1; grid-row:1; }
+.landscape-layout .display-state { grid-column:1; grid-row:2; }
+.landscape-layout .empty-state { grid-column:1 / span 2; grid-row:1 / span 2; }
+.landscape-layout .landscape-layout-shell { flex-direction:column; gap:clamp(8px,.9vh,12px); }
+.landscape-layout .timetable-stage { flex:1 1 auto; }
+.landscape-layout .additional-times {
     flex:0 0 clamp(98px,11.5vh,126px);
     min-width:0;
     max-width:none;
@@ -22,7 +21,7 @@
     grid-row:1 / span 2;
     min-height:0;
 }
-.detailed-layout .detailed-community-panel { display:block; }
+.landscape-layout .detailed-community-panel { display:block; }
 .detailed-community-cards {
     height:100%;
     min-height:0;
@@ -147,36 +146,34 @@
     font-size:clamp(.58rem,.62vw,.7rem);
 }
 
-/* Detailed rows gain one shared label column. */
-.detailed-layout .comparison-grid,
-.detailed-layout .prayer-row {
+/* Landscape rows use one shared label column. */
+.landscape-layout .comparison-grid,
+.landscape-layout .prayer-row {
     grid-template-columns:minmax(145px,.40fr) minmax(118px,.28fr) repeat(var(--board-count),minmax(0,1fr));
 }
-.detailed-layout .board-headers::before {
+.landscape-layout .board-headers::before {
     content:"";
     grid-column:2;
 }
-.detailed-layout .board-headers .board-header:first-of-type {
+.landscape-layout .board-headers .board-header:first-of-type {
     grid-column:3;
 }
 
-/* Detailed headers are deliberately a little smaller than Standard so long
-   masjid names fit comfortably across the denser comparison layout. */
-.detailed-layout .board-name {
+/* Compact headers keep long masjid names legible across three columns. */
+.landscape-layout .board-name {
     font-size:clamp(1.75rem,2.35vw,2.65rem);
 }
 
-/* Detailed mode is denser than Standard. Keep prayer names prominent, but
-   slightly reduce their scaling ceiling so long names such as Maghrib remain
-   comfortably inside the label card. */
-.detailed-layout .prayer-label {
+/* Keep prayer names prominent while ensuring long names such as Maghrib
+   remain comfortably inside the label card. */
+.landscape-layout .prayer-label {
     font-size:clamp(1.8rem,2.25vw,2.55rem);
     padding-inline:clamp(8px,.75vw,12px);
 }
 
-/* Countdowns are supporting information in Detailed mode. Keep them readable
+/* Countdowns are supporting information in Landscape mode. Keep them readable
    without letting them crowd the prayer times above and below. */
-.detailed-layout .event-countdown {
+.landscape-layout .event-countdown {
     font-size:clamp(.68rem,.76vw,.86rem);
     line-height:1;
     margin-top:2px;
@@ -185,28 +182,28 @@
 
 /* The countdown remains attached to the next chronological event. Reserve
    enough vertical room for its second line within the denser 75% timetable. */
-.detailed-layout .prayer-row .prayer-cell,
-.detailed-layout .prayer-row .jumuah-cell {
+.landscape-layout .prayer-row .prayer-cell,
+.landscape-layout .prayer-row .jumuah-cell {
     padding-block:clamp(6px,.65vh,9px);
     padding-inline:clamp(8px,.7vw,12px);
 }
-.detailed-layout .time-value-stack { gap:2px; }
-.detailed-layout .time-value-stack:has(.event-countdown) .time-value {
+.landscape-layout .time-value-stack { gap:2px; }
+.landscape-layout .time-value-stack:has(.event-countdown) .time-value {
     font-size:clamp(1.15rem,1.42vw,1.62rem);
 }
 
 /* With fewer masjids, use the recovered horizontal space for the label
    columns rather than making the masjid cells excessively wide. */
-.detailed-layout[data-board-count="2"] .comparison-grid,
-.detailed-layout[data-board-count="2"] .prayer-row {
+.landscape-layout[data-board-count="2"] .comparison-grid,
+.landscape-layout[data-board-count="2"] .prayer-row {
     grid-template-columns:minmax(190px,.52fr) minmax(145px,.36fr) repeat(var(--board-count),minmax(0,1fr));
 }
-.detailed-layout[data-board-count="1"] .comparison-grid,
-.detailed-layout[data-board-count="1"] .prayer-row {
+.landscape-layout[data-board-count="1"] .comparison-grid,
+.landscape-layout[data-board-count="1"] .prayer-row {
     grid-template-columns:minmax(235px,.62fr) minmax(175px,.43fr) repeat(var(--board-count),minmax(0,1fr));
 }
 
-.detailed-layout .shared-time-labels {
+.landscape-layout .shared-time-labels {
     border:1px solid var(--line);
     border-radius:var(--radius);
     background:linear-gradient(180deg,rgba(13,29,24,.98),rgba(9,23,19,.98));
@@ -215,7 +212,7 @@
     min-height:0;
     padding:clamp(10px,.85vw,14px);
 }
-.detailed-layout .shared-time-label {
+.landscape-layout .shared-time-label {
     display:flex;
     align-items:center;
     justify-content:center;
@@ -226,51 +223,51 @@
     font-weight:680;
     line-height:1;
 }
-.detailed-layout .shared-jamaah,
-.detailed-layout .shared-khutbah {
+.landscape-layout .shared-jamaah,
+.landscape-layout .shared-khutbah {
     color:var(--text);
     font-size:clamp(1.25rem,1.6vw,1.75rem);
     font-weight:790;
 }
 
-.detailed-layout .prayer-row .prayer-cell,
-.detailed-layout .prayer-row .jumuah-cell {
+.landscape-layout .prayer-row .prayer-cell,
+.landscape-layout .prayer-row .jumuah-cell {
     display:grid;
     grid-template-rows:repeat(var(--time-slot-count),minmax(0,1fr));
     gap:0;
 }
-.detailed-layout .prayer-row .time-line.shared-label-value {
+.landscape-layout .prayer-row .time-line.shared-label-value {
     align-items:center;
     justify-content:center;
 }
-.detailed-layout .prayer-row .time-line.shared-label-value .time-label {
+.landscape-layout .prayer-row .time-line.shared-label-value .time-label {
     display:none;
 }
-.detailed-layout .prayer-row .time-line.shared-label-value .time-value-stack {
+.landscape-layout .prayer-row .time-line.shared-label-value .time-value-stack {
     align-items:center;
 }
-.detailed-layout .shared-time-placeholder {
+.landscape-layout .shared-time-placeholder {
     min-height:1px;
     display:flex;
     align-items:center;
     justify-content:center;
 }
-.detailed-layout .shared-missing-value {
+.landscape-layout .shared-missing-value {
     color:rgba(232,240,236,.28);
     font-size:clamp(1.2rem,1.6vw,1.7rem);
     font-weight:650;
 }
 
 /* With the shared-label column, Masjid 1 is the third grid cell. */
-.detailed-layout .board-headers .board-header:first-of-type,
-.detailed-layout .prayer-row > .prayer-cell:first-of-type,
-.detailed-layout .prayer-row > .jumuah-cell:first-of-type {
+.landscape-layout .board-headers .board-header:first-of-type,
+.landscape-layout .prayer-row > .prayer-cell:first-of-type,
+.landscape-layout .prayer-row > .jumuah-cell:first-of-type {
     border-color:rgba(231,200,87,.20);
     background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98));
 }
 
 /* Daily Times becomes a compact horizontal strip below the timetable. */
-.detailed-layout .additional-times {
+.landscape-layout .additional-times {
     display:grid;
     grid-template-columns:clamp(120px,9vw,165px) minmax(0,1fr);
     grid-template-rows:1fr 1fr;
@@ -334,24 +331,24 @@
    The prayer-name column gets the larger share so long names such as Maghrib
    retain comfortable horizontal padding. */
 @media (min-width:1101px) and (max-width:2000px) {
-    .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
-    .detailed-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
+    .landscape-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
+    .landscape-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
         grid-template-columns:minmax(205px,.53fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));
     }
 }
 
 @media (max-width:1100px) {
-    .detailed-layout .board-shell { grid-template-columns:minmax(0,3fr) minmax(230px,1fr); }
-    .detailed-layout .comparison-grid,
-    .detailed-layout .prayer-row {
+    .landscape-layout .board-shell { grid-template-columns:minmax(0,3fr) minmax(230px,1fr); }
+    .landscape-layout .comparison-grid,
+    .landscape-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
-    .detailed-layout[data-board-count="2"] .comparison-grid,
-    .detailed-layout[data-board-count="2"] .prayer-row {
+    .landscape-layout[data-board-count="2"] .comparison-grid,
+    .landscape-layout[data-board-count="2"] .prayer-row {
         grid-template-columns:minmax(135px,.42fr) minmax(120px,.31fr) repeat(var(--board-count),minmax(0,1fr));
     }
-    .detailed-layout[data-board-count="1"] .comparison-grid,
-    .detailed-layout[data-board-count="1"] .prayer-row {
+    .landscape-layout[data-board-count="1"] .comparison-grid,
+    .landscape-layout[data-board-count="1"] .prayer-row {
         grid-template-columns:minmax(165px,.50fr) minmax(140px,.36fr) repeat(var(--board-count),minmax(0,1fr));
     }
     .additional-times-list { gap:5px; }
@@ -359,21 +356,21 @@
 }
 
 @media (max-width:760px) {
-    .detailed-layout .timetable-stage { flex:1 1 auto; }
-    .detailed-layout .board-shell { min-width:760px; grid-template-columns:minmax(0,3fr) minmax(210px,1fr); }
-    .detailed-layout .additional-times { min-width:0; max-width:none; }
-    .detailed-layout .comparison-grid,
-    .detailed-layout .prayer-row,
-    .detailed-layout[data-board-count="1"] .comparison-grid,
-    .detailed-layout[data-board-count="1"] .prayer-row,
-    .detailed-layout[data-board-count="2"] .comparison-grid,
-    .detailed-layout[data-board-count="2"] .prayer-row {
+    .landscape-layout .timetable-stage { flex:1 1 auto; }
+    .landscape-layout .board-shell { min-width:760px; grid-template-columns:minmax(0,3fr) minmax(210px,1fr); }
+    .landscape-layout .additional-times { min-width:0; max-width:none; }
+    .landscape-layout .comparison-grid,
+    .landscape-layout .prayer-row,
+    .landscape-layout[data-board-count="1"] .comparison-grid,
+    .landscape-layout[data-board-count="1"] .prayer-row,
+    .landscape-layout[data-board-count="2"] .comparison-grid,
+    .landscape-layout[data-board-count="2"] .prayer-row {
         grid-template-columns:72px 82px repeat(var(--board-count),minmax(0,1fr));
     }
-    .detailed-layout .shared-time-labels { border-radius:12px; padding:6px; }
-    .detailed-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
-    .detailed-layout .shared-jamaah,
-    .detailed-layout .shared-khutbah { font-size:clamp(.86rem,3.2vw,1.05rem); }
+    .landscape-layout .shared-time-labels { border-radius:12px; padding:6px; }
+    .landscape-layout .shared-time-label { font-size:clamp(.76rem,2.8vw,.95rem); }
+    .landscape-layout .shared-jamaah,
+    .landscape-layout .shared-khutbah { font-size:clamp(.86rem,3.2vw,1.05rem); }
     .additional-times-list { gap:5px; }
     .additional-time-row { flex:0 0 auto; padding:9px 8px; }
 }

@@ -18,15 +18,15 @@
 
     function currentLayout() {
         const layout = new URLSearchParams(window.location.search).get("layout");
-        return ["detailed", "portrait"].includes(layout) ? layout : "standard";
+        return layout === "portrait" ? "portrait" : "landscape";
     }
 
     function applyLayout(layout) {
-        const wanted = ["detailed", "portrait"].includes(layout) ? layout : "standard";
+        const wanted = layout === "portrait" ? "portrait" : "landscape";
         if (wanted === currentLayout()) return false;
 
         const url = new URL(window.location.href);
-        if (wanted !== "standard") url.searchParams.set("layout", wanted);
+        if (wanted === "portrait") url.searchParams.set("layout", wanted);
         else url.searchParams.delete("layout");
 
         // Preserve development/test parameters such as date, time and theme.
@@ -42,7 +42,7 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const state = await response.json();
 
-            // A layout change needs the matching Standard/Detailed scripts to be
+            // A layout change needs the matching Landscape/Portrait scripts to be
             // loaded, so navigate the existing board page rather than restarting
             // the Cog display process.
             if (applyLayout(state && state.layout)) return;

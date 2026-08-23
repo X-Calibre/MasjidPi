@@ -78,7 +78,7 @@
     }
 
     function plainText(value) {
-        const source = String(value || "").replace(/<br\\s*\\/?\\s*>/gi, "\n");
+        const source = String(value || "").replace(/<br\s*\/?\s*>/gi, "\n");
         if (!source) return "";
         const parsed = new DOMParser().parseFromString(source, "text/html");
         return (parsed.body.textContent || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim();

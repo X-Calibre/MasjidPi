@@ -566,6 +566,68 @@ Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah 
 
 The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. These fields are not yet rendered by any layout. Upstream announcement bodies may contain HTML and must be treated as untrusted data; future presentation code must use plain-text rendering or an explicit sanitisation policy rather than direct HTML injection.
 
+## Notice and Announcement Display Fixtures
+
+The Premium payloads contain useful historical content even when its upstream visibility flag is `Hide`. This content should be retained as **development fixture material only**: it is valuable for layout design and automated tests, but it must never be presented to users as a current live notice.
+
+The following inventory was revalidated against the live Premium payloads on 23 August 2026.
+
+### Content-size range
+
+| Content type | Observed plain-text range | Typical structure |
+|---|---:|---|
+| General announcements | approximately 43–272 characters | Heading plus free-form body, often containing dates, times and several sentences |
+| Nikah notices | approximately 114–137 characters | Names and family relationships, event date, time and sometimes venue |
+| Funeral notices | approximately 86–164 characters | Deceased person, relationship, address/pickup, cemetery, Janazah venue and time |
+| Eid notices | approximately 75–93 characters | Date, venue, address, lecture/translation time and Salaah time |
+
+These ranges describe the currently inspected samples, not hard maximums. Layouts must remain defensive when content exceeds them.
+
+### Representative fixtures by board
+
+| Board | Content worth retaining as a fixture | Display condition exercised |
+|---|---|---|
+| `zakariyya-park-duzak` | Active short masjid announcement; a hidden 272-character Salaah-time-change notice; Arabic announcement content | Live end-to-end content, duplicate content, long body, mixed scripts and RTL |
+| `fawkner-masjid` | Long safety/access notices of approximately 194–255 characters; detailed funeral notice; Eid and Jumu'ah notices | Multi-sentence notices, long venue text, operational instructions and Australian terminology |
+| `azaadville-darul-uloom` | Detailed funeral notice of approximately 164 characters; Taraweeh and weekly-programme announcements | Dense structured funeral information and programme content |
+| `brits-jamia` | Weekly programmes, Eid-style announcement, Nikah, funeral and Eid fields | Medium-length general and structured notices |
+| `brits-taqwa` | Short urgent announcement, weekly programmes, Nikah, funeral and Eid fields | Very short urgent content and structured notices |
+| `erasmia-aaisha` | Banking/contribution information stored in announcement slots; Nikah, funeral and Eid fields | Content-category ambiguity and financial information that should not be mistaken for an urgent notice |
+
+### Required fixture states
+
+The display design and frontend tests should cover at least these states:
+
+1. **No content** — the normal state for many Core-only boards and Premium boards with everything hidden.
+2. **Single short announcement** — one heading and a one-line or short body.
+3. **Single long announcement** — approximately 250–300 characters with several times or sentences.
+4. **Multiple announcements** — ordering and rotation without overcrowding the prayer board.
+5. **Duplicate active announcements** — Zakariyya currently publishes the same active announcement in two slots; the UI must not visibly repeat it without purpose.
+6. **Funeral notice** — structured identity, location and Janazah details with visually high priority.
+7. **Nikah notice** — structured names, relationships, date, time and venue where supplied.
+8. **Eid notice** — event date, venue and multiple event times.
+9. **Arabic/RTL content** — correct direction, shaping, alignment and font behaviour.
+10. **Mixed-language content** — Arabic and English within the same notice set.
+11. **Legacy HTML content** — line breaks, bold/underline tags and malformed markup converted safely to display text.
+12. **Generic or blank heading** — headings such as `Masjid Announcement`, `Change Heading 2`, or an empty heading must not dominate the design.
+13. **Sensitive personal information** — funeral and Nikah fixtures may contain names and addresses; screenshots, demos and public test data should use anonymised equivalents.
+14. **Ambiguous category** — banking, programme or Salaah-change content placed in a generic announcement slot needs presentation based on supplied data, not an invented urgency level.
+
+### Fixture-handling rules
+
+- Preserve the source payload separately from its active/hidden state.
+- Never convert a historical `Hide` entry into a live notice in production.
+- Use anonymised copies for screenshots, demos and committed frontend fixtures when the original contains personal information.
+- Preserve representative length, structure, HTML irregularities and multilingual behaviour when anonymising.
+- Treat upstream HTML as untrusted input. Do not render it with `innerHTML` without an explicit sanitisation policy.
+- Do not assume that announcement slot order implies urgency.
+- Do not assume that repeated content represents two distinct events.
+- Keep structured notice fields available so the final layout does not have to reverse-engineer a concatenated text body.
+
+### Current live test source
+
+At the time of this review, `zakariyya-park-duzak` supplied two active announcement slots with the same heading and body. It is the best existing end-to-end test board for retrieval, normalisation, cache and display-API validation. The other reviewed boards had no active announcement, Nikah, funeral or Eid entries, but their hidden historical data remains useful for anonymised layout fixtures.
+
 Therefore the next investigation is narrowly defined:
 
 1. Confirm whether the existing 29-row Premium endpoint can be used reliably and legitimately for selected Core-listed boards, or whether a separate provider/capability boundary is required.

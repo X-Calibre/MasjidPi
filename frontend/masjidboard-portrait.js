@@ -288,8 +288,10 @@
 
     function communitySlide(entries) {
         const paired = entries.length === 2;
-        const slide = element("article", "portrait-slide portrait-community-slide " + (paired ? "paired" : "single"));
-        for (const item of entries) slide.append(communityCard(item, paired));
+        const compactSingle = entries.length === 1 && isCompactCommunityItem(entries[0]);
+        const layout = paired ? "paired" : compactSingle ? "single compact-single" : "single";
+        const slide = element("article", "portrait-slide portrait-community-slide " + layout);
+        for (const item of entries) slide.append(communityCard(item, isCompactCommunityItem(item)));
         return slide;
     }
 

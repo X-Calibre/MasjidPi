@@ -80,7 +80,7 @@
     overflow-wrap:anywhere;
 }
 .detailed-community-fields {
-    margin-top:auto;
+    margin-top:clamp(14px,1.45vh,20px);
     padding-top:clamp(12px,1.4vh,18px);
     display:grid;
     gap:clamp(8px,.8vh,11px);
@@ -132,6 +132,7 @@
     line-height:1.28;
 }
 .community-layout-thirds .community-span-1 .detailed-community-fields {
+    margin-top:clamp(7px,.65vh,10px);
     padding-top:clamp(5px,.45vh,7px);
     gap:clamp(3px,.3vh,5px);
 }

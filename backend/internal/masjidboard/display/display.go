@@ -27,7 +27,9 @@ type Board struct {
 	Jumuah               []JumuahService           `json:"jumuah,omitempty"`
 	Astronomical         *Astronomical             `json:"astronomical,omitempty"`
 	Announcements        []Announcement             `json:"announcements,omitempty"`
+	Programmes           []Programme                `json:"programmes,omitempty"`
 	Notices              []Notice                   `json:"notices,omitempty"`
+	NewMoon              *NewMoon                   `json:"new_moon,omitempty"`
 }
 
 type Date struct {
@@ -74,11 +76,20 @@ type Announcement struct {
 	Content string `json:"content,omitempty"`
 }
 
+type Programme struct {
+	Title   string `json:"title,omitempty"`
+	Content string `json:"content,omitempty"`
+}
+
 type Notice struct {
 	Type    string            `json:"type"`
 	Title   string            `json:"title,omitempty"`
 	Content string            `json:"content,omitempty"`
 	Fields  map[string]string `json:"fields,omitempty"`
+}
+
+type NewMoon struct {
+	Fields map[string]string `json:"fields,omitempty"`
 }
 
 type Astronomical struct {

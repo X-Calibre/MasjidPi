@@ -183,13 +183,6 @@ body.portrait-layout {
     flex-direction:column;
     background:linear-gradient(155deg,var(--portrait-raised),var(--portrait-panel));
 }
-.portrait-community-card::before {
-    content:"";
-    position:absolute;
-    inset:0 0 auto;
-    height:6px;
-    background:var(--portrait-accent);
-}
 .portrait-community-type {
     color:var(--portrait-heading-accent);
     font-size:16px;

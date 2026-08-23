@@ -139,6 +139,11 @@
             name_two: "Name", pickup: "Pickup", relation: "Relation", relation_one: "Family",
             relation_two: "Family", salaah: "Salaah", salaah_time: "Janazah", salaah_venue: "Venue",
             time: "Time", venue: "Venue",
+			account_name: "Account Name", account_number: "Account Number", bank: "Bank",
+			branch_code: "Branch Code", bsb: "BSB", masjid_taleem: "Masjid Taleem",
+			gasht_out_day: "Gasht Out", gasht_out_time: "Out Time", gasht_in_day: "Gasht In",
+			gasht_in_time: "In Time", first_location: "First Jamaat", first_date: "First Date",
+			second_location: "Second Jamaat", second_date: "Second Date",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -151,6 +156,9 @@
             eid: ["date", "venue", "address", "lecture", "salaah"],
             salaah_change: ["effective_date", "new_time"],
             new_moon: ["birth_date", "birth", "best_visibility", "visibility_date", "first_moonset", "first_age"],
+			dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
+			three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
+			contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]
@@ -220,6 +228,15 @@
                     source: board.name,
                 });
             }
+			if (board.banking && board.banking.fields && typeof board.banking.fields === "object") {
+				add({
+					type: "contribution",
+					title: plainText(board.banking.title) || "Masjid Contributions",
+					body: "",
+					fields: board.banking.fields,
+					source: board.name,
+				});
+			}
         }
         return items;
     }
@@ -274,6 +291,27 @@
                 fields: {},
                 source,
             },
+			{
+				type: "dawah",
+				title: "Dawah and Gasht",
+				body: "",
+				fields: {masjid_taleem: "Daily after Esha Salaah", gasht_out_day: "Thursday", gasht_out_time: "After Asr", gasht_in_day: "Monday", gasht_in_time: "After Maghrib"},
+				source,
+			},
+			{
+				type: "three_day_jamaat",
+				title: "Three-Day Jamaat",
+				body: "",
+				fields: {first_location: "Hartbeespoort area", first_date: "4–6 September", second_location: "Pretoria West", second_date: "11–13 September"},
+				source,
+			},
+			{
+				type: "contribution",
+				title: "Masjid Contributions — Lillah Only",
+				body: "",
+				fields: {bank: "Example Bank", account_name: "Example Masjid Trust", branch_code: "123456", account_number: "000 123 456", bsb: ""},
+				source,
+			},
             {
                 type: "salaah_change",
                 title: "Esha Time Change",
@@ -318,14 +356,14 @@
             },
         ];
         if (communityFixtureMode === "new") {
-            const newTypes = new Set(["salaah_change", "programme", "new_moon", "well_wishes"]);
+			const newTypes = new Set(["dawah", "three_day_jamaat", "contribution"]);
             return items.filter((item) => newTypes.has(item.type));
         }
         return items;
     }
 
     function communityTypeLabel(type) {
-        return {announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice", nikah: "Nikah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change", programme: "Programme", new_moon: "New Moon"}[type]
+		return {announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice", nikah: "Nikah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change", programme: "Programme", new_moon: "New Moon", dawah: "Dawah / Gasht", three_day_jamaat: "Three-Day Jamaat", contribution: "Contributions"}[type]
             || `${fieldLabel(type || "general")} Notice`;
     }
 

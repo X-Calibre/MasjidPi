@@ -303,3 +303,51 @@ func TestParseAdditionalCommunityCardContentHonoursVisibility(t *testing.T) {
 		}
 	}
 }
+
+func TestParseDawahAndContributionCards(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowDawah] = json.RawMessage(`["Daily after Esha","Thursday","Monday","After Asr","After Maghrib","Display","Three-Day Jamaat","Hartbeespoort","4–6 September","Pretoria West","11–13 September","Display"]`)
+	rows[rowBanking] = json.RawMessage(`["300000","Masjid Contributions<br>Lillah Only","Example Bank","Example Masjid Trust","123456","000123456","Display",""]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 8, 23, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	var dawah, threeDay *model.Notice
+	for index := range board.Notices {
+		switch board.Notices[index].Type {
+		case model.NoticeTypeDawah:
+			dawah = &board.Notices[index]
+		case model.NoticeTypeThreeDay:
+			threeDay = &board.Notices[index]
+		}
+	}
+	if dawah == nil || dawah.Fields["gasht_out_day"] != "Thursday" || dawah.Fields["gasht_in_time"] != "After Maghrib" {
+		t.Fatalf("Dawah notice = %+v", dawah)
+	}
+	if threeDay == nil || threeDay.Fields["first_location"] != "Hartbeespoort" || threeDay.Fields["second_date"] != "11–13 September" {
+		t.Fatalf("three-day notice = %+v", threeDay)
+	}
+	if board.Banking == nil || board.Banking.Content != "Masjid Contributions<br>Lillah Only" || board.Banking.Fields["account_number"] != "000123456" {
+		t.Fatalf("Banking = %+v", board.Banking)
+	}
+}
+
+func TestParseDawahAndContributionCardsHonoursVisibility(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowDawah] = json.RawMessage(`["Daily after Esha","Thursday","Monday","After Asr","After Maghrib","Hide","Three-Day Jamaat","Hartbeespoort","4–6 September","Pretoria West","11–13 September","Hide"]`)
+	rows[rowBanking] = json.RawMessage(`["300000","Masjid Contributions","Example Bank","Example Masjid Trust","123456","000123456","Hide",""]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 8, 23, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	for _, notice := range board.Notices {
+		if notice.Type == model.NoticeTypeDawah || notice.Type == model.NoticeTypeThreeDay {
+			t.Fatalf("hidden Dawah notice retained: %+v", notice)
+		}
+	}
+	if board.Banking != nil {
+		t.Fatalf("hidden Banking = %+v", board.Banking)
+	}
+}

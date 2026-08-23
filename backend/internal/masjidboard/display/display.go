@@ -29,6 +29,7 @@ type Board struct {
 	Announcements        []Announcement            `json:"announcements,omitempty"`
 	Programmes           []Programme               `json:"programmes,omitempty"`
 	Notices              []Notice                  `json:"notices,omitempty"`
+	Banking              *Banking                  `json:"banking,omitempty"`
 	NewMoon              *NewMoon                  `json:"new_moon,omitempty"`
 }
 
@@ -89,6 +90,11 @@ type Notice struct {
 }
 
 type NewMoon struct {
+	Fields map[string]string `json:"fields,omitempty"`
+}
+
+type Banking struct {
+	Title  string            `json:"title,omitempty"`
 	Fields map[string]string `json:"fields,omitempty"`
 }
 

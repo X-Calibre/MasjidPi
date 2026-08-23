@@ -40,6 +40,7 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 			Type: model.NoticeTypeFuneral, Title: "Funeral Notice",
 			Fields: map[string]string{"name": "Abdullah", "salaah_time": "14:30"},
 		}},
+		Banking: &model.Banking{Content: "Masjid Contributions", Fields: map[string]string{"bank": "Example Bank", "account_number": "000123456"}},
 		NewMoon: &model.NewMoon{Fields: map[string]string{"visibility_date": "12 September 2026"}},
 	}
 
@@ -87,6 +88,13 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	got.Notices[0].Fields["name"] = "changed"
 	if board.Notices[0].Fields["name"] != "Abdullah" {
 		t.Fatal("display notice fields alias the cached domain model")
+	}
+	if got.Banking == nil || got.Banking.Title != "Masjid Contributions" || got.Banking.Fields["account_number"] != "000123456" {
+		t.Fatalf("banking = %+v", got.Banking)
+	}
+	got.Banking.Fields["bank"] = "changed"
+	if board.Banking.Fields["bank"] != "Example Bank" {
+		t.Fatal("display banking fields alias the cached domain model")
 	}
 	if got.NewMoon == nil || got.NewMoon.Fields["visibility_date"] != "12 September 2026" {
 		t.Fatalf("new moon = %+v", got.NewMoon)

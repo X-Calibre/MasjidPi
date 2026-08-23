@@ -23,7 +23,9 @@ const (
 	rowAnnouncement2 = 12
 	rowNikah         = 13
 	rowFuneral       = 14
+	rowDawah         = 15
 	rowEid           = 17
+	rowBanking       = 20
 	rowWellWishes    = 21
 )
 
@@ -85,8 +87,10 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 	notices := parseNoticeRows(rows[rowNikah], rows[rowFuneral], rows[rowEid])
 	notices = append(parseUpcomingSalaahChanges(rows[rowUpcoming], localNow), notices...)
 	notices = append(notices, parseWellWishesRow(rows[rowWellWishes])...)
+	notices = append(notices, parseDawahRow(rows[rowDawah])...)
 	programmes := parseTaleemRow(rows[rowTaleem])
 	newMoon := parseNewMoonRow(rows[rowClock])
+	banking := parseBankingRow(rows[rowBanking])
 
 	return model.Board{
 		Identity: model.BoardIdentity{
@@ -104,8 +108,57 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		Announcements: announcements,
 		Programmes:    programmes,
 		Notices:       notices,
+		Banking:       banking,
 		NewMoon:       newMoon,
 	}, nil
+}
+
+func parseDawahRow(raw json.RawMessage) []model.Notice {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil
+	}
+	notices := make([]model.Notice, 0, 2)
+	if len(values) > 5 && isDisplayed(stringValue(values, 5)) {
+		fields := namedFields(values, map[int]string{
+			0: "masjid_taleem", 1: "gasht_out_day", 2: "gasht_in_day",
+			3: "gasht_out_time", 4: "gasht_in_time",
+		})
+		if len(fields) > 0 {
+			notices = append(notices, model.Notice{Type: model.NoticeTypeDawah, Title: "Dawah and Gasht", Fields: fields})
+		}
+	}
+	if len(values) > 11 && isDisplayed(stringValue(values, 11)) {
+		fields := namedFields(values, map[int]string{
+			7: "first_location", 8: "first_date", 9: "second_location", 10: "second_date",
+		})
+		title := strings.TrimSpace(stringValue(values, 6))
+		if isAbsent(title) {
+			title = "Three-Day Jamaat"
+		}
+		if len(fields) > 0 || title != "" {
+			notices = append(notices, model.Notice{Type: model.NoticeTypeThreeDay, Title: title, Fields: fields})
+		}
+	}
+	return notices
+}
+
+func parseBankingRow(raw json.RawMessage) *model.Banking {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 7 || !isDisplayed(stringValue(values, 6)) {
+		return nil
+	}
+	fields := namedFields(values, map[int]string{
+		2: "bank", 3: "account_name", 4: "branch_code", 5: "account_number", 7: "bsb",
+	})
+	title := strings.TrimSpace(stringValue(values, 1))
+	if isAbsent(title) {
+		title = "Masjid Contributions"
+	}
+	if len(fields) == 0 {
+		return nil
+	}
+	return &model.Banking{Content: title, Fields: fields}
 }
 
 func parseUpcomingSalaahChanges(raw json.RawMessage, localNow time.Time) []model.Notice {

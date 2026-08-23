@@ -143,6 +143,8 @@ const (
 	NoticeTypeWellWish     NoticeType = "well_wishes"
 	NoticeTypeEid          NoticeType = "eid"
 	NoticeTypeSalaahChange NoticeType = "salaah_change"
+	NoticeTypeDawah        NoticeType = "dawah"
+	NoticeTypeThreeDay     NoticeType = "three_day_jamaat"
 )
 
 type Media struct {
@@ -158,6 +160,7 @@ type Media struct {
 
 type Banking struct {
 	Content string
+	Fields  map[string]string
 }
 
 type NewMoon struct {

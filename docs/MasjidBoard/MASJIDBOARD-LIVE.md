@@ -512,12 +512,12 @@ The existing captures contain the following information:
 | Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Parsed, exposed and displayed when active |
 | Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Parsed, exposed and displayed when active |
 | Funeral notice | Row 14; deceased name/relation, address, pickup, cemetery, salaah venue/time and visibility flag | Parsed, exposed and displayed when active |
-| Taleem/Dawah/Gasht programmes | Rows 10 and 15; programme details, dates/times and visibility flags | Verified row 10 Taleem entries are parsed and displayed; row 15 remains deferred |
+| Taleem/Dawah/Gasht programmes | Rows 10 and 15; programme details, dates/times and visibility flags | Parsed and displayed as Taleem, Dawah/Gasht and three-day Jamaat cards |
 | Community posters | Row 16; ten image identifiers with visibility flags | Present in captured payloads; `model.Media` exists, but the provider does not populate it |
 | Eid notice | Row 17; date, venue, address, lecture, salaah and visibility flag | Parsed, exposed and displayed when active |
 | Standard posters | Row 18; ten image identifiers, visibility flags and layout settings | Present in captured payloads; not parsed or exposed |
 | Large posters | Row 19; ten image identifiers, visibility flags and durations | Present in captured payloads; not parsed or exposed |
-| Banking/contributions | Row 20; heading, bank/account details, branch code and display flag | Present in captured payloads; `model.Banking` exists, but the provider does not populate it |
+| Banking/contributions | Row 20; heading, bank/account details, branch code and display flag | Parsed and displayed as a structured contribution card |
 | Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Parsed, exposed and displayed when active |
 | New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Parsed and displayed only when the upstream moon-information flag is active; never labelled as a confirmed sighting |
 
@@ -537,7 +537,7 @@ The provider parser normalises the verified core rows and the text-based communi
 - rows 11–14 and 17: announcements and structured notices; and
 - row 21: well-wishes.
 
-The display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah, astronomical information, announcements, programmes, notices and new-moon fields. Poster media, banking/contributions and the less-certain row 15 programme structure remain outside the display contract.
+The display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah, astronomical information, announcements, programmes, notices, banking/contributions and new-moon fields. Poster media remains outside the display contract.
 
 ### Core versus Premium payloads
 
@@ -569,7 +569,7 @@ Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
 Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
-The read-only `/api/masjidboard/display` contract exposes active normalised announcements, notices, Taleem programmes and new-moon information when enrichment is available. Structured card categories now include Nikah, funeral, Eid, upcoming Fajr/Asr/Esha time changes, well-wishes/Du'a requests, Taleem programmes and calculated new-moon information. The moon category must not be described as a confirmed sighting because the captured payload only establishes calculation and visibility information.
+The read-only `/api/masjidboard/display` contract exposes active normalised announcements, notices, programmes, contribution details and new-moon information when enrichment is available. Structured card categories now include Nikah, funeral, Eid, upcoming Fajr/Asr/Esha time changes, well-wishes/Du'a requests, Taleem programmes, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. The moon category must not be described as a confirmed sighting because the captured payload only establishes calculation and visibility information.
 
 The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
 
@@ -656,7 +656,7 @@ The default Landscape display supports an explicit development-only fixture mode
 
 This injects anonymised funeral, Nikah, Eid, long-announcement, Arabic and compact community samples into the frontend card renderer. The set exercises two-thirds/one-third, three-card and full-panel pages. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.
 
-For focused testing of only the newly supported Salaah-change, Taleem programme, new-moon and well-wishes cards, use:
+For focused testing of the latest Dawah/Gasht, three-day Jamaat and contribution cards, use:
 
 ```text
 /masjidboard.html?notice-fixtures=new

@@ -157,6 +157,13 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 		}
 		out.NewMoon = &NewMoon{Fields: fields}
 	}
+	if board.Banking != nil {
+		fields := make(map[string]string, len(board.Banking.Fields))
+		for key, value := range board.Banking.Fields {
+			fields[key] = value
+		}
+		out.Banking = &Banking{Title: board.Banking.Content, Fields: fields}
+	}
 }
 
 func displayTime(value *model.ClockTime) *ClockTime {

@@ -26,7 +26,7 @@ type masjidBoardSlideDurationSetter interface{ SetSlideDurationSeconds(int) erro
 
 func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 	current := func() masjidBoardLayoutResponse {
-		response := masjidBoardLayoutResponse{Layout: selection.LayoutStandard, Theme: selection.ThemeEmerald, SlideDurationSeconds: selection.DefaultSlideDurationSeconds}
+		response := masjidBoardLayoutResponse{Layout: selection.LayoutLandscape, Theme: selection.ThemeEmerald, SlideDurationSeconds: selection.DefaultSlideDurationSeconds}
 		if s.masjidBoardService != nil {
 			state := s.masjidBoardService.Selection()
 			response.Layout = state.EffectiveLayout()
@@ -54,8 +54,8 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "layout, theme or slide duration is required")
 			return
 		}
-		if layout != "" && layout != selection.LayoutStandard && layout != selection.LayoutDetailed && layout != selection.LayoutPortrait {
-			writeError(w, http.StatusBadRequest, "layout must be standard, detailed or portrait")
+		if layout != "" && layout != selection.LayoutLandscape && layout != selection.LayoutPortrait {
+			writeError(w, http.StatusBadRequest, "layout must be landscape or portrait")
 			return
 		}
 		if theme != "" && !selection.ThemeSupported(theme) {

@@ -1,13 +1,11 @@
-# MasjidBoard Default Display Layout
+# MasjidBoard Display Layouts
 
-**Status:** Initial/default display frontend implemented  
-**Branch:** `research/masjidboard-live`
+**Status:** Landscape and Portrait appliance layouts implemented
+**Branch:** `docs/masjidboard-live-data-inventory` / PR #38
 
 ## Purpose
 
-Define the first read-only MasjidBoard screen layout and its implemented frontend behaviour.
-
-This layout is the **default MasjidBoard layout for the current implementation**. It is intentionally not treated as the only long-term presentation. Once the production MasjidBoard setup is more mature, alternative layouts may be designed and exposed as a user preference while continuing to consume the same display API/presentation model.
+Define the read-only MasjidBoard layouts and their implemented frontend behaviour. Both layouts consume the same normalized display API and share timetable, date, countdown, theme and stale-state semantics.
 
 The default layout is designed around the most constrained supported case: **three selected masjids displayed simultaneously**. One-board and two-board views expand from the same information hierarchy rather than introduce different semantics.
 
@@ -21,7 +19,7 @@ Side-by-side comparison of prayer and Jamaah times is therefore the primary desi
 
 ## Default Content
 
-The default screen includes:
+Both layouts include:
 
 ```text
 current local time / date
@@ -36,7 +34,9 @@ next-timetable-event countdown for each selected masjid
 per-board stale/unavailable indication
 ```
 
-The default screen does not show the extended astronomical/calculation set. Suhur, Fajr Start, Sunrise, Ishraaq, Duha, Istiwa/Zawaal, Shafi'i/Hanafi Asr calculation times, Sunset and Esha Start remain available for later layouts/preferences.
+Landscape additionally includes a full-width Daily Times footer sourced consistently from the first selected masjid. It shows Sehri end, Fajr start, Sunrise, Ishraaq, Duha/Chaasht, Zawaal/Istiwa, Shafi'i and Hanafi Asr start, Sunset and Esha start.
+
+When optional Premium enrichment is available, Landscape also allocates an adaptive right-hand panel to rotating, source-labelled community cards. Supported categories include announcements, Nikah, funerals, Eid, upcoming Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. Missing Premium content does not affect the Core timetable.
 
 ## Implemented Frontend
 
@@ -60,6 +60,10 @@ The frontend files are:
 frontend/masjidboard.html
 frontend/masjidboard-display.css
 frontend/masjidboard-display.js
+frontend/masjidboard-detailed.css
+frontend/masjidboard-detailed.js
+frontend/masjidboard-portrait.css
+frontend/masjidboard-portrait.js
 ```
 
 The display refreshes presentation data periodically while maintaining an independent local clock. If the API connection is interrupted after usable data has already been rendered, the existing timetable remains on screen and a small connection warning is shown rather than blanking the display.
@@ -243,11 +247,11 @@ One-board and two-board modes preserve the same semantics:
 
 The grid automatically adapts its column count to the number of selected boards, allowing fewer boards to use more width without adding extra information by default.
 
-## Future Layout Selection
+## Layout Selection
 
-The current page should be treated as the **default layout**, not a permanent single-layout limitation.
+The configuration UI persists either `landscape` or `portrait`. The display observes the saved preference and switches without restarting the display service.
 
-After the MasjidBoard subsystem and appliance deployment path are production-ready, future work may add several alternative presentation layouts and a user preference for selecting between them.
+Landscape targets 1920 × 1080 and Portrait targets 600 × 1024. Further resolution-specific layouts may be added where they provide clear value.
 
 Potential alternative layouts may make different use of the same normalized display data, for example:
 
@@ -259,15 +263,14 @@ Potential alternative layouts may make different use of the same normalized disp
 
 Layout selection should remain a frontend/presentation concern. Alternative layouts should consume the same stable MasjidBoard display API rather than duplicating provider or timetable logic.
 
-## Non-Goals for Default Layout
+## Non-Goals
 
-The default layout does not include:
+The display page does not include:
 
 - configuration controls;
 - board/location selection;
 - automatic ranking of masjids;
-- extended astronomical/calculation rows;
-- announcements/media/banking content;
+- poster/image media;
 - audio controls; or
 - provider diagnostic messages.
 

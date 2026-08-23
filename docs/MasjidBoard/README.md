@@ -8,6 +8,7 @@ The maintained description of the implemented subsystem is split across:
 - `MASJIDBOARD-DISPLAY-RUNTIME.md` — HDMI appliance runtime
 - `MASJIDBOARD-DISPLAY-LAYOUT.md` — current display layouts
 - `MASJIDBOARD-LAST-KNOWN-GOOD-CACHE.md` — outage and cache behaviour
+- `MASJIDBOARD-LIVE.md` — Core timetable and optional Premium enrichment contract
 
 The remaining design and discovery documents record implementation research and
 decisions. Captured `.html` and `.json` responses are provider research fixtures;

@@ -28,18 +28,19 @@ The two capabilities share the same MasjidPi core but remain independently opera
 - Prayer and Jumu'ah timetable display
 - Up to three selected masjids
 - Responsive one-, two- and three-board HDMI layouts
-- **Standard** and **Detailed** user-selectable HDMI layouts
-- Detailed layout with shared Adhan/Jamaah headings and a Daily Times panel
+- **Landscape (1920 × 1080)** and **Portrait (600 × 1024)** user-selectable HDMI layouts
+- Landscape timetable with shared Adhan/Jamaah headings and a full-width Daily Times footer
+- Rotating, source-labelled community cards for announcements, Nikah, funerals, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information when supplied by MasjidBoard Live
 - Gregorian date plus masjid-adjusted Islamic date with Islamic weekday transliteration
 - Islamic-date rollover aligned to MasjidBoard Live sunset/date-adjustment behaviour
 - Six curated colour themes: **Emerald, Midnight, Slate, Ruby, Light, and Black & White**
-- Live theme changes and Standard/Detailed layout switching from the Web UI without restarting the display service
+- Live theme and orientation changes from the Web UI without restarting the display service
 - Next-event countdowns
 - Automatic timetable refresh
 - Last-known-good cache fallback during upstream outages
 - Dedicated Raspberry Pi OS Lite display runtime using Cog/WPE directly on DRM/KMS
 - Automatic display startup and recovery through systemd
-- 1080p-validated Detailed layout on the Raspberry Pi reference appliance
+- Raspberry Pi 3B and Pi 4 appliance validation, including 1080p HDMI operation
 
 ### Appliance profiles
 
@@ -55,7 +56,7 @@ Only the dependencies, backend subsystems, APIs, configuration pages and applian
 
 ### MasjidBoard HDMI display
 
-The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select Standard or Detailed presentation. Detailed mode adds full Gregorian/Islamic dates and Daily Times while retaining up to three masjid columns, Friday Jumu'ah information and next-event countdowns. Board colour themes are also user-selectable from the Web UI.
+The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select Landscape or Portrait presentation. Landscape combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, Daily Times and rotating community cards when supplied upstream. Board colour themes are also user-selectable from the Web UI.
 
 ![MasjidBoard three-masjid HDMI display](docs/images/masjidboard-display.png)
 
@@ -112,7 +113,7 @@ Official pre-built releases currently support:
 
 ### Raspberry Pi
 
-The Raspberry Pi 3B is the current production-validated Raspberry Pi reference platform. Other models in the table below are performance expectations based on their CPU architecture, memory and the measured Pi 3B workload; they should not be treated as production-validated until tested on real hardware.
+The Raspberry Pi 3B and Raspberry Pi 4 are production-validated Raspberry Pi platforms. Other models in the table below are performance expectations based on their CPU architecture, memory and the measured appliance workloads; they should not be treated as production-validated until tested on real hardware.
 
 | Raspberry Pi product | Listen | Listen + Board | Status / expectation |
 |---|---|---|---|
@@ -124,7 +125,7 @@ The Raspberry Pi 3B is the current production-validated Raspberry Pi reference p
 | Raspberry Pi 3A+ | 🟢 expected | 🟡/🟢 expected | Faster Cortex-A53 CPU than the validated Pi 3B, but only 512 MB RAM. Full appliance use should be validated for memory headroom. |
 | **Raspberry Pi 3B** | **✅ validated** | **✅ validated** | Current reference platform. Comfortable CPU, RAM and thermal headroom on 64-bit Raspberry Pi OS Lite. |
 | Raspberry Pi 3B+ | 🟢 expected | 🟢 expected | Same 1 GB memory class as the Pi 3B with a faster Cortex-A53 CPU; expected to perform at least as well as the reference platform. |
-| Raspberry Pi 4 family | 🟢 expected | 🟢 expected | Substantially more CPU performance than required. 1 GB or more RAM provides ample headroom. |
+| **Raspberry Pi 4 family** | **✅ validated** | **✅ validated** | Validated on a 4 GB Pi 4 with 64-bit Raspberry Pi OS Lite, native 1080p HDMI, simultaneous audio playback and the GLES-backed Board runtime. |
 | Raspberry Pi 5 family | 🟢 expected | 🟢 expected | Far more CPU performance than MasjidPi currently requires. |
 | Compute Module 3 / 3+ | 🟢 expected | 🟢 expected | Pi 3-class platform; suitability depends on the carrier, RAM variant and required audio/display hardware. |
 | Compute Module 4 | 🟢 expected | 🟢 expected | Pi 4-class performance with ample headroom; suitable for embedded appliance designs. |
@@ -184,7 +185,7 @@ Persistent runtime data is stored under:
 
 The Web UI runs on port `8080`.
 
-When Board is installed, `masjidpi-display.service` launches Cog directly on DRM/KMS and displays the local MasjidBoard page over HDMI. When Board is not installed, that service is absent. Saved Board layout/theme preferences are read by the display page itself so user changes can appear on HDMI without shell access or a service restart.
+When Board is installed, `masjidpi-display.service` launches Cog directly on DRM/KMS with its GLES renderer and displays the local MasjidBoard page over HDMI. When Board is not installed, that service is absent. Saved Board layout/theme preferences are read by the display page itself so user changes can appear on HDMI without shell access or a service restart.
 
 ## Useful Commands
 
@@ -261,6 +262,8 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 **Current stable release: v1.2.1**
 
 v1.2.1 is a maintenance release that moves Web UI preferences into persistent runtime storage, migrates preferences from older installations, simplifies application and playback state management, consolidates atomic JSON persistence, and removes fragile observer-based MasjidBoard configuration UI layers.
+
+The next planned minor release adds Landscape and Portrait Board orientations, optional MasjidBoard Live Premium community-content enrichment with Core timetable fallback, adaptive rotating notice cards, an expanded Landscape Daily Times footer, improved first-run Board guidance and Raspberry Pi 4 HDMI validation.
 
 The v1.2.1 source upgrade was validated on the Raspberry Pi 3B reference appliance. Legacy preferences migrated successfully to `/var/lib/masjidpi`, Listen and Board recovered after reboot with their saved state intact, and the MasjidBoard configuration page and HDMI display passed smoke testing.
 

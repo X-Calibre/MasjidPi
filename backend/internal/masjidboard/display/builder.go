@@ -123,6 +123,47 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 			AsrHanafi: displayTime(a.AsrHanafi), Sunset: displayTime(a.Sunset), EshaStart: displayTime(a.EshaStart),
 		}
 	}
+
+	if len(board.Announcements) > 0 {
+		out.Announcements = make([]Announcement, 0, len(board.Announcements))
+		for _, announcement := range board.Announcements {
+			out.Announcements = append(out.Announcements, Announcement{
+				Title: announcement.Title, Content: announcement.Content,
+			})
+		}
+	}
+	if len(board.Programmes) > 0 {
+		out.Programmes = make([]Programme, 0, len(board.Programmes))
+		for _, programme := range board.Programmes {
+			out.Programmes = append(out.Programmes, Programme{Title: programme.Title, Content: programme.Content})
+		}
+	}
+	if len(board.Notices) > 0 {
+		out.Notices = make([]Notice, 0, len(board.Notices))
+		for _, notice := range board.Notices {
+			fields := make(map[string]string, len(notice.Fields))
+			for key, value := range notice.Fields {
+				fields[key] = value
+			}
+			out.Notices = append(out.Notices, Notice{
+				Type: string(notice.Type), Title: notice.Title, Content: notice.Content, Fields: fields,
+			})
+		}
+	}
+	if board.NewMoon != nil {
+		fields := make(map[string]string, len(board.NewMoon.Fields))
+		for key, value := range board.NewMoon.Fields {
+			fields[key] = value
+		}
+		out.NewMoon = &NewMoon{Fields: fields}
+	}
+	if board.Banking != nil {
+		fields := make(map[string]string, len(board.Banking.Fields))
+		for key, value := range board.Banking.Fields {
+			fields[key] = value
+		}
+		out.Banking = &Banking{Title: board.Banking.Content, Fields: fields}
+	}
 }
 
 func displayTime(value *model.ClockTime) *ClockTime {

@@ -14,7 +14,7 @@ body { min-height:100vh; }
 .connection-state { position:absolute; right:0; top:4px; color:var(--muted); font-size:.86rem; }
 .connection-state.warning { color:var(--warning); }
 .display-state { flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
-.detailed-layout-shell { flex:1 1 auto; min-height:0; display:flex; }
+.landscape-layout-shell { flex:1 1 auto; min-height:0; display:flex; }
 .timetable-stage { flex:1 1 auto; min-width:0; min-height:0; display:flex; flex-direction:column; gap:clamp(8px,.9vh,12px); }
 .comparison-grid,.prayer-row { --board-count:3; display:grid; grid-template-columns:minmax(180px,.48fr) repeat(var(--board-count),minmax(0,1fr)); gap:clamp(8px,.8vw,12px); }
 .board-headers { align-items:stretch; flex:0 0 auto; } .board-header-spacer { min-height:1px; }
@@ -47,11 +47,11 @@ body { min-height:100vh; }
 .time-line.jumuah-salaah .time-label,.time-line.jumuah-salaah .time-value { font-size:clamp(1.85rem,2.7vw,2.85rem); color:var(--text); }
 .time-line.jumuah-salaah .time-label { font-weight:770; } .time-line.jumuah-salaah .time-value { font-weight:870; }
 .additional-times { display:none; }
-.detailed-layout .detailed-layout-shell { gap:clamp(10px,1vw,16px); }
-.detailed-layout .timetable-stage { flex:1 1 76%; }
-.detailed-layout .additional-times { flex:0 0 min(25vw,390px); min-width:260px; display:flex; flex-direction:column; padding:clamp(14px,1.35vw,22px); border:1px solid rgba(231,200,87,.18); border-radius:var(--radius); background:linear-gradient(180deg,rgba(20,39,31,.98),rgba(12,29,23,.98)); }
-.detailed-layout .board-headers .board-header:nth-child(2),
-.detailed-layout .prayer-row > :nth-child(2) { border-color:rgba(231,200,87,.20); background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98)); }
+.landscape-layout .landscape-layout-shell { gap:clamp(10px,1vw,16px); }
+.landscape-layout .timetable-stage { flex:1 1 76%; }
+.landscape-layout .additional-times { flex:0 0 min(25vw,390px); min-width:260px; display:flex; flex-direction:column; padding:clamp(14px,1.35vw,22px); border:1px solid rgba(231,200,87,.18); border-radius:var(--radius); background:linear-gradient(180deg,rgba(20,39,31,.98),rgba(12,29,23,.98)); }
+.landscape-layout .board-headers .board-header:nth-child(2),
+.landscape-layout .prayer-row > :nth-child(2) { border-color:rgba(231,200,87,.20); background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98)); }
 .additional-times-heading { color:var(--accent); font-size:clamp(1.45rem,2vw,2.15rem); font-weight:790; letter-spacing:-.025em; }
 .additional-times-source { margin-top:4px; padding-bottom:clamp(12px,1.5vh,18px); border-bottom:1px solid var(--line); color:var(--muted); font-size:clamp(.72rem,.9vw,.9rem); }
 .additional-times-list { flex:1 1 auto; display:flex; flex-direction:column; justify-content:space-evenly; min-height:0; }
@@ -61,5 +61,5 @@ body { min-height:100vh; }
 .additional-times-empty { margin:auto 0; color:var(--muted); font-size:.9rem; line-height:1.4; }
 .empty-state { margin:auto; width:min(720px,100%); padding:42px; text-align:center; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); }
 .empty-state h1 { margin:0 0 12px; font-size:clamp(1.5rem,3vw,2.3rem); } .empty-state p { margin:0; color:var(--muted); line-height:1.5; } .hidden { display:none!important; }
-@media (max-width:1000px) { .comparison-grid,.prayer-row { grid-template-columns:minmax(120px,.42fr) repeat(var(--board-count),minmax(0,1fr)); } .board-name,.prayer-label { font-size:clamp(1.45rem,3vw,2.2rem); } .detailed-layout .additional-times { min-width:220px; } }
-@media (max-width:760px) { .board-shell { padding:10px; gap:8px; overflow:auto; } .board-topbar { min-height:88px; } .current-time { font-size:clamp(3rem,12vw,4.6rem); } .current-date { font-size:clamp(.95rem,4vw,1.2rem); } .comparison-grid,.prayer-row { grid-template-columns:72px repeat(var(--board-count),minmax(0,1fr)); gap:5px; } .board-header,.prayer-cell,.jumuah-cell,.prayer-label-card { border-radius:12px; padding:8px; } .board-name { font-size:clamp(1rem,4vw,1.45rem); } .prayer-label { font-size:clamp(1rem,4vw,1.45rem); } .time-line { flex-direction:column; align-items:flex-start; gap:2px; } .time-value-stack { align-items:flex-start; } .event-countdown { font-size:clamp(.82rem,3.2vw,1.05rem); } .time-label,.time-value,.time-line.jumuah-adhan .time-label,.time-line.jumuah-adhan .time-value { font-size:clamp(.9rem,3.7vw,1.3rem); } .time-line.dominant .time-label,.time-line.dominant .time-value,.time-line.jumuah-salaah .time-label,.time-line.jumuah-salaah .time-value { font-size:clamp(1.1rem,4.6vw,1.65rem); } .time-line.jumuah-event .time-label,.time-line.jumuah-event .time-value { font-size:clamp(.82rem,3.3vw,1.12rem); } .detailed-layout .detailed-layout-shell { flex-direction:column; } .detailed-layout .additional-times { flex:none; min-width:0; } .additional-times-list { gap:4px; } }
+@media (max-width:1000px) { .comparison-grid,.prayer-row { grid-template-columns:minmax(120px,.42fr) repeat(var(--board-count),minmax(0,1fr)); } .board-name,.prayer-label { font-size:clamp(1.45rem,3vw,2.2rem); } .landscape-layout .additional-times { min-width:220px; } }
+@media (max-width:760px) { .board-shell { padding:10px; gap:8px; overflow:auto; } .board-topbar { min-height:88px; } .current-time { font-size:clamp(3rem,12vw,4.6rem); } .current-date { font-size:clamp(.95rem,4vw,1.2rem); } .comparison-grid,.prayer-row { grid-template-columns:72px repeat(var(--board-count),minmax(0,1fr)); gap:5px; } .board-header,.prayer-cell,.jumuah-cell,.prayer-label-card { border-radius:12px; padding:8px; } .board-name { font-size:clamp(1rem,4vw,1.45rem); } .prayer-label { font-size:clamp(1rem,4vw,1.45rem); } .time-line { flex-direction:column; align-items:flex-start; gap:2px; } .time-value-stack { align-items:flex-start; } .event-countdown { font-size:clamp(.82rem,3.2vw,1.05rem); } .time-label,.time-value,.time-line.jumuah-adhan .time-label,.time-line.jumuah-adhan .time-value { font-size:clamp(.9rem,3.7vw,1.3rem); } .time-line.dominant .time-label,.time-line.dominant .time-value,.time-line.jumuah-salaah .time-label,.time-line.jumuah-salaah .time-value { font-size:clamp(1.1rem,4.6vw,1.65rem); } .time-line.jumuah-event .time-label,.time-line.jumuah-event .time-value { font-size:clamp(.82rem,3.3vw,1.12rem); } .landscape-layout .landscape-layout-shell { flex-direction:column; } .landscape-layout .additional-times { flex:none; min-width:0; } .additional-times-list { gap:4px; } }

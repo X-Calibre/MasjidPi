@@ -190,3 +190,164 @@ func TestParseAllowsMissingOptionalPrayerValue(t *testing.T) {
 		t.Fatal("expected Maghrib Adhan only")
 	}
 }
+
+func TestParsePromotesAlternateMasjidNameWhenPrimaryIsEmpty(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowMasjid] = json.RawMessage(`["","Darul Uloom Zakariyya","https://masjidboardlive.com","2","7200000"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if board.Identity.Name != "Darul Uloom Zakariyya" {
+		t.Fatalf("Identity.Name = %q", board.Identity.Name)
+	}
+	if board.Identity.AlternateName != "" {
+		t.Fatalf("Identity.AlternateName = %q, want empty", board.Identity.AlternateName)
+	}
+}
+
+func TestParseCommunityContentFromPremiumRows(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowAnnouncement] = json.RawMessage(`["Urgent Announcement","<b>Tonight after Maghrib</b>","Display","Hidden","Do not show","Hide"]`)
+	rows[rowAnnouncement2] = json.RawMessage(`[]`)
+	rows[rowNikah] = json.RawMessage(`["Ahmad","Son of","Yusuf","Daughter of","Ismail","Sat, 29 Aug 2026","after Asr","1787961600000","Display","FALSE","Maryam"]`)
+	rows[rowFuneral] = json.RawMessage(`["Abdullah","father of Zaid","10 Main Road","14:00","Central Cemetery","Masjid Hall","14:30","Display"]`)
+	rows[rowEid] = json.RawMessage(`["Mon, 25 May 2026","Sports Ground","1 Field Road","07:00","07:30","Display"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Announcements) != 1 {
+		t.Fatalf("Announcements = %+v", board.Announcements)
+	}
+	if board.Announcements[0].Title != "Urgent Announcement" || board.Announcements[0].Content != "<b>Tonight after Maghrib</b>" {
+		t.Fatalf("Announcement = %+v", board.Announcements[0])
+	}
+	if len(board.Notices) != 3 {
+		t.Fatalf("Notices = %+v", board.Notices)
+	}
+	if board.Notices[0].Type != model.NoticeTypeNikah || board.Notices[0].Fields["bride"] != "Maryam" {
+		t.Fatalf("Nikah notice = %+v", board.Notices[0])
+	}
+	if board.Notices[1].Type != model.NoticeTypeFuneral || board.Notices[1].Fields["salaah_time"] != "14:30" {
+		t.Fatalf("Funeral notice = %+v", board.Notices[1])
+	}
+	if board.Notices[2].Type != model.NoticeTypeEid || board.Notices[2].Fields["venue"] != "Sports Ground" {
+		t.Fatalf("Eid notice = %+v", board.Notices[2])
+	}
+}
+
+func TestParseCommunityContentIgnoresHiddenRows(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowAnnouncement] = json.RawMessage(`["Announcement","Hidden content","Hide"]`)
+	rows[rowAnnouncement2] = json.RawMessage(`[]`)
+	rows[rowNikah] = json.RawMessage(`["Name","Relation","Name","Relation","Name","Date","Time","0","Hide"]`)
+	rows[rowFuneral] = json.RawMessage(`["Name","Relation","Address","Pickup","Cemetery","Venue","Time","Hide"]`)
+	rows[rowEid] = json.RawMessage(`["Date","Venue","Address","Lecture","Salaah","Hide"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Announcements) != 0 || len(board.Notices) != 0 {
+		t.Fatalf("hidden community content was retained: announcements=%+v notices=%+v", board.Announcements, board.Notices)
+	}
+}
+
+func TestParseAdditionalCommunityCardContent(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowUpcoming] = json.RawMessage(`["–","–","0","–","–","0","–","–","0","TRUE","24 Aug","05:50","1787529600000","1 Sep","17:00","1788220800000","4 Sep","19:45","1788480000000"]`)
+	rows[rowClock] = json.RawMessage(`["23 Aug, 05:27","23 Aug, 18:34","12 hrs","273.10","7.25","24 Aug, 18:37","24 Aug, 19:32","36 hrs","272.18","19.48","23 August 2026","24 August 2026","test-board","","Johannesburg","GMT+02","en","Islamic Time","Display Islamic Time","","","TRUE"]`)
+	rows[rowTaleem] = json.RawMessage(`["Wednesday 11:15–12:15","26 August 2026","Resident's home","10 Main Road","Display","","","","","Hide"]`)
+	rows[rowWellWishes] = json.RawMessage(`["Please make du'a for the unwell","","","","","","","","","","Display"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 8, 23, 9, 0, 0, 0, time.FixedZone("SAST", 2*60*60)))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Notices) != 4 {
+		t.Fatalf("Notices = %+v", board.Notices)
+	}
+	if board.Notices[0].Type != model.NoticeTypeSalaahChange || board.Notices[0].Fields["new_time"] != "05:50" {
+		t.Fatalf("Salaah change = %+v", board.Notices[0])
+	}
+	if board.Notices[3].Type != model.NoticeTypeWellWish {
+		t.Fatalf("Well wishes = %+v", board.Notices[3])
+	}
+	if len(board.Programmes) != 1 || board.Programmes[0].Title != "Taleem Programme" {
+		t.Fatalf("Programmes = %+v", board.Programmes)
+	}
+	if board.NewMoon == nil || board.NewMoon.Fields["visibility_date"] != "24 August 2026" {
+		t.Fatalf("NewMoon = %+v", board.NewMoon)
+	}
+}
+
+func TestParseAdditionalCommunityCardContentHonoursVisibility(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowUpcoming] = json.RawMessage(`["–","–","0","–","–","0","–","–","0","FALSE","–","–","0","–","–","0","–","–","0"]`)
+	rows[rowTaleem] = json.RawMessage(`["Programme","Date","","","Hide","","","","","Hide"]`)
+	rows[rowWellWishes] = json.RawMessage(`["Hidden message","","","","","","","","","","Hide"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Programmes) != 0 {
+		t.Fatalf("hidden programmes = %+v", board.Programmes)
+	}
+	for _, notice := range board.Notices {
+		if notice.Type == model.NoticeTypeSalaahChange || notice.Type == model.NoticeTypeWellWish {
+			t.Fatalf("hidden notice retained: %+v", notice)
+		}
+	}
+}
+
+func TestParseDawahAndContributionCards(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowDawah] = json.RawMessage(`["Daily after Esha","Thursday","Monday","After Asr","After Maghrib","Display","Three-Day Jamaat","Hartbeespoort","4–6 September","Pretoria West","11–13 September","Display"]`)
+	rows[rowBanking] = json.RawMessage(`["300000","Masjid Contributions<br>Lillah Only","Example Bank","Example Masjid Trust","123456","000123456","Display",""]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 8, 23, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	var dawah, threeDay *model.Notice
+	for index := range board.Notices {
+		switch board.Notices[index].Type {
+		case model.NoticeTypeDawah:
+			dawah = &board.Notices[index]
+		case model.NoticeTypeThreeDay:
+			threeDay = &board.Notices[index]
+		}
+	}
+	if dawah == nil || dawah.Fields["gasht_out_day"] != "Thursday" || dawah.Fields["gasht_in_time"] != "After Maghrib" {
+		t.Fatalf("Dawah notice = %+v", dawah)
+	}
+	if threeDay == nil || threeDay.Fields["first_location"] != "Hartbeespoort" || threeDay.Fields["second_date"] != "11–13 September" {
+		t.Fatalf("three-day notice = %+v", threeDay)
+	}
+	if board.Banking == nil || board.Banking.Content != "Masjid Contributions<br>Lillah Only" || board.Banking.Fields["account_number"] != "000123456" {
+		t.Fatalf("Banking = %+v", board.Banking)
+	}
+}
+
+func TestParseDawahAndContributionCardsHonoursVisibility(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowDawah] = json.RawMessage(`["Daily after Esha","Thursday","Monday","After Asr","After Maghrib","Hide","Three-Day Jamaat","Hartbeespoort","4–6 September","Pretoria West","11–13 September","Hide"]`)
+	rows[rowBanking] = json.RawMessage(`["300000","Masjid Contributions","Example Bank","Example Masjid Trust","123456","000123456","Hide",""]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 8, 23, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	for _, notice := range board.Notices {
+		if notice.Type == model.NoticeTypeDawah || notice.Type == model.NoticeTypeThreeDay {
+			t.Fatalf("hidden Dawah notice retained: %+v", notice)
+		}
+	}
+	if board.Banking != nil {
+		t.Fatalf("hidden Banking = %+v", board.Banking)
+	}
+}

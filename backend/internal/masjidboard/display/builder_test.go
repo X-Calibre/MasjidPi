@@ -33,7 +33,15 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 			Asr:    model.PrayerTime{Adhan: ct(16, 40), Jamaah: ct(17, 0)},
 			Jumuah: []model.JumuahService{{Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
 		},
-		Astronomical: &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
+		Astronomical:  &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
+		Announcements: []model.Announcement{{Title: "Community update", Content: "<b>Tonight</b>"}},
+		Programmes:    []model.Programme{{Title: "Taleem Programme", Content: "After Esha"}},
+		Notices: []model.Notice{{
+			Type: model.NoticeTypeFuneral, Title: "Funeral Notice",
+			Fields: map[string]string{"name": "Abdullah", "salaah_time": "14:30"},
+		}},
+		Banking: &model.Banking{Content: "Masjid Contributions", Fields: map[string]string{"bank": "Example Bank", "account_number": "000123456"}},
+		NewMoon: &model.NewMoon{Fields: map[string]string{"visibility_date": "12 September 2026"}},
 	}
 
 	view := Build(true, selection.State{Boards: []selection.Board{one, two}}, []masjidboardruntime.Result{{
@@ -67,6 +75,33 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	}
 	if got.Date.Gregorian != "2026-08-19" {
 		t.Fatalf("gregorian = %q", got.Date.Gregorian)
+	}
+	if len(got.Announcements) != 1 || got.Announcements[0].Content != "<b>Tonight</b>" {
+		t.Fatalf("announcements = %+v", got.Announcements)
+	}
+	if len(got.Programmes) != 1 || got.Programmes[0].Content != "After Esha" {
+		t.Fatalf("programmes = %+v", got.Programmes)
+	}
+	if len(got.Notices) != 1 || got.Notices[0].Type != string(model.NoticeTypeFuneral) || got.Notices[0].Fields["salaah_time"] != "14:30" {
+		t.Fatalf("notices = %+v", got.Notices)
+	}
+	got.Notices[0].Fields["name"] = "changed"
+	if board.Notices[0].Fields["name"] != "Abdullah" {
+		t.Fatal("display notice fields alias the cached domain model")
+	}
+	if got.Banking == nil || got.Banking.Title != "Masjid Contributions" || got.Banking.Fields["account_number"] != "000123456" {
+		t.Fatalf("banking = %+v", got.Banking)
+	}
+	got.Banking.Fields["bank"] = "changed"
+	if board.Banking.Fields["bank"] != "Example Bank" {
+		t.Fatal("display banking fields alias the cached domain model")
+	}
+	if got.NewMoon == nil || got.NewMoon.Fields["visibility_date"] != "12 September 2026" {
+		t.Fatalf("new moon = %+v", got.NewMoon)
+	}
+	got.NewMoon.Fields["visibility_date"] = "changed"
+	if board.NewMoon.Fields["visibility_date"] != "12 September 2026" {
+		t.Fatal("display new-moon fields alias the cached domain model")
 	}
 }
 

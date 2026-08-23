@@ -12,7 +12,7 @@ func TestSetThemePersistsWithoutChangingLayoutOrBoards(t *testing.T) {
 	store := selection.NewStore(path)
 	state := selection.State{
 		Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}},
-		Layout: selection.LayoutDetailed,
+		Layout: selection.LayoutLandscape,
 	}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)
@@ -22,7 +22,7 @@ func TestSetThemePersistsWithoutChangingLayoutOrBoards(t *testing.T) {
 		t.Fatalf("SetTheme() error=%v", err)
 	}
 	got := service.Selection()
-	if got.EffectiveTheme() != selection.ThemeRuby || got.EffectiveLayout() != selection.LayoutDetailed {
+	if got.EffectiveTheme() != selection.ThemeRuby || got.EffectiveLayout() != selection.LayoutLandscape {
 		t.Fatalf("state=%+v", got)
 	}
 	if len(got.Boards) != 1 || got.Boards[0].ExternalID != "test" {
@@ -32,7 +32,7 @@ func TestSetThemePersistsWithoutChangingLayoutOrBoards(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if persisted.EffectiveTheme() != selection.ThemeRuby || persisted.EffectiveLayout() != selection.LayoutDetailed {
+	if persisted.EffectiveTheme() != selection.ThemeRuby || persisted.EffectiveLayout() != selection.LayoutLandscape {
 		t.Fatalf("persisted=%+v", persisted)
 	}
 }

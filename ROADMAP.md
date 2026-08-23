@@ -61,6 +61,21 @@ v1.2.1 improves maintainability and upgrade persistence without changing the Cor
 
 The v1.2.1 source upgrade was validated on the Raspberry Pi 3B reference appliance. Preference migration, Listen and Board service startup, saved-state recovery after reboot, the MasjidBoard configuration page and the HDMI display all passed appliance testing.
 
+### Next release candidate — v1.3.0
+
+PR #38 is the integration candidate for v1.3.0. It adds:
+
+- Landscape (1920 × 1080) and Portrait (600 × 1024) Board orientations
+- Landscape timetable and full-width Daily Times presentation refinements
+- Optional Premium community-content enrichment while retaining Core as the authoritative timetable source
+- Adaptive, rotating and source-labelled cards for announcements, Nikah, funerals, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information
+- Duplicate suppression, safe plain-text conversion and anonymised development fixtures for community cards
+- Improved first-run guidance when Board has not yet been configured
+- Cog GLES rendering for reliable Raspberry Pi 4 DRM/KMS output
+- Raspberry Pi 4 validation covering installation, reinstallation, reboot recovery, saved preferences, simultaneous Listen + Board operation and 1080p HDMI output
+
+Automated CI and the Raspberry Pi 4 acceptance pass are complete. The release remains unpublished until PR #38 is merged and the release artifacts are prepared and verified.
+
 ---
 
 ## Remaining Work
@@ -184,7 +199,7 @@ Implemented and validated MasjidBoard capabilities now include:
 - Live prayer and Jumu'ah timetable retrieval from MasjidBoard Live
 - Normalized provider data and resilient Jumu'ah handling
 - Dedicated MasjidBoard configuration Web UI
-- Standard and Detailed HDMI layouts
+- Landscape and Portrait HDMI layouts
 - Responsive one-, two- and three-board comparison layouts
 - Friday Jumu'ah replacement of Dhuhr
 - Chronological Jumu'ah event presentation
@@ -193,6 +208,8 @@ Implemented and validated MasjidBoard capabilities now include:
 - Gregorian and masjid-adjusted Islamic date display
 - Six curated Board colour themes
 - Live HDMI preference updates from the Web UI
+- Optional Premium community-content enrichment with Core timetable fallback
+- Adaptive rotating cards for supported announcements, programmes, notices, contributions and new-moon information
 - Automatic timetable refresh and manual refresh
 - Per-board last-known-good cache fallback during provider outages
 - Stale/current recovery after provider outages
@@ -205,9 +222,9 @@ Implemented and validated MasjidBoard capabilities now include:
 
 Future MasjidBoard enhancements may include:
 
-- Additional display layouts where they provide clear value
+- Additional display layouts or resolution-specific choices where they provide clear value
 - OLED or other hardware displays
-- Richer announcement/media content where useful
+- Poster/media support where it can be retrieved and displayed safely
 - Additional display preferences
 - Broader appliance/platform validation
 

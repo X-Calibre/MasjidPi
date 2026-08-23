@@ -26,6 +26,11 @@ type Board struct {
 	Prayers              []Prayer                  `json:"prayers,omitempty"`
 	Jumuah               []JumuahService           `json:"jumuah,omitempty"`
 	Astronomical         *Astronomical             `json:"astronomical,omitempty"`
+	Announcements        []Announcement            `json:"announcements,omitempty"`
+	Programmes           []Programme               `json:"programmes,omitempty"`
+	Notices              []Notice                  `json:"notices,omitempty"`
+	Banking              *Banking                  `json:"banking,omitempty"`
+	NewMoon              *NewMoon                  `json:"new_moon,omitempty"`
 }
 
 type Date struct {
@@ -62,6 +67,35 @@ type JumuahEvent struct {
 	Code    string     `json:"code,omitempty"`
 	Heading string     `json:"heading"`
 	Time    *ClockTime `json:"time,omitempty"`
+}
+
+// Announcement content may contain upstream HTML. The display API transports
+// it as data only; presentation code must not inject it into the DOM as trusted
+// markup.
+type Announcement struct {
+	Title   string `json:"title,omitempty"`
+	Content string `json:"content,omitempty"`
+}
+
+type Programme struct {
+	Title   string `json:"title,omitempty"`
+	Content string `json:"content,omitempty"`
+}
+
+type Notice struct {
+	Type    string            `json:"type"`
+	Title   string            `json:"title,omitempty"`
+	Content string            `json:"content,omitempty"`
+	Fields  map[string]string `json:"fields,omitempty"`
+}
+
+type NewMoon struct {
+	Fields map[string]string `json:"fields,omitempty"`
+}
+
+type Banking struct {
+	Title  string            `json:"title,omitempty"`
+	Fields map[string]string `json:"fields,omitempty"`
 }
 
 type Astronomical struct {

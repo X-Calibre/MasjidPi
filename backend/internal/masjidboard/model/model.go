@@ -129,6 +129,7 @@ type Notice struct {
 	Type        NoticeType
 	Title       string
 	Content     string
+	Fields      map[string]string
 	VisibleFrom *time.Time
 	VisibleTo   *time.Time
 }
@@ -136,11 +137,14 @@ type Notice struct {
 type NoticeType string
 
 const (
-	NoticeTypeGeneral  NoticeType = "general"
-	NoticeTypeNikah    NoticeType = "nikah"
-	NoticeTypeFuneral  NoticeType = "funeral"
-	NoticeTypeWellWish NoticeType = "well_wishes"
-	NoticeTypeEid      NoticeType = "eid"
+	NoticeTypeGeneral      NoticeType = "general"
+	NoticeTypeNikah        NoticeType = "nikah"
+	NoticeTypeFuneral      NoticeType = "funeral"
+	NoticeTypeWellWish     NoticeType = "well_wishes"
+	NoticeTypeEid          NoticeType = "eid"
+	NoticeTypeSalaahChange NoticeType = "salaah_change"
+	NoticeTypeDawah        NoticeType = "dawah"
+	NoticeTypeThreeDay     NoticeType = "three_day_jamaat"
 )
 
 type Media struct {
@@ -156,8 +160,9 @@ type Media struct {
 
 type Banking struct {
 	Content string
+	Fields  map[string]string
 }
 
 type NewMoon struct {
-	Content string
+	Fields map[string]string
 }

@@ -500,6 +500,168 @@ This row contains alternate-language versions of the daily Salah/related values,
 
 Rows 24–28 contain additional board configuration, translation, ticker, poster, and display settings. These require no assumption-driven modelling at this stage. Only fields whose semantics are verified from the source and/or multiple live boards should be promoted into the normalised MasjidBoard model.
 
+## Existing Payload Content Audit
+
+An August 2026 review confirmed that a new MasjidBoard Live discovery exercise is **not** required before work begins on notices and other community content. The repository already contains captured 29-row Premium responses in `docs/MasjidBoard/*.json` and `docs/MasjidBoard/fixtures/*.json`, and the row mapping above already documents the relevant content.
+
+The existing captures contain the following information:
+
+| Content | Existing upstream location | Current MasjidPi state |
+|---|---|---|
+| Upcoming Salaah changes | Row 0; effective date, replacement time and timestamp for Fajr, Asr and Esha | Parsed as active/future `salaah_change` cards |
+| Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Parsed, exposed and displayed when active |
+| Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Parsed, exposed and displayed when active |
+| Funeral notice | Row 14; deceased name/relation, address, pickup, cemetery, salaah venue/time and visibility flag | Parsed, exposed and displayed when active |
+| Taleem/Dawah/Gasht programmes | Rows 10 and 15; programme details, dates/times and visibility flags | Parsed and displayed as Taleem, Dawah/Gasht and three-day Jamaat cards |
+| Community posters | Row 16; ten image identifiers with visibility flags | Present in captured payloads; `model.Media` exists, but the provider does not populate it |
+| Eid notice | Row 17; date, venue, address, lecture, salaah and visibility flag | Parsed, exposed and displayed when active |
+| Standard posters | Row 18; ten image identifiers, visibility flags and layout settings | Present in captured payloads; not parsed or exposed |
+| Large posters | Row 19; ten image identifiers, visibility flags and durations | Present in captured payloads; not parsed or exposed |
+| Banking/contributions | Row 20; heading, bank/account details, branch code and display flag | Parsed and displayed as a structured contribution card |
+| Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Parsed, exposed and displayed when active |
+| New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Parsed and displayed only when the upstream moon-information flag is active; never labelled as a confirmed sighting |
+
+### What is already implemented
+
+The normalised `model.Board` reserves collections or objects for `Announcements`, `Programmes`, `Notices`, `Media`, `Banking` and `NewMoon`. Implemented notice types include general, Nikah, funeral, well-wishes, Eid and Salaah-time changes.
+
+The provider parser normalises the verified core rows and the text-based community rows whose semantics and visibility controls have been validated:
+
+- row 1: Jumu'ah;
+- row 2: clock/identity context;
+- row 3: daily prayer times;
+- row 5: astronomical times; and
+- row 6: masjid identity/configuration;
+- row 0: upcoming Salaah-time changes;
+- row 10: Taleem programmes;
+- rows 11–14 and 17: announcements and structured notices; and
+- row 21: well-wishes.
+
+The display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah, astronomical information, announcements, programmes, notices, banking/contributions and new-moon fields. Poster media remains outside the display contract.
+
+### Core versus Premium payloads
+
+MasjidPi currently retrieves the public Core board data for normal operation. The Core validation found no announcements, community content, posters, programmes or notices in its embedded `data` object. The richer content listed above is confirmed in the captured Premium 29-row payloads.
+
+### 2026-08-23 — Premium access path revalidated
+
+The public Premium page and API path were rechecked for five previously researched boards:
+
+- `brits-jamia`;
+- `brits-taqwa`;
+- `erasmia-aaisha`;
+- `zakariyya-park-duzak`; and
+- `fawkner-masjid`.
+
+For every board, `https://premium.masjidboardlive.com/v2/?mid=<mid>` still returned a generated page containing both `let boardId = "<opaque-id>"` and `let theInfo = [...]`. Calling `https://api.masjidboardlive.com/mblapi?id=<opaque-id>` returned a valid 29-row JSON array for every resolved ID. Existing repository fixtures also demonstrate that MasjidBoard Live may append a 30th row, so the provider accepts 29 or more rows while continuing to parse only verified positions.
+
+This confirms the existing technical access path remains operational and unauthenticated. It does not by itself establish a contractual entitlement or guarantee that every Core-listed masjid has a Premium board. MasjidPi must therefore treat Premium enrichment as optional and must retain the current Core provider as the reliable timetable fallback.
+
+The provider includes a `PremiumClient` that resolves the opaque ID and embedded payload from the stable public `mid` on each fetch. The opaque ID is not persisted, so a server-side board rebuild cannot leave MasjidPi tied to a stale implementation identifier.
+
+Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
+
+1. Fetch the public Core board first.
+2. If Core fails, preserve the existing last-known-good runtime/cache behaviour; Premium is not used as a timetable substitute.
+3. If Core succeeds, attempt Premium enrichment.
+4. If Premium succeeds, merge only announcements, programmes, notices, media, banking and new-moon content into the Core board.
+5. If Premium is absent or fails, return the successful Core board unchanged and keep the board status `current`.
+
+Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
+
+The read-only `/api/masjidboard/display` contract exposes active normalised announcements, notices, programmes, contribution details and new-moon information when enrichment is available. Structured card categories now include Nikah, funeral, Eid, upcoming Fajr/Asr/Esha time changes, well-wishes/Du'a requests, Taleem programmes, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. The moon category must not be described as a confirmed sighting because the captured payload only establishes calculation and visibility information.
+
+The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
+
+The Landscape Daily Times footer spans the full display width. It presents Sehri end, Fajr start, Sunrise, Ishraaq, Duha/Chaasht, Zawaal/Istiwa, both Shafi‘i and Hanafi Asr start calculations, Sunset and Esha start from the first selected masjid.
+
+## Notice and Announcement Display Fixtures
+
+The Premium payloads contain useful historical content even when its upstream visibility flag is `Hide`. This content should be retained as **development fixture material only**: it is valuable for layout design and automated tests, but it must never be presented to users as a current live notice.
+
+The following inventory was revalidated against the live Premium payloads on 23 August 2026.
+
+### Content-size range
+
+| Content type | Observed plain-text range | Typical structure |
+|---|---:|---|
+| General announcements | approximately 43–272 characters | Heading plus free-form body, often containing dates, times and several sentences |
+| Nikah notices | approximately 114–137 characters | Names and family relationships, event date, time and sometimes venue |
+| Funeral notices | approximately 86–164 characters | Deceased person, relationship, address/pickup, cemetery, Janazah venue and time |
+| Eid notices | approximately 75–93 characters | Date, venue, address, lecture/translation time and Salaah time |
+
+These ranges describe the currently inspected samples, not hard maximums. Layouts must remain defensive when content exceeds them.
+
+### Representative fixtures by board
+
+| Board | Content worth retaining as a fixture | Display condition exercised |
+|---|---|---|
+| `zakariyya-park-duzak` | Active short masjid announcement; a hidden 272-character Salaah-time-change notice; Arabic announcement content | Live end-to-end content, duplicate content, long body, mixed scripts and RTL |
+| `fawkner-masjid` | Long safety/access notices of approximately 194–255 characters; detailed funeral notice; Eid and Jumu'ah notices | Multi-sentence notices, long venue text, operational instructions and Australian terminology |
+| `azaadville-darul-uloom` | Detailed funeral notice of approximately 164 characters; Taraweeh and weekly-programme announcements | Dense structured funeral information and programme content |
+| `brits-jamia` | Weekly programmes, Eid-style announcement, Nikah, funeral and Eid fields | Medium-length general and structured notices |
+| `brits-taqwa` | Short urgent announcement, weekly programmes, Nikah, funeral and Eid fields | Very short urgent content and structured notices |
+| `erasmia-aaisha` | Banking/contribution information stored in announcement slots; Nikah, funeral and Eid fields | Content-category ambiguity and financial information that should not be mistaken for an urgent notice |
+
+### Required fixture states
+
+The display design and frontend tests should cover at least these states:
+
+1. **No content** — the normal state for many Core-only boards and Premium boards with everything hidden.
+2. **Single short announcement** — one heading and a one-line or short body.
+3. **Single long announcement** — approximately 250–300 characters with several times or sentences.
+4. **Multiple announcements** — ordering and rotation without overcrowding the prayer board.
+5. **Duplicate active announcements** — Zakariyya currently publishes the same active announcement in two slots; the UI must not visibly repeat it without purpose.
+6. **Funeral notice** — structured identity, location and Janazah details with visually high priority.
+7. **Nikah notice** — structured names, relationships, date, time and venue where supplied.
+8. **Eid notice** — event date, venue and multiple event times.
+9. **Arabic/RTL content** — correct direction, shaping, alignment and font behaviour.
+10. **Mixed-language content** — Arabic and English within the same notice set.
+11. **Legacy HTML content** — line breaks, bold/underline tags and malformed markup converted safely to display text.
+12. **Generic or blank heading** — headings such as `Masjid Announcement`, `Change Heading 2`, or an empty heading must not dominate the design.
+13. **Sensitive personal information** — funeral and Nikah fixtures may contain names and addresses; screenshots, demos and public test data should use anonymised equivalents.
+14. **Ambiguous category** — banking, programme or Salaah-change content placed in a generic announcement slot needs presentation based on supplied data, not an invented urgency level.
+
+### Fixture-handling rules
+
+- Preserve the source payload separately from its active/hidden state.
+- Never convert a historical `Hide` entry into a live notice in production.
+- Use anonymised copies for screenshots, demos and committed frontend fixtures when the original contains personal information.
+- Preserve representative length, structure, HTML irregularities and multilingual behaviour when anonymising.
+- Treat upstream HTML as untrusted input. Do not render it with `innerHTML` without an explicit sanitisation policy.
+- Do not assume that announcement slot order implies urgency.
+- Do not assume that repeated content represents two distinct events.
+- Keep structured notice fields available so the final layout does not have to reverse-engineer a concatenated text body.
+
+### Current live test source
+
+At the time of this review, `zakariyya-park-duzak` supplied two active announcement slots with the same heading and body. It is the best existing end-to-end test board for retrieval, normalisation, cache and display-API validation. The other reviewed boards had no active announcement, Nikah, funeral or Eid entries, but their hidden historical data remains useful for anonymised layout fixtures.
+
+Therefore the next investigation is narrowly defined:
+
+1. Confirm whether the existing 29-row Premium endpoint can be used reliably and legitimately for selected Core-listed boards, or whether a separate provider/capability boundary is required.
+2. Revalidate the already-mapped rows against a small number of current payloads, focusing on visibility flags, optional fields and lifecycle behaviour rather than rediscovering field names.
+3. Add defensive parsers that populate the existing normalised model.
+4. Extend caching and the display API only after parsing tests prove the content can be normalised safely.
+
+The existing fixtures should be the starting point for parser tests. New captures are needed only to validate freshness and edge cases, not to repeat the completed schema discovery.
+
+### Landscape fixture mode
+
+The default Landscape display supports an explicit development-only fixture mode:
+
+```text
+/masjidboard.html?notice-fixtures=1
+```
+
+This injects anonymised funeral, Nikah, Eid, long-announcement, Arabic and compact community samples into the frontend card renderer. The set exercises two-thirds/one-third, three-card and full-panel pages. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.
+
+For focused testing of the latest Dawah/Gasht, three-day Jamaat and contribution cards, use:
+
+```text
+/masjidboard.html?notice-fixtures=new
+```
+
 ## Architectural Decisions
 
 ### MasjidBoard is a separate application capability

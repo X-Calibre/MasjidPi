@@ -12,11 +12,21 @@ import (
 )
 
 const (
-	rowJumuah       = 1
-	rowClock        = 2
-	rowSalah        = 3
-	rowAstronomical = 5
-	rowMasjid       = 6
+	rowUpcoming      = 0
+	rowJumuah        = 1
+	rowClock         = 2
+	rowSalah         = 3
+	rowAstronomical  = 5
+	rowMasjid        = 6
+	rowTaleem        = 10
+	rowAnnouncement  = 11
+	rowAnnouncement2 = 12
+	rowNikah         = 13
+	rowFuneral       = 14
+	rowDawah         = 15
+	rowEid           = 17
+	rowBanking       = 20
+	rowWellWishes    = 21
 )
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
@@ -64,21 +74,299 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 	if err != nil {
 		return model.Board{}, err
 	}
+	name := strings.TrimSpace(masjid.Name1)
+	alternateName := strings.TrimSpace(masjid.Name2)
+	if name == "" {
+		name = alternateName
+		alternateName = ""
+	}
+	if name == "" {
+		return model.Board{}, fmt.Errorf("masjidboardlive: masjid row has no usable name")
+	}
+	announcements := parseAnnouncementRows(rows[rowAnnouncement], rows[rowAnnouncement2])
+	notices := parseNoticeRows(rows[rowNikah], rows[rowFuneral], rows[rowEid])
+	notices = append(parseUpcomingSalaahChanges(rows[rowUpcoming], localNow), notices...)
+	notices = append(notices, parseWellWishesRow(rows[rowWellWishes])...)
+	notices = append(notices, parseDawahRow(rows[rowDawah])...)
+	programmes := parseTaleemRow(rows[rowTaleem])
+	newMoon := parseNewMoonRow(rows[rowClock])
+	banking := parseBankingRow(rows[rowBanking])
 
 	return model.Board{
 		Identity: model.BoardIdentity{
 			ID:            clock.MasjidID,
-			Name:          masjid.Name1,
-			AlternateName: masjid.Name2,
+			Name:          name,
+			AlternateName: alternateName,
 			TimeZone:      clock.Timezone,
 		},
 		DateContext: model.DateContext{
 			GregorianDate: dateOnly(localNow, loc),
 			IslamicDate:   stringValueFromRow(rows[rowClock], 5),
 		},
-		PrayerTimes:  prayers,
-		Astronomical: astronomical,
+		PrayerTimes:   prayers,
+		Astronomical:  astronomical,
+		Announcements: announcements,
+		Programmes:    programmes,
+		Notices:       notices,
+		Banking:       banking,
+		NewMoon:       newMoon,
 	}, nil
+}
+
+func parseDawahRow(raw json.RawMessage) []model.Notice {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil
+	}
+	notices := make([]model.Notice, 0, 2)
+	if len(values) > 5 && isDisplayed(stringValue(values, 5)) {
+		fields := namedFields(values, map[int]string{
+			0: "masjid_taleem", 1: "gasht_out_day", 2: "gasht_in_day",
+			3: "gasht_out_time", 4: "gasht_in_time",
+		})
+		if len(fields) > 0 {
+			notices = append(notices, model.Notice{Type: model.NoticeTypeDawah, Title: "Dawah and Gasht", Fields: fields})
+		}
+	}
+	if len(values) > 11 && isDisplayed(stringValue(values, 11)) {
+		fields := namedFields(values, map[int]string{
+			7: "first_location", 8: "first_date", 9: "second_location", 10: "second_date",
+		})
+		title := strings.TrimSpace(stringValue(values, 6))
+		if isAbsent(title) {
+			title = "Three-Day Jamaat"
+		}
+		if len(fields) > 0 || title != "" {
+			notices = append(notices, model.Notice{Type: model.NoticeTypeThreeDay, Title: title, Fields: fields})
+		}
+	}
+	return notices
+}
+
+func parseBankingRow(raw json.RawMessage) *model.Banking {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 7 || !isDisplayed(stringValue(values, 6)) {
+		return nil
+	}
+	fields := namedFields(values, map[int]string{
+		2: "bank", 3: "account_name", 4: "branch_code", 5: "account_number", 7: "bsb",
+	})
+	title := strings.TrimSpace(stringValue(values, 1))
+	if isAbsent(title) {
+		title = "Masjid Contributions"
+	}
+	if len(fields) == 0 {
+		return nil
+	}
+	return &model.Banking{Content: title, Fields: fields}
+}
+
+func parseUpcomingSalaahChanges(raw json.RawMessage, localNow time.Time) []model.Notice {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 19 {
+		return nil
+	}
+	offset := 0
+	if isDisplayed(stringValue(values, 9)) {
+		offset = 10
+	}
+	prayers := []string{"Fajr", "Asr", "Esha"}
+	notices := make([]model.Notice, 0, len(prayers))
+	today := dateOnly(localNow, localNow.Location())
+	for index, prayer := range prayers {
+		base := offset + index*3
+		dateValue := strings.TrimSpace(stringValue(values, base))
+		timeValue := strings.TrimSpace(stringValue(values, base+1))
+		milliValue := strings.TrimSpace(stringValue(values, base+2))
+		if isAbsent(dateValue) || isAbsent(timeValue) {
+			continue
+		}
+		if millis, parseErr := strconv.ParseInt(milliValue, 10, 64); parseErr == nil && millis > 0 {
+			effective := time.UnixMilli(millis).In(localNow.Location())
+			if dateOnly(effective, localNow.Location()).Before(today) {
+				continue
+			}
+		}
+		fields := map[string]string{"prayer": prayer, "effective_date": dateValue, "new_time": timeValue}
+		notices = append(notices, model.Notice{
+			Type: model.NoticeTypeSalaahChange, Title: prayer + " Time Change",
+			Content: joinNoticeValues(fields, "effective_date", "new_time"), Fields: fields,
+		})
+	}
+	return notices
+}
+
+func parseTaleemRow(raw json.RawMessage) []model.Programme {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil
+	}
+	programmes := make([]model.Programme, 0, 2)
+	for start := 0; start+4 < len(values) && start < 10; start += 5 {
+		if !isDisplayed(stringValue(values, start+4)) {
+			continue
+		}
+		parts := make([]string, 0, 4)
+		for index := start; index < start+4; index++ {
+			if value := strings.TrimSpace(stringValue(values, index)); !isAbsent(value) {
+				parts = append(parts, value)
+			}
+		}
+		if len(parts) > 0 {
+			programmes = append(programmes, model.Programme{Title: "Taleem Programme", Content: strings.Join(parts, "\n")})
+		}
+	}
+	return programmes
+}
+
+func parseWellWishesRow(raw json.RawMessage) []model.Notice {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 11 || !isDisplayed(stringValue(values, 10)) {
+		return nil
+	}
+	notices := make([]model.Notice, 0, 10)
+	for index := 0; index < 10; index++ {
+		message := strings.TrimSpace(stringValue(values, index))
+		if !isAbsent(message) {
+			notices = append(notices, model.Notice{Type: model.NoticeTypeWellWish, Title: "Du'a Requested", Content: message})
+		}
+	}
+	return notices
+}
+
+func parseNewMoonRow(raw json.RawMessage) *model.NewMoon {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 22 || !isDisplayed(stringValue(values, 21)) {
+		return nil
+	}
+	fields := namedFields(values, map[int]string{
+		0: "birth", 1: "first_moonset", 2: "first_age", 3: "first_azimuth", 4: "first_altitude",
+		5: "best_visibility", 6: "second_moonset", 7: "second_age", 8: "second_azimuth",
+		9: "second_altitude", 10: "birth_date", 11: "visibility_date",
+	})
+	if len(fields) == 0 {
+		return nil
+	}
+	return &model.NewMoon{Fields: fields}
+}
+
+func parseAnnouncementRows(rawRows ...json.RawMessage) []model.Announcement {
+	announcements := make([]model.Announcement, 0, 10)
+	for _, raw := range rawRows {
+		values, err := rowValues(raw)
+		if err != nil {
+			continue
+		}
+		for i := 0; i+2 < len(values) && i < 15; i += 3 {
+			title := strings.TrimSpace(stringValue(values, i))
+			content := strings.TrimSpace(stringValue(values, i+1))
+			if !isDisplayed(stringValue(values, i+2)) || (title == "" && content == "") {
+				continue
+			}
+			announcements = append(announcements, model.Announcement{Title: title, Content: content})
+		}
+	}
+	return announcements
+}
+
+func parseNoticeRows(nikahRaw, funeralRaw, eidRaw json.RawMessage) []model.Notice {
+	notices := make([]model.Notice, 0, 3)
+	if notice, ok := parseNikahNotice(nikahRaw); ok {
+		notices = append(notices, notice)
+	}
+	if notice, ok := parseFuneralNotice(funeralRaw); ok {
+		notices = append(notices, notice)
+	}
+	if notice, ok := parseEidNotice(eidRaw); ok {
+		notices = append(notices, notice)
+	}
+	return notices
+}
+
+func parseNikahNotice(raw json.RawMessage) (model.Notice, bool) {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 9 || !isDisplayed(stringValue(values, 8)) {
+		return model.Notice{}, false
+	}
+	fields := namedFields(values, map[int]string{
+		0: "name_one", 1: "groom_relation", 2: "relation_one", 3: "relation_two",
+		4: "name_two", 5: "date", 6: "time", 7: "event_timestamp", 10: "bride",
+	})
+	if len(fields) == 0 {
+		return model.Notice{}, false
+	}
+	return model.Notice{
+		Type: model.NoticeTypeNikah, Title: "Nikah Notice",
+		Content: joinNoticeValues(fields, "name_one", "groom_relation", "relation_one", "relation_two", "name_two", "bride", "date", "time"),
+		Fields:  fields,
+	}, true
+}
+
+func parseFuneralNotice(raw json.RawMessage) (model.Notice, bool) {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 8 || !isDisplayed(stringValue(values, 7)) {
+		return model.Notice{}, false
+	}
+	fields := namedFields(values, map[int]string{
+		0: "name", 1: "relation", 2: "address", 3: "pickup",
+		4: "cemetery", 5: "salaah_venue", 6: "salaah_time",
+	})
+	if len(fields) == 0 {
+		return model.Notice{}, false
+	}
+	return model.Notice{
+		Type: model.NoticeTypeFuneral, Title: "Funeral Notice",
+		Content: joinNoticeValues(fields, "name", "relation", "address", "pickup", "cemetery", "salaah_venue", "salaah_time"),
+		Fields:  fields,
+	}, true
+}
+
+func parseEidNotice(raw json.RawMessage) (model.Notice, bool) {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 6 || !isDisplayed(stringValue(values, 5)) {
+		return model.Notice{}, false
+	}
+	fields := namedFields(values, map[int]string{
+		0: "date", 1: "venue", 2: "address", 3: "lecture", 4: "salaah",
+	})
+	if len(fields) == 0 {
+		return model.Notice{}, false
+	}
+	return model.Notice{
+		Type: model.NoticeTypeEid, Title: "Eid Salaah Notice",
+		Content: joinNoticeValues(fields, "date", "venue", "address", "lecture", "salaah"),
+		Fields:  fields,
+	}, true
+}
+
+func namedFields(values []json.RawMessage, names map[int]string) map[string]string {
+	fields := make(map[string]string, len(names))
+	for index, name := range names {
+		value := strings.TrimSpace(stringValue(values, index))
+		if !isAbsent(value) {
+			fields[name] = value
+		}
+	}
+	return fields
+}
+
+func joinNoticeValues(fields map[string]string, names ...string) string {
+	values := make([]string, 0, len(names))
+	for _, name := range names {
+		if value := strings.TrimSpace(fields[name]); value != "" {
+			values = append(values, value)
+		}
+	}
+	return strings.Join(values, "\n")
+}
+
+func isDisplayed(value string) bool {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "display", "show", "visible", "true", "yes":
+		return true
+	default:
+		return false
+	}
 }
 
 type masjidRow struct {

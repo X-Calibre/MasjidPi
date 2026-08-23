@@ -21,12 +21,12 @@ func TestSetLayoutPersistsWithoutChangingBoards(t *testing.T) {
 	}
 
 	service := &Service{selection: state, selectionStore: store}
-	if err := service.SetLayout(selection.LayoutDetailed); err != nil {
+	if err := service.SetLayout(selection.LayoutPortrait); err != nil {
 		t.Fatalf("SetLayout() error = %v", err)
 	}
 
 	got := service.Selection()
-	if got.EffectiveLayout() != selection.LayoutDetailed {
+	if got.EffectiveLayout() != selection.LayoutPortrait {
 		t.Fatalf("runtime layout=%q", got.EffectiveLayout())
 	}
 	if len(got.Boards) != 1 || got.Boards[0].ExternalID != "test" {
@@ -37,7 +37,7 @@ func TestSetLayoutPersistsWithoutChangingBoards(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
-	if persisted.EffectiveLayout() != selection.LayoutDetailed {
+	if persisted.EffectiveLayout() != selection.LayoutPortrait {
 		t.Fatalf("persisted layout=%q", persisted.EffectiveLayout())
 	}
 	if len(persisted.Boards) != 1 || persisted.Boards[0].ExternalID != "test" {
@@ -54,5 +54,37 @@ func TestSetLayoutRejectsUnsupportedValue(t *testing.T) {
 	}}}}
 	if err := service.SetLayout("wide"); err == nil {
 		t.Fatal("SetLayout() expected unsupported-layout error")
+	}
+}
+
+func TestSetSlideDurationPersists(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "selection.json")
+	store := selection.NewStore(path)
+	state := selection.State{Boards: []selection.Board{{
+		CatalogueID: "masjidboardlive:test",
+		Provider:    "masjidboardlive",
+		ExternalID:  "test",
+		Name:        "Test Masjid",
+	}}}
+	if err := store.Save(state); err != nil {
+		t.Fatal(err)
+	}
+
+	service := &Service{selection: state, selectionStore: store}
+	if err := service.SetSlideDurationSeconds(30); err != nil {
+		t.Fatalf("SetSlideDurationSeconds() error = %v", err)
+	}
+	if got := service.Selection().EffectiveSlideDurationSeconds(); got != 30 {
+		t.Fatalf("runtime slide duration=%d", got)
+	}
+	persisted, err := selection.NewStore(path).Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := persisted.EffectiveSlideDurationSeconds(); got != 30 {
+		t.Fatalf("persisted slide duration=%d", got)
+	}
+	if err := service.SetSlideDurationSeconds(61); err == nil {
+		t.Fatal("SetSlideDurationSeconds() expected range error")
 	}
 }

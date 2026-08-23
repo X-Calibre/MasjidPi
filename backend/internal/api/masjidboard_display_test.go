@@ -20,8 +20,12 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	second := selection.Board{CatalogueID: "masjidboardlive:two", Provider: "masjidboardlive", ExternalID: "two", Name: "Two", TimeZoneOffsetMS: 7200000}
 	updated := time.Date(2026, 8, 19, 19, 0, 0, 0, time.UTC)
 	cached := model.Board{
-		Identity:    model.BoardIdentity{ID: "one", Name: "One Masjid", TimeZone: "GMT+02:00"},
-		PrayerTimes: model.PrayerTimes{Asr: model.PrayerTime{Jamaah: &model.ClockTime{Hour: 16, Minute: 45}}},
+		Identity:      model.BoardIdentity{ID: "one", Name: "One Masjid", TimeZone: "GMT+02:00"},
+		PrayerTimes:   model.PrayerTimes{Asr: model.PrayerTime{Jamaah: &model.ClockTime{Hour: 16, Minute: 45}}},
+		Announcements: []model.Announcement{{Title: "Masjid announcement", Content: "Programme after Esha"}},
+		Notices: []model.Notice{{
+			Type: model.NoticeTypeNikah, Title: "Nikah Notice", Fields: map[string]string{"date": "2026-08-29"},
+		}},
 	}
 
 	s := &Server{masjidBoardService: fakeMasjidBoardStatusProvider{
@@ -59,6 +63,12 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	}
 	if got.Boards[1].Status != masjidboardruntime.StatusUnavailable {
 		t.Fatalf("unavailable board = %+v", got.Boards[1])
+	}
+	if len(got.Boards[0].Announcements) != 1 || got.Boards[0].Announcements[0].Title != "Masjid announcement" {
+		t.Fatalf("announcement presentation = %+v", got.Boards[0].Announcements)
+	}
+	if len(got.Boards[0].Notices) != 1 || got.Boards[0].Notices[0].Type != string(model.NoticeTypeNikah) {
+		t.Fatalf("notice presentation = %+v", got.Boards[0].Notices)
 	}
 	if strings.Contains(body, "secret diagnostic") || strings.Contains(body, "another diagnostic") || strings.Contains(body, "\"provider\"") || strings.Contains(body, "external_id") {
 		t.Fatalf("display API leaked administrative/provider detail: %s", body)

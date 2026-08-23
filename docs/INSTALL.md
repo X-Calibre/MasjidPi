@@ -47,7 +47,7 @@ Component-specific requirements are installed only when needed:
 - **Board** installs Cog and WPE WebKit and uses a DRM/KMS display runtime for the dedicated HDMI board.
 - **Listen + Board** installs both dependency sets.
 
-Raspberry Pi 3B has been validated with 64-bit Raspberry Pi OS. Board has also been validated as a dedicated Raspberry Pi OS Lite HDMI appliance using Cog/WPE directly on DRM/KMS.
+Raspberry Pi 3B and Raspberry Pi 4 have been validated with 64-bit Raspberry Pi OS. Board has also been validated as a dedicated Raspberry Pi OS Lite HDMI appliance using Cog/WPE directly on DRM/KMS. The production launcher selects Cog's GLES renderer for compatible Pi 4 HDMI output.
 
 32-bit ARM (`armv6l` / `armv7l`) does not currently have an official pre-built release.
 

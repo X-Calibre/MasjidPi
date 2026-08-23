@@ -564,7 +564,7 @@ Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
 Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
-The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. The Detailed layout now renders this content in two theme-aware cards occupying the right third of the screen. Additional content rotates through the two slots in pairs, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
+The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. The Detailed layout now renders this content in two theme-aware cards occupying the right quarter of the screen, with the timetable using the remaining three quarters. Additional content rotates through the two slots in pairs, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
 
 ## Notice and Announcement Display Fixtures
 

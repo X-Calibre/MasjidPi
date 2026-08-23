@@ -508,31 +508,36 @@ The existing captures contain the following information:
 
 | Content | Existing upstream location | Current MasjidPi state |
 |---|---|---|
-| Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Present in captured payloads; not parsed or exposed by the display API |
-| Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Present in captured payloads; `model.NoticeTypeNikah` exists, but the provider does not populate it |
-| Funeral notice | Row 14; deceased name/relation, address, pickup, cemetery, salaah venue/time and visibility flag | Present in captured payloads; `model.NoticeTypeFuneral` exists, but the provider does not populate it |
-| Taleem/Dawah/Gasht programmes | Rows 10 and 15; programme details, dates/times and visibility flags | Present in captured payloads; `model.Programme` exists, but the provider does not populate it |
+| Upcoming Salaah changes | Row 0; effective date, replacement time and timestamp for Fajr, Asr and Esha | Parsed as active/future `salaah_change` cards |
+| Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Parsed, exposed and displayed when active |
+| Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Parsed, exposed and displayed when active |
+| Funeral notice | Row 14; deceased name/relation, address, pickup, cemetery, salaah venue/time and visibility flag | Parsed, exposed and displayed when active |
+| Taleem/Dawah/Gasht programmes | Rows 10 and 15; programme details, dates/times and visibility flags | Verified row 10 Taleem entries are parsed and displayed; row 15 remains deferred |
 | Community posters | Row 16; ten image identifiers with visibility flags | Present in captured payloads; `model.Media` exists, but the provider does not populate it |
-| Eid notice | Row 17; date, venue, address, lecture, salaah and visibility flag | Present in captured payloads; `model.NoticeTypeEid` exists, but the provider does not populate it |
+| Eid notice | Row 17; date, venue, address, lecture, salaah and visibility flag | Parsed, exposed and displayed when active |
 | Standard posters | Row 18; ten image identifiers, visibility flags and layout settings | Present in captured payloads; not parsed or exposed |
 | Large posters | Row 19; ten image identifiers, visibility flags and durations | Present in captured payloads; not parsed or exposed |
 | Banking/contributions | Row 20; heading, bank/account details, branch code and display flag | Present in captured payloads; `model.Banking` exists, but the provider does not populate it |
-| Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Present in captured payloads; `model.NoticeTypeWellWish` exists, but the provider does not populate it |
-| New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Present in captured payloads; `model.NewMoon` exists only as a placeholder and is not populated |
+| Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Parsed, exposed and displayed when active |
+| New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Parsed and displayed only when the upstream moon-information flag is active; never labelled as a confirmed sighting |
 
 ### What is already implemented
 
-The normalised `model.Board` already reserves collections or objects for `Announcements`, `Programmes`, `Notices`, `Media`, `Banking` and `NewMoon`. Notice types already include general, Nikah, funeral, well-wishes and Eid. This means the high-level domain boundary was deliberately prepared for this content and should be extended rather than redesigned.
+The normalised `model.Board` reserves collections or objects for `Announcements`, `Programmes`, `Notices`, `Media`, `Banking` and `NewMoon`. Implemented notice types include general, Nikah, funeral, well-wishes, Eid and Salaah-time changes.
 
-The current provider parser intentionally normalises only the verified core rows:
+The provider parser normalises the verified core rows and the text-based community rows whose semantics and visibility controls have been validated:
 
 - row 1: Jumu'ah;
 - row 2: clock/identity context;
 - row 3: daily prayer times;
 - row 5: astronomical times; and
-- row 6: masjid identity/configuration.
+- row 6: masjid identity/configuration;
+- row 0: upcoming Salaah-time changes;
+- row 10: Taleem programmes;
+- rows 11–14 and 17: announcements and structured notices; and
+- row 21: well-wishes.
 
-The current display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah and astronomical information only. They do not yet include announcement, programme, notice, media, banking or new-moon fields.
+The display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah, astronomical information, announcements, programmes, notices and new-moon fields. Poster media, banking/contributions and the less-certain row 15 programme structure remain outside the display contract.
 
 ### Core versus Premium payloads
 
@@ -564,7 +569,9 @@ Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
 Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
-The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
+The read-only `/api/masjidboard/display` contract exposes active normalised announcements, notices, Taleem programmes and new-moon information when enrichment is available. Structured card categories now include Nikah, funeral, Eid, upcoming Fajr/Asr/Esha time changes, well-wishes/Du'a requests, Taleem programmes and calculated new-moon information. The moon category must not be described as a confirmed sighting because the captured payload only establishes calculation and visibility information.
+
+The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
 
 The Landscape Daily Times footer spans the full display width. It presents Sehri end, Fajr start, Sunrise, Ishraaq, Duha/Chaasht, Zawaal/Istiwa, both Shafi‘i and Hanafi Asr start calculations, Sunset and Esha start from the first selected masjid.
 

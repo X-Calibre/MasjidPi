@@ -2,7 +2,7 @@
    selectors are gated by .detailed-layout so Standard remains unchanged. */
 .detailed-layout .board-shell {
     display:grid;
-    grid-template-columns:minmax(0,2fr) minmax(300px,1fr);
+    grid-template-columns:minmax(0,3fr) minmax(280px,1fr);
     grid-template-rows:auto minmax(0,1fr);
     column-gap:clamp(10px,1vw,16px);
 }
@@ -62,7 +62,7 @@
 .detailed-community-title {
     margin:clamp(13px,1.5vh,20px) 0 0;
     color:var(--text);
-    font-size:clamp(1.55rem,2.25vw,2.55rem);
+    font-size:clamp(1.4rem,1.75vw,2.1rem);
     font-weight:820;
     letter-spacing:-.035em;
     line-height:1.06;
@@ -71,7 +71,7 @@
 .detailed-community-body {
     margin:clamp(12px,1.35vh,18px) 0 0;
     color:var(--muted);
-    font-size:clamp(.98rem,1.22vw,1.32rem);
+    font-size:clamp(.9rem,1vw,1.15rem);
     font-weight:560;
     line-height:1.38;
     white-space:pre-line;
@@ -89,7 +89,7 @@
     gap:10px;
     padding-top:clamp(8px,.75vh,10px);
     border-top:1px solid var(--line);
-    font-size:clamp(.88rem,1vw,1.12rem);
+    font-size:clamp(.8rem,.86vw,1rem);
     line-height:1.2;
 }
 .detailed-community-field-label { color:var(--muted); }
@@ -142,10 +142,22 @@
 /* Countdowns are supporting information in Detailed mode. Keep them readable
    without letting them crowd the prayer times above and below. */
 .detailed-layout .event-countdown {
-    font-size:clamp(.78rem,.9vw,1rem);
+    font-size:clamp(.68rem,.76vw,.86rem);
     line-height:1;
     margin-top:2px;
     white-space:nowrap;
+}
+
+/* The countdown remains attached to the next chronological event. Reserve
+   enough vertical room for its second line within the denser 75% timetable. */
+.detailed-layout .prayer-row .prayer-cell,
+.detailed-layout .prayer-row .jumuah-cell {
+    padding-block:clamp(6px,.65vh,9px);
+    padding-inline:clamp(8px,.7vw,12px);
+}
+.detailed-layout .time-value-stack { gap:2px; }
+.detailed-layout .time-value-stack:has(.event-countdown) .time-value {
+    font-size:clamp(1.15rem,1.42vw,1.62rem);
 }
 
 /* With fewer masjids, use the recovered horizontal space for the label
@@ -294,7 +306,7 @@
 }
 
 @media (max-width:1100px) {
-    .detailed-layout .board-shell { grid-template-columns:minmax(0,2fr) minmax(250px,1fr); }
+    .detailed-layout .board-shell { grid-template-columns:minmax(0,3fr) minmax(230px,1fr); }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
@@ -313,7 +325,7 @@
 
 @media (max-width:760px) {
     .detailed-layout .timetable-stage { flex:1 1 auto; }
-    .detailed-layout .board-shell { min-width:720px; grid-template-columns:minmax(0,2fr) minmax(230px,1fr); }
+    .detailed-layout .board-shell { min-width:760px; grid-template-columns:minmax(0,3fr) minmax(210px,1fr); }
     .detailed-layout .additional-times { min-width:0; max-width:none; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row,

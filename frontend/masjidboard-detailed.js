@@ -5,7 +5,7 @@
     if (params.get("layout") === "portrait") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, communityTypeLabel, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -126,127 +126,6 @@
         return element;
     }
 
-    function fixtureCommunityItems() {
-        const source = "Layout test fixture — not live";
-        const items = [
-            {
-                type: "funeral",
-                title: "Marhoom Abdullah Ismail",
-                body: "",
-                fields: {
-                    relation: "Father of Yusuf Ismail",
-                    salaah_time: "After Zuhr · 13:15",
-                    salaah_venue: "Central Masjid",
-                    pickup: "12:45 from the family residence",
-                    cemetery: "Central Cemetery",
-                    address: "10 Example Road",
-                },
-                source,
-            },
-            {
-                type: "nikah",
-                title: "Muhammad & Ayesha",
-                body: "",
-                fields: {
-                    groom_relation: "Son of Ahmad & Fatima",
-                    relation_two: "Daughter of Ismail & Maryam",
-                    date: "Saturday, 29 August 2026",
-                    time: "After Asr · 16:45",
-                    venue: "Masjid Hall",
-                },
-                source,
-            },
-            {
-                type: "eid",
-                title: "Eid Salaah Notice",
-                body: "",
-                fields: {
-                    date: "Monday, 25 May 2026",
-                    venue: "Community Sports Ground",
-                    address: "1 Example Field Road",
-                    lecture: "Lecture · 07:00",
-                    salaah: "Salaah · 07:30",
-                },
-                source,
-            },
-            {
-                type: "announcement",
-                title: "Important Access Notice",
-                body: "Please use the northern entrance while maintenance work is under way. The main parking area will be closed after Maghrib. Elderly worshippers and families may use the reserved drop-off area near the hall entrance. Please follow the directions of the volunteers on duty.",
-                fields: {},
-                source,
-            },
-			{
-				type: "dawah",
-				title: "Dawah and Gasht",
-				body: "",
-				fields: {masjid_taleem: "Daily after Esha Salaah", gasht_out_day: "Thursday", gasht_out_time: "After Asr", gasht_in_day: "Monday", gasht_in_time: "After Maghrib"},
-				source,
-			},
-			{
-				type: "three_day_jamaat",
-				title: "Three-Day Jamaat",
-				body: "",
-				fields: {first_location: "Hartbeespoort area", first_date: "4–6 September", second_location: "Pretoria West", second_date: "11–13 September"},
-				source,
-			},
-			{
-				type: "contribution",
-				title: "Masjid Contributions — Lillah Only",
-				body: "",
-				fields: {bank: "Example Bank", account_name: "Example Masjid Trust", branch_code: "123456", account_number: "000 123 456", bsb: ""},
-				source,
-			},
-            {
-                type: "salaah_change",
-                title: "Esha Time Change",
-                body: "",
-                fields: {prayer: "Esha", effective_date: "1 September", new_time: "19:45"},
-                source,
-            },
-            {
-                type: "programme",
-                title: "Taleem Programme",
-                body: "Wednesday 11:15–12:15\nResident's home",
-                fields: {},
-                source,
-            },
-            {
-                type: "new_moon",
-                title: "New Moon Information",
-                body: "",
-                fields: {birth_date: "23 August", birth: "05:27", visibility_date: "24 August", best_visibility: "18:37"},
-                source,
-            },
-            {
-                type: "announcement",
-                title: "Masjid Announcement",
-                body: "تذكير: سيكون البرنامج بعد صلاة العشاء بإذن الله. نرجو من الجميع الحضور في الوقت المحدد.",
-                fields: {},
-                source,
-            },
-            {
-                type: "well_wishes",
-                title: "Du'a Requested",
-                body: "The community is requested to make du'a for those who are unwell and for their families.",
-                fields: {},
-                source,
-            },
-            {
-                type: "announcement",
-                title: "Weekly Programme",
-                body: "The weekly community programme will take place after Esha on Thursday evening.",
-                fields: {},
-                source,
-            },
-        ];
-        if (communityFixtureMode === "new") {
-			const newTypes = new Set(["dawah", "three_day_jamaat", "contribution"]);
-            return items.filter((item) => newTypes.has(item.type));
-        }
-        return items;
-    }
-
     function isDetailedCommunityItem(item) {
         return plainText(item.body).length > 180 || orderedFields(item).length > 5;
     }
@@ -344,7 +223,7 @@
             communityPanel.classList.add("hidden");
             return;
         }
-        const items = useCommunityFixtures ? fixtureCommunityItems() : collectCommunityItems(boards);
+        const items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
         const signature = JSON.stringify(items);
         if (signature !== communitySignature) {
             communitySignature = signature;

@@ -129,6 +129,7 @@ type Notice struct {
 	Type        NoticeType
 	Title       string
 	Content     string
+	Fields      map[string]string
 	VisibleFrom *time.Time
 	VisibleTo   *time.Time
 }

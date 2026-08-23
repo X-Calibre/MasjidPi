@@ -67,9 +67,9 @@ body[data-board-theme]:not([data-board-theme="emerald"]) .time-line.secondary .t
 body[data-board-theme]:not([data-board-theme="emerald"]) .time-line.jumuah-event .time-value,
 body[data-board-theme]:not([data-board-theme="emerald"]) .additional-time-label { color:var(--muted); }
 
-body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .board-headers .board-header:first-of-type,
-body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .prayer-row > .prayer-cell:first-of-type,
-body[data-board-theme]:not([data-board-theme="emerald"]).detailed-layout .prayer-row > .jumuah-cell:first-of-type {
+body[data-board-theme]:not([data-board-theme="emerald"]).landscape-layout .board-headers .board-header:first-of-type,
+body[data-board-theme]:not([data-board-theme="emerald"]).landscape-layout .prayer-row > .prayer-cell:first-of-type,
+body[data-board-theme]:not([data-board-theme="emerald"]).landscape-layout .prayer-row > .jumuah-cell:first-of-type {
     border-color:color-mix(in srgb,var(--accent) 28%,transparent);
     background:linear-gradient(180deg,color-mix(in srgb,var(--panel-soft) 88%,var(--accent) 12%),var(--panel));
 }

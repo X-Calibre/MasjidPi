@@ -82,6 +82,7 @@ body.portrait-layout {
 }
 .portrait-layout .board-topbar,
 .portrait-layout .display-state,
+.portrait-layout .additional-times,
 .portrait-layout .empty-state { display:none!important; }
 /* Font test history/revert points: Atkinson Hyperlegible Next replaced the
    original Inter/system UI stack. Both remain available after Fira Sans. */

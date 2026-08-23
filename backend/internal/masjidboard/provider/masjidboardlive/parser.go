@@ -12,16 +12,16 @@ import (
 )
 
 const (
-	rowJumuah       = 1
-	rowClock        = 2
-	rowSalah        = 3
-	rowAstronomical = 5
-	rowMasjid       = 6
-	rowAnnouncement = 11
+	rowJumuah        = 1
+	rowClock         = 2
+	rowSalah         = 3
+	rowAstronomical  = 5
+	rowMasjid        = 6
+	rowAnnouncement  = 11
 	rowAnnouncement2 = 12
-	rowNikah        = 13
-	rowFuneral      = 14
-	rowEid          = 17
+	rowNikah         = 13
+	rowFuneral       = 14
+	rowEid           = 17
 )
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
@@ -147,7 +147,7 @@ func parseNikahNotice(raw json.RawMessage) (model.Notice, bool) {
 	return model.Notice{
 		Type: model.NoticeTypeNikah, Title: "Nikah Notice",
 		Content: joinNoticeValues(fields, "name_one", "groom_relation", "relation_one", "relation_two", "name_two", "bride", "date", "time"),
-		Fields: fields,
+		Fields:  fields,
 	}, true
 }
 
@@ -166,7 +166,7 @@ func parseFuneralNotice(raw json.RawMessage) (model.Notice, bool) {
 	return model.Notice{
 		Type: model.NoticeTypeFuneral, Title: "Funeral Notice",
 		Content: joinNoticeValues(fields, "name", "relation", "address", "pickup", "cemetery", "salaah_venue", "salaah_time"),
-		Fields: fields,
+		Fields:  fields,
 	}, true
 }
 
@@ -184,7 +184,7 @@ func parseEidNotice(raw json.RawMessage) (model.Notice, bool) {
 	return model.Notice{
 		Type: model.NoticeTypeEid, Title: "Eid Salaah Notice",
 		Content: joinNoticeValues(fields, "date", "venue", "address", "lecture", "salaah"),
-		Fields: fields,
+		Fields:  fields,
 	}, true
 }
 

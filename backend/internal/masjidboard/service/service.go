@@ -124,7 +124,7 @@ func (s *Service) Reconfigure(state selection.State) error {
 
 func (s *Service) SetLayout(layout string) error {
 	layout = strings.TrimSpace(strings.ToLower(layout))
-	if layout != selection.LayoutStandard && layout != selection.LayoutDetailed && layout != selection.LayoutPortrait {
+	if layout != selection.LayoutLandscape && layout != selection.LayoutPortrait {
 		return fmt.Errorf("masjidboard service: unsupported display layout %q", layout)
 	}
 	return s.updateDisplayPreference(func(state *selection.State) { state.Layout = layout }, "layout")

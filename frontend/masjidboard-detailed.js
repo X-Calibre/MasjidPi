@@ -36,28 +36,6 @@
         if (validTime(time)) items.push({label, time, valueText: valueText || format(time)});
     }
 
-    function findPrayer(board, key) {
-        return board && Array.isArray(board.prayers)
-            ? board.prayers.find((prayer) => prayer.key === key)
-            : null;
-    }
-
-    function chooseAsrStart(board, astronomical) {
-        const candidates = [astronomical.asr_shafii, astronomical.asr_hanafi].filter(validTime);
-        if (candidates.length === 0) return null;
-
-        const asr = findPrayer(board, "asr");
-        const reference = asr && validTime(asr.adhan) ? minutes(asr.adhan) : null;
-        if (reference !== null) {
-            const beforeAdhan = candidates
-                .filter((time) => minutes(time) <= reference)
-                .sort((left, right) => minutes(right) - minutes(left));
-            if (beforeAdhan.length > 0) return beforeAdhan[0];
-        }
-
-        return validTime(astronomical.asr_hanafi) ? astronomical.asr_hanafi : astronomical.asr_shafii;
-    }
-
     function buildItems(board) {
         const astronomical = board && board.astronomical ? board.astronomical : {};
         const items = [];
@@ -66,6 +44,7 @@
         add(items, "Fajr Starts", astronomical.fajr_start);
         add(items, "Sunrise", astronomical.sunrise);
         add(items, "Ishraq", astronomical.ishraaq);
+        add(items, "Duha / Chaasht", astronomical.duha);
 
         const zawaalStart = validTime(astronomical.istiwa_caution)
             ? astronomical.istiwa_caution
@@ -80,7 +59,8 @@
             add(items, "Zawaal / Istiwa", zawaalStart, range);
         }
 
-        add(items, "Asr Starts", chooseAsrStart(board, astronomical));
+        add(items, "Asr Shafi‘i", astronomical.asr_shafii);
+        add(items, "Asr Hanafi", astronomical.asr_hanafi);
         add(items, "Sunset", astronomical.sunset);
         add(items, "Esha Starts", astronomical.esha_start);
 

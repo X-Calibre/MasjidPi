@@ -58,19 +58,19 @@ Only the dependencies, backend subsystems, APIs, configuration pages and applian
 
 The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select Landscape or Portrait presentation. Landscape combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, Daily Times and rotating community cards when supplied upstream. Board colour themes are also user-selectable from the Web UI.
 
-![MasjidBoard Landscape HDMI display with Funeral and Nikaah notice fixtures](docs/images/masjidboard-display.png)
+![MasjidBoard Landscape HDMI display with Funeral and Nikaah notice fixtures](docs/images/masjidboard-display-v1.3.0.png)
 
 ### MasjidBoard configuration
 
 The configuration interface lets you choose up to three locations and MasjidBoards, order them for the HDMI display, select the HDMI layout and colour theme, refresh timetable data and see the current cache/update status.
 
-![MasjidBoard configuration interface](docs/images/masjidboard-configuration.png)
+![MasjidBoard configuration interface](docs/images/masjidboard-configuration-v1.3.0.png)
 
 ### Listen
 
 Listen provides live masjid audio streaming with favourites, catalogue search, playback controls, volume and audio-output selection.
 
-![MasjidPi Listen interface](docs/images/masjidpi-listen.png)
+![MasjidPi Listen interface](docs/images/masjidpi-listen-v1.3.0.png)
 
 ## Installation
 

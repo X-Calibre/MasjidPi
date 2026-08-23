@@ -656,6 +656,12 @@ The default Landscape display supports an explicit development-only fixture mode
 
 This injects anonymised funeral, Nikah, Eid, long-announcement, Arabic and compact community samples into the frontend card renderer. The set exercises two-thirds/one-third, three-card and full-panel pages. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.
 
+For focused testing of only the newly supported Salaah-change, Taleem programme, new-moon and well-wishes cards, use:
+
+```text
+/masjidboard.html?notice-fixtures=new
+```
+
 ## Architectural Decisions
 
 ### MasjidBoard is a separate application capability

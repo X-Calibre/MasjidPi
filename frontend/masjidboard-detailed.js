@@ -16,6 +16,7 @@
     const refreshIntervalMs = 60_000;
     const communityPageIntervalMs = 15_000;
     let communityItems = [];
+    let communityPages = [];
     let communitySignature = "";
     let communityPage = 0;
 
@@ -277,6 +278,20 @@
                 fields: {},
                 source,
             },
+            {
+                type: "well_wishes",
+                title: "Du'a Requested",
+                body: "The community is requested to make du'a for those who are unwell and for their families.",
+                fields: {},
+                source,
+            },
+            {
+                type: "announcement",
+                title: "Weekly Programme",
+                body: "The weekly community programme will take place after Esha on Thursday evening.",
+                fields: {},
+                source,
+            },
         ];
     }
 
@@ -285,8 +300,56 @@
             || `${fieldLabel(type || "general")} Notice`;
     }
 
-    function renderCommunityCard(item) {
-        const card = makeElement("article", `detailed-community-card detailed-community-${item.type}`);
+    function isDetailedCommunityItem(item) {
+        return plainText(item.body).length > 180 || orderedFields(item).length > 5;
+    }
+
+    function packCommunityPages(items) {
+        const pages = [];
+        let index = 0;
+        while (index < items.length) {
+            const remaining = items.length - index;
+            if (remaining === 1) {
+                pages.push({layout: "single", entries: [{item: items[index], span: 1}]});
+                index += 1;
+                continue;
+            }
+            if (remaining === 2) {
+                pages.push({layout: "halves", entries: [
+                    {item: items[index], span: 1}, {item: items[index + 1], span: 1},
+                ]});
+                index += 2;
+                continue;
+            }
+
+            const first = items[index];
+            const second = items[index + 1];
+            const third = items[index + 2];
+            const firstDetailed = isDetailedCommunityItem(first);
+            const secondDetailed = isDetailedCommunityItem(second);
+            const thirdDetailed = isDetailedCommunityItem(third);
+
+            if (firstDetailed && !secondDetailed) {
+                pages.push({layout: "thirds", entries: [{item: first, span: 2}, {item: second, span: 1}]});
+                index += 2;
+            } else if (!firstDetailed && secondDetailed) {
+                pages.push({layout: "thirds", entries: [{item: first, span: 1}, {item: second, span: 2}]});
+                index += 2;
+            } else if (!firstDetailed && !secondDetailed && !thirdDetailed) {
+                pages.push({layout: "thirds", entries: [
+                    {item: first, span: 1}, {item: second, span: 1}, {item: third, span: 1},
+                ]});
+                index += 3;
+            } else {
+                pages.push({layout: "halves", entries: [{item: first, span: 1}, {item: second, span: 1}]});
+                index += 2;
+            }
+        }
+        return pages;
+    }
+
+    function renderCommunityCard(item, span) {
+        const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
         card.append(makeElement("div", "detailed-community-type", communityTypeLabel(item.type)));
         card.append(makeElement("h2", "detailed-community-title", item.title));
         if (item.body) {
@@ -321,12 +384,11 @@
         communityEmpty.classList.toggle("hidden", hasItems);
         if (!hasItems) return;
 
-        const start = (communityPage * 2) % communityItems.length;
-        const count = Math.min(2, communityItems.length - start);
-        for (let offset = 0; offset < count; offset += 1) {
-            communityCards.append(renderCommunityCard(communityItems[start + offset]));
+        const page = communityPages[communityPage % communityPages.length];
+        communityCards.className = `detailed-community-cards community-layout-${page.layout}`;
+        for (const entry of page.entries) {
+            communityCards.append(renderCommunityCard(entry.item, entry.span));
         }
-        communityCards.classList.toggle("single", count === 1);
     }
 
     function renderCommunityContent(boards) {
@@ -340,6 +402,7 @@
         if (signature !== communitySignature) {
             communitySignature = signature;
             communityItems = items;
+            communityPages = packCommunityPages(items);
             communityPage = 0;
         }
         renderCommunityPage();
@@ -442,8 +505,8 @@
     refresh();
     window.setInterval(refresh, refreshIntervalMs);
     window.setInterval(() => {
-        if (communityItems.length <= 2) return;
-        communityPage = (communityPage + 1) % Math.ceil(communityItems.length / 2);
+        if (communityPages.length <= 1) return;
+        communityPage = (communityPage + 1) % communityPages.length;
         renderCommunityPage();
     }, communityPageIntervalMs);
 })();

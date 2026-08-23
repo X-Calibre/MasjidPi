@@ -538,6 +538,22 @@ The current display view and `/api/masjidboard/display` response expose identity
 
 MasjidPi currently retrieves the public Core board data for normal operation. The Core validation found no announcements, community content, posters, programmes or notices in its embedded `data` object. The richer content listed above is confirmed in the captured Premium 29-row payloads.
 
+### 2026-08-23 — Premium access path revalidated
+
+The public Premium page and API path were rechecked for five previously researched boards:
+
+- `brits-jamia`;
+- `brits-taqwa`;
+- `erasmia-aaisha`;
+- `zakariyya-park-duzak`; and
+- `fawkner-masjid`.
+
+For every board, `https://premium.masjidboardlive.com/v2/?mid=<mid>` still returned a generated page containing both `let boardId = "<opaque-id>"` and `let theInfo = [...]`. Calling `https://api.masjidboardlive.com/mblapi?id=<opaque-id>` returned a valid 29-row JSON array for every resolved ID.
+
+This confirms the existing technical access path remains operational and unauthenticated. It does not by itself establish a contractual entitlement or guarantee that every Core-listed masjid has a Premium board. MasjidPi must therefore treat Premium enrichment as optional and must retain the current Core provider as the reliable timetable fallback.
+
+The provider now includes a `PremiumClient` that resolves the opaque ID and embedded payload from the stable public `mid` on each fetch. The opaque ID is not persisted, so a server-side board rebuild cannot leave MasjidPi tied to a stale implementation identifier. This client is intentionally not wired into the runtime until fallback and capability rules are defined.
+
 Therefore the next investigation is narrowly defined:
 
 1. Confirm whether the existing 29-row Premium endpoint can be used reliably and legitimately for selected Core-listed boards, or whether a separate provider/capability boundary is required.

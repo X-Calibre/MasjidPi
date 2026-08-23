@@ -123,6 +123,27 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 			AsrHanafi: displayTime(a.AsrHanafi), Sunset: displayTime(a.Sunset), EshaStart: displayTime(a.EshaStart),
 		}
 	}
+
+	if len(board.Announcements) > 0 {
+		out.Announcements = make([]Announcement, 0, len(board.Announcements))
+		for _, announcement := range board.Announcements {
+			out.Announcements = append(out.Announcements, Announcement{
+				Title: announcement.Title, Content: announcement.Content,
+			})
+		}
+	}
+	if len(board.Notices) > 0 {
+		out.Notices = make([]Notice, 0, len(board.Notices))
+		for _, notice := range board.Notices {
+			fields := make(map[string]string, len(notice.Fields))
+			for key, value := range notice.Fields {
+				fields[key] = value
+			}
+			out.Notices = append(out.Notices, Notice{
+				Type: string(notice.Type), Title: notice.Title, Content: notice.Content, Fields: fields,
+			})
+		}
+	}
 }
 
 func displayTime(value *model.ClockTime) *ClockTime {

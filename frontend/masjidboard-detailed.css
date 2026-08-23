@@ -2,7 +2,7 @@
 .landscape-layout .board-shell {
     display:grid;
     grid-template-columns:minmax(0,3fr) minmax(280px,1fr);
-    grid-template-rows:auto minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr) auto;
     column-gap:clamp(10px,1vw,16px);
 }
 .landscape-layout .board-topbar { grid-column:1; grid-row:1; }
@@ -11,7 +11,9 @@
 .landscape-layout .landscape-layout-shell { flex-direction:column; gap:clamp(8px,.9vh,12px); }
 .landscape-layout .timetable-stage { flex:1 1 auto; }
 .landscape-layout .additional-times {
-    flex:0 0 clamp(98px,11.5vh,126px);
+    grid-column:1 / span 2;
+    grid-row:3;
+    min-height:clamp(98px,11.5vh,126px);
     min-width:0;
     max-width:none;
 }
@@ -292,7 +294,7 @@
     grid-row:1 / span 2;
     min-height:0;
     display:grid;
-    grid-template-columns:repeat(8,minmax(0,1fr));
+    grid-template-columns:repeat(10,minmax(0,1fr));
     gap:clamp(5px,.42vw,8px);
     padding:0;
 }

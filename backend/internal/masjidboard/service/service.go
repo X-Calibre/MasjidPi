@@ -38,11 +38,17 @@ func New(config Config) (*Service, error) {
 	}
 	cacheStore := cache.NewStore(config.CacheDir)
 	factory := func(board selection.Board) (provider.Provider, error) {
-		client, err := masjidboardlive.NewCoreClientFromSelectionWithHTTPClient(board, config.HTTPClient)
+		core, err := masjidboardlive.NewCoreClientFromSelectionWithHTTPClient(board, config.HTTPClient)
 		if err != nil {
 			return nil, err
 		}
-		return client, nil
+		return masjidboardlive.EnrichedClient{
+			Core: core,
+			Premium: masjidboardlive.PremiumClient{
+				HTTPClient: config.HTTPClient,
+				Mid:        strings.TrimSpace(board.ExternalID),
+			},
+		}, nil
 	}
 	service, err := newWithFactory(state, cacheStore, factory)
 	if err != nil {

@@ -64,12 +64,21 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 	if err != nil {
 		return model.Board{}, err
 	}
+	name := strings.TrimSpace(masjid.Name1)
+	alternateName := strings.TrimSpace(masjid.Name2)
+	if name == "" {
+		name = alternateName
+		alternateName = ""
+	}
+	if name == "" {
+		return model.Board{}, fmt.Errorf("masjidboardlive: masjid row has no usable name")
+	}
 
 	return model.Board{
 		Identity: model.BoardIdentity{
 			ID:            clock.MasjidID,
-			Name:          masjid.Name1,
-			AlternateName: masjid.Name2,
+			Name:          name,
+			AlternateName: alternateName,
 			TimeZone:      clock.Timezone,
 		},
 		DateContext: model.DateContext{

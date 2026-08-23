@@ -98,8 +98,35 @@ body.portrait-layout {
 .portrait-next-name { color:var(--portrait-text); font-size:23px; font-weight:700; line-height:1.18; text-align:left; white-space:pre-line; }
 .portrait-countdown { align-self:center; justify-self:center; color:var(--portrait-countdown); font-size:18px; font-weight:700; line-height:1.2; text-align:center; font-variant-numeric:tabular-nums; }
 .portrait-slides { position:absolute; top:300px; left:0; width:600px; height:724px; overflow:hidden; }
-.portrait-slide { position:absolute; inset:0; display:none; padding:22px 28px 50px; }
-.portrait-slide.active { display:block; }
+.portrait-slide {
+    position:absolute;
+    inset:0;
+    z-index:0;
+    visibility:hidden;
+    opacity:0;
+    padding:22px 28px 50px;
+    transform:translateX(20px);
+    transition:opacity 300ms ease,transform 300ms ease;
+    pointer-events:none;
+    will-change:opacity,transform;
+}
+.portrait-slide.active {
+    z-index:2;
+    visibility:visible;
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+}
+.portrait-slide.active.enter-from-left { transform:translateX(-20px); }
+.portrait-slide.active.enter-from-right { transform:translateX(20px); }
+.portrait-slide.exit-to-left,
+.portrait-slide.exit-to-right {
+    z-index:1;
+    visibility:visible;
+    opacity:0;
+}
+.portrait-slide.exit-to-left { transform:translateX(-20px); }
+.portrait-slide.exit-to-right { transform:translateX(20px); }
 .portrait-slide-heading { height:82px; border-bottom:2px solid var(--portrait-line); }
 .portrait-slide-heading small { display:block; margin-bottom:5px; color:var(--portrait-heading-accent); font-size:16px; font-weight:800; letter-spacing:.12em; }
 .portrait-slide-heading h2 { max-width:100%; margin:0; overflow:hidden; color:var(--portrait-text); font-size:34px; line-height:1.1; letter-spacing:-.02em; text-overflow:ellipsis; white-space:nowrap; }
@@ -240,4 +267,13 @@ body.portrait-layout {
 .portrait-community-card.compact .portrait-community-source {
     padding-top:8px;
     font-size:13px;
+}
+
+
+@media (prefers-reduced-motion:reduce) {
+    .portrait-slide {
+        transform:none!important;
+        transition:none!important;
+        will-change:auto;
+    }
 }

@@ -148,8 +148,12 @@
             funeral: ["relation", "salaah_time", "salaah_venue", "pickup", "cemetery", "address"],
             nikah: ["groom_relation", "relation_one", "relation_two", "date", "time"],
             eid: ["date", "venue", "address", "lecture", "salaah"],
+            salaah_change: ["effective_date", "new_time"],
+            new_moon: ["birth_date", "birth", "best_visibility", "visibility_date", "first_moonset", "first_age"],
         }[item.type] || [];
-        const titleFields = new Set(item.type === "funeral" ? ["name"] : item.type === "nikah" ? ["name_one", "name_two", "bride"] : []);
+        const titleFields = new Set(item.type === "funeral" ? ["name"]
+            : item.type === "nikah" ? ["name_one", "name_two", "bride"]
+                : item.type === "salaah_change" ? ["prayer"] : []);
         const names = [...preferred, ...Object.keys(fields).sort()].filter((name, index, all) =>
             !titleFields.has(name) && all.indexOf(name) === index && plainText(fields[name])
         );
@@ -194,6 +198,24 @@
                     title: plainText(announcement.title) || "Masjid Announcement",
                     body: plainText(announcement.content),
                     fields: {},
+                    source: board.name,
+                });
+            }
+            for (const programme of Array.isArray(board.programmes) ? board.programmes : []) {
+                add({
+                    type: "programme",
+                    title: plainText(programme.title) || "Masjid Programme",
+                    body: plainText(programme.content),
+                    fields: {},
+                    source: board.name,
+                });
+            }
+            if (board.new_moon && board.new_moon.fields && typeof board.new_moon.fields === "object") {
+                add({
+                    type: "new_moon",
+                    title: "New Moon Information",
+                    body: "",
+                    fields: board.new_moon.fields,
                     source: board.name,
                 });
             }
@@ -252,6 +274,27 @@
                 source,
             },
             {
+                type: "salaah_change",
+                title: "Esha Time Change",
+                body: "",
+                fields: {prayer: "Esha", effective_date: "1 September", new_time: "19:45"},
+                source,
+            },
+            {
+                type: "programme",
+                title: "Taleem Programme",
+                body: "Wednesday 11:15–12:15\nResident's home",
+                fields: {},
+                source,
+            },
+            {
+                type: "new_moon",
+                title: "New Moon Information",
+                body: "",
+                fields: {birth_date: "23 August", birth: "05:27", visibility_date: "24 August", best_visibility: "18:37"},
+                source,
+            },
+            {
                 type: "announcement",
                 title: "Masjid Announcement",
                 body: "تذكير: سيكون البرنامج بعد صلاة العشاء بإذن الله. نرجو من الجميع الحضور في الوقت المحدد.",
@@ -276,7 +319,7 @@
     }
 
     function communityTypeLabel(type) {
-        return {announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice", nikah: "Nikah Notice", well_wishes: "Well Wishes"}[type]
+        return {announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice", nikah: "Nikah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change", programme: "Programme", new_moon: "New Moon"}[type]
             || `${fieldLabel(type || "general")} Notice`;
     }
 

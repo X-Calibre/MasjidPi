@@ -255,3 +255,51 @@ func TestParseCommunityContentIgnoresHiddenRows(t *testing.T) {
 		t.Fatalf("hidden community content was retained: announcements=%+v notices=%+v", board.Announcements, board.Notices)
 	}
 }
+
+func TestParseAdditionalCommunityCardContent(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowUpcoming] = json.RawMessage(`["–","–","0","–","–","0","–","–","0","TRUE","24 Aug","05:50","1787529600000","1 Sep","17:00","1788220800000","4 Sep","19:45","1788480000000"]`)
+	rows[rowClock] = json.RawMessage(`["23 Aug, 05:27","23 Aug, 18:34","12 hrs","273.10","7.25","24 Aug, 18:37","24 Aug, 19:32","36 hrs","272.18","19.48","23 August 2026","24 August 2026","test-board","","Johannesburg","GMT+02","en","Islamic Time","Display Islamic Time","","","TRUE"]`)
+	rows[rowTaleem] = json.RawMessage(`["Wednesday 11:15–12:15","26 August 2026","Resident's home","10 Main Road","Display","","","","","Hide"]`)
+	rows[rowWellWishes] = json.RawMessage(`["Please make du'a for the unwell","","","","","","","","","","Display"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 8, 23, 9, 0, 0, 0, time.FixedZone("SAST", 2*60*60)))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Notices) != 4 {
+		t.Fatalf("Notices = %+v", board.Notices)
+	}
+	if board.Notices[0].Type != model.NoticeTypeSalaahChange || board.Notices[0].Fields["new_time"] != "05:50" {
+		t.Fatalf("Salaah change = %+v", board.Notices[0])
+	}
+	if board.Notices[3].Type != model.NoticeTypeWellWish {
+		t.Fatalf("Well wishes = %+v", board.Notices[3])
+	}
+	if len(board.Programmes) != 1 || board.Programmes[0].Title != "Taleem Programme" {
+		t.Fatalf("Programmes = %+v", board.Programmes)
+	}
+	if board.NewMoon == nil || board.NewMoon.Fields["visibility_date"] != "24 August 2026" {
+		t.Fatalf("NewMoon = %+v", board.NewMoon)
+	}
+}
+
+func TestParseAdditionalCommunityCardContentHonoursVisibility(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowUpcoming] = json.RawMessage(`["–","–","0","–","–","0","–","–","0","FALSE","–","–","0","–","–","0","–","–","0"]`)
+	rows[rowTaleem] = json.RawMessage(`["Programme","Date","","","Hide","","","","","Hide"]`)
+	rows[rowWellWishes] = json.RawMessage(`["Hidden message","","","","","","","","","","Hide"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Programmes) != 0 {
+		t.Fatalf("hidden programmes = %+v", board.Programmes)
+	}
+	for _, notice := range board.Notices {
+		if notice.Type == model.NoticeTypeSalaahChange || notice.Type == model.NoticeTypeWellWish {
+			t.Fatalf("hidden notice retained: %+v", notice)
+		}
+	}
+}

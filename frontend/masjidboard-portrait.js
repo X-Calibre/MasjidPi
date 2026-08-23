@@ -23,6 +23,7 @@
     let activeSlide = 0;
     let slideDurationSeconds = 15;
     let slideTimer = 0;
+    let transitionTimer = 0;
     let gestureStart = null;
 
     function element(tag, className, text) {
@@ -205,8 +206,32 @@
 
     function showSlide(index, restart = true) {
         if (slides.length === 0) return;
-        activeSlide = (index + slides.length) % slides.length;
-        slides.forEach((slide, itemIndex) => slide.classList.toggle("active", itemIndex === activeSlide));
+
+        const nextIndex = (index + slides.length) % slides.length;
+        const previousIndex = activeSlide;
+        const direction = index < previousIndex ? -1 : 1;
+        const previousSlide = slides[previousIndex];
+        const nextSlide = slides[nextIndex];
+
+        window.clearTimeout(transitionTimer);
+        for (const slide of slides) {
+            slide.classList.remove("enter-from-left", "enter-from-right", "exit-to-left", "exit-to-right");
+        }
+
+        if (previousSlide && nextSlide && nextIndex !== previousIndex) {
+            const enterClass = direction > 0 ? "enter-from-right" : "enter-from-left";
+            const exitClass = direction > 0 ? "exit-to-left" : "exit-to-right";
+            previousSlide.classList.remove("active");
+            previousSlide.classList.add(exitClass);
+            nextSlide.classList.add("active", enterClass);
+            void nextSlide.offsetWidth;
+            window.requestAnimationFrame(() => nextSlide.classList.remove(enterClass));
+            transitionTimer = window.setTimeout(() => previousSlide.classList.remove(exitClass), 320);
+        } else if (nextSlide) {
+            nextSlide.classList.add("active");
+        }
+
+        activeSlide = nextIndex;
         Array.from(dotsHost.children).forEach((dot, itemIndex) => dot.classList.toggle("active", itemIndex === activeSlide));
         if (restart) startTimer();
     }

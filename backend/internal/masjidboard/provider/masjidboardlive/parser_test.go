@@ -190,3 +190,19 @@ func TestParseAllowsMissingOptionalPrayerValue(t *testing.T) {
 		t.Fatal("expected Maghrib Adhan only")
 	}
 }
+
+func TestParsePromotesAlternateMasjidNameWhenPrimaryIsEmpty(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowMasjid] = json.RawMessage(`["","Darul Uloom Zakariyya","https://masjidboardlive.com","2","7200000"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if board.Identity.Name != "Darul Uloom Zakariyya" {
+		t.Fatalf("Identity.Name = %q", board.Identity.Name)
+	}
+	if board.Identity.AlternateName != "" {
+		t.Fatalf("Identity.AlternateName = %q, want empty", board.Identity.AlternateName)
+	}
+}

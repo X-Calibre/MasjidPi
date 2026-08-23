@@ -132,6 +132,12 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 			})
 		}
 	}
+	if len(board.Programmes) > 0 {
+		out.Programmes = make([]Programme, 0, len(board.Programmes))
+		for _, programme := range board.Programmes {
+			out.Programmes = append(out.Programmes, Programme{Title: programme.Title, Content: programme.Content})
+		}
+	}
 	if len(board.Notices) > 0 {
 		out.Notices = make([]Notice, 0, len(board.Notices))
 		for _, notice := range board.Notices {
@@ -143,6 +149,13 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 				Type: string(notice.Type), Title: notice.Title, Content: notice.Content, Fields: fields,
 			})
 		}
+	}
+	if board.NewMoon != nil {
+		fields := make(map[string]string, len(board.NewMoon.Fields))
+		for key, value := range board.NewMoon.Fields {
+			fields[key] = value
+		}
+		out.NewMoon = &NewMoon{Fields: fields}
 	}
 }
 

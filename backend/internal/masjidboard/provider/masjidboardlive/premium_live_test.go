@@ -32,4 +32,12 @@ func TestPremiumClientLive(t *testing.T) {
 	if board.PrayerTimes.Esha.Adhan == nil && board.PrayerTimes.Esha.Jamaah == nil {
 		t.Fatal("Premium payload has no usable Esha time")
 	}
+	t.Logf(
+		"Premium board %q parsed: announcements=%d notices=%d programmes=%d media=%d",
+		board.Identity.Name,
+		len(board.Announcements),
+		len(board.Notices),
+		len(board.Programmes),
+		len(board.Media),
+	)
 }

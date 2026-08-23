@@ -548,7 +548,7 @@ The public Premium page and API path were rechecked for five previously research
 - `zakariyya-park-duzak`; and
 - `fawkner-masjid`.
 
-For every board, `https://premium.masjidboardlive.com/v2/?mid=<mid>` still returned a generated page containing both `let boardId = "<opaque-id>"` and `let theInfo = [...]`. Calling `https://api.masjidboardlive.com/mblapi?id=<opaque-id>` returned a valid 29-row JSON array for every resolved ID.
+For every board, `https://premium.masjidboardlive.com/v2/?mid=<mid>` still returned a generated page containing both `let boardId = "<opaque-id>"` and `let theInfo = [...]`. Calling `https://api.masjidboardlive.com/mblapi?id=<opaque-id>` returned a valid 29-row JSON array for every resolved ID. Existing repository fixtures also demonstrate that MasjidBoard Live may append a 30th row, so the provider accepts 29 or more rows while continuing to parse only verified positions.
 
 This confirms the existing technical access path remains operational and unauthenticated. It does not by itself establish a contractual entitlement or guarantee that every Core-listed masjid has a Premium board. MasjidPi must therefore treat Premium enrichment as optional and must retain the current Core provider as the reliable timetable fallback.
 

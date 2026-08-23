@@ -3,6 +3,7 @@
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("layout") !== "detailed") return;
+    const useCommunityFixtures = params.get("notice-fixtures") === "1";
 
     document.body.classList.add("detailed-layout");
     const panel = document.getElementById("additionalTimes");
@@ -219,6 +220,66 @@
         return items;
     }
 
+    function fixtureCommunityItems() {
+        const source = "Layout test fixture — not live";
+        return [
+            {
+                type: "funeral",
+                title: "Marhoom Abdullah Ismail",
+                body: "",
+                fields: {
+                    relation: "Father of Yusuf Ismail",
+                    salaah_time: "After Zuhr · 13:15",
+                    salaah_venue: "Central Masjid",
+                    pickup: "12:45 from the family residence",
+                    cemetery: "Central Cemetery",
+                    address: "10 Example Road",
+                },
+                source,
+            },
+            {
+                type: "nikah",
+                title: "Muhammad & Ayesha",
+                body: "",
+                fields: {
+                    groom_relation: "Son of Ahmad & Fatima",
+                    relation_two: "Daughter of Ismail & Maryam",
+                    date: "Saturday, 29 August 2026",
+                    time: "After Asr · 16:45",
+                    venue: "Masjid Hall",
+                },
+                source,
+            },
+            {
+                type: "eid",
+                title: "Eid Salaah Notice",
+                body: "",
+                fields: {
+                    date: "Monday, 25 May 2026",
+                    venue: "Community Sports Ground",
+                    address: "1 Example Field Road",
+                    lecture: "Lecture · 07:00",
+                    salaah: "Salaah · 07:30",
+                },
+                source,
+            },
+            {
+                type: "announcement",
+                title: "Important Access Notice",
+                body: "Please use the northern entrance while maintenance work is under way. The main parking area will be closed after Maghrib. Elderly worshippers and families may use the reserved drop-off area near the hall entrance. Please follow the directions of the volunteers on duty.",
+                fields: {},
+                source,
+            },
+            {
+                type: "announcement",
+                title: "Masjid Announcement",
+                body: "تذكير: سيكون البرنامج بعد صلاة العشاء بإذن الله. نرجو من الجميع الحضور في الوقت المحدد.",
+                fields: {},
+                source,
+            },
+        ];
+    }
+
     function communityTypeLabel(type) {
         return {announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice", nikah: "Nikah Notice", well_wishes: "Well Wishes"}[type]
             || `${fieldLabel(type || "general")} Notice`;
@@ -274,7 +335,7 @@
             communityPanel.classList.add("hidden");
             return;
         }
-        const items = collectCommunityItems(boards);
+        const items = useCommunityFixtures ? fixtureCommunityItems() : collectCommunityItems(boards);
         const signature = JSON.stringify(items);
         if (signature !== communitySignature) {
             communitySignature = signature;

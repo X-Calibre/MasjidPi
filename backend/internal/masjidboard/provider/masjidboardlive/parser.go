@@ -12,16 +12,19 @@ import (
 )
 
 const (
+	rowUpcoming       = 0
 	rowJumuah        = 1
 	rowClock         = 2
 	rowSalah         = 3
 	rowAstronomical  = 5
 	rowMasjid        = 6
+	rowTaleem        = 10
 	rowAnnouncement  = 11
 	rowAnnouncement2 = 12
 	rowNikah         = 13
 	rowFuneral       = 14
 	rowEid           = 17
+	rowWellWishes    = 21
 )
 
 // Parse normalises the verified core portion of a MasjidBoard Live response.
@@ -80,6 +83,10 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 	}
 	announcements := parseAnnouncementRows(rows[rowAnnouncement], rows[rowAnnouncement2])
 	notices := parseNoticeRows(rows[rowNikah], rows[rowFuneral], rows[rowEid])
+	notices = append(parseUpcomingSalaahChanges(rows[rowUpcoming], localNow), notices...)
+	notices = append(notices, parseWellWishesRow(rows[rowWellWishes])...)
+	programmes := parseTaleemRow(rows[rowTaleem])
+	newMoon := parseNewMoonRow(rows[rowClock])
 
 	return model.Board{
 		Identity: model.BoardIdentity{
@@ -95,8 +102,99 @@ func Parse(rows []json.RawMessage, boardID string, now time.Time) (model.Board, 
 		PrayerTimes:   prayers,
 		Astronomical:  astronomical,
 		Announcements: announcements,
+		Programmes:    programmes,
 		Notices:       notices,
+		NewMoon:       newMoon,
 	}, nil
+}
+
+func parseUpcomingSalaahChanges(raw json.RawMessage, localNow time.Time) []model.Notice {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 19 {
+		return nil
+	}
+	offset := 0
+	if isDisplayed(stringValue(values, 9)) {
+		offset = 10
+	}
+	prayers := []string{"Fajr", "Asr", "Esha"}
+	notices := make([]model.Notice, 0, len(prayers))
+	today := dateOnly(localNow, localNow.Location())
+	for index, prayer := range prayers {
+		base := offset + index*3
+		dateValue := strings.TrimSpace(stringValue(values, base))
+		timeValue := strings.TrimSpace(stringValue(values, base+1))
+		milliValue := strings.TrimSpace(stringValue(values, base+2))
+		if isAbsent(dateValue) || isAbsent(timeValue) {
+			continue
+		}
+		if millis, parseErr := strconv.ParseInt(milliValue, 10, 64); parseErr == nil && millis > 0 {
+			effective := time.UnixMilli(millis).In(localNow.Location())
+			if dateOnly(effective, localNow.Location()).Before(today) {
+				continue
+			}
+		}
+		fields := map[string]string{"prayer": prayer, "effective_date": dateValue, "new_time": timeValue}
+		notices = append(notices, model.Notice{
+			Type: model.NoticeTypeSalaahChange, Title: prayer + " Time Change",
+			Content: joinNoticeValues(fields, "effective_date", "new_time"), Fields: fields,
+		})
+	}
+	return notices
+}
+
+func parseTaleemRow(raw json.RawMessage) []model.Programme {
+	values, err := rowValues(raw)
+	if err != nil {
+		return nil
+	}
+	programmes := make([]model.Programme, 0, 2)
+	for start := 0; start+4 < len(values) && start < 10; start += 5 {
+		if !isDisplayed(stringValue(values, start+4)) {
+			continue
+		}
+		parts := make([]string, 0, 4)
+		for index := start; index < start+4; index++ {
+			if value := strings.TrimSpace(stringValue(values, index)); !isAbsent(value) {
+				parts = append(parts, value)
+			}
+		}
+		if len(parts) > 0 {
+			programmes = append(programmes, model.Programme{Title: "Taleem Programme", Content: strings.Join(parts, "\n")})
+		}
+	}
+	return programmes
+}
+
+func parseWellWishesRow(raw json.RawMessage) []model.Notice {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 11 || !isDisplayed(stringValue(values, 10)) {
+		return nil
+	}
+	notices := make([]model.Notice, 0, 10)
+	for index := 0; index < 10; index++ {
+		message := strings.TrimSpace(stringValue(values, index))
+		if !isAbsent(message) {
+			notices = append(notices, model.Notice{Type: model.NoticeTypeWellWish, Title: "Du'a Requested", Content: message})
+		}
+	}
+	return notices
+}
+
+func parseNewMoonRow(raw json.RawMessage) *model.NewMoon {
+	values, err := rowValues(raw)
+	if err != nil || len(values) < 22 || !isDisplayed(stringValue(values, 21)) {
+		return nil
+	}
+	fields := namedFields(values, map[int]string{
+		0: "birth", 1: "first_moonset", 2: "first_age", 3: "first_azimuth", 4: "first_altitude",
+		5: "best_visibility", 6: "second_moonset", 7: "second_age", 8: "second_azimuth",
+		9: "second_altitude", 10: "birth_date", 11: "visibility_date",
+	})
+	if len(fields) == 0 {
+		return nil
+	}
+	return &model.NewMoon{Fields: fields}
 }
 
 func parseAnnouncementRows(rawRows ...json.RawMessage) []model.Announcement {

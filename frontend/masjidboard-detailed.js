@@ -2,10 +2,10 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("layout") !== "detailed") return;
+    if (params.get("layout") === "portrait") return;
     const useCommunityFixtures = params.get("notice-fixtures") === "1";
 
-    document.body.classList.add("detailed-layout");
+    document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
     const prayerGrid = document.getElementById("prayerGrid");
     const detailedGregorianDate = document.getElementById("detailedGregorianDate");
@@ -88,7 +88,7 @@
         return items;
     }
 
-    function renderDetailedDates(board) {
+    function renderLandscapeDates(board) {
         if (detailedGregorianDate) {
             detailedGregorianDate.textContent = window.MasjidBoardDate.formatGregorianDate(board);
         }
@@ -98,7 +98,7 @@
     }
 
     function render(board) {
-        renderDetailedDates(board);
+        renderLandscapeDates(board);
         panel.replaceChildren();
 
         const heading = document.createElement("div");
@@ -498,7 +498,7 @@
             renderCommunityContent(boards);
             addSharedPrayerLabels();
         } catch (error) {
-            console.warn("Detailed MasjidBoard times refresh failed", error);
+            console.warn("Landscape MasjidBoard times refresh failed", error);
         }
     }
 

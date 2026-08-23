@@ -1,7 +1,7 @@
 # MasjidBoard Raspberry Pi Display Runtime
 
 **Status:** Cog/DRM appliance runtime validated on Raspberry Pi OS Lite 64-bit  
-**Branch:** `research/masjidboard-live`
+**Branch:** `docs/masjidboard-live-data-inventory`
 
 ## Purpose
 
@@ -20,7 +20,7 @@ http://127.0.0.1:8080/masjidboard.html
 The working appliance renderer is **Cog with WPE WebKit using the DRM platform directly**:
 
 ```text
-cog --platform=drm http://127.0.0.1:8080/masjidboard.html
+cog --platform=drm --platform-params=renderer=gles http://127.0.0.1:8080/masjidboard.html
 ```
 
 This was validated on Raspberry Pi OS Lite 64-bit. A full desktop environment, Chromium, X11, Wayland compositor and graphical login session are not required.
@@ -137,6 +137,33 @@ Validated behaviour includes:
 - cleanup of the Board display service when Board is removed.
 
 During combined Listen + Board testing on a roughly 1 GB Raspberry Pi, the system retained useful available memory and ran without swap pressure during the measured test. Cog/WPE is still the largest application memory consumer, so longer-duration appliance testing remains useful, but the runtime has demonstrated that Raspberry Pi OS Lite is viable for this display approach.
+
+### Raspberry Pi 4 validation — 23 August 2026
+
+The notice-card and default Landscape display work was validated on a Raspberry Pi 4 running 64-bit Raspberry Pi OS Lite with kernel `6.18.39+rpt-rpi-v8` and a native 1920×1080 HDMI display.
+
+The default Cog `modeset` renderer loaded the page but failed to create a framebuffer with `Invalid argument`. The supported GLES renderer initialized successfully on the Raspberry Pi VC4 DRM device and is therefore used by the production launcher:
+
+```text
+cog --platform=drm --platform-params=renderer=gles http://127.0.0.1:8080/masjidboard.html
+```
+
+Validation passed for:
+
+- installation and automatic HDMI display startup;
+- recovery after source update/reinstallation;
+- recovery after a full reboot;
+- complete rotating fixtures, including one-, two- and three-card arrangements;
+- Dawah/Gasht, three-day Jamaat and contribution cards;
+- live theme changes and persistence of the saved Landscape/Slate selection;
+- persisted masjid configuration;
+- simultaneous Listen playback and Board rendering;
+- stable display operation without unexpected service restarts;
+- no swap use and no CPU throttling.
+
+During combined playback/display operation, approximately 3.3 GiB of 3.7 GiB RAM remained available, system load was low, temperature was 64.2°C, and `vcgencmd get_throttled` reported `0x0`.
+
+On this platform Cog may abort during an intentional systemd stop/restart while releasing EGL resources. The replacement process starts normally and the behaviour was not observed during steady-state operation.
 
 ## Expected Failure Isolation
 

@@ -26,7 +26,7 @@ func testLayoutState() selection.State {
 	return selection.State{Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}}}
 }
 
-func TestMasjidBoardLayoutDefaultsToStandardEmerald(t *testing.T) {
+func TestMasjidBoardLayoutDefaultsToLandscapeEmerald(t *testing.T) {
 	service := &fakeLayoutService{state: testLayoutState()}
 	server := &Server{masjidBoardService: service}
 	rec := httptest.NewRecorder()
@@ -35,7 +35,7 @@ func TestMasjidBoardLayoutDefaultsToStandardEmerald(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"layout":"standard","theme":"emerald","slide_duration_seconds":15}` {
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"layout":"landscape","theme":"emerald","slide_duration_seconds":15}` {
 		t.Fatalf("body=%s", got)
 	}
 }
@@ -75,6 +75,18 @@ func TestMasjidBoardLayoutPUTRejectsInvalidLayout(t *testing.T) {
 	server.masjidBoardLayout(rec, req)
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestMasjidBoardLayoutPUTRejectsRetiredLayouts(t *testing.T) {
+	for _, layout := range []string{"standard", "detailed"} {
+		server := &Server{masjidBoardService: &fakeLayoutService{state: testLayoutState()}}
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"layout":"`+layout+`"}`))
+		server.masjidBoardLayout(rec, req)
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("layout=%q status=%d body=%s", layout, rec.Code, rec.Body.String())
+		}
 	}
 }
 

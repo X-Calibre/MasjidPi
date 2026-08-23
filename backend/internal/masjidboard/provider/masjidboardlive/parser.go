@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	rowUpcoming       = 0
+	rowUpcoming      = 0
 	rowJumuah        = 1
 	rowClock         = 2
 	rowSalah         = 3

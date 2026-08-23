@@ -33,7 +33,7 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 			Asr:    model.PrayerTime{Adhan: ct(16, 40), Jamaah: ct(17, 0)},
 			Jumuah: []model.JumuahService{{Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
 		},
-		Astronomical: &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
+		Astronomical:  &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
 		Announcements: []model.Announcement{{Title: "Community update", Content: "<b>Tonight</b>"}},
 		Programmes:    []model.Programme{{Title: "Taleem Programme", Content: "After Esha"}},
 		Notices: []model.Notice{{

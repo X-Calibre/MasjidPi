@@ -137,11 +137,11 @@ type Notice struct {
 type NoticeType string
 
 const (
-	NoticeTypeGeneral  NoticeType = "general"
-	NoticeTypeNikah    NoticeType = "nikah"
-	NoticeTypeFuneral  NoticeType = "funeral"
-	NoticeTypeWellWish NoticeType = "well_wishes"
-	NoticeTypeEid      NoticeType = "eid"
+	NoticeTypeGeneral      NoticeType = "general"
+	NoticeTypeNikah        NoticeType = "nikah"
+	NoticeTypeFuneral      NoticeType = "funeral"
+	NoticeTypeWellWish     NoticeType = "well_wishes"
+	NoticeTypeEid          NoticeType = "eid"
 	NoticeTypeSalaahChange NoticeType = "salaah_change"
 )
 

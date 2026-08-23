@@ -12,7 +12,7 @@ const (
 	MaxBoards = 3
 
 	LayoutLandscape = "landscape"
-	LayoutPortrait = "portrait"
+	LayoutPortrait  = "portrait"
 
 	legacyLayoutStandard = "standard"
 	legacyLayoutDetailed = "detailed"

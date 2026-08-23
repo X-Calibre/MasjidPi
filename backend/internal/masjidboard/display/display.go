@@ -26,10 +26,10 @@ type Board struct {
 	Prayers              []Prayer                  `json:"prayers,omitempty"`
 	Jumuah               []JumuahService           `json:"jumuah,omitempty"`
 	Astronomical         *Astronomical             `json:"astronomical,omitempty"`
-	Announcements        []Announcement             `json:"announcements,omitempty"`
-	Programmes           []Programme                `json:"programmes,omitempty"`
-	Notices              []Notice                   `json:"notices,omitempty"`
-	NewMoon              *NewMoon                   `json:"new_moon,omitempty"`
+	Announcements        []Announcement            `json:"announcements,omitempty"`
+	Programmes           []Programme               `json:"programmes,omitempty"`
+	Notices              []Notice                  `json:"notices,omitempty"`
+	NewMoon              *NewMoon                  `json:"new_moon,omitempty"`
 }
 
 type Date struct {

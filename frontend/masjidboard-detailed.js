@@ -9,7 +9,14 @@
     const prayerGrid = document.getElementById("prayerGrid");
     const detailedGregorianDate = document.getElementById("detailedGregorianDate");
     const detailedIslamicDate = document.getElementById("detailedIslamicDate");
+    const communityPanel = document.getElementById("detailedCommunityPanel");
+    const communityCards = document.getElementById("detailedCommunityCards");
+    const communityEmpty = document.getElementById("detailedCommunityEmpty");
     const refreshIntervalMs = 60_000;
+    const communityPageIntervalMs = 15_000;
+    let communityItems = [];
+    let communitySignature = "";
+    let communityPage = 0;
 
     function validTime(time) {
         return time && Number.isInteger(time.hour) && Number.isInteger(time.minute);
@@ -128,6 +135,155 @@
         panel.append(list);
     }
 
+    function makeElement(tag, className, text) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+    }
+
+    function plainText(value) {
+        const source = String(value || "").replace(/<br\s*\/?\s*>/gi, "\n");
+        if (!source) return "";
+        const parsed = new DOMParser().parseFromString(source, "text/html");
+        return (parsed.body.textContent || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim();
+    }
+
+    function fieldLabel(name) {
+        const labels = {
+            address: "Address", bride: "Bride", cemetery: "Cemetery", date: "Date",
+            groom_relation: "Groom", lecture: "Lecture", name: "Name", name_one: "Name",
+            name_two: "Name", pickup: "Pickup", relation: "Relation", relation_one: "Family",
+            relation_two: "Family", salaah: "Salaah", salaah_time: "Janazah", salaah_venue: "Venue",
+            time: "Time", venue: "Venue",
+        };
+        return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    function orderedFields(item) {
+        const fields = item && item.fields && typeof item.fields === "object" ? item.fields : {};
+        const preferred = {
+            funeral: ["relation", "salaah_time", "salaah_venue", "pickup", "cemetery", "address"],
+            nikah: ["groom_relation", "relation_one", "relation_two", "date", "time"],
+            eid: ["date", "venue", "address", "lecture", "salaah"],
+        }[item.type] || [];
+        const titleFields = new Set(item.type === "funeral" ? ["name"] : item.type === "nikah" ? ["name_one", "name_two", "bride"] : []);
+        const names = [...preferred, ...Object.keys(fields).sort()].filter((name, index, all) =>
+            !titleFields.has(name) && all.indexOf(name) === index && plainText(fields[name])
+        );
+        return names.slice(0, 6).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
+    }
+
+    function noticeTitle(notice) {
+        const fields = notice && notice.fields && typeof notice.fields === "object" ? notice.fields : {};
+        if (notice.type === "funeral") return plainText(fields.name) || plainText(notice.title) || "Funeral Notice";
+        if (notice.type === "nikah") {
+            const names = [fields.name_one, fields.bride || fields.name_two].map(plainText).filter(Boolean);
+            if (names.length > 0) return names.join(" & ");
+        }
+        return plainText(notice.title) || `${fieldLabel(notice.type || "general")} Notice`;
+    }
+
+    function collectCommunityItems(boards) {
+        const items = [];
+        const seen = new Set();
+        function add(item) {
+            const key = JSON.stringify([item.type, item.title, item.body, item.fields]);
+            if (!item.title && !item.body && Object.keys(item.fields || {}).length === 0) return;
+            if (seen.has(key)) return;
+            seen.add(key);
+            items.push(item);
+        }
+
+        for (const board of boards) {
+            for (const notice of Array.isArray(board.notices) ? board.notices : []) {
+                const fields = notice && notice.fields && typeof notice.fields === "object" ? notice.fields : {};
+                add({
+                    type: plainText(notice.type).toLowerCase() || "general",
+                    title: noticeTitle(notice),
+                    body: Object.keys(fields).length === 0 ? plainText(notice.content) : "",
+                    fields,
+                    source: board.name,
+                });
+            }
+            for (const announcement of Array.isArray(board.announcements) ? board.announcements : []) {
+                add({
+                    type: "announcement",
+                    title: plainText(announcement.title) || "Masjid Announcement",
+                    body: plainText(announcement.content),
+                    fields: {},
+                    source: board.name,
+                });
+            }
+        }
+        return items;
+    }
+
+    function communityTypeLabel(type) {
+        return {announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice", nikah: "Nikah Notice", well_wishes: "Well Wishes"}[type]
+            || `${fieldLabel(type || "general")} Notice`;
+    }
+
+    function renderCommunityCard(item) {
+        const card = makeElement("article", `detailed-community-card detailed-community-${item.type}`);
+        card.append(makeElement("div", "detailed-community-type", communityTypeLabel(item.type)));
+        card.append(makeElement("h2", "detailed-community-title", item.title));
+        if (item.body) {
+            const body = makeElement("p", "detailed-community-body", item.body);
+            body.dir = "auto";
+            card.append(body);
+        }
+
+        const fields = orderedFields(item);
+        if (fields.length > 0) {
+            const list = makeElement("div", "detailed-community-fields");
+            for (const field of fields) {
+                const row = makeElement("div", "detailed-community-field");
+                row.append(makeElement("span", "detailed-community-field-label", field.label));
+                const value = makeElement("span", "detailed-community-field-value", field.value);
+                value.dir = "auto";
+                row.append(value);
+                list.append(row);
+            }
+            card.append(list);
+        }
+        card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+        return card;
+    }
+
+    function renderCommunityPage() {
+        if (!communityPanel || !communityCards || !communityEmpty) return;
+        communityPanel.classList.remove("hidden");
+        communityCards.replaceChildren();
+        const hasItems = communityItems.length > 0;
+        communityCards.classList.toggle("hidden", !hasItems);
+        communityEmpty.classList.toggle("hidden", hasItems);
+        if (!hasItems) return;
+
+        const start = (communityPage * 2) % communityItems.length;
+        const count = Math.min(2, communityItems.length - start);
+        for (let offset = 0; offset < count; offset += 1) {
+            communityCards.append(renderCommunityCard(communityItems[start + offset]));
+        }
+        communityCards.classList.toggle("single", count === 1);
+    }
+
+    function renderCommunityContent(boards) {
+        if (!communityPanel) return;
+        if (boards.length === 0) {
+            communityPanel.classList.add("hidden");
+            return;
+        }
+        const items = collectCommunityItems(boards);
+        const signature = JSON.stringify(items);
+        if (signature !== communitySignature) {
+            communitySignature = signature;
+            communityItems = items;
+            communityPage = 0;
+        }
+        renderCommunityPage();
+    }
+
     function transformRow(row, preferredLabels) {
         if (row.querySelector(":scope > .shared-time-labels")) return;
 
@@ -215,6 +371,7 @@
             const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
             document.body.dataset.boardCount = String(Math.max(1, boards.length));
             render(boards[0] || null);
+            renderCommunityContent(boards);
             addSharedPrayerLabels();
         } catch (error) {
             console.warn("Detailed MasjidBoard times refresh failed", error);
@@ -223,4 +380,9 @@
 
     refresh();
     window.setInterval(refresh, refreshIntervalMs);
+    window.setInterval(() => {
+        if (communityItems.length <= 2) return;
+        communityPage = (communityPage + 1) % Math.ceil(communityItems.length / 2);
+        renderCommunityPage();
+    }, communityPageIntervalMs);
 })();

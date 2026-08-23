@@ -552,7 +552,17 @@ For every board, `https://premium.masjidboardlive.com/v2/?mid=<mid>` still retur
 
 This confirms the existing technical access path remains operational and unauthenticated. It does not by itself establish a contractual entitlement or guarantee that every Core-listed masjid has a Premium board. MasjidPi must therefore treat Premium enrichment as optional and must retain the current Core provider as the reliable timetable fallback.
 
-The provider now includes a `PremiumClient` that resolves the opaque ID and embedded payload from the stable public `mid` on each fetch. The opaque ID is not persisted, so a server-side board rebuild cannot leave MasjidPi tied to a stale implementation identifier. This client is intentionally not wired into the runtime until fallback and capability rules are defined.
+The provider includes a `PremiumClient` that resolves the opaque ID and embedded payload from the stable public `mid` on each fetch. The opaque ID is not persisted, so a server-side board rebuild cannot leave MasjidPi tied to a stale implementation identifier.
+
+Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
+
+1. Fetch the public Core board first.
+2. If Core fails, preserve the existing last-known-good runtime/cache behaviour; Premium is not used as a timetable substitute.
+3. If Core succeeds, attempt Premium enrichment.
+4. If Premium succeeds, merge only announcements, programmes, notices, media, banking and new-moon content into the Core board.
+5. If Premium is absent or fails, return the successful Core board unchanged and keep the board status `current`.
+
+Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
 Therefore the next investigation is narrowly defined:
 

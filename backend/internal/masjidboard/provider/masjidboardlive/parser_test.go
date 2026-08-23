@@ -206,3 +206,52 @@ func TestParsePromotesAlternateMasjidNameWhenPrimaryIsEmpty(t *testing.T) {
 		t.Fatalf("Identity.AlternateName = %q, want empty", board.Identity.AlternateName)
 	}
 }
+
+func TestParseCommunityContentFromPremiumRows(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowAnnouncement] = json.RawMessage(`["Urgent Announcement","<b>Tonight after Maghrib</b>","Display","Hidden","Do not show","Hide"]`)
+	rows[rowAnnouncement2] = json.RawMessage(`[]`)
+	rows[rowNikah] = json.RawMessage(`["Ahmad","Son of","Yusuf","Daughter of","Ismail","Sat, 29 Aug 2026","after Asr","1787961600000","Display","FALSE","Maryam"]`)
+	rows[rowFuneral] = json.RawMessage(`["Abdullah","father of Zaid","10 Main Road","14:00","Central Cemetery","Masjid Hall","14:30","Display"]`)
+	rows[rowEid] = json.RawMessage(`["Mon, 25 May 2026","Sports Ground","1 Field Road","07:00","07:30","Display"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Announcements) != 1 {
+		t.Fatalf("Announcements = %+v", board.Announcements)
+	}
+	if board.Announcements[0].Title != "Urgent Announcement" || board.Announcements[0].Content != "<b>Tonight after Maghrib</b>" {
+		t.Fatalf("Announcement = %+v", board.Announcements[0])
+	}
+	if len(board.Notices) != 3 {
+		t.Fatalf("Notices = %+v", board.Notices)
+	}
+	if board.Notices[0].Type != model.NoticeTypeNikah || board.Notices[0].Fields["bride"] != "Maryam" {
+		t.Fatalf("Nikah notice = %+v", board.Notices[0])
+	}
+	if board.Notices[1].Type != model.NoticeTypeFuneral || board.Notices[1].Fields["salaah_time"] != "14:30" {
+		t.Fatalf("Funeral notice = %+v", board.Notices[1])
+	}
+	if board.Notices[2].Type != model.NoticeTypeEid || board.Notices[2].Fields["venue"] != "Sports Ground" {
+		t.Fatalf("Eid notice = %+v", board.Notices[2])
+	}
+}
+
+func TestParseCommunityContentIgnoresHiddenRows(t *testing.T) {
+	rows := loadCapturedRows(t)
+	rows[rowAnnouncement] = json.RawMessage(`["Announcement","Hidden content","Hide"]`)
+	rows[rowAnnouncement2] = json.RawMessage(`[]`)
+	rows[rowNikah] = json.RawMessage(`["Name","Relation","Name","Relation","Name","Date","Time","0","Hide"]`)
+	rows[rowFuneral] = json.RawMessage(`["Name","Relation","Address","Pickup","Cemetery","Venue","Time","Hide"]`)
+	rows[rowEid] = json.RawMessage(`["Date","Venue","Address","Lecture","Salaah","Hide"]`)
+
+	board, err := Parse(rows, "board-id", time.Date(2026, 9, 11, 9, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+	if len(board.Announcements) != 0 || len(board.Notices) != 0 {
+		t.Fatalf("hidden community content was retained: announcements=%+v notices=%+v", board.Announcements, board.Notices)
+	}
+}

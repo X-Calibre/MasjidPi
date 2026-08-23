@@ -564,6 +564,8 @@ Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
 Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
+The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. These fields are not yet rendered by any layout. Upstream announcement bodies may contain HTML and must be treated as untrusted data; future presentation code must use plain-text rendering or an explicit sanitisation policy rather than direct HTML injection.
+
 Therefore the next investigation is narrowly defined:
 
 1. Confirm whether the existing 29-row Premium endpoint can be used reliably and legitimately for selected Core-listed boards, or whether a separate provider/capability boundary is required.

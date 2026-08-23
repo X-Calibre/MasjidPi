@@ -48,7 +48,9 @@ main() {
 
     wait_for_masjidpi
 
-    exec cog --platform=drm "$(display_url)"
+    # GLES is compatible with Raspberry Pi DRM/KMS devices whose preferred
+    # framebuffer format cannot be used by Cog's direct modeset renderer.
+    exec cog --platform=drm --platform-params=renderer=gles "$(display_url)"
 }
 
 main "$@"

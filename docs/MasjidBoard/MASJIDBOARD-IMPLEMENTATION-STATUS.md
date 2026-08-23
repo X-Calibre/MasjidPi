@@ -1,7 +1,7 @@
 # MasjidBoard Implementation Status
 
-**Status:** Functional appliance implementation / final pre-integration work  
-**Branch:** `research/masjidboard-live`
+**Status:** v1.3.0 integration candidate
+**Branch:** `docs/masjidboard-live-data-inventory` / PR #38
 
 ## Purpose
 
@@ -34,7 +34,10 @@ Current MasjidBoard components include:
 - display presentation API;
 - dedicated MasjidBoard configuration WebUI;
 - read-only MasjidBoard display page;
-- Cog/WPE DRM appliance display runtime on Raspberry Pi OS Lite.
+- Cog/WPE DRM appliance display runtime on Raspberry Pi OS Lite;
+- Landscape and Portrait display orientations;
+- Core timetable retrieval with optional Premium community-content enrichment; and
+- adaptive rotating community-content cards in Landscape mode.
 
 ## Component-Aware Appliance Installation
 
@@ -79,7 +82,7 @@ Profile transitions between Listen-only, Board-only and Listen + Board have been
 The production Raspberry Pi display direction is now Cog with WPE WebKit rendering directly through DRM/KMS:
 
 ```text
-cog --platform=drm http://127.0.0.1:8080/masjidboard.html
+cog --platform=drm --platform-params=renderer=gles http://127.0.0.1:8080/masjidboard.html
 ```
 
 This has been validated on Raspberry Pi OS Lite 64-bit with an HDMI display. It does not require Chromium, a desktop environment, X11, a Wayland compositor or graphical login session.
@@ -121,15 +124,15 @@ provider available again
 
 This lifecycle has been verified in automated tests and a real provider-outage runtime test. Identical timetable data is not rewritten on every refresh.
 
-## Default Display
+## Display Layouts and Community Content
 
-The read-only display is `/masjidboard.html` and supports one, two or three selected Masjids.
+The read-only display is `/masjidboard.html`, supports one, two or three selected Masjids, and offers Landscape (1920 × 1080) and Portrait (600 × 1024) orientations.
 
-The default layout shows current local time/date, selected Masjid names, Fajr, Dhuhr or Friday Jumu'ah, Asr, Maghrib, Esha, per-board stale/unavailable state, and a per-Masjid countdown to the next visible timetable event.
+Landscape shows current local time/date, selected Masjid names, Fajr, Dhuhr or Friday Jumu'ah, Asr, Maghrib, Esha, per-board stale/unavailable state, per-Masjid countdowns and a full-width Daily Times footer. Portrait presents the same core timetable information for the narrower appliance display target.
 
 Jumu'ah replaces Dhuhr on Friday. Timed Jumu'ah events are displayed chronologically with provider labels preserved. The countdown rolls to the following day's first Fajr event after the final visible event of the day.
 
-Alternative layouts remain future presentation work and should consume the same normalized display API.
+When a selected board exposes public Premium content, it can enrich the successful Core timetable with active announcements and structured cards. Supported categories include Nikah, funeral, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. Core remains authoritative for the timetable, and missing or failed Premium enrichment does not make a successful Core board stale. Landscape rotates additional card pages, suppresses duplicates, converts upstream HTML to plain text and labels each card with its source.
 
 ## Validation Completed
 
@@ -153,16 +156,15 @@ Manual/runtime validation now includes:
 - component-aware installer dependencies and self-tests;
 - transactional profile/update handling and rollback;
 - Board display-service cleanup when Board is removed.
+- Landscape and Portrait preference changes and persistence;
+- complete anonymised rotating-card fixtures, including RTL and dense-content cases;
+- optional Premium enrichment with Core fallback;
+- Raspberry Pi 4 native-1080p display using Cog's GLES renderer;
+- simultaneous Listen playback and Board rendering on Raspberry Pi 4; and
+- Raspberry Pi 4 recovery after reinstall and full reboot without throttling or unexpected display restarts.
 
-## Remaining Pre-Integration Work
+## Remaining Release Work
 
-The major installer/component-profile and Raspberry Pi display-runtime work is now complete. Remaining work before branch integration should be focused:
+The automated CI gate and Raspberry Pi 4 functional acceptance pass are complete. Remaining work is to complete the documentation review, merge PR #38, prepare and verify v1.3.0 release artifacts, and publish only after those artifacts pass installation validation.
 
-1. Verify production ownership/permissions and preservation of hierarchy, scope, catalogue, selection and per-board cache files across fresh install/update paths.
-2. Perform first-run validation with Board installed but no MasjidBoard configuration/cache.
-3. Review user-facing API/frontend error messages while retaining diagnostic detail in logs/status data.
-4. Run a final Listen/audio regression pass after the complete branch changes.
-5. Perform longer-duration Raspberry Pi stability/resource testing and practical HDMI power-cycle/reconnect testing.
-6. Complete final documentation/integration review and prepare the branch for merge/release planning.
-
-Additional layouts and richer optional Board content are not blockers for this integration milestone.
+Longer-duration soak testing, practical HDMI disconnect/reconnect testing, broader hardware validation and poster/media support remain follow-up work rather than release blockers.

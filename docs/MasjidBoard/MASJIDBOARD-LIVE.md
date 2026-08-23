@@ -566,6 +566,8 @@ Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah 
 
 The read-only `/api/masjidboard/display` contract exposes active normalised `announcements` and `notices` when enrichment is available. The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
 
+The Landscape Daily Times footer spans the full display width. It presents Sehri end, Fajr start, Sunrise, Ishraaq, Duha/Chaasht, Zawaal/Istiwa, both Shafi‘i and Hanafi Asr start calculations, Sunset and Esha start from the first selected masjid.
+
 ## Notice and Announcement Display Fixtures
 
 The Premium payloads contain useful historical content even when its upstream visibility flag is `Hide`. This content should be retained as **development fixture material only**: it is valuable for layout design and automated tests, but it must never be presented to users as a current live notice.

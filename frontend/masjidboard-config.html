@@ -15,8 +15,7 @@
             <div><h1>MasjidBoard</h1><p>Prayer time display configuration</p></div>
             <div class="header-actions">
                 <a class="nav-button" data-component="listen" href="index.html">Listen</a>
-                <a class="nav-button" href="masjidboard.html">Standard Display</a>
-                <a class="nav-button" href="masjidboard.html?layout=detailed">Detailed Display</a>
+                <a class="nav-button" href="masjidboard.html">Landscape Display</a>
                 <a class="nav-button" href="masjidboard.html?layout=portrait">Portrait Display</a>
                 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
             </div>
@@ -30,7 +29,7 @@
         <small id="hierarchyMeta" class="config-meta"></small>
     </section>
     <section class="card">
-        <div class="section-heading-row"><div><h2>Selected Masjids</h2><p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order. In Detailed Display, the first masjid also supplies the additional times.</p></div><button id="refreshCatalogueButton" class="secondary compact-button" type="button">Refresh Masjid List</button></div>
+        <div class="section-heading-row"><div><h2>Selected Masjids</h2><p class="config-intro">Select up to three MasjidBoards. Their order here determines the display column order. On the Landscape display, the first masjid also supplies the additional times.</p></div><button id="refreshCatalogueButton" class="secondary compact-button" type="button">Refresh Masjid List</button></div>
         <div id="boardSelection" class="board-selection"><p class="status-detail">Loading available MasjidBoards…</p></div>
         <div class="board-picker">
             <label for="boardSearch">Find a Masjid</label><input id="boardSearch" type="search" placeholder="Search available masjids…" autocomplete="off">
@@ -40,9 +39,9 @@
         <div class="configuration-actions board-save-actions"><button id="saveBoardsButton" type="button">Save Selected Masjids</button></div>
     </section>
     <section class="card">
-        <div class="section-heading-row"><div><h2>HDMI Display</h2><p class="config-intro">Choose the layout and colour theme shown automatically on the appliance HDMI output.</p></div></div>
+        <div class="section-heading-row"><div><h2>HDMI Display</h2><p class="config-intro">Choose the display orientation and colour theme shown automatically on the appliance HDMI output.</p></div></div>
         <div class="display-layout-picker">
-            <label for="displayLayout">Layout</label><select id="displayLayout"><option value="standard">Standard</option><option value="detailed">Detailed</option><option value="portrait">Portrait (600 × 1024)</option></select>
+            <label for="displayLayout">Display</label><select id="displayLayout"><option value="landscape">Landscape (1920 × 1080)</option><option value="portrait">Portrait (600 × 1024)</option></select>
             <label for="slideDuration">Slide duration</label><div><input id="slideDuration" type="range" min="5" max="60" step="1" value="15"><output id="slideDurationValue" for="slideDuration">15 seconds</output></div>
             <div id="displayLayoutMeta" class="config-meta">Loading current HDMI display settings…</div>
         </div>

@@ -11,9 +11,11 @@ const (
 	MinBoards = 1
 	MaxBoards = 3
 
-	LayoutStandard = "standard"
-	LayoutDetailed = "detailed"
+	LayoutLandscape = "landscape"
 	LayoutPortrait = "portrait"
+
+	legacyLayoutStandard = "standard"
+	legacyLayoutDetailed = "detailed"
 
 	DefaultSlideDurationSeconds = 15
 	MinSlideDurationSeconds     = 5
@@ -44,9 +46,9 @@ type Board struct {
 
 // State is the ordered set of boards selected by the user. Order is
 // significant and is preserved for display/UI purposes. Layout and Theme
-// control the HDMI presentation. Empty values are treated as the historic
-// Standard/Emerald defaults so selections written by older versions remain
-// valid.
+// control the HDMI presentation. Empty and legacy Standard/Detailed values
+// resolve to the Landscape default so selections written by older versions
+// remain valid.
 type State struct {
 	Boards               []Board `json:"boards"`
 	Layout               string  `json:"layout,omitempty"`
@@ -58,12 +60,10 @@ func (s State) Configured() bool { return len(s.Boards) > 0 }
 
 func (s State) EffectiveLayout() string {
 	switch strings.TrimSpace(s.Layout) {
-	case LayoutDetailed:
-		return LayoutDetailed
 	case LayoutPortrait:
 		return LayoutPortrait
 	}
-	return LayoutStandard
+	return LayoutLandscape
 }
 
 func (s State) EffectiveSlideDurationSeconds() int {
@@ -97,7 +97,7 @@ func Validate(state State) error {
 	}
 
 	layout := strings.TrimSpace(state.Layout)
-	if layout != "" && layout != LayoutStandard && layout != LayoutDetailed && layout != LayoutPortrait {
+	if layout != "" && layout != LayoutLandscape && layout != LayoutPortrait && layout != legacyLayoutStandard && layout != legacyLayoutDetailed {
 		return fmt.Errorf("masjidboard selection: unsupported display layout %q", state.Layout)
 	}
 	if state.SlideDurationSeconds != 0 &&

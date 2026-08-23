@@ -259,13 +259,11 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 ## Project Status
 
-**Current stable release: v1.2.1**
+**Current stable release: v1.3.0**
 
-v1.2.1 is a maintenance release that moves Web UI preferences into persistent runtime storage, migrates preferences from older installations, simplifies application and playback state management, consolidates atomic JSON persistence, and removes fragile observer-based MasjidBoard configuration UI layers.
+v1.3.0 adds Landscape and Portrait Board orientations, optional MasjidBoard Live Premium community-content enrichment with Core timetable fallback, adaptive rotating notice cards, an expanded Landscape Daily Times footer, improved first-run Board guidance and Cog GLES rendering for current Raspberry Pi kernels.
 
-The next planned minor release adds Landscape and Portrait Board orientations, optional MasjidBoard Live Premium community-content enrichment with Core timetable fallback, adaptive rotating notice cards, an expanded Landscape Daily Times footer, improved first-run Board guidance and Raspberry Pi 4 HDMI validation.
-
-The v1.2.1 source upgrade was validated on the Raspberry Pi 3B reference appliance. Legacy preferences migrated successfully to `/var/lib/masjidpi`, Listen and Board recovered after reboot with their saved state intact, and the MasjidBoard configuration page and HDMI display passed smoke testing.
+The release candidate was validated on a Raspberry Pi 4 with 64-bit Raspberry Pi OS Lite and a native 1920 × 1080 HDMI display. Installation, reinstallation, reboot recovery, complete fixture rotation, saved preferences and simultaneous Listen + Board operation passed without swap use, throttling or unexpected display restarts.
 
 ## Acknowledgements
 

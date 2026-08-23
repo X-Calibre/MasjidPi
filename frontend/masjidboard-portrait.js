@@ -1,12 +1,15 @@
 (() => {
     "use strict";
 
-    if (new URLSearchParams(window.location.search).get("layout") !== "portrait") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("layout") !== "portrait") return;
+    const communityFixtureMode = params.get("notice-fixtures");
+    const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
 
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, communityTypeLabel, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -247,7 +250,10 @@
         dotsHost.replaceChildren();
         slides = boards.map(salaahSlide);
         if (boards[0] && dailyItems(boards[0]).length > 0) slides.push(dailySlide(boards[0]));
-        slides.push(...communitySlides(collectCommunityItems(boards)));
+        const communityItems = useCommunityFixtures
+            ? fixtureCommunityItems(communityFixtureMode)
+            : collectCommunityItems(boards);
+        slides.push(...communitySlides(communityItems));
         slides.forEach((slide, index) => {
             slidesHost.append(slide);
             const dot = element("button", "", "");

@@ -163,7 +163,9 @@ body.portrait-layout {
     padding:22px 28px 50px;
     gap:14px;
 }
-.portrait-community-slide.active { display:grid; }
+.portrait-community-slide.active,
+.portrait-community-slide.exit-to-left,
+.portrait-community-slide.exit-to-right { display:grid; }
 .portrait-community-slide.single { grid-template-rows:minmax(0,1fr); }
 .portrait-community-slide.paired { grid-template-rows:repeat(2,minmax(0,1fr)); }
 .portrait-community-slide.compact-single {

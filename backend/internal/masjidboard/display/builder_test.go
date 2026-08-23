@@ -34,6 +34,11 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 			Jumuah: []model.JumuahService{{Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
 		},
 		Astronomical: &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
+		Announcements: []model.Announcement{{Title: "Community update", Content: "<b>Tonight</b>"}},
+		Notices: []model.Notice{{
+			Type: model.NoticeTypeFuneral, Title: "Funeral Notice",
+			Fields: map[string]string{"name": "Abdullah", "salaah_time": "14:30"},
+		}},
 	}
 
 	view := Build(true, selection.State{Boards: []selection.Board{one, two}}, []masjidboardruntime.Result{{
@@ -67,6 +72,16 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	}
 	if got.Date.Gregorian != "2026-08-19" {
 		t.Fatalf("gregorian = %q", got.Date.Gregorian)
+	}
+	if len(got.Announcements) != 1 || got.Announcements[0].Content != "<b>Tonight</b>" {
+		t.Fatalf("announcements = %+v", got.Announcements)
+	}
+	if len(got.Notices) != 1 || got.Notices[0].Type != string(model.NoticeTypeFuneral) || got.Notices[0].Fields["salaah_time"] != "14:30" {
+		t.Fatalf("notices = %+v", got.Notices)
+	}
+	got.Notices[0].Fields["name"] = "changed"
+	if board.Notices[0].Fields["name"] != "Abdullah" {
+		t.Fatal("display notice fields alias the cached domain model")
 	}
 }
 

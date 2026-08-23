@@ -3,7 +3,8 @@
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("layout") === "portrait") return;
-    const useCommunityFixtures = params.get("notice-fixtures") === "1";
+    const communityFixtureMode = params.get("notice-fixtures");
+    const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -225,7 +226,7 @@
 
     function fixtureCommunityItems() {
         const source = "Layout test fixture — not live";
-        return [
+        const items = [
             {
                 type: "funeral",
                 title: "Marhoom Abdullah Ismail",
@@ -316,6 +317,11 @@
                 source,
             },
         ];
+        if (communityFixtureMode === "new") {
+            const newTypes = new Set(["salaah_change", "programme", "new_moon", "well_wishes"]);
+            return items.filter((item) => newTypes.has(item.type));
+        }
+        return items;
     }
 
     function communityTypeLabel(type) {

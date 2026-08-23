@@ -82,7 +82,7 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 		byID[record.ID] = record
 	}
 
-	currentLayout, currentTheme := selection.LayoutStandard, selection.ThemeEmerald
+	currentLayout, currentTheme := selection.LayoutLandscape, selection.ThemeEmerald
 	if s.masjidBoardService != nil {
 		current := s.masjidBoardService.Selection()
 		currentLayout, currentTheme = current.EffectiveLayout(), current.EffectiveTheme()

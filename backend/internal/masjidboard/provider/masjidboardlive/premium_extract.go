@@ -30,8 +30,8 @@ func ExtractPremiumPageData(html []byte) (string, []json.RawMessage, error) {
 	if err := json.Unmarshal(rawRows, &rows); err != nil {
 		return "", nil, fmt.Errorf("masjidboardlive: decode Premium theInfo: %w", err)
 	}
-	if len(rows) != 29 {
-		return "", nil, fmt.Errorf("masjidboardlive: expected 29 Premium rows, got %d", len(rows))
+	if len(rows) < 29 {
+		return "", nil, fmt.Errorf("masjidboardlive: expected at least 29 Premium rows, got %d", len(rows))
 	}
 	return boardID, rows, nil
 }

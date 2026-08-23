@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.2.1 is the current stable release.**
+**v1.3.0 is the current stable release.**
 
 The current product provides:
 
@@ -61,9 +61,9 @@ v1.2.1 improves maintainability and upgrade persistence without changing the Cor
 
 The v1.2.1 source upgrade was validated on the Raspberry Pi 3B reference appliance. Preference migration, Listen and Board service startup, saved-state recovery after reboot, the MasjidBoard configuration page and the HDMI display all passed appliance testing.
 
-### Next release candidate — v1.3.0
+### v1.3.0 additions
 
-PR #38 is the integration candidate for v1.3.0. It adds:
+v1.3.0 adds:
 
 - Landscape (1920 × 1080) and Portrait (600 × 1024) Board orientations
 - Landscape timetable and full-width Daily Times presentation refinements
@@ -74,13 +74,13 @@ PR #38 is the integration candidate for v1.3.0. It adds:
 - Cog GLES rendering for reliable Raspberry Pi 4 DRM/KMS output
 - Raspberry Pi 4 validation covering installation, reinstallation, reboot recovery, saved preferences, simultaneous Listen + Board operation and 1080p HDMI output
 
-Automated CI and the Raspberry Pi 4 acceptance pass are complete. The release remains unpublished until PR #38 is merged and the release artifacts are prepared and verified.
+Automated CI and the Raspberry Pi 4 acceptance pass completed before release. The published artifacts are built automatically from the signed release tag and include checksum verification.
 
 ---
 
 ## Remaining Work
 
-There are no known release-blocking items for v1.2.1.
+There are no known release-blocking items for v1.3.0.
 
 Ongoing reliability work:
 

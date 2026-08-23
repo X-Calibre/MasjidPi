@@ -1,11 +1,116 @@
 /* Detailed MasjidBoard layout refinements. Loaded only by the display page;
    selectors are gated by .detailed-layout so Standard remains unchanged. */
+.detailed-layout .board-shell {
+    display:grid;
+    grid-template-columns:minmax(0,2fr) minmax(300px,1fr);
+    grid-template-rows:auto minmax(0,1fr);
+    column-gap:clamp(10px,1vw,16px);
+}
+.detailed-layout .board-topbar { grid-column:1; grid-row:1; }
+.detailed-layout .display-state { grid-column:1; grid-row:2; }
+.detailed-layout .empty-state { grid-column:1 / span 2; grid-row:1 / span 2; }
+.detailed-layout .detailed-layout-shell { flex-direction:column; gap:clamp(8px,.9vh,12px); }
 .detailed-layout .timetable-stage { flex:1 1 auto; }
 .detailed-layout .additional-times {
-    flex:0 0 clamp(210px,16vw,255px);
-    min-width:210px;
-    max-width:255px;
+    flex:0 0 clamp(98px,11.5vh,126px);
+    min-width:0;
+    max-width:none;
 }
+
+.detailed-community-panel {
+    grid-column:2;
+    grid-row:1 / span 2;
+    min-height:0;
+}
+.detailed-layout .detailed-community-panel { display:block; }
+.detailed-community-cards {
+    height:100%;
+    min-height:0;
+    display:grid;
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:clamp(10px,1vh,14px);
+}
+.detailed-community-cards.single .detailed-community-card { grid-row:1 / span 2; }
+.detailed-community-card,
+.detailed-community-empty {
+    min-height:0;
+    overflow:hidden;
+    border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));
+    border-radius:var(--radius);
+    background:linear-gradient(155deg,var(--panel-soft),var(--panel));
+}
+.detailed-community-card {
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    padding:clamp(18px,1.65vw,28px);
+}
+.detailed-community-card::before {
+    content:"";
+    position:absolute;
+    inset:0 0 auto;
+    height:clamp(4px,.42vh,6px);
+    background:var(--accent);
+}
+.detailed-community-type {
+    color:var(--accent);
+    font-size:clamp(.72rem,.83vw,.92rem);
+    font-weight:820;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+}
+.detailed-community-title {
+    margin:clamp(13px,1.5vh,20px) 0 0;
+    color:var(--text);
+    font-size:clamp(1.55rem,2.25vw,2.55rem);
+    font-weight:820;
+    letter-spacing:-.035em;
+    line-height:1.06;
+    text-wrap:balance;
+}
+.detailed-community-body {
+    margin:clamp(12px,1.35vh,18px) 0 0;
+    color:var(--muted);
+    font-size:clamp(.98rem,1.22vw,1.32rem);
+    font-weight:560;
+    line-height:1.38;
+    white-space:pre-line;
+    overflow-wrap:anywhere;
+}
+.detailed-community-fields {
+    margin-top:auto;
+    padding-top:clamp(12px,1.4vh,18px);
+    display:grid;
+    gap:clamp(8px,.8vh,11px);
+}
+.detailed-community-field {
+    display:grid;
+    grid-template-columns:minmax(74px,.32fr) minmax(0,1fr);
+    gap:10px;
+    padding-top:clamp(8px,.75vh,10px);
+    border-top:1px solid var(--line);
+    font-size:clamp(.88rem,1vw,1.12rem);
+    line-height:1.2;
+}
+.detailed-community-field-label { color:var(--muted); }
+.detailed-community-field-value { color:var(--text); font-weight:710; overflow-wrap:anywhere; }
+.detailed-community-source {
+    margin-top:clamp(11px,1.2vh,16px);
+    color:var(--muted);
+    font-size:clamp(.68rem,.78vw,.86rem);
+    font-weight:610;
+}
+.detailed-community-empty {
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:30px;
+    text-align:center;
+}
+.detailed-community-empty strong { color:var(--text); font-size:clamp(1.4rem,2vw,2.1rem); }
+.detailed-community-empty span { max-width:260px; margin-top:10px; color:var(--muted); font-size:clamp(.82rem,.95vw,1rem); line-height:1.4; }
 
 /* Detailed rows gain one shared label column. */
 .detailed-layout .comparison-grid,
@@ -43,22 +148,11 @@
     white-space:nowrap;
 }
 
-/* With fewer masjids, use the recovered horizontal space for the columns
-   that carry labels and for the Daily Times panel rather than making the
-   masjid cells excessively wide. */
-.detailed-layout[data-board-count="2"] .additional-times {
-    flex-basis:clamp(260px,20vw,320px);
-    min-width:260px;
-    max-width:320px;
-}
+/* With fewer masjids, use the recovered horizontal space for the label
+   columns rather than making the masjid cells excessively wide. */
 .detailed-layout[data-board-count="2"] .comparison-grid,
 .detailed-layout[data-board-count="2"] .prayer-row {
     grid-template-columns:minmax(190px,.52fr) minmax(145px,.36fr) repeat(var(--board-count),minmax(0,1fr));
-}
-.detailed-layout[data-board-count="1"] .additional-times {
-    flex-basis:clamp(300px,24vw,380px);
-    min-width:300px;
-    max-width:380px;
 }
 .detailed-layout[data-board-count="1"] .comparison-grid,
 .detailed-layout[data-board-count="1"] .prayer-row {
@@ -128,31 +222,44 @@
     background:linear-gradient(180deg,rgba(25,47,37,.98),rgba(16,36,29,.98));
 }
 
-/* Daily Times is a compact stack of evenly spaced mini-cards. */
+/* Daily Times becomes a compact horizontal strip below the timetable. */
+.detailed-layout .additional-times {
+    display:grid;
+    grid-template-columns:clamp(120px,9vw,165px) minmax(0,1fr);
+    grid-template-rows:1fr 1fr;
+    column-gap:clamp(8px,.75vw,12px);
+    padding:clamp(9px,.85vw,13px);
+}
 .additional-times-heading {
-    font-size:clamp(1.45rem,1.8vw,1.9rem);
+    grid-column:1;
+    grid-row:1;
+    align-self:end;
+    font-size:clamp(1.05rem,1.25vw,1.4rem);
 }
 .additional-times-source {
-    padding-bottom:clamp(8px,1vh,12px);
+    grid-column:1;
+    grid-row:2;
+    margin-top:3px;
+    padding:0;
+    border:0;
 }
 .additional-times-list {
-    flex:1 1 auto;
+    grid-column:2;
+    grid-row:1 / span 2;
     min-height:0;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    gap:clamp(6px,.65vh,9px);
-    padding-top:clamp(6px,.7vh,10px);
+    display:grid;
+    grid-template-columns:repeat(8,minmax(0,1fr));
+    gap:clamp(5px,.42vw,8px);
+    padding:0;
 }
 .additional-time-row {
-    flex:1 1 0;
     min-height:0;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     text-align:center;
     gap:5px;
-    padding:clamp(8px,.8vh,11px) clamp(7px,.6vw,10px);
+    padding:clamp(6px,.65vh,9px) clamp(4px,.35vw,7px);
     border:1px solid rgba(255,255,255,.10);
     border-radius:clamp(10px,.8vw,13px);
     background:linear-gradient(180deg,rgba(19,42,33,.96),rgba(12,31,24,.96));
@@ -162,13 +269,13 @@
 }
 .additional-time-label {
     color:var(--text);
-    font-size:clamp(.92rem,1vw,1.05rem);
+    font-size:clamp(.68rem,.72vw,.82rem);
     font-weight:680;
     line-height:1.12;
 }
 .additional-time-value {
     color:var(--accent);
-    font-size:clamp(1.28rem,1.58vw,1.65rem);
+    font-size:clamp(.92rem,1.02vw,1.15rem);
     font-weight:840;
     line-height:1;
     white-space:nowrap;
@@ -187,28 +294,14 @@
 }
 
 @media (max-width:1100px) {
-    .detailed-layout .additional-times {
-        flex-basis:clamp(190px,18vw,225px);
-        min-width:190px;
-        max-width:225px;
-    }
+    .detailed-layout .board-shell { grid-template-columns:minmax(0,2fr) minmax(250px,1fr); }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
     }
-    .detailed-layout[data-board-count="2"] .additional-times {
-        flex-basis:clamp(220px,22vw,270px);
-        min-width:220px;
-        max-width:270px;
-    }
     .detailed-layout[data-board-count="2"] .comparison-grid,
     .detailed-layout[data-board-count="2"] .prayer-row {
         grid-template-columns:minmax(135px,.42fr) minmax(120px,.31fr) repeat(var(--board-count),minmax(0,1fr));
-    }
-    .detailed-layout[data-board-count="1"] .additional-times {
-        flex-basis:clamp(250px,26vw,310px);
-        min-width:250px;
-        max-width:310px;
     }
     .detailed-layout[data-board-count="1"] .comparison-grid,
     .detailed-layout[data-board-count="1"] .prayer-row {
@@ -220,9 +313,8 @@
 
 @media (max-width:760px) {
     .detailed-layout .timetable-stage { flex:1 1 auto; }
-    .detailed-layout .additional-times,
-    .detailed-layout[data-board-count="1"] .additional-times,
-    .detailed-layout[data-board-count="2"] .additional-times { min-width:0; max-width:none; }
+    .detailed-layout .board-shell { min-width:720px; grid-template-columns:minmax(0,2fr) minmax(230px,1fr); }
+    .detailed-layout .additional-times { min-width:0; max-width:none; }
     .detailed-layout .comparison-grid,
     .detailed-layout .prayer-row,
     .detailed-layout[data-board-count="1"] .comparison-grid,

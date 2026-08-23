@@ -4,16 +4,25 @@
 
 .landscape-layout .detailed-date-block {
     position:absolute;
-    left:0;
+    right:0;
     top:50%;
     transform:translateY(-50%);
     display:flex;
     flex-direction:column;
-    align-items:flex-start;
+    align-items:flex-end;
     justify-content:center;
     max-width:34%;
-    text-align:left;
+    text-align:right;
     line-height:1.15;
+}
+
+.landscape-layout .board-topbar {
+    justify-content:flex-start;
+}
+
+.landscape-layout .clock-block {
+    align-items:flex-start;
+    text-align:left;
 }
 
 .landscape-layout .current-date {
@@ -51,7 +60,7 @@
 
 @media (max-width:760px) {
     .landscape-layout .detailed-date-block {
-        left:0;
+        right:0;
         max-width:29%;
     }
     .landscape-layout .detailed-gregorian-date,

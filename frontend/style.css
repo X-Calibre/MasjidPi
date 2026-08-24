@@ -121,3 +121,62 @@ button.secondary:hover { background: var(--field-hover); }
     .header-actions { width: 100%; justify-content: flex-start; }
     .stream-actions, .buttons { flex-direction: column; }
 }
+
+
+/* Unified MasjidPi application navigation */
+.app-header { margin-bottom: 24px; }
+.app-header .header-row { align-items: center; }
+.app-tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 24px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--card);
+}
+.app-tab {
+    flex: 1;
+    padding: 11px 16px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+.app-tab:hover { background: var(--field); color: var(--text); }
+.app-tab.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 7px var(--shadow);
+}
+.section-heading-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+.section-heading-row h2 { margin-bottom: 6px; }
+.section-intro { color: var(--muted); line-height: 1.45; }
+.current-stream { margin-top: 18px; }
+.startup-option { line-height: 1.4; }
+.advanced-card { padding: 0; overflow: hidden; }
+.advanced-card summary {
+    cursor: pointer;
+    padding: 20px 24px;
+    font-size: 17px;
+    font-weight: 700;
+}
+.advanced-card summary:hover { background: var(--field); }
+.advanced-content { padding: 0 24px 24px; border-top: 1px solid var(--border); }
+.full-width-action { width: 100%; margin-top: 22px; }
+.preview-button { text-align: center; }
+button:disabled, select:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+    .app-header .header-row { align-items: flex-start; }
+    .app-header .theme-toggle { width: 100%; }
+    .app-tabs { width: 100%; }
+    .section-heading-row { flex-direction: column; }
+    .now-playing-card .status-badge { align-self: flex-start; }
+}

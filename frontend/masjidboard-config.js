@@ -412,7 +412,12 @@
                 meta.className = "board-outside-scope";
                 meta.textContent = "Outside the current location catalogue — remove or replace before saving";
             }
-            details.append(name, meta);
+            const role = document.createElement("small");
+            role.className = index === 0 ? "board-role primary" : "board-role";
+            role.textContent = index === 0
+                ? "Primary · supplies additional daily times"
+                : "Secondary";
+            details.append(name, role, meta);
 
             const actions = document.createElement("div");
             actions.className = "selected-board-actions";
@@ -421,6 +426,7 @@
             up.className = "secondary board-order-button";
             up.textContent = "↑";
             up.title = "Move up";
+            up.setAttribute("aria-label", `Move ${board.name || "masjid"} up`);
             up.disabled = index === 0;
             up.addEventListener("click", () => moveSelectedBoard(index, -1));
 
@@ -429,6 +435,7 @@
             down.className = "secondary board-order-button";
             down.textContent = "↓";
             down.title = "Move down";
+            down.setAttribute("aria-label", `Move ${board.name || "masjid"} down`);
             down.disabled = index === selectedBoards.length - 1;
             down.addEventListener("click", () => moveSelectedBoard(index, 1));
 
@@ -436,6 +443,7 @@
             remove.type = "button";
             remove.className = "secondary board-remove-button";
             remove.textContent = "Remove";
+            remove.setAttribute("aria-label", `Remove ${board.name || "masjid"}`);
             remove.addEventListener("click", () => {
                 selectedBoards.splice(index, 1);
                 renderBoardConfiguration();

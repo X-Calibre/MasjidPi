@@ -4,7 +4,6 @@ let backendOnline = true;
 let playerStatus = null;
 let preferences = { last_stream_id: "", autoplay: false };
 let favouriteIds = new Set();
-let volumeUpdateTimer = null;
 
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
@@ -406,27 +405,14 @@ stopButton.addEventListener("click", async () => {
     }
 });
 
-volumeSlider.addEventListener("input", () => {
+volumeSlider.addEventListener("input", async () => {
     const value = Number(volumeSlider.value);
     volumeValue.textContent = value + "%";
-    window.clearTimeout(volumeUpdateTimer);
-    volumeUpdateTimer = window.setTimeout(async () => {
-        try {
-            await setVolume(value);
-        } catch (err) {
-            showToast(err.message, "error");
-            await refreshStatus();
-        }
-    }, 160);
-});
-
-volumeSlider.addEventListener("change", async () => {
-    window.clearTimeout(volumeUpdateTimer);
     try {
-        await setVolume(Number(volumeSlider.value));
+        await setVolume(value);
         await refreshStatus();
     } catch (err) {
-        showToast(err.message, "error");
+        console.error(err);
         await refreshStatus();
     }
 });

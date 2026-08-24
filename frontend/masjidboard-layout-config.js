@@ -9,6 +9,7 @@
     const slideDuration = document.getElementById("slideDuration");
     const slideDurationValue = document.getElementById("slideDurationValue");
     const banner = document.getElementById("configBanner");
+    const previewLink = document.getElementById("displayPreviewLink");
 
     if (!select || !saveButton || !meta || !slideDuration || !slideDurationValue || themeInputs.length === 0) return;
 
@@ -56,6 +57,12 @@
 
     function updateDurationLabel() { slideDurationValue.textContent = `${slideDuration.value} seconds`; }
 
+    function updatePreviewLink(layout) {
+        if (!previewLink) return;
+        previewLink.href = normaliseLayout(layout) === "portrait" ? "masjidboard.html?layout=portrait" : "masjidboard.html";
+        previewLink.setAttribute("aria-label", `Open ${normaliseLayout(layout)} display preview`);
+    }
+
     async function load() {
         select.disabled = true; saveButton.disabled = true;
         for (const input of themeInputs) input.disabled = true;
@@ -63,7 +70,7 @@
             const state = await request();
             const layout = normaliseLayout(state && state.layout);
             const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";
-            select.value = layout; setTheme(theme);
+            select.value = layout; setTheme(theme); updatePreviewLink(layout);
             slideDuration.value = String(state && state.slide_duration_seconds || 15);
             updateDurationLabel();
             meta.textContent = describe(layout, theme);
@@ -85,7 +92,7 @@
             });
             const layout = normaliseLayout(state && state.layout);
             const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";
-            select.value = layout; setTheme(theme); meta.textContent = describe(layout, theme);
+            select.value = layout; setTheme(theme); updatePreviewLink(layout); meta.textContent = describe(layout, theme);
             showBanner(`HDMI display saved: ${{landscape: "Landscape", portrait: "Portrait"}[layout]}, ${themeNames[theme]}.`);
         } catch (error) {
             showBanner(`Could not save HDMI display settings: ${error.message}`, "error");
@@ -94,7 +101,7 @@
         }
     }
 
-    select.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); });
+    select.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); updatePreviewLink(select.value); });
     slideDuration.addEventListener("input", updateDurationLabel);
     for (const input of themeInputs) input.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); });
     saveButton.addEventListener("click", save);

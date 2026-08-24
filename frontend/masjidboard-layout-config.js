@@ -8,10 +8,11 @@
     const meta = document.getElementById("displayLayoutMeta");
     const slideDuration = document.getElementById("slideDuration");
     const slideDurationValue = document.getElementById("slideDurationValue");
+    const showEconomicIndicators = document.getElementById("showEconomicIndicators");
     const banner = document.getElementById("configBanner");
     const previewLink = document.getElementById("displayPreviewLink");
 
-    if (!select || !saveButton || !meta || !slideDuration || !slideDurationValue || themeInputs.length === 0) return;
+    if (!select || !saveButton || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators || themeInputs.length === 0) return;
 
     const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "black-white"]);
     const themeNames = {
@@ -72,6 +73,7 @@
             const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";
             select.value = layout; setTheme(theme); updatePreviewLink(layout);
             slideDuration.value = String(state && state.slide_duration_seconds || 15);
+            showEconomicIndicators.checked = Boolean(state && state.show_economic_indicators);
             updateDurationLabel();
             meta.textContent = describe(layout, theme);
         } catch (error) {
@@ -88,7 +90,7 @@
             const state = await request({
                 method: "PUT",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({layout: select.value, theme: selectedTheme(), slide_duration_seconds: Number(slideDuration.value)}),
+                body: JSON.stringify({layout: select.value, theme: selectedTheme(), slide_duration_seconds: Number(slideDuration.value), show_economic_indicators: showEconomicIndicators.checked}),
             });
             const layout = normaliseLayout(state && state.layout);
             const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";

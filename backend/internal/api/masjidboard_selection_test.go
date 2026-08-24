@@ -50,7 +50,10 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	root := t.TempDir()
 	server := New(Config{Address: ":0", Frontend: root, PreferencesPath: root + "/preferences.json", Installed: components.Installed{Listen: true, Board: true}}, Dependencies{Logger: logger})
 	server.SetMasjidBoardCataloguePath(path)
-	runtime := &fakeSelectionRuntime{}
+	runtime := &fakeSelectionRuntime{state: selection.State{
+		Layout: selection.LayoutPortrait, Theme: selection.ThemeRuby,
+		SlideDurationSeconds: 30, ShowEconomicIndicators: true,
+	}}
 	server.SetMasjidBoardService(runtime)
 
 	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/selection", strings.NewReader(`{"catalogue_ids":["masjidboardlive:brits-jamia"]}`))
@@ -63,6 +66,10 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	}
 	if len(runtime.state.Boards) != 1 || runtime.state.Boards[0].ExternalID != "brits-jamia" || runtime.state.Boards[0].TimeZoneOffsetMS != 7200000 {
 		t.Fatalf("selection=%+v", runtime.state)
+	}
+	if runtime.state.Layout != selection.LayoutPortrait || runtime.state.Theme != selection.ThemeRuby ||
+		runtime.state.SlideDurationSeconds != 30 || !runtime.state.ShowEconomicIndicators {
+		t.Fatalf("display preferences were not preserved: %+v", runtime.state)
 	}
 }
 

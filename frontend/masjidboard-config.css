@@ -293,3 +293,15 @@
 
 .board-role { color: var(--subtle); font-weight: 700; }
 .board-role.primary { color: var(--accent); }
+.display-option-toggle {
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:14px 16px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    cursor:pointer;
+}
+.display-option-toggle input { width:auto; margin-top:3px; }
+.display-option-toggle span { display:flex; flex-direction:column; gap:4px; }
+.display-option-toggle small { color:var(--muted); line-height:1.4; }

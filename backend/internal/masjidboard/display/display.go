@@ -3,6 +3,7 @@ package display
 import (
 	"time"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 )
 
@@ -10,8 +11,9 @@ import (
 // It deliberately excludes discovery, configuration, provider metadata and
 // diagnostic error strings. Boards remain in the user's selected order.
 type View struct {
-	Configured bool    `json:"configured"`
-	Boards     []Board `json:"boards"`
+	Configured         bool                 `json:"configured"`
+	Boards             []Board              `json:"boards"`
+	EconomicIndicators *economic.Indicators `json:"economic_indicators,omitempty"`
 }
 
 type Board struct {

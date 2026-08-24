@@ -21,9 +21,13 @@ func (s *Server) masjidBoardDisplay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, display.Build(
+	view := display.Build(
 		s.masjidBoardService.Configured(),
 		s.masjidBoardService.Selection(),
 		s.masjidBoardService.Results(),
-	))
+	)
+	if provider, ok := s.masjidBoardService.(masjidBoardEconomicProvider); ok {
+		view.EconomicIndicators = provider.EconomicIndicators()
+	}
+	writeJSON(w, http.StatusOK, view)
 }

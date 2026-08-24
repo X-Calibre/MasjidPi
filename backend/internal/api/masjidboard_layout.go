@@ -1,28 +1,34 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
 
 type masjidBoardLayoutResponse struct {
-	Layout               string `json:"layout"`
-	Theme                string `json:"theme"`
-	SlideDurationSeconds int    `json:"slide_duration_seconds"`
+	Layout                 string `json:"layout"`
+	Theme                  string `json:"theme"`
+	SlideDurationSeconds   int    `json:"slide_duration_seconds"`
+	ShowEconomicIndicators bool   `json:"show_economic_indicators"`
 }
 
 type masjidBoardLayoutRequest struct {
-	Layout               string `json:"layout"`
-	Theme                string `json:"theme"`
-	SlideDurationSeconds int    `json:"slide_duration_seconds"`
+	Layout                 string `json:"layout"`
+	Theme                  string `json:"theme"`
+	SlideDurationSeconds   int    `json:"slide_duration_seconds"`
+	ShowEconomicIndicators *bool  `json:"show_economic_indicators"`
 }
 
 type masjidBoardLayoutSetter interface{ SetLayout(string) error }
 type masjidBoardThemeSetter interface{ SetTheme(string) error }
 type masjidBoardSlideDurationSetter interface{ SetSlideDurationSeconds(int) error }
+type masjidBoardEconomicSetter interface{ SetShowEconomicIndicators(bool) error }
+type masjidBoardEconomicRefresher interface{ RefreshEconomicIndicators(context.Context) error }
 
 func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 	current := func() masjidBoardLayoutResponse {
@@ -32,6 +38,7 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			response.Layout = state.EffectiveLayout()
 			response.Theme = state.EffectiveTheme()
 			response.SlideDurationSeconds = state.EffectiveSlideDurationSeconds()
+			response.ShowEconomicIndicators = state.ShowEconomicIndicators
 		}
 		return response
 	}
@@ -50,7 +57,7 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 
 		layout := strings.TrimSpace(strings.ToLower(request.Layout))
 		theme := strings.TrimSpace(strings.ToLower(request.Theme))
-		if layout == "" && theme == "" && request.SlideDurationSeconds == 0 {
+		if layout == "" && theme == "" && request.SlideDurationSeconds == 0 && request.ShowEconomicIndicators == nil {
 			writeError(w, http.StatusBadRequest, "layout, theme or slide duration is required")
 			return
 		}
@@ -99,6 +106,26 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			if err := setter.SetSlideDurationSeconds(request.SlideDurationSeconds); err != nil {
 				writeError(w, http.StatusConflict, err.Error())
 				return
+			}
+		}
+		if request.ShowEconomicIndicators != nil {
+			setter, ok := s.masjidBoardService.(masjidBoardEconomicSetter)
+			if !ok || setter == nil {
+				writeError(w, http.StatusServiceUnavailable, "MasjidBoard economic indicators service is unavailable")
+				return
+			}
+			if err := setter.SetShowEconomicIndicators(*request.ShowEconomicIndicators); err != nil {
+				writeError(w, http.StatusConflict, err.Error())
+				return
+			}
+			if *request.ShowEconomicIndicators {
+				if refresher, ok := s.masjidBoardService.(masjidBoardEconomicRefresher); ok {
+					go func() {
+						ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+						defer cancel()
+						_ = refresher.RefreshEconomicIndicators(ctx)
+					}()
+				}
 			}
 		}
 		writeJSON(w, http.StatusOK, current())

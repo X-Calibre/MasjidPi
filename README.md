@@ -263,6 +263,8 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 v1.4.0 unifies the Listener and MasjidBoard configuration experience with shared top-level navigation, a consolidated Now Playing view, dedicated Masjids, Display and Status tabs, layout-aware display previews and consistent version information. It also includes the latest Portrait and Landscape display refinements, clearer primary-masjid behaviour and reduced Listener status polling.
 
+MasjidBoard can optionally display Islamic Economic Indicators published by Jamiatul Ulama South Africa. The cached, source-attributed display prioritises the current Nisaab and Krugerrand values and includes selected gold, silver and Mahr values. The feature is disabled by default and can be enabled from the Board Display settings.
+
 The combined Listen + Board source build was installed and validated on Debian 13 in the MasjidPi Proxmox LXC. Both component APIs and configuration pages responded successfully, the existing three-masjid configuration was preserved, and the integrated WebUI and display configuration were reviewed before release.
 
 ## Acknowledgements
@@ -270,6 +272,8 @@ The combined Listen + Board source build was installed and validated on Debian 1
 MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal). We gratefully acknowledge the eBilal contributors and the work they did to make a Raspberry Pi-based masjid audio receiver available as an open-source project.
 
 MasjidPi relies on [LiveMasjid](https://www.livemasjid.com/) for live masjid streams and stream-status data, and on [MasjidBoard Live](https://masjidboardlive.com/) for MasjidBoard timetable data. We gratefully acknowledge the teams maintaining these services.
+
+Optional Islamic Economic Indicators are sourced from [Jamiatul Ulama South Africa](https://www.jamiatsa.org/category/islamic-economic-indicators/). Values retain their effective date and source attribution in the MasjidBoard display.
 
 MasjidPi is an independent project and is not affiliated with or endorsed by eBilal, LiveMasjid or MasjidBoard Live.
 

@@ -259,3 +259,34 @@
     .status-board-detail { flex-direction: column; gap: 3px; }
     .status-board-detail-value { text-align: left; }
 }
+
+
+/* Board configuration sub-navigation */
+.board-tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 5px;
+    border-radius: 10px;
+    background: var(--field);
+}
+.board-tab {
+    flex: 1;
+    padding: 9px 12px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+}
+.board-tab:hover { background: var(--field-hover); color: var(--text); }
+.board-tab.active { background: var(--card); color: var(--accent); box-shadow: 0 1px 5px var(--shadow); }
+.board-panel[hidden] { display: none; }
+.board-panel.active { animation: board-panel-in .16s ease-out; }
+@keyframes board-panel-in {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 680px) {
+    .preview-button { width: 100%; }
+    .board-tabs { width: 100%; }
+}

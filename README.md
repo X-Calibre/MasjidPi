@@ -267,6 +267,8 @@ MasjidBoard can optionally display Islamic Economic Indicators published by Jami
 
 The combined Listen + Board source build was installed and validated on Debian 13 in the MasjidPi Proxmox LXC. Both component APIs and configuration pages responded successfully, the existing three-masjid configuration was preserved, and the integrated WebUI and display configuration were reviewed before release.
 
+The published v1.4.0 release was subsequently installed and validated on both the Raspberry Pi 4 test unit and Raspberry Pi 3B production unit. Listen, Board and the optional Islamic Economic Indicators display operated successfully, and the new content rendered correctly on the target hardware.
+
 ## Acknowledgements
 
 MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal). We gratefully acknowledge the eBilal contributors and the work they did to make a Raspberry Pi-based masjid audio receiver available as an open-source project.
@@ -275,7 +277,7 @@ MasjidPi relies on [LiveMasjid](https://www.livemasjid.com/) for live masjid str
 
 Optional Islamic Economic Indicators are sourced from [Jamiatul Ulama South Africa](https://www.jamiatsa.org/category/islamic-economic-indicators/). Values retain their effective date and source attribution in the MasjidBoard display.
 
-MasjidPi is an independent project and is not affiliated with or endorsed by eBilal, LiveMasjid or MasjidBoard Live.
+MasjidPi is an independent project and is not affiliated with or endorsed by eBilal, LiveMasjid, MasjidBoard Live or Jamiatul Ulama South Africa.
 
 ## License
 

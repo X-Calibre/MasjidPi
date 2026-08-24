@@ -163,6 +163,10 @@ Validation passed for:
 
 During combined playback/display operation, approximately 3.3 GiB of 3.7 GiB RAM remained available, system load was low, temperature was 64.2°C, and `vcgencmd get_throttled` reported `0x0`.
 
+### v1.4.0 hardware validation — 24 August 2026
+
+The published v1.4.0 release was installed successfully on both the Raspberry Pi 4 test unit and Raspberry Pi 3B production unit. Listen and Board operated correctly on both devices, including the optional Islamic Economic Indicators content sourced from Jamiatul Ulama South Africa. The Nisaab, Krugerrand, gold, silver and Mahr values rendered correctly on the target displays.
+
 On this platform Cog may abort during an intentional systemd stop/restart while releasing EGL resources. The replacement process starts normally and the behaviour was not observed during steady-state operation.
 
 ## Expected Failure Isolation

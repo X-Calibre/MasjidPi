@@ -48,13 +48,6 @@
     flex-direction:column;
     padding:clamp(18px,1.65vw,28px);
 }
-.detailed-community-card::before {
-    content:"";
-    position:absolute;
-    inset:0 0 auto;
-    height:clamp(4px,.42vh,6px);
-    background:var(--accent);
-}
 .detailed-community-type {
     color:var(--accent);
     font-size:clamp(.72rem,.83vw,.92rem);

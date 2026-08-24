@@ -1,11 +1,15 @@
 (() => {
     "use strict";
 
-    if (new URLSearchParams(window.location.search).get("layout") !== "portrait") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("layout") !== "portrait") return;
+    const communityFixtureMode = params.get("notice-fixtures");
+    const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
 
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -22,6 +26,7 @@
     let activeSlide = 0;
     let slideDurationSeconds = 15;
     let slideTimer = 0;
+    let transitionTimer = 0;
     let gestureStart = null;
 
     function element(tag, className, text) {
@@ -47,15 +52,38 @@
     function dailyItems(board) {
         const astronomical = board && board.astronomical ? board.astronomical : {};
         const result = [];
-        const add = (label, time) => { if (validTime(time)) result.push({label, time}); };
+        const add = (label, time, valueText = "") => {
+            if (validTime(time)) result.push({label, time, valueText: valueText || utils.formatClock(time)});
+        };
+
         add("Sehri Ends", astronomical.suhur);
         add("Fajr Starts", astronomical.fajr_start);
         add("Sunrise", astronomical.sunrise);
         add("Ishraq", astronomical.ishraaq);
-        add("Zawaal / Istiwa", astronomical.istiwa_caution || astronomical.istiwa);
+        add("Duha / Chaasht", astronomical.duha);
+
+        const zawaalStart = validTime(astronomical.istiwa_caution)
+            ? astronomical.istiwa_caution
+            : astronomical.istiwa;
+        const zawaalEnd = validTime(astronomical.zawaal_end)
+            ? astronomical.zawaal_end
+            : astronomical.istiwa;
+        if (validTime(zawaalStart)) {
+            const range = validTime(zawaalEnd) && minutes(zawaalEnd) !== minutes(zawaalStart)
+                ? utils.formatClock(zawaalStart) + "–" + utils.formatClock(zawaalEnd)
+                : utils.formatClock(zawaalStart);
+            add("Zawaal / Istiwa", zawaalStart, range);
+        }
+
+        add("Asr Shafi‘i", astronomical.asr_shafii);
+        add("Asr Hanafi", astronomical.asr_hanafi);
         add("Sunset", astronomical.sunset);
         add("Esha Starts", astronomical.esha_start);
         return result.sort((left, right) => minutes(left.time) - minutes(right.time));
+    }
+
+    function isCompactCommunityItem(item) {
+        return plainText(item.body).length <= 80 && orderedFields(item).length <= 2;
     }
 
     function salaahSlide(board) {
@@ -110,17 +138,103 @@
         const table = element("div", "portrait-times portrait-daily-times");
         for (const item of dailyItems(board)) {
             const row = element("div", "portrait-time-row portrait-daily-row");
-            row.append(element("span", "", item.label), element("strong", "", utils.formatClock(item.time)));
+            row.append(element("span", "", item.label), element("strong", "", item.valueText));
             table.append(row);
         }
         slide.append(table);
         return slide;
     }
 
+    function communityCard(item, compact) {
+        const card = element("article", "portrait-community-card portrait-community-" + item.type + (compact ? " compact" : ""));
+        card.append(element("div", "portrait-community-type", communityTypeLabel(item.type)));
+        card.append(element("h2", "portrait-community-title", item.title));
+        if (item.body) {
+            const body = element("p", "portrait-community-body", item.body);
+            body.dir = "auto";
+            card.append(body);
+        }
+
+        const fields = orderedFields(item);
+        if (fields.length > 0) {
+            const list = element("div", "portrait-community-fields");
+            for (const field of fields) {
+                const row = element("div", "portrait-community-field");
+                row.append(element("span", "portrait-community-field-label", field.label));
+                const value = element("span", "portrait-community-field-value", field.value);
+                value.dir = "auto";
+                row.append(value);
+                list.append(row);
+            }
+            card.append(list);
+        }
+        card.append(element("div", "portrait-community-source", "From " + item.source));
+        return card;
+    }
+
+    function communitySlide(entries) {
+        const paired = entries.length === 2;
+        const compactSingle = entries.length === 1 && isCompactCommunityItem(entries[0]);
+        const layout = paired ? "paired" : compactSingle ? "single compact-single" : "single";
+        const slide = element("article", "portrait-slide portrait-community-slide " + layout);
+        for (const item of entries) slide.append(communityCard(item, isCompactCommunityItem(item)));
+        return slide;
+    }
+
+    function communitySlides(items) {
+        const result = [];
+        let pendingCompact = null;
+        function flushCompact() {
+            if (!pendingCompact) return;
+            result.push(communitySlide([pendingCompact]));
+            pendingCompact = null;
+        }
+
+        for (const item of items) {
+            if (!isCompactCommunityItem(item)) {
+                flushCompact();
+                result.push(communitySlide([item]));
+                continue;
+            }
+            if (pendingCompact) {
+                result.push(communitySlide([pendingCompact, item]));
+                pendingCompact = null;
+            } else {
+                pendingCompact = item;
+            }
+        }
+        flushCompact();
+        return result;
+    }
+
     function showSlide(index, restart = true) {
         if (slides.length === 0) return;
-        activeSlide = (index + slides.length) % slides.length;
-        slides.forEach((slide, itemIndex) => slide.classList.toggle("active", itemIndex === activeSlide));
+
+        const nextIndex = (index + slides.length) % slides.length;
+        const previousIndex = activeSlide;
+        const direction = index < previousIndex ? -1 : 1;
+        const previousSlide = slides[previousIndex];
+        const nextSlide = slides[nextIndex];
+
+        window.clearTimeout(transitionTimer);
+        for (const slide of slides) {
+            slide.classList.remove("enter-from-left", "enter-from-right", "exit-to-left", "exit-to-right");
+        }
+
+        if (previousSlide && nextSlide && nextIndex !== previousIndex) {
+            const enterClass = direction > 0 ? "enter-from-right" : "enter-from-left";
+            const exitClass = direction > 0 ? "exit-to-left" : "exit-to-right";
+            previousSlide.classList.remove("active");
+            previousSlide.classList.add(exitClass);
+            nextSlide.classList.add("active", enterClass);
+            void nextSlide.offsetWidth;
+            window.requestAnimationFrame(() => nextSlide.classList.remove(enterClass));
+            transitionTimer = window.setTimeout(() => previousSlide.classList.remove(exitClass), 320);
+        } else if (nextSlide) {
+            nextSlide.classList.add("active");
+        }
+
+        activeSlide = nextIndex;
         Array.from(dotsHost.children).forEach((dot, itemIndex) => dot.classList.toggle("active", itemIndex === activeSlide));
         if (restart) startTimer();
     }
@@ -136,6 +250,10 @@
         dotsHost.replaceChildren();
         slides = boards.map(salaahSlide);
         if (boards[0] && dailyItems(boards[0]).length > 0) slides.push(dailySlide(boards[0]));
+        const communityItems = useCommunityFixtures
+            ? fixtureCommunityItems(communityFixtureMode)
+            : collectCommunityItems(boards);
+        slides.push(...communitySlides(communityItems));
         slides.forEach((slide, index) => {
             slidesHost.append(slide);
             const dot = element("button", "", "");

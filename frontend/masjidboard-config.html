@@ -10,18 +10,27 @@
 </head>
 <body data-component-page="board">
 <div class="container">
-    <header>
+    <header class="app-header">
         <div class="header-row">
-            <div><h1>MasjidBoard</h1><p>Prayer time display configuration</p></div>
+            <div><h1>MasjidPi</h1><p>Home appliance control</p></div>
             <div class="header-actions">
-                <a class="nav-button" data-component="listen" href="index.html">Listen</a>
-                <a class="nav-button" href="masjidboard.html">Landscape Display</a>
-                <a class="nav-button" href="masjidboard.html?layout=portrait">Portrait Display</a>
+                <a id="displayPreviewLink" class="nav-button preview-button" href="masjidboard.html">Open Display Preview</a>
                 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
             </div>
         </div>
+        <nav class="app-tabs" aria-label="MasjidPi sections">
+            <a class="app-tab" data-component="listen" href="index.html">Listen</a>
+            <a class="app-tab active" data-component="board" href="masjidboard-config.html" aria-current="page">Board</a>
+        </nav>
+        <nav class="board-tabs" aria-label="Board configuration sections">
+            <button class="board-tab active" type="button" data-board-tab="masjids" aria-selected="true">Masjids</button>
+            <button class="board-tab" type="button" data-board-tab="display" aria-selected="false">Display</button>
+            <button class="board-tab" type="button" data-board-tab="status" aria-selected="false">Status</button>
+        </nav>
     </header>
     <div id="configBanner" class="config-banner hidden" role="status"></div>
+    <main>
+    <div id="boardPanelMasjids" class="board-panel active" data-board-panel="masjids">
     <section class="card">
         <div class="section-heading-row"><div><h2>Locations</h2><p class="config-intro">Choose up to three locations whose MasjidBoards should be available for selection.</p></div><button id="refreshHierarchyButton" class="secondary compact-button" type="button">Refresh Location List</button></div>
         <div id="locationConfiguration" class="location-configuration"><p class="status-detail">Loading location hierarchy…</p></div>
@@ -38,6 +47,8 @@
         </div>
         <div class="configuration-actions board-save-actions"><button id="saveBoardsButton" type="button">Save Selected Masjids</button></div>
     </section>
+    </div>
+    <div id="boardPanelDisplay" class="board-panel" data-board-panel="display" hidden>
     <section class="card">
         <div class="section-heading-row"><div><h2>HDMI Display</h2><p class="config-intro">Choose the display orientation and colour theme shown automatically on the appliance HDMI output.</p></div></div>
         <div class="display-layout-picker">
@@ -58,12 +69,16 @@
         </fieldset>
         <div class="configuration-actions board-save-actions"><button id="saveDisplayLayoutButton" type="button">Save HDMI Display</button></div>
     </section>
+    </div>
+    <div id="boardPanelStatus" class="board-panel" data-board-panel="status" hidden>
     <section class="card">
         <div class="section-heading-row"><div><h2>MasjidBoard Status</h2><p class="config-intro">Current timetable data for the selected MasjidBoards.</p></div><button id="refreshBoardsButton" class="secondary compact-button" type="button">Refresh Timetables</button></div>
         <div id="masjidBoardStatus"><p class="status-detail">Loading MasjidBoard status…</p></div>
     </section>
-    <footer class="footer">MasjidPi · MasjidBoard Configuration</footer>
+    </div>
+    </main>
+    <footer class="footer">MasjidPi · Board Configuration</footer>
 </div>
-<script src="components-ui.js"></script><script src="masjidboard-config.js"></script><script src="masjidboard-layout-config.js"></script>
+<script src="components-ui.js"></script><script src="masjidboard-config.js"></script><script src="masjidboard-layout-config.js"></script><script src="masjidboard-tabs.js"></script>
 </body>
 </html>

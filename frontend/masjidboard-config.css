@@ -290,3 +290,6 @@
     .preview-button { width: 100%; }
     .board-tabs { width: 100%; }
 }
+
+.board-role { color: var(--subtle); font-weight: 700; }
+.board-role.primary { color: var(--accent); }

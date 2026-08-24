@@ -468,7 +468,7 @@ async function initialize() {
     await loadStreams();
     await loadAudioDevices();
     await refreshStatus();
-    setInterval(refreshStatus, 1000);
+    setInterval(refreshStatus, 2500);
 }
 
 initialize();

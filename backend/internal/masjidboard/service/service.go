@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider/masjidboardlive"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
@@ -28,6 +31,9 @@ type Service struct {
 	selectionStore *selection.Store
 	cacheStore     runtime.CacheStore
 	factory        providerFactory
+	economicClient economic.Client
+	economicStore  economic.Store
+	indicators     *economic.Indicators
 }
 
 func New(config Config) (*Service, error) {
@@ -37,6 +43,13 @@ func New(config Config) (*Service, error) {
 		return nil, fmt.Errorf("masjidboard service: load selection: %w", err)
 	}
 	cacheStore := cache.NewStore(config.CacheDir)
+	economicStore := economic.Store{Path: filepath.Join(config.CacheDir, "islamic_economic_indicators.json")}
+	indicators, err := economicStore.Load()
+	if err != nil {
+		// A corrupt optional cache must not prevent MasjidBoard or Listen from
+		// starting. The next successful fetch will replace it atomically.
+		indicators = nil
+	}
 	factory := func(board selection.Board) (provider.Provider, error) {
 		core, err := masjidboardlive.NewCoreClientFromSelectionWithHTTPClient(board, config.HTTPClient)
 		if err != nil {
@@ -55,6 +68,9 @@ func New(config Config) (*Service, error) {
 		return nil, err
 	}
 	service.selectionStore = selectionStore
+	service.economicClient = economic.Client{HTTPClient: config.HTTPClient}
+	service.economicStore = economicStore
+	service.indicators = indicators
 	return service, nil
 }
 
@@ -145,6 +161,10 @@ func (s *Service) SetTheme(theme string) error {
 	return s.updateDisplayPreference(func(state *selection.State) { state.Theme = theme }, "theme")
 }
 
+func (s *Service) SetShowEconomicIndicators(show bool) error {
+	return s.updateDisplayPreference(func(state *selection.State) { state.ShowEconomicIndicators = show }, "economic indicators")
+}
+
 func (s *Service) updateDisplayPreference(update func(*selection.State), label string) error {
 	if s == nil {
 		return fmt.Errorf("masjidboard service: service is unavailable")
@@ -200,12 +220,50 @@ func (s *Service) Refresh(ctx context.Context) []runtime.Result {
 		return nil
 	}
 	results := coordinator.FetchAll(ctx)
+	_ = s.RefreshEconomicIndicators(ctx)
 	s.mu.Lock()
 	if s.runtime == coordinator {
 		s.results = append([]runtime.Result(nil), results...)
 	}
 	s.mu.Unlock()
 	return append([]runtime.Result(nil), results...)
+}
+
+const economicRefreshInterval = 12 * time.Hour
+
+func (s *Service) RefreshEconomicIndicators(ctx context.Context) error {
+	s.mu.RLock()
+	enabled := s.selection.ShowEconomicIndicators
+	current := s.indicators
+	client, store := s.economicClient, s.economicStore
+	s.mu.RUnlock()
+	if !enabled || (current != nil && time.Since(current.FetchedAt) < economicRefreshInterval) {
+		return nil
+	}
+	indicators, err := client.Fetch(ctx)
+	if err != nil {
+		return err
+	}
+	if err := store.Save(indicators); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	s.indicators = &indicators
+	s.mu.Unlock()
+	return nil
+}
+
+func (s *Service) EconomicIndicators() *economic.Indicators {
+	if s == nil {
+		return nil
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if !s.selection.ShowEconomicIndicators || s.indicators == nil {
+		return nil
+	}
+	copy := *s.indicators
+	return &copy
 }
 
 func (s *Service) Results() []runtime.Result {

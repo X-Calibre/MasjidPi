@@ -19,6 +19,8 @@
             gasht_out_day: "Gasht Out", gasht_out_time: "Out Time", gasht_in_day: "Gasht In",
             gasht_in_time: "In Time", first_location: "First Jamaat", first_date: "First Date",
             second_location: "Second Jamaat", second_date: "Second Date",
+            nisaab: "Nisaab", krugerrand: "Krugerrand", gold_24: "Gold 24 ct / g",
+            silver: "Silver / g", minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -34,6 +36,7 @@
             dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
+            economic: ["nisaab", "krugerrand", "gold_24", "silver", "minimum_mahr", "mahr_faatimi"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]
@@ -60,6 +63,7 @@
             nikah: "Nikah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change",
             programme: "Programme", new_moon: "New Moon", dawah: "Dawah / Gasht",
             three_day_jamaat: "Three-Day Jamaat", contribution: "Contributions",
+            economic: "Islamic Economic Indicators",
         };
         return labels[type] || fieldLabel(type || "general") + " Notice";
     }

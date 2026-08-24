@@ -234,6 +234,30 @@
         renderCommunityPage();
     }
 
+    function formatRand(value) {
+        return Number(value).toLocaleString("en-ZA", {style: "currency", currency: "ZAR", minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function economicCommunityItem(indicators) {
+        if (!indicators) return null;
+        const effectiveDate = new Date(`${indicators.effective_date}T12:00:00`);
+        const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "short", year: "numeric"});
+        return {
+            type: "economic",
+            title: "Nisaab & Krugerrand",
+            body: `Effective ${dateText}`,
+            source: indicators.source,
+            fields: {
+                nisaab: formatRand(indicators.nisaab),
+                krugerrand: formatRand(indicators.krugerrand),
+                gold_24: formatRand(indicators.gold_24_carat_per_gram),
+                silver: formatRand(indicators.silver_per_gram),
+                minimum_mahr: formatRand(indicators.minimum_mahr),
+                mahr_faatimi: formatRand(indicators.mahr_faatimi),
+            },
+        };
+    }
+
     function transformRow(row, preferredLabels) {
         if (row.querySelector(":scope > .shared-time-labels")) return;
 
@@ -321,7 +345,22 @@
             const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
             document.body.dataset.boardCount = String(Math.max(1, boards.length));
             render(boards[0] || null);
-            renderCommunityContent(boards);
+            const economicItem = economicCommunityItem(view.economic_indicators);
+            if (economicItem) {
+                const originalFixtureMode = useCommunityFixtures;
+                const baseItems = originalFixtureMode ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
+                const items = [...baseItems, economicItem];
+                const signature = JSON.stringify(items);
+                if (signature !== communitySignature) {
+                    communitySignature = signature;
+                    communityItems = items;
+                    communityPages = packCommunityPages(items);
+                    communityPage = 0;
+                }
+                renderCommunityPage();
+            } else {
+                renderCommunityContent(boards);
+            }
             addSharedPrayerLabels();
         } catch (error) {
             console.warn("Landscape MasjidBoard times refresh failed", error);

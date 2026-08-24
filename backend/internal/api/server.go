@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
@@ -19,6 +20,8 @@ type masjidBoardStatusProvider interface {
 	Selection() selection.State
 	Results() []masjidboardruntime.Result
 }
+
+type masjidBoardEconomicProvider interface{ EconomicIndicators() *economic.Indicators }
 
 type Server struct {
 	httpServer                  *http.Server

@@ -207,6 +207,38 @@
         return result;
     }
 
+    function formatRand(value, decimals = 2) {
+        return Number(value).toLocaleString("en-ZA", {style: "currency", currency: "ZAR", minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+    }
+
+    function economicSlide(indicators) {
+        if (!indicators) return null;
+        const slide = element("article", "portrait-slide portrait-economic-slide");
+        const heading = element("header", "portrait-slide-heading");
+        heading.append(element("small", "", "ISLAMIC ECONOMIC INDICATORS"), element("h2", "", "Nisaab & Krugerrand"));
+        slide.append(heading);
+        const effectiveDate = new Date(`${indicators.effective_date}T12:00:00`);
+        const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "long", year: "numeric"});
+        slide.append(element("div", "portrait-economic-date", `Effective ${dateText}`));
+        const values = [
+            ["Nisaab", formatRand(indicators.nisaab)],
+            ["Krugerrand", formatRand(indicators.krugerrand)],
+            ["Gold 24 ct / g", formatRand(indicators.gold_24_carat_per_gram)],
+            ["Gold 22 ct / g", formatRand(indicators.gold_22_carat_per_gram)],
+            ["Silver / g", formatRand(indicators.silver_per_gram)],
+            ["Minimum Mahr", formatRand(indicators.minimum_mahr)],
+            ["Mahr Faatimi", formatRand(indicators.mahr_faatimi)],
+        ];
+        const grid = element("div", "portrait-economic-values");
+        for (const [label, value] of values) {
+            const row = element("div", "portrait-economic-value");
+            row.append(element("span", "", label), element("strong", "", value));
+            grid.append(row);
+        }
+        slide.append(grid, element("div", "portrait-economic-source", `Source: ${indicators.source}`));
+        return slide;
+    }
+
     function showSlide(index, restart = true) {
         if (slides.length === 0) return;
 
@@ -245,7 +277,7 @@
         slideTimer = window.setInterval(() => showSlide(activeSlide + 1, false), slideDurationSeconds * 1000);
     }
 
-    function renderSlides(boards) {
+    function renderSlides(boards, indicators) {
         slidesHost.replaceChildren();
         dotsHost.replaceChildren();
         slides = boards.map(salaahSlide);
@@ -254,6 +286,8 @@
             ? fixtureCommunityItems(communityFixtureMode)
             : collectCommunityItems(boards);
         slides.push(...communitySlides(communityItems));
+        const indicatorsSlide = economicSlide(indicators);
+        if (indicatorsSlide) slides.push(indicatorsSlide);
         slides.forEach((slide, index) => {
             slidesHost.append(slide);
             const dot = element("button", "", "");
@@ -287,7 +321,7 @@
         const boards = view && Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (!view || !view.configured || boards.length === 0) return;
         primaryName.textContent = boards[0].name;
-        renderSlides(boards);
+        renderSlides(boards, view.economic_indicators);
         updateHeader();
         state.classList.remove("hidden");
     }

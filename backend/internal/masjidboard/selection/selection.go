@@ -50,10 +50,11 @@ type Board struct {
 // resolve to the Landscape default so selections written by older versions
 // remain valid.
 type State struct {
-	Boards               []Board `json:"boards"`
-	Layout               string  `json:"layout,omitempty"`
-	Theme                string  `json:"theme,omitempty"`
-	SlideDurationSeconds int     `json:"slide_duration_seconds,omitempty"`
+	Boards                 []Board `json:"boards"`
+	Layout                 string  `json:"layout,omitempty"`
+	Theme                  string  `json:"theme,omitempty"`
+	SlideDurationSeconds   int     `json:"slide_duration_seconds,omitempty"`
+	ShowEconomicIndicators bool    `json:"show_economic_indicators,omitempty"`
 }
 
 func (s State) Configured() bool { return len(s.Boards) > 0 }

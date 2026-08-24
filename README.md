@@ -259,11 +259,11 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 ## Project Status
 
-**Current stable release: v1.3.0**
+**Current stable release: v1.4.0**
 
-v1.3.0 adds Landscape and Portrait Board orientations, optional MasjidBoard Live Premium community-content enrichment with Core timetable fallback, adaptive rotating notice cards, an expanded Landscape Daily Times footer, improved first-run Board guidance and Cog GLES rendering for current Raspberry Pi kernels.
+v1.4.0 unifies the Listener and MasjidBoard configuration experience with shared top-level navigation, a consolidated Now Playing view, dedicated Masjids, Display and Status tabs, layout-aware display previews and consistent version information. It also includes the latest Portrait and Landscape display refinements, clearer primary-masjid behaviour and reduced Listener status polling.
 
-The release candidate was validated on a Raspberry Pi 4 with 64-bit Raspberry Pi OS Lite and a native 1920 × 1080 HDMI display. Installation, reinstallation, reboot recovery, complete fixture rotation, saved preferences and simultaneous Listen + Board operation passed without swap use, throttling or unexpected display restarts.
+The combined Listen + Board source build was installed and validated on Debian 13 in the MasjidPi Proxmox LXC. Both component APIs and configuration pages responded successfully, the existing three-masjid configuration was preserved, and the integrated WebUI and display configuration were reviewed before release.
 
 ## Acknowledgements
 

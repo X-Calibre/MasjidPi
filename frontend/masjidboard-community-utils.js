@@ -8,6 +8,18 @@
         return (parsed.body.textContent || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim();
     }
 
+    // South African Rand values use a fixed presentation contract throughout
+    // MasjidBoard: R123,456.00. Do not delegate the currency symbol or
+    // separators to the browser locale, which varies across WebKit builds.
+    function formatRand(value, decimals = 2) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount)) return "";
+        return "R" + amount.toLocaleString("en-US", {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+        });
+    }
+
     function fieldLabel(name) {
         const labels = {
             address: "Address", bride: "Bride", cemetery: "Cemetery", date: "Date",
@@ -250,6 +262,7 @@
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,
+        formatRand,
         noticeTitle,
         orderedFields,
         plainText,

@@ -9,7 +9,7 @@
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -205,10 +205,6 @@
         }
         flushCompact();
         return result;
-    }
-
-    function formatRand(value, decimals = 2) {
-        return Number(value).toLocaleString("en-ZA", {style: "currency", currency: "ZAR", minimumFractionDigits: decimals, maximumFractionDigits: decimals});
     }
 
     function economicSlide(indicators) {

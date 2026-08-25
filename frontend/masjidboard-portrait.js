@@ -9,7 +9,7 @@
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -147,7 +147,6 @@
 
     function communityCard(item, compact) {
         const card = element("article", "portrait-community-card portrait-community-" + item.type + (compact ? " compact" : ""));
-        card.append(element("div", "portrait-community-type", communityTypeLabel(item.type)));
         card.append(element("h2", "portrait-community-title", item.title));
         if (item.body) {
             const body = element("p", "portrait-community-body", item.body);

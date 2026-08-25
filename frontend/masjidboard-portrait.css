@@ -169,7 +169,7 @@ body.portrait-layout {
 .portrait-community-slide.single { grid-template-rows:minmax(0,1fr); }
 .portrait-community-slide.paired { grid-template-rows:repeat(2,minmax(0,1fr)); }
 .portrait-community-slide.compact-single {
-    grid-template-rows:minmax(0,300px);
+    grid-template-rows:minmax(0,260px);
     align-content:center;
 }
 .portrait-community-card {
@@ -262,6 +262,31 @@ body.portrait-layout {
 .portrait-community-card.compact .portrait-community-source {
     padding-top:8px;
     font-size:13px;
+}
+.portrait-community-card.compact.portrait-community-salaah_change .portrait-community-title {
+    margin-top:0;
+}
+.portrait-community-salaah_change .portrait-salaah-change-main {
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-align:center;
+}
+.portrait-community-salaah_change .portrait-salaah-change-effective {
+    color:var(--portrait-muted);
+    font-size:21px;
+    font-weight:650;
+}
+.portrait-community-salaah_change .portrait-salaah-change-time {
+    color:var(--portrait-heading-accent);
+    font-size:56px;
+    font-weight:850;
+    line-height:1;
+    font-variant-numeric:tabular-nums;
 }
 
 .portrait-economic-date { margin:8px 0; color:var(--portrait-muted); font-size:18px; font-weight:600; }

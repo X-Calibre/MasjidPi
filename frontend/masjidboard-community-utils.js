@@ -20,6 +20,27 @@
         });
     }
 
+    function formatNoticeDate(value) {
+        const raw = plainText(value);
+        const match = raw.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?$/);
+        if (!match) return raw;
+        const months = {
+            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+            jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+        };
+        const month = months[match[2].slice(0, 3).toLowerCase()];
+        if (month === undefined) return raw;
+        const now = new Date();
+        let year = match[3] ? Number(match[3]) : now.getFullYear();
+        let date = new Date(year, month, Number(match[1]), 12);
+        if (!match[3] && date.getTime() < now.getTime() - 180 * 24 * 60 * 60 * 1000) {
+            date = new Date(year + 1, month, Number(match[1]), 12);
+        }
+        return date.toLocaleDateString("en-ZA", {
+            weekday: "long", day: "numeric", month: "long",
+        });
+    }
+
     function formatUpdatedAt(value) {
         const updatedAt = new Date(value);
         if (Number.isNaN(updatedAt.getTime())) return String(value || "");
@@ -273,6 +294,7 @@
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,
+        formatNoticeDate,
         formatRand,
         formatUpdatedAt,
         noticeTitle,

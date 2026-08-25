@@ -296,7 +296,16 @@ body.portrait-layout {
     font-variant-numeric:tabular-nums;
 }
 
-.portrait-economic-date { margin:8px 0; color:var(--portrait-muted); font-size:18px; font-weight:600; }
+.portrait-economic-slide .portrait-slide-heading {
+    height:auto;
+    border-bottom:0;
+}
+.portrait-economic-date {
+    margin:6px 0 14px;
+    color:var(--portrait-muted);
+    font-size:18px;
+    font-weight:600;
+}
 .portrait-economic-values { overflow:hidden; border:2px solid var(--portrait-line); border-radius:16px; background:var(--portrait-panel); }
 .portrait-economic-value { min-height:60px; padding:0 18px; border-top:1px solid var(--portrait-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:20px; }
 .portrait-economic-value:first-child { border-top:0; }
@@ -304,7 +313,7 @@ body.portrait-layout {
 .portrait-economic-accounting { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:baseline; gap:12px; }
 .portrait-economic-currency { justify-self:start; }
 .portrait-economic-amount { justify-self:end; text-align:right; white-space:nowrap; }
-.portrait-economic-footer { margin-top:auto; padding-top:10px; display:grid; gap:4px; color:var(--portrait-muted); font-size:14px; font-weight:600; }
+.portrait-economic-footer { margin-top:0; padding-top:14px; display:grid; gap:5px; color:var(--portrait-muted); font-size:16px; font-weight:650; line-height:1.2; }
 .portrait-economic-source { margin:0; padding:0; }
 
 

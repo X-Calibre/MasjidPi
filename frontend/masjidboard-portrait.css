@@ -280,6 +280,8 @@ body.portrait-layout {
     color:var(--portrait-muted);
     font-size:21px;
     font-weight:650;
+    line-height:1.35;
+    white-space:pre-line;
 }
 .portrait-community-salaah_change .portrait-salaah-change-time {
     color:var(--portrait-heading-accent);

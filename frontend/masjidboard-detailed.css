@@ -145,6 +145,37 @@
     font-size:clamp(.68rem,.72vw,.82rem);
 }
 
+/* Salaah changes contain only two short values, so use the available card
+   space for prominent text and a clearly separated label/value grid. */
+.detailed-community-salaah_change {
+    padding:clamp(16px,1.25vw,22px);
+}
+.detailed-community-salaah_change .detailed-community-type {
+    font-size:clamp(.82rem,.9vw,1rem);
+}
+.detailed-community-salaah_change .detailed-community-title {
+    margin-top:clamp(10px,1vh,14px);
+    font-size:clamp(1.65rem,1.9vw,2.1rem);
+}
+.detailed-community-salaah_change .detailed-community-fields {
+    margin-top:clamp(12px,1.2vh,16px);
+    padding-top:clamp(8px,.8vh,11px);
+    gap:clamp(6px,.65vh,9px);
+}
+.detailed-community-salaah_change .detailed-community-field {
+    grid-template-columns:minmax(118px,.42fr) minmax(0,1fr);
+    gap:clamp(16px,1.1vw,22px);
+    padding-top:clamp(7px,.7vh,10px);
+    font-size:clamp(1.02rem,1.12vw,1.28rem);
+}
+.detailed-community-salaah_change .detailed-community-field-value {
+    font-weight:800;
+}
+.detailed-community-salaah_change .detailed-community-source {
+    margin-top:clamp(10px,1vh,14px);
+    font-size:clamp(.84rem,.9vw,1rem);
+}
+
 /* Landscape rows use one shared label column. */
 .landscape-layout .comparison-grid,
 .landscape-layout .prayer-row {

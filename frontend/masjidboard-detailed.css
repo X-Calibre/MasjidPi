@@ -195,6 +195,8 @@
     color:var(--muted);
     font-size:clamp(1rem,1.12vw,1.25rem);
     font-weight:650;
+    line-height:1.35;
+    white-space:pre-line;
 }
 .detailed-community-salaah_change .salaah-change-time {
     color:var(--accent);

@@ -162,7 +162,7 @@
     padding-top:clamp(8px,.8vh,11px);
     gap:clamp(6px,.65vh,9px);
 }
-.detailed-community-salaah_change .detailed-community-field {
+.detailed-community-card.detailed-community-salaah_change .detailed-community-field {
     grid-template-columns:minmax(118px,.42fr) minmax(0,1fr);
     gap:clamp(16px,1.1vw,22px);
     padding-top:clamp(7px,.7vh,10px);

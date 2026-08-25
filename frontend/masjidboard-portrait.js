@@ -224,15 +224,24 @@
             ["Silver / g", formatRand(indicators.silver_per_gram)],
             ["Minimum Mahr", formatRand(indicators.minimum_mahr)],
             ["Mahr Faatimi", formatRand(indicators.mahr_faatimi)],
-            ["Updated at", formatUpdatedAt(indicators.fetched_at)],
         ];
         const grid = element("div", "portrait-economic-values");
         for (const [label, value] of values) {
             const row = element("div", "portrait-economic-value");
-            row.append(element("span", "", label), element("strong", "", value));
+            const accountingValue = element("strong", "portrait-economic-accounting");
+            accountingValue.append(
+                element("span", "portrait-economic-currency", "R"),
+                element("span", "portrait-economic-amount", value.slice(1))
+            );
+            row.append(element("span", "", label), accountingValue);
             grid.append(row);
         }
-        slide.append(grid, element("div", "portrait-economic-source", `Source: ${indicators.source}`));
+        const footer = element("footer", "portrait-economic-footer");
+        footer.append(
+            element("div", "portrait-economic-updated", `Updated at ${formatUpdatedAt(indicators.fetched_at)}`),
+            element("div", "portrait-economic-source", `From ${indicators.source}`)
+        );
+        slide.append(grid, footer);
         return slide;
     }
 

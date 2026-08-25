@@ -166,7 +166,7 @@
     grid-template-columns:minmax(118px,.42fr) minmax(0,1fr);
     gap:clamp(16px,1.1vw,22px);
     padding-top:clamp(7px,.7vh,10px);
-    font-size:clamp(1.02rem,1.12vw,1.28rem);
+    font-size:clamp(1.28rem,1.42vw,1.6rem);
 }
 .detailed-community-salaah_change .detailed-community-field-value {
     font-weight:800;
@@ -176,8 +176,14 @@
     font-size:clamp(.84rem,.9vw,1rem);
 }
 
-/* Keep economic currency symbols on one shared accounting edge while the
-   numeric amounts align independently against the right side of the column. */
+/* Keep economic labels and values on equal tracks so long labels remain on
+   one line, then align the accounting symbol and amount within the value half. */
+.detailed-community-economic .detailed-community-field {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.detailed-community-economic .detailed-community-field-label {
+    white-space:nowrap;
+}
 .detailed-community-economic .economic-accounting-value {
     display:grid;
     grid-template-columns:auto minmax(0,1fr);

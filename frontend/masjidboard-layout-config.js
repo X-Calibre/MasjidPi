@@ -9,7 +9,6 @@
     const slideDuration = document.getElementById("slideDuration");
     const slideDurationValue = document.getElementById("slideDurationValue");
     const showEconomicIndicators = document.getElementById("showEconomicIndicators");
-    const banner = document.getElementById("configBanner");
     const previewLink = document.getElementById("displayPreviewLink");
 
     if (!select || !saveButton || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators || themeInputs.length === 0) return;
@@ -21,11 +20,7 @@
     };
 
     function showBanner(message, kind = "success") {
-        if (!banner) return;
-        banner.textContent = message;
-        banner.className = `config-banner ${kind}`;
-        window.clearTimeout(showBanner.timer);
-        showBanner.timer = window.setTimeout(() => banner.classList.add("hidden"), 6000);
+        window.MasjidPiUI.notify(message, kind);
     }
 
     async function request(options = {}) {

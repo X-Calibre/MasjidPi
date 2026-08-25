@@ -63,17 +63,6 @@
     color: var(--subtle);
     line-height: 1.4;
 }
-.config-banner {
-    margin-bottom: 20px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--field);
-}
-.config-banner.success { color: var(--accent); }
-.config-banner.error { color: #ff8a8a; }
-.config-banner.warning { color: var(--warning); }
-
 .board-selection {
     display: flex;
     flex-direction: column;

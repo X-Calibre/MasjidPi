@@ -1,6 +1,35 @@
 (() => {
     "use strict";
 
+    function notificationContainer() {
+        let container = document.getElementById("toastContainer");
+        if (container) return container;
+
+        container = document.createElement("div");
+        container.id = "toastContainer";
+        container.className = "toast-container";
+        container.setAttribute("aria-live", "polite");
+        container.setAttribute("aria-atomic", "false");
+        document.body.appendChild(container);
+        return container;
+    }
+
+    function notify(message, type = "success", duration = 4000) {
+        const container = notificationContainer();
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${type}`;
+        toast.setAttribute("role", type === "error" ? "alert" : "status");
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        window.setTimeout(() => {
+            toast.classList.add("toast-leaving");
+            window.setTimeout(() => toast.remove(), 250);
+        }, duration);
+    }
+
+    window.MasjidPiUI = Object.freeze({notify});
+
     async function loadComponents() {
         const response = await fetch("/api/components", {cache: "no-store"});
         if (!response.ok) throw new Error(`HTTP ${response.status}`);

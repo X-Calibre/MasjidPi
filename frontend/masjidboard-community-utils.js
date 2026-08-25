@@ -63,7 +63,8 @@
             second_location: "Second Jamaat", second_date: "Second Date",
             nisaab: "Nisaab", krugerrand: "Krugerrand", gold_24: "Gold 24 ct / g",
             gold_22: "Gold 22 ct / g", gold_18: "Gold 18 ct / g", silver: "Silver / g",
-            minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi", updated_at: "Updated at",
+            minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
+            source_updated_at: "Source updated at", retrieved_at: "Retrieved at",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -79,7 +80,7 @@
             dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
-            economic: ["nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "silver", "minimum_mahr", "mahr_faatimi", "updated_at"],
+            economic: ["nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "silver", "minimum_mahr", "mahr_faatimi", "source_updated_at", "retrieved_at"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]
@@ -87,7 +88,7 @@
         const names = [...preferred, ...Object.keys(fields).sort()].filter((name, index, all) =>
             !titleFields.has(name) && all.indexOf(name) === index && plainText(fields[name])
         );
-        const fieldLimit = item.type === "economic" ? 9 : 6;
+        const fieldLimit = item.type === "economic" ? 10 : 6;
         return names.slice(0, fieldLimit).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
     }
 

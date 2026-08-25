@@ -187,7 +187,9 @@
             card.append(body);
         }
 
-        const fields = orderedFields(item);
+        const fields = orderedFields(item).filter((field) =>
+            item.type !== "economic" || field.label !== "Updated at"
+        );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");
             for (const field of fields) {
@@ -209,7 +211,16 @@
             }
             card.append(list);
         }
-        card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+        if (item.type === "economic") {
+            const footer = makeElement("footer", "detailed-community-footer");
+            footer.append(
+                makeElement("div", "detailed-community-updated", `Updated at ${item.fields.updated_at}`),
+                makeElement("div", "detailed-community-source", `From ${item.source}`)
+            );
+            card.append(footer);
+        } else {
+            card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+        }
         return card;
     }
 

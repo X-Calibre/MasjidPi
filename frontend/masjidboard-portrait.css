@@ -191,7 +191,7 @@ body.portrait-layout {
     text-transform:uppercase;
 }
 .portrait-community-title {
-    margin:18px 0 0;
+    margin:0;
     color:var(--portrait-text);
     font-size:38px;
     font-weight:800;

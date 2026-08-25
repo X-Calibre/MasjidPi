@@ -199,16 +199,7 @@ async function updateCatalogue() {
 }
 
 function showToast(message, type = "success") {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = "toast toast-" + type;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.transition = "opacity .3s";
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    window.MasjidPiUI.notify(message, type);
 }
 
 function setBusy(button, busy, busyText, normalText) {

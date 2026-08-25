@@ -148,6 +148,29 @@ func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) 
 	}
 }
 
+func TestEconomicRefreshDueLimitsWeekendAttempts(t *testing.T) {
+	t.Parallel()
+	current := &economic.Indicators{EffectiveDate: "2026-08-28"}
+	tests := []struct {
+		name string
+		now  time.Time
+		want bool
+	}{
+		{"before weekend window", time.Date(2026, 8, 29, 6, 59, 0, 0, time.UTC), false},
+		{"weekend first attempt", time.Date(2026, 8, 29, 7, 0, 0, 0, time.UTC), true},
+		{"weekend retry window", time.Date(2026, 8, 29, 8, 29, 0, 0, time.UTC), true},
+		{"weekend cutoff", time.Date(2026, 8, 29, 8, 30, 0, 0, time.UTC), false},
+		{"weekday retries continue", time.Date(2026, 8, 31, 18, 0, 0, 0, time.UTC), true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := economicRefreshDue(current, test.now); got != test.want {
+				t.Fatalf("economicRefreshDue() = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
 func TestEconomicIndicatorsHiddenWhenDisabled(t *testing.T) {
 	t.Parallel()
 	service := &Service{indicators: &economic.Indicators{Source: economic.SourceName, SourceURL: "https://example.test", EffectiveDate: "2026-08-24", Nisaab: 1, Krugerrand: 2}}

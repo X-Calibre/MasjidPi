@@ -9,7 +9,7 @@
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -157,7 +157,7 @@
         if (item.type === "salaah_change") {
             const main = element("div", "portrait-salaah-change-main");
             main.append(
-                element("div", "portrait-salaah-change-effective", "Effective from " + plainText(item.fields.effective_date)),
+                element("div", "portrait-salaah-change-effective", "Effective from\n" + formatNoticeDate(item.fields.effective_date)),
                 element("div", "portrait-salaah-change-time", plainText(item.fields.new_time))
             );
             card.append(main);

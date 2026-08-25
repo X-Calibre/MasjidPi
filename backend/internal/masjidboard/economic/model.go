@@ -18,8 +18,9 @@ type Indicators struct {
 	Nisaab        float64   `json:"nisaab"`
 	MinimumMahr   float64   `json:"minimum_mahr"`
 	MahrFaatimi   float64   `json:"mahr_faatimi"`
-	Krugerrand    float64   `json:"krugerrand"`
-	FetchedAt     time.Time `json:"fetched_at"`
+	Krugerrand     float64   `json:"krugerrand"`
+	SourceUpdatedAt time.Time `json:"source_updated_at,omitempty"`
+	FetchedAt      time.Time `json:"fetched_at"`
 }
 
 func (i Indicators) Valid() bool {

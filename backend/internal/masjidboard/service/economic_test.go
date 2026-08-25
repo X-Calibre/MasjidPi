@@ -14,8 +14,8 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
 
-func economicResponse(modifiedGMT string) string {
-	return fmt.Sprintf(`[{"date":"2026-08-14T09:02:11","modified_gmt":%q,"link":"https://www.jamiatsa.org/source/","title":{"rendered":"Rabi al-Awwal 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>24 Aug</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr></tbody></table>"}}]`, modifiedGMT)
+func economicResponse(modifiedGMT, effectiveDate string) string {
+	return fmt.Sprintf(`[{"date":"2026-08-14T09:02:11","modified_gmt":%q,"link":"https://www.jamiatsa.org/source/","title":{"rendered":"Rabi al-Awwal 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>%s</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr></tbody></table>"}}]`, modifiedGMT, effectiveDate)
 }
 
 func TestRefreshEconomicIndicatorsFetchesOnceForCurrentSourceDay(t *testing.T) {
@@ -24,7 +24,7 @@ func TestRefreshEconomicIndicatorsFetchesOnceForCurrentSourceDay(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("2026-08-24T07:02:11"))
+		fmt.Fprint(w, economicResponse("2026-08-24T07:02:11", "24 Aug"))
 	}))
 	defer server.Close()
 
@@ -57,7 +57,7 @@ func TestRefreshEconomicIndicatorsWaitsUntilNineInJohannesburg(t *testing.T) {
 	var requests atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
-		fmt.Fprint(w, economicResponse("2026-08-25T07:02:11"))
+		fmt.Fprint(w, economicResponse("2026-08-25T07:02:11", "25 Aug"))
 	}))
 	defer server.Close()
 
@@ -65,6 +65,7 @@ func TestRefreshEconomicIndicatorsWaitsUntilNineInJohannesburg(t *testing.T) {
 	service := &Service{
 		selection: selection.State{ShowEconomicIndicators: true},
 		indicators: &economic.Indicators{
+			EffectiveDate:   "2026-08-24",
 			SourceUpdatedAt: time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC),
 			FetchedAt:       time.Date(2026, 8, 24, 19, 0, 0, 0, time.UTC),
 		},
@@ -84,7 +85,7 @@ func TestRefreshEconomicIndicatorsRetriesUnchangedSource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("2026-08-24T07:02:11"))
+		fmt.Fprint(w, economicResponse("2026-08-24T07:02:11", "24 Aug"))
 	}))
 	defer server.Close()
 
@@ -93,6 +94,7 @@ func TestRefreshEconomicIndicatorsRetriesUnchangedSource(t *testing.T) {
 	service := &Service{
 		selection: selection.State{ShowEconomicIndicators: true},
 		indicators: &economic.Indicators{
+			EffectiveDate:   "2026-08-24",
 			SourceUpdatedAt: time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC),
 			FetchedAt:       originalFetchedAt,
 		},
@@ -112,13 +114,13 @@ func TestRefreshEconomicIndicatorsRetriesUnchangedSource(t *testing.T) {
 	}
 }
 
-func TestRefreshEconomicIndicatorsStopsAfterSourceAdvances(t *testing.T) {
+func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) {
 	t.Parallel()
 	var requests atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("2026-08-25T07:05:00"))
+		fmt.Fprint(w, economicResponse("2026-08-25T07:05:00", "25 Aug"))
 	}))
 	defer server.Close()
 
@@ -126,6 +128,7 @@ func TestRefreshEconomicIndicatorsStopsAfterSourceAdvances(t *testing.T) {
 	service := &Service{
 		selection: selection.State{ShowEconomicIndicators: true},
 		indicators: &economic.Indicators{
+			EffectiveDate:   "2026-08-24",
 			SourceUpdatedAt: time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC),
 		},
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},

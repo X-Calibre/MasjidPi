@@ -237,7 +237,11 @@ func (s *Service) RefreshEconomicIndicators(ctx context.Context) error {
 	current := s.indicators
 	client, store := s.economicClient, s.economicStore
 	s.mu.RUnlock()
-	if !enabled || (current != nil && time.Since(current.FetchedAt) < economicRefreshInterval) {
+	now := time.Now
+	if client.Now != nil {
+		now = client.Now
+	}
+	if !enabled || (current != nil && now().Sub(current.FetchedAt) < economicRefreshInterval) {
 		return nil
 	}
 	indicators, err := client.Fetch(ctx)

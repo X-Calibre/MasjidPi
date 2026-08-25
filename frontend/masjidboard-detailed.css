@@ -5,6 +5,10 @@
     grid-template-rows:auto minmax(0,1fr) auto;
     column-gap:clamp(10px,1vw,16px);
 }
+.landscape-layout[data-board-count="1"] .board-shell,
+.landscape-layout[data-board-count="2"] .board-shell {
+    grid-template-columns:minmax(0,2fr) minmax(280px,1fr);
+}
 .landscape-layout .board-topbar { grid-column:1; grid-row:1; }
 .landscape-layout .display-state { grid-column:1; grid-row:2; }
 .landscape-layout .empty-state { grid-column:1 / span 2; grid-row:1 / span 2; }
@@ -334,6 +338,10 @@
 
 @media (max-width:1100px) {
     .landscape-layout .board-shell { grid-template-columns:minmax(0,3fr) minmax(230px,1fr); }
+    .landscape-layout[data-board-count="1"] .board-shell,
+    .landscape-layout[data-board-count="2"] .board-shell {
+        grid-template-columns:minmax(0,2fr) minmax(230px,1fr);
+    }
     .landscape-layout .comparison-grid,
     .landscape-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
@@ -353,6 +361,10 @@
 @media (max-width:760px) {
     .landscape-layout .timetable-stage { flex:1 1 auto; }
     .landscape-layout .board-shell { min-width:760px; grid-template-columns:minmax(0,3fr) minmax(210px,1fr); }
+    .landscape-layout[data-board-count="1"] .board-shell,
+    .landscape-layout[data-board-count="2"] .board-shell {
+        grid-template-columns:minmax(0,2fr) minmax(210px,1fr);
+    }
     .landscape-layout .additional-times { min-width:0; max-width:none; }
     .landscape-layout .comparison-grid,
     .landscape-layout .prayer-row,

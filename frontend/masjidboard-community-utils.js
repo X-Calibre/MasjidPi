@@ -20,6 +20,15 @@
         });
     }
 
+    function formatUpdatedAt(value) {
+        const updatedAt = new Date(value);
+        if (Number.isNaN(updatedAt.getTime())) return String(value || "");
+        return updatedAt.toLocaleString("en-ZA", {
+            day: "numeric", month: "short", year: "numeric",
+            hour: "2-digit", minute: "2-digit", hour12: false,
+        });
+    }
+
     function fieldLabel(name) {
         const labels = {
             address: "Address", bride: "Bride", cemetery: "Cemetery", date: "Date",
@@ -32,7 +41,8 @@
             gasht_in_time: "In Time", first_location: "First Jamaat", first_date: "First Date",
             second_location: "Second Jamaat", second_date: "Second Date",
             nisaab: "Nisaab", krugerrand: "Krugerrand", gold_24: "Gold 24 ct / g",
-            silver: "Silver / g", minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
+            gold_22: "Gold 22 ct / g", gold_18: "Gold 18 ct / g", silver: "Silver / g",
+            minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi", updated_at: "Updated at",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -48,7 +58,7 @@
             dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
-            economic: ["nisaab", "krugerrand", "gold_24", "silver", "minimum_mahr", "mahr_faatimi"],
+            economic: ["nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "silver", "minimum_mahr", "mahr_faatimi", "updated_at"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]
@@ -56,7 +66,8 @@
         const names = [...preferred, ...Object.keys(fields).sort()].filter((name, index, all) =>
             !titleFields.has(name) && all.indexOf(name) === index && plainText(fields[name])
         );
-        return names.slice(0, 6).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
+        const fieldLimit = item.type === "economic" ? 9 : 6;
+        return names.slice(0, fieldLimit).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
     }
 
     function noticeTitle(notice) {
@@ -263,6 +274,7 @@
         fieldLabel,
         fixtureCommunityItems,
         formatRand,
+        formatUpdatedAt,
         noticeTitle,
         orderedFields,
         plainText,

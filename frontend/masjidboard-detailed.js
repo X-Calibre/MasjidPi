@@ -132,25 +132,26 @@
 
     function packCommunityPages(items) {
         const pages = [];
+        const regularItems = items.filter((item) => item.type !== "economic");
         let index = 0;
-        while (index < items.length) {
-            const remaining = items.length - index;
+        while (index < regularItems.length) {
+            const remaining = regularItems.length - index;
             if (remaining === 1) {
-                pages.push({layout: "single", entries: [{item: items[index], span: 1}]});
+                pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
                 index += 1;
                 continue;
             }
             if (remaining === 2) {
                 pages.push({layout: "halves", entries: [
-                    {item: items[index], span: 1}, {item: items[index + 1], span: 1},
+                    {item: regularItems[index], span: 1}, {item: regularItems[index + 1], span: 1},
                 ]});
                 index += 2;
                 continue;
             }
 
-            const first = items[index];
-            const second = items[index + 1];
-            const third = items[index + 2];
+            const first = regularItems[index];
+            const second = regularItems[index + 1];
+            const third = regularItems[index + 2];
             const firstDetailed = isDetailedCommunityItem(first);
             const secondDetailed = isDetailedCommunityItem(second);
             const thirdDetailed = isDetailedCommunityItem(third);
@@ -170,6 +171,9 @@
                 pages.push({layout: "halves", entries: [{item: first, span: 1}, {item: second, span: 1}]});
                 index += 2;
             }
+        }
+        for (const item of items.filter((entry) => entry.type === "economic")) {
+            pages.push({layout: "single", entries: [{item, span: 1}]});
         }
         return pages;
     }

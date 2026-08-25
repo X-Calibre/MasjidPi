@@ -179,6 +179,22 @@
 .detailed-community-economic .detailed-community-title {
     margin-top:0;
 }
+.detailed-community-economic .detailed-community-fields {
+    margin-bottom:clamp(12px,1.2vh,18px);
+}
+.detailed-community-footer {
+    margin-top:auto;
+    padding-top:clamp(12px,1.25vh,18px);
+    border-top:1px solid var(--line);
+    display:grid;
+    gap:clamp(6px,.65vh,9px);
+    color:var(--muted);
+    font-size:clamp(.78rem,.86vw,.96rem);
+    font-weight:610;
+}
+.detailed-community-footer .detailed-community-source {
+    margin-top:0;
+}
 
 /* Keep economic labels and values on equal tracks so long labels remain on
    one line, then align the accounting symbol and amount within the value half. */

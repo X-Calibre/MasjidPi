@@ -265,11 +265,19 @@ body.portrait-layout {
 }
 .portrait-community-card.compact.portrait-community-salaah_change .portrait-community-title {
     margin-top:0;
+    text-align:center;
+}
+.portrait-community-card.portrait-community-salaah_change {
+    text-align:center;
+}
+.portrait-community-card.portrait-community-salaah_change .portrait-community-title {
+    text-align:center;
 }
 .portrait-community-card.portrait-community-salaah_change .portrait-community-source {
     font-size:26px;
     font-weight:750;
     line-height:1.15;
+    text-align:center;
 }
 .portrait-community-salaah_change .portrait-salaah-change-main {
     flex:1 1 auto;

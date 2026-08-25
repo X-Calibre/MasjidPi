@@ -149,6 +149,7 @@
    space for prominent text and a clearly separated label/value grid. */
 .detailed-community-salaah_change {
     padding:clamp(16px,1.25vw,22px);
+    text-align:center;
 }
 .detailed-community-salaah_change .detailed-community-type {
     font-size:clamp(.82rem,.9vw,1rem);
@@ -177,12 +178,14 @@
 }
 .detailed-community-card.detailed-community-salaah_change .detailed-community-title {
     margin-top:0;
+    text-align:center;
 }
 .detailed-community-card.detailed-community-salaah_change .detailed-community-source {
     margin-top:auto;
     font-size:clamp(1.35rem,1.55vw,1.7rem);
     font-weight:750;
     line-height:1.15;
+    text-align:center;
 }
 .detailed-community-salaah_change .salaah-change-main {
     flex:1 1 auto;

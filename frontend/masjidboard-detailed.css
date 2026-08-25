@@ -60,7 +60,7 @@
     text-transform:uppercase;
 }
 .detailed-community-title {
-    margin:clamp(13px,1.5vh,20px) 0 0;
+    margin:0;
     color:var(--text);
     font-size:clamp(1.55rem,1.9vw,2.25rem);
     font-weight:820;
@@ -121,7 +121,7 @@
     font-size:clamp(.72rem,.78vw,.88rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-title {
-    margin-top:clamp(8px,.8vh,11px);
+    margin-top:0;
     font-size:clamp(1.3rem,1.5vw,1.72rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-body {
@@ -154,7 +154,7 @@
     font-size:clamp(.82rem,.9vw,1rem);
 }
 .detailed-community-salaah_change .detailed-community-title {
-    margin-top:clamp(10px,1vh,14px);
+    margin-top:0;
     font-size:clamp(1.65rem,1.9vw,2.1rem);
 }
 .detailed-community-salaah_change .detailed-community-fields {

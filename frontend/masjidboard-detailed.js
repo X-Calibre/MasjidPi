@@ -5,7 +5,7 @@
     if (params.get("layout") === "portrait") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -260,9 +260,12 @@
                 nisaab: formatRand(indicators.nisaab),
                 krugerrand: formatRand(indicators.krugerrand),
                 gold_24: formatRand(indicators.gold_24_carat_per_gram),
+                gold_22: formatRand(indicators.gold_22_carat_per_gram),
+                gold_18: formatRand(indicators.gold_18_carat_per_gram),
                 silver: formatRand(indicators.silver_per_gram),
                 minimum_mahr: formatRand(indicators.minimum_mahr),
                 mahr_faatimi: formatRand(indicators.mahr_faatimi),
+                updated_at: formatUpdatedAt(indicators.fetched_at),
             },
         };
     }

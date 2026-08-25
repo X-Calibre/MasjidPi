@@ -154,7 +154,16 @@
             card.append(body);
         }
 
-        const fields = orderedFields(item);
+        if (item.type === "salaah_change") {
+            const main = element("div", "portrait-salaah-change-main");
+            main.append(
+                element("div", "portrait-salaah-change-effective", "Effective from " + plainText(item.fields.effective_date)),
+                element("div", "portrait-salaah-change-time", plainText(item.fields.new_time))
+            );
+            card.append(main);
+        }
+
+        const fields = item.type === "salaah_change" ? [] : orderedFields(item);
         if (fields.length > 0) {
             const list = element("div", "portrait-community-fields");
             for (const field of fields) {

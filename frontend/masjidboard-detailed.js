@@ -5,7 +5,7 @@
     if (params.get("layout") === "portrait") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -232,10 +232,6 @@
             communityPage = 0;
         }
         renderCommunityPage();
-    }
-
-    function formatRand(value) {
-        return Number(value).toLocaleString("en-ZA", {style: "currency", currency: "ZAR", minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
     function economicCommunityItem(indicators) {

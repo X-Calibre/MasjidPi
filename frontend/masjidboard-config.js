@@ -16,7 +16,6 @@
     const saveLocationsButton = document.getElementById("saveLocationsButton");
     const refreshHierarchyButton = document.getElementById("refreshHierarchyButton");
     const hierarchyMeta = document.getElementById("hierarchyMeta");
-    const configBanner = document.getElementById("configBanner");
     const masjidBoardStatus = document.getElementById("masjidBoardStatus");
     const themeToggle = document.getElementById("themeToggle");
 
@@ -67,10 +66,7 @@
     }
 
     function showBanner(message, kind = "success") {
-        configBanner.textContent = message;
-        configBanner.className = `config-banner ${kind}`;
-        window.clearTimeout(showBanner.timer);
-        showBanner.timer = window.setTimeout(() => configBanner.classList.add("hidden"), 6000);
+        window.MasjidPiUI.notify(message, kind);
     }
 
     function option(value, text, selected = false) {

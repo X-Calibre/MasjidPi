@@ -176,6 +176,10 @@
     font-size:clamp(.84rem,.9vw,1rem);
 }
 
+.detailed-community-economic .detailed-community-title {
+    margin-top:0;
+}
+
 /* Keep economic labels and values on equal tracks so long labels remain on
    one line, then align the accounting symbol and amount within the value half. */
 .detailed-community-economic .detailed-community-field {

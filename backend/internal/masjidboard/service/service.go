@@ -241,6 +241,12 @@ func economicRefreshDue(current *economic.Indicators, now time.Time) bool {
 	if localNow.Hour() < economicRefreshHour {
 		return false
 	}
+	if localNow.Weekday() == time.Saturday || localNow.Weekday() == time.Sunday {
+		weekendCutoff := time.Date(localNow.Year(), localNow.Month(), localNow.Day(), 10, 30, 0, 0, economicRefreshLocation)
+		if !localNow.Before(weekendCutoff) {
+			return false
+		}
+	}
 	effectiveDate, err := time.Parse("2006-01-02", current.EffectiveDate)
 	if err != nil {
 		return true

@@ -176,6 +176,24 @@
     font-size:clamp(.84rem,.9vw,1rem);
 }
 
+/* Keep economic currency symbols on one shared accounting edge while the
+   numeric amounts align independently against the right side of the column. */
+.detailed-community-economic .economic-accounting-value {
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:baseline;
+    column-gap:clamp(10px,.8vw,14px);
+    font-variant-numeric:tabular-nums;
+}
+.detailed-community-economic .economic-currency-symbol {
+    justify-self:start;
+}
+.detailed-community-economic .economic-amount {
+    justify-self:end;
+    text-align:right;
+    white-space:nowrap;
+}
+
 /* Landscape rows use one shared label column. */
 .landscape-layout .comparison-grid,
 .landscape-layout .prayer-row {

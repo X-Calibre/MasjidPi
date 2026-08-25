@@ -180,7 +180,9 @@
 
     function renderCommunityCard(item, span) {
         const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
-        card.append(makeElement("div", "detailed-community-type", communityTypeLabel(item.type)));
+        if (item.type !== "economic") {
+            card.append(makeElement("div", "detailed-community-type", communityTypeLabel(item.type)));
+        }
         card.append(makeElement("h2", "detailed-community-title", item.title));
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);
@@ -253,7 +255,7 @@
         const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "short", year: "numeric"});
         return {
             type: "economic",
-            title: "Nisaab & Krugerrand",
+            title: "Islamic Economic Indicators",
             body: `Effective ${dateText}`,
             source: indicators.source,
             fields: {

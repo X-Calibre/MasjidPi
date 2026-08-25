@@ -197,7 +197,7 @@
         }
 
         const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
-            item.type !== "economic" || field.label !== "Updated at"
+            item.type !== "economic" || !["Source updated at", "Retrieved at"].includes(field.label)
         );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");
@@ -223,7 +223,8 @@
         if (item.type === "economic") {
             const footer = makeElement("footer", "detailed-community-footer");
             footer.append(
-                makeElement("div", "detailed-community-updated", `Updated at ${item.fields.updated_at}`),
+                makeElement("div", "detailed-community-updated", `Source updated at ${item.fields.source_updated_at}`),
+                makeElement("div", "detailed-community-retrieved", `Retrieved at ${item.fields.retrieved_at}`),
                 makeElement("div", "detailed-community-source", `From ${item.source}`)
             );
             card.append(footer);
@@ -284,7 +285,8 @@
                 silver: formatRand(indicators.silver_per_gram),
                 minimum_mahr: formatRand(indicators.minimum_mahr),
                 mahr_faatimi: formatRand(indicators.mahr_faatimi),
-                updated_at: formatUpdatedAt(indicators.fetched_at),
+                source_updated_at: formatUpdatedAt(indicators.source_updated_at),
+                retrieved_at: formatUpdatedAt(indicators.fetched_at),
             },
         };
     }

@@ -222,11 +222,13 @@
         }
         if (item.type === "economic") {
             const footer = makeElement("footer", "detailed-community-footer");
-            footer.append(
-                makeElement("div", "detailed-community-updated", `Source updated at ${item.fields.source_updated_at}`),
-                makeElement("div", "detailed-community-retrieved", `Retrieved at ${item.fields.retrieved_at}`),
-                makeElement("div", "detailed-community-source", `From ${item.source}`)
-            );
+            if (item.fields.source_updated_at) {
+                footer.append(makeElement("div", "detailed-community-updated", `Source updated at ${item.fields.source_updated_at}`));
+            }
+            if (item.fields.retrieved_at) {
+                footer.append(makeElement("div", "detailed-community-retrieved", `Retrieved at ${item.fields.retrieved_at}`));
+            }
+            footer.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
             card.append(footer);
         } else {
             card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));

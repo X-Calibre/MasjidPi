@@ -211,7 +211,7 @@
         if (!indicators) return null;
         const slide = element("article", "portrait-slide portrait-economic-slide");
         const heading = element("header", "portrait-slide-heading");
-        heading.append(element("small", "", "ISLAMIC ECONOMIC INDICATORS"), element("h2", "", "Nisaab & Krugerrand"));
+        heading.append(element("h2", "", "Islamic Economic Indicators"));
         slide.append(heading);
         const effectiveDate = new Date(`${indicators.effective_date}T12:00:00`);
         const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "long", year: "numeric"});

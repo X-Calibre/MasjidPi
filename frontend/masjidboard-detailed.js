@@ -5,7 +5,7 @@
     if (params.get("layout") === "portrait") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -180,9 +180,6 @@
 
     function renderCommunityCard(item, span) {
         const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
-        if (item.type !== "economic") {
-            card.append(makeElement("div", "detailed-community-type", communityTypeLabel(item.type)));
-        }
         card.append(makeElement("h2", "detailed-community-title", item.title));
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);

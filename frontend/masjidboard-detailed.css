@@ -85,7 +85,7 @@
 }
 .detailed-community-field {
     display:grid;
-    grid-template-columns:minmax(74px,.32fr) minmax(0,1fr);
+    grid-template-columns:minmax(92px,.38fr) minmax(0,1fr);
     gap:10px;
     padding-top:clamp(8px,.75vh,10px);
     border-top:1px solid var(--line);
@@ -135,7 +135,7 @@
     gap:clamp(3px,.3vh,5px);
 }
 .community-layout-thirds .community-span-1 .detailed-community-field {
-    grid-template-columns:minmax(62px,.3fr) minmax(0,1fr);
+    grid-template-columns:minmax(78px,.36fr) minmax(0,1fr);
     gap:7px;
     padding-top:clamp(4px,.35vh,6px);
     font-size:clamp(.8rem,.83vw,.94rem);
@@ -277,7 +277,7 @@
     grid-column:1;
     grid-row:1;
     align-self:end;
-    font-size:clamp(1.2rem,1.4vw,1.6rem);
+    font-size:clamp(1.35rem,1.55vw,1.75rem);
 }
 .additional-times-source {
     grid-column:1;
@@ -285,7 +285,7 @@
     margin-top:3px;
     padding:0;
     border:0;
-    font-size:clamp(.78rem,.86vw,.96rem);
+    font-size:clamp(.88rem,.96vw,1.08rem);
 }
 .additional-times-list {
     grid-column:2;
@@ -313,13 +313,13 @@
 }
 .additional-time-label {
     color:var(--text);
-    font-size:clamp(.8rem,.86vw,.98rem);
+    font-size:clamp(.9rem,.96vw,1.08rem);
     font-weight:680;
     line-height:1.12;
 }
 .additional-time-value {
     color:var(--accent);
-    font-size:clamp(1.08rem,1.18vw,1.34rem);
+    font-size:clamp(1.2rem,1.3vw,1.48rem);
     font-weight:840;
     line-height:1;
     white-space:nowrap;

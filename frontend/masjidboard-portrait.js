@@ -9,7 +9,7 @@
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -221,9 +221,11 @@
             ["Krugerrand", formatRand(indicators.krugerrand)],
             ["Gold 24 ct / g", formatRand(indicators.gold_24_carat_per_gram)],
             ["Gold 22 ct / g", formatRand(indicators.gold_22_carat_per_gram)],
+            ["Gold 18 ct / g", formatRand(indicators.gold_18_carat_per_gram)],
             ["Silver / g", formatRand(indicators.silver_per_gram)],
             ["Minimum Mahr", formatRand(indicators.minimum_mahr)],
             ["Mahr Faatimi", formatRand(indicators.mahr_faatimi)],
+            ["Updated at", formatUpdatedAt(indicators.fetched_at)],
         ];
         const grid = element("div", "portrait-economic-values");
         for (const [label, value] of values) {

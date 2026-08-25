@@ -187,7 +187,16 @@
             card.append(body);
         }
 
-        const fields = orderedFields(item).filter((field) =>
+        if (item.type === "salaah_change") {
+            const main = makeElement("div", "salaah-change-main");
+            main.append(
+                makeElement("div", "salaah-change-effective", `Effective from ${plainText(item.fields.effective_date)}`),
+                makeElement("div", "salaah-change-time", plainText(item.fields.new_time))
+            );
+            card.append(main);
+        }
+
+        const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
             item.type !== "economic" || field.label !== "Updated at"
         );
         if (fields.length > 0) {

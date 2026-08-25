@@ -229,7 +229,21 @@ func (s *Service) Refresh(ctx context.Context) []runtime.Result {
 	return append([]runtime.Result(nil), results...)
 }
 
-const economicRefreshInterval = 12 * time.Hour
+const economicRefreshHour = 9
+
+var economicRefreshLocation = time.FixedZone("Africa/Johannesburg", 2*60*60)
+
+func economicRefreshDue(current *economic.Indicators, now time.Time) bool {
+	if current == nil {
+		return true
+	}
+	localNow := now.In(economicRefreshLocation)
+	if localNow.Hour() < economicRefreshHour {
+		return false
+	}
+	localSourceUpdate := current.SourceUpdatedAt.In(economicRefreshLocation)
+	return localSourceUpdate.Year() != localNow.Year() || localSourceUpdate.YearDay() != localNow.YearDay()
+}
 
 func (s *Service) RefreshEconomicIndicators(ctx context.Context) error {
 	s.mu.RLock()
@@ -241,12 +255,15 @@ func (s *Service) RefreshEconomicIndicators(ctx context.Context) error {
 	if client.Now != nil {
 		now = client.Now
 	}
-	if !enabled || (current != nil && now().Sub(current.FetchedAt) < economicRefreshInterval) {
+	if !enabled || !economicRefreshDue(current, now()) {
 		return nil
 	}
 	indicators, err := client.Fetch(ctx)
 	if err != nil {
 		return err
+	}
+	if current != nil && !indicators.SourceUpdatedAt.After(current.SourceUpdatedAt) {
+		return nil
 	}
 	if err := store.Save(indicators); err != nil {
 		return err

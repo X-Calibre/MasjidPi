@@ -5,7 +5,7 @@
     if (params.get("layout") === "portrait") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, fixtureCommunityItems, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -190,7 +190,7 @@
         if (item.type === "salaah_change") {
             const main = makeElement("div", "salaah-change-main");
             main.append(
-                makeElement("div", "salaah-change-effective", `Effective from ${plainText(item.fields.effective_date)}`),
+                makeElement("div", "salaah-change-effective", `Effective from\n${formatNoticeDate(item.fields.effective_date)}`),
                 makeElement("div", "salaah-change-time", plainText(item.fields.new_time))
             );
             card.append(main);

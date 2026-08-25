@@ -194,8 +194,17 @@
             for (const field of fields) {
                 const row = makeElement("div", "detailed-community-field");
                 row.append(makeElement("span", "detailed-community-field-label", field.label));
-                const value = makeElement("span", "detailed-community-field-value", field.value);
-                value.dir = "auto";
+                const value = makeElement("span", "detailed-community-field-value");
+                if (item.type === "economic" && field.value.startsWith("R")) {
+                    value.classList.add("economic-accounting-value");
+                    value.append(
+                        makeElement("span", "economic-currency-symbol", "R"),
+                        makeElement("span", "economic-amount", field.value.slice(1))
+                    );
+                } else {
+                    value.textContent = field.value;
+                    value.dir = "auto";
+                }
                 row.append(value);
                 list.append(row);
             }

@@ -706,8 +706,13 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 		status.StreamID = m.selected.ID
 		status.StreamName = m.selected.Name
 		status.URL = m.currentURL
-		status.Endpoint = endpointName(m.currentURL)
-		status.FallbackUsed = m.currentURL != "" && m.currentURL != m.selected.URL
+		if m.currentURL == "" {
+			status.Endpoint = ""
+			status.FallbackUsed = false
+		} else {
+			status.Endpoint = endpointName(m.currentURL)
+			status.FallbackUsed = m.currentURL != m.selected.URL
+		}
 	}
 	if playerStatus != nil {
 		status.Volume = playerStatus.Volume

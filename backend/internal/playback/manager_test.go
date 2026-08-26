@@ -145,6 +145,9 @@ func TestStopDisablesListeningAndKeepsSelectedStream(t *testing.T) {
 	if status.StreamID != selected.ID {
 		t.Fatalf("stream ID = %q, want %q", status.StreamID, selected.ID)
 	}
+	if status.URL != "" || status.Endpoint != "" || status.FallbackUsed {
+		t.Fatalf("idle endpoint status = URL %q, endpoint %q, fallback %v", status.URL, status.Endpoint, status.FallbackUsed)
+	}
 }
 
 func TestManagerPersistsPlayAndClearsStop(t *testing.T) {

@@ -274,6 +274,26 @@
     font-size:clamp(1.75rem,2.35vw,2.65rem);
 }
 
+/* Fira Sans is deliberately bundled so every display uses the same metrics.
+   Use its lighter faces for large numerals to keep counters open and distinct
+   on televisions, without changing the established type sizes or geometry. */
+.landscape-layout .current-time {
+    font-weight:700;
+    letter-spacing:-.02em;
+}
+.landscape-layout .time-value {
+    font-weight:600;
+    letter-spacing:0;
+}
+.landscape-layout .time-line.jumuah-event .time-value,
+.landscape-layout .time-line.jumuah-adhan .time-value {
+    font-weight:600;
+}
+.landscape-layout .time-line.dominant .time-value,
+.landscape-layout .time-line.jumuah-salaah .time-value {
+    font-weight:700;
+}
+
 /* Keep prayer names prominent while ensuring long names such as Maghrib
    remain comfortably inside the label card. */
 .landscape-layout .prayer-label {
@@ -346,7 +366,7 @@
 }
 .landscape-layout .single-adhan-as-jamaah .time-value-stack:has(.event-countdown) .time-value {
     font-size:clamp(1.85rem,2.7vw,2.85rem);
-    font-weight:870;
+    font-weight:700;
 }
 
 .landscape-layout .prayer-row .prayer-cell,
@@ -440,7 +460,8 @@
 .additional-time-value {
     color:var(--accent);
     font-size:clamp(1.2rem,1.3vw,1.48rem);
-    font-weight:840;
+    font-weight:700;
+    letter-spacing:0;
     line-height:1;
     white-space:nowrap;
 }

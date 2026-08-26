@@ -28,7 +28,7 @@ type wordpressPost struct {
 	Date        string `json:"date"`
 	ModifiedGMT string `json:"modified_gmt"`
 	Link        string `json:"link"`
-	Title struct {
+	Title       struct {
 		Rendered string `json:"rendered"`
 	} `json:"title"`
 	Content struct {

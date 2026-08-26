@@ -21,7 +21,7 @@ func economicResponse(modifiedGMT, effectiveDate string) string {
 func completeIndicators(effectiveDate string) *economic.Indicators {
 	return &economic.Indicators{
 		EffectiveDate: effectiveDate,
-		RandDollar: 1, Gold24Carat: 1, Gold22Carat: 1, Gold18Carat: 1,
+		RandDollar:    1, Gold24Carat: 1, Gold22Carat: 1, Gold18Carat: 1,
 		Gold14Carat: 1, Gold9Carat: 1, Silver: 1, Nisaab: 1,
 		MinimumMahr: 1, MahrFaatimi: 1, Krugerrand: 1,
 	}
@@ -108,8 +108,8 @@ func TestRefreshEconomicIndicatorsWaitsUntilNineInJohannesburg(t *testing.T) {
 	current.SourceUpdatedAt = time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC)
 	current.FetchedAt = time.Date(2026, 8, 24, 19, 0, 0, 0, time.UTC)
 	service := &Service{
-		selection: selection.State{ShowEconomicIndicators: true},
-		indicators: current,
+		selection:      selection.State{ShowEconomicIndicators: true},
+		indicators:     current,
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
 	}
 	if err := service.RefreshEconomicIndicators(context.Background()); err != nil {
@@ -136,8 +136,8 @@ func TestRefreshEconomicIndicatorsRetriesUnchangedSource(t *testing.T) {
 	current.SourceUpdatedAt = time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC)
 	current.FetchedAt = originalFetchedAt
 	service := &Service{
-		selection: selection.State{ShowEconomicIndicators: true},
-		indicators: current,
+		selection:      selection.State{ShowEconomicIndicators: true},
+		indicators:     current,
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
 		economicStore:  economic.Store{Path: filepath.Join(t.TempDir(), "indicators.json")},
 	}
@@ -168,8 +168,8 @@ func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) 
 	current := completeIndicators("2026-08-24")
 	current.SourceUpdatedAt = time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC)
 	service := &Service{
-		selection: selection.State{ShowEconomicIndicators: true},
-		indicators: current,
+		selection:      selection.State{ShowEconomicIndicators: true},
+		indicators:     current,
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
 		economicStore:  economic.Store{Path: filepath.Join(t.TempDir(), "indicators.json")},
 	}

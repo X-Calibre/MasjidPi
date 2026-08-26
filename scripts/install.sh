@@ -78,6 +78,7 @@ main() {
     detect_install_mode
     select_components
     migrate_legacy_preferences
+    migrate_catalogue_refresh_interval
 
     if [ "$INSTALL_MODE" = "install" ]; then
         info "Fresh installation detected."

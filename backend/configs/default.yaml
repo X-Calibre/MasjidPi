@@ -6,7 +6,7 @@ player:
   volume: 100
 
 streams:
-  refresh_interval: "168h"
+  refresh_interval: "672h"
 
 playback:
   retry_interval: "5s"

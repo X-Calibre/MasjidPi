@@ -14,6 +14,22 @@ migrate_legacy_preferences() {
     info "Migrated saved Web UI preferences to persistent storage."
 }
 
+migrate_catalogue_refresh_interval() {
+    local config_path="${1:-/etc/masjidpi/config.yaml}"
+
+    if [[ ! -f "$config_path" ]]; then
+        return
+    fi
+
+    # Change only the previous packaged default. Other explicitly configured
+    # refresh intervals remain untouched.
+    if grep -qx '  refresh_interval: "168h"' "$config_path"; then
+        sed -i 's/^  refresh_interval: "168h"$/  refresh_interval: "672h"/' \
+            "$config_path"
+        info "Updated automatic Listen catalogue refresh interval to 28 days."
+    fi
+}
+
 install_runtime() {
 
     local target_dir="${RUNTIME_TARGET:-$INSTALL_DIR}"

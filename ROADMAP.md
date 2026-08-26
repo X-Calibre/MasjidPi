@@ -8,12 +8,12 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.3.0 is the current stable release.**
+**v1.4.0 is the current stable release. v1.4.1 is being prepared.**
 
 The current product provides:
 
 - LiveMasjid stream catalogue, search, favourites and playback
-- Weekly automatic catalogue refresh plus manual refresh from the Web UI
+- Automatic catalogue refresh every 28 days plus manual refresh from the Web UI
 - MPV playback with volume and audio-device control
 - Playback, network, MPV and audio-device recovery
 - Persistent settings and playback state
@@ -76,11 +76,31 @@ v1.3.0 adds:
 
 Automated CI and the Raspberry Pi 4 acceptance pass completed before release. The published artifacts are built automatically from the signed release tag and include checksum verification.
 
+### v1.4.1 maintenance release
+
+v1.4.1 adds:
+
+- LiveMasjid relay-to-Icecast playback failover using matching cached mount URLs
+- A two-second readiness delay after a new MQTT mount-start event
+- Active-endpoint reporting in Listen status and structured playback logs
+- Temporary preference for an endpoint that has played successfully
+- A 28-day automatic Listen catalogue refresh interval with the manual update option retained
+- Upgrade migration from the previous seven-day stock refresh interval while preserving custom values
+- Adaptive Landscape Board proportions for one, two and three selected masjids
+- Bundled Fira Sans display typography and lighter large-time weights for improved television legibility
+- Dedicated, centred Salaah-time-change cards with complete formatted dates
+- Clearer standalone Maghrib Adhan presentation
+- Complete Islamic Economic Indicator fields with standard South African Rand and accounting presentation
+- Separate source-update and retrieval timestamps for economic data
+- Effective-date-driven economic refreshes from 09:00 South African time with bounded weekend attempts
+
+The updated Listen catalogue, manual refresh, normal relay playback and automatic Icecast failover were validated on the Raspberry Pi 4 test appliance. Automated Go tests, race-enabled playback tests, vet checks, shell syntax checks and frontend JavaScript validation also passed.
+
 ---
 
 ## Remaining Work
 
-There are no known release-blocking items for v1.3.0.
+There are no known release-blocking items for v1.4.1.
 
 Ongoing reliability work:
 

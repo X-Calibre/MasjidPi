@@ -5,6 +5,10 @@
     grid-template-rows:auto minmax(0,1fr) auto;
     column-gap:clamp(10px,1vw,16px);
 }
+.landscape-layout[data-board-count="1"] .board-shell,
+.landscape-layout[data-board-count="2"] .board-shell {
+    grid-template-columns:minmax(0,2fr) minmax(280px,1fr);
+}
 .landscape-layout .board-topbar { grid-column:1; grid-row:1; }
 .landscape-layout .display-state { grid-column:1; grid-row:2; }
 .landscape-layout .empty-state { grid-column:1 / span 2; grid-row:1 / span 2; }
@@ -50,15 +54,15 @@
 }
 .detailed-community-type {
     color:var(--accent);
-    font-size:clamp(.72rem,.83vw,.92rem);
+    font-size:clamp(.82rem,.95vw,1.05rem);
     font-weight:820;
     letter-spacing:.1em;
     text-transform:uppercase;
 }
 .detailed-community-title {
-    margin:clamp(13px,1.5vh,20px) 0 0;
+    margin:0;
     color:var(--text);
-    font-size:clamp(1.4rem,1.75vw,2.1rem);
+    font-size:clamp(1.55rem,1.9vw,2.25rem);
     font-weight:820;
     letter-spacing:-.035em;
     line-height:1.06;
@@ -67,7 +71,7 @@
 .detailed-community-body {
     margin:clamp(12px,1.35vh,18px) 0 0;
     color:var(--muted);
-    font-size:clamp(.9rem,1vw,1.15rem);
+    font-size:clamp(1rem,1.1vw,1.25rem);
     font-weight:560;
     line-height:1.38;
     white-space:pre-line;
@@ -81,11 +85,11 @@
 }
 .detailed-community-field {
     display:grid;
-    grid-template-columns:minmax(74px,.32fr) minmax(0,1fr);
+    grid-template-columns:minmax(92px,.38fr) minmax(0,1fr);
     gap:10px;
     padding-top:clamp(8px,.75vh,10px);
     border-top:1px solid var(--line);
-    font-size:clamp(.8rem,.86vw,1rem);
+    font-size:clamp(.9rem,.98vw,1.1rem);
     line-height:1.2;
 }
 .detailed-community-field-label { color:var(--muted); }
@@ -93,7 +97,7 @@
 .detailed-community-source {
     margin-top:clamp(11px,1.2vh,16px);
     color:var(--muted);
-    font-size:clamp(.68rem,.78vw,.86rem);
+    font-size:clamp(.78rem,.88vw,.98rem);
     font-weight:610;
 }
 .detailed-community-empty {
@@ -114,15 +118,15 @@
     padding:clamp(12px,1vw,17px);
 }
 .community-layout-thirds .community-span-1 .detailed-community-type {
-    font-size:clamp(.62rem,.68vw,.76rem);
+    font-size:clamp(.72rem,.78vw,.88rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-title {
-    margin-top:clamp(8px,.8vh,11px);
-    font-size:clamp(1.15rem,1.35vw,1.55rem);
+    margin-top:0;
+    font-size:clamp(1.3rem,1.5vw,1.72rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-body {
     margin-top:clamp(7px,.7vh,10px);
-    font-size:clamp(.78rem,.82vw,.92rem);
+    font-size:clamp(.88rem,.93vw,1.04rem);
     line-height:1.28;
 }
 .community-layout-thirds .community-span-1 .detailed-community-fields {
@@ -131,14 +135,125 @@
     gap:clamp(3px,.3vh,5px);
 }
 .community-layout-thirds .community-span-1 .detailed-community-field {
-    grid-template-columns:minmax(62px,.3fr) minmax(0,1fr);
+    grid-template-columns:minmax(78px,.36fr) minmax(0,1fr);
     gap:7px;
     padding-top:clamp(4px,.35vh,6px);
-    font-size:clamp(.7rem,.72vw,.82rem);
+    font-size:clamp(.8rem,.83vw,.94rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-source {
     margin-top:clamp(6px,.55vh,8px);
-    font-size:clamp(.58rem,.62vw,.7rem);
+    font-size:clamp(.68rem,.72vw,.82rem);
+}
+
+/* Salaah changes contain only two short values, so use the available card
+   space for prominent text and a clearly separated label/value grid. */
+.detailed-community-salaah_change {
+    padding:clamp(16px,1.25vw,22px);
+    text-align:center;
+}
+.detailed-community-salaah_change .detailed-community-type {
+    font-size:clamp(.82rem,.9vw,1rem);
+}
+.detailed-community-salaah_change .detailed-community-title {
+    margin-top:0;
+    font-size:clamp(1.65rem,1.9vw,2.1rem);
+}
+.detailed-community-salaah_change .detailed-community-fields {
+    margin-top:clamp(12px,1.2vh,16px);
+    padding-top:clamp(8px,.8vh,11px);
+    gap:clamp(6px,.65vh,9px);
+}
+.detailed-community-card.detailed-community-salaah_change .detailed-community-field {
+    grid-template-columns:minmax(118px,.42fr) minmax(0,1fr);
+    gap:clamp(16px,1.1vw,22px);
+    padding-top:clamp(7px,.7vh,10px);
+    font-size:clamp(1.28rem,1.42vw,1.6rem);
+}
+.detailed-community-salaah_change .detailed-community-field-value {
+    font-weight:800;
+}
+.detailed-community-salaah_change .detailed-community-source {
+    margin-top:clamp(10px,1vh,14px);
+    font-size:clamp(.84rem,.9vw,1rem);
+}
+.detailed-community-card.detailed-community-salaah_change .detailed-community-title {
+    margin-top:0;
+    text-align:center;
+}
+.detailed-community-card.detailed-community-salaah_change .detailed-community-source {
+    margin-top:auto;
+    font-size:clamp(1.35rem,1.55vw,1.7rem);
+    font-weight:750;
+    line-height:1.15;
+    text-align:center;
+}
+.detailed-community-salaah_change .salaah-change-main {
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(8px,.9vh,12px);
+    text-align:center;
+}
+.detailed-community-salaah_change .salaah-change-effective {
+    color:var(--muted);
+    font-size:clamp(1rem,1.12vw,1.25rem);
+    font-weight:650;
+    line-height:1.35;
+    white-space:pre-line;
+}
+.detailed-community-salaah_change .salaah-change-time {
+    color:var(--accent);
+    font-size:clamp(2.2rem,2.55vw,2.8rem);
+    font-weight:850;
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+}
+
+.detailed-community-economic .detailed-community-title {
+    margin-top:0;
+}
+.detailed-community-economic .detailed-community-fields {
+    margin-bottom:clamp(12px,1.2vh,18px);
+}
+.detailed-community-footer {
+    margin-top:auto;
+    padding-top:clamp(12px,1.25vh,18px);
+    border-top:1px solid var(--line);
+    display:grid;
+    gap:clamp(6px,.65vh,9px);
+    color:var(--muted);
+    font-size:clamp(.78rem,.86vw,.96rem);
+    font-weight:610;
+}
+.detailed-community-footer .detailed-community-source {
+    margin-top:0;
+}
+
+/* Keep economic labels and values on equal tracks so long labels remain on
+   one line, then align the accounting symbol and amount within the value half. */
+.detailed-community-economic .detailed-community-field {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.detailed-community-economic .detailed-community-field-label {
+    white-space:nowrap;
+}
+.detailed-community-economic .economic-accounting-value {
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:baseline;
+    column-gap:clamp(10px,.8vw,14px);
+    font-variant-numeric:tabular-nums;
+}
+.detailed-community-economic .economic-currency-symbol {
+    justify-self:start;
+}
+.detailed-community-economic .economic-amount {
+    justify-self:end;
+    text-align:right;
+    white-space:nowrap;
 }
 
 /* Landscape rows use one shared label column. */
@@ -157,6 +272,26 @@
 /* Compact headers keep long masjid names legible across three columns. */
 .landscape-layout .board-name {
     font-size:clamp(1.75rem,2.35vw,2.65rem);
+}
+
+/* Fira Sans is deliberately bundled so every display uses the same metrics.
+   Use its lighter faces for large numerals to keep counters open and distinct
+   on televisions, without changing the established type sizes or geometry. */
+.landscape-layout .current-time {
+    font-weight:700;
+    letter-spacing:-.02em;
+}
+.landscape-layout .time-value {
+    font-weight:600;
+    letter-spacing:0;
+}
+.landscape-layout .time-line.jumuah-event .time-value,
+.landscape-layout .time-line.jumuah-adhan .time-value {
+    font-weight:600;
+}
+.landscape-layout .time-line.dominant .time-value,
+.landscape-layout .time-line.jumuah-salaah .time-value {
+    font-weight:700;
 }
 
 /* Keep prayer names prominent while ensuring long names such as Maghrib
@@ -224,6 +359,15 @@
     font-size:clamp(1.25rem,1.6vw,1.75rem);
     font-weight:790;
 }
+.landscape-layout .single-adhan-as-jamaah .shared-adhan {
+    color:var(--text);
+    font-size:clamp(1.25rem,1.6vw,1.75rem);
+    font-weight:790;
+}
+.landscape-layout .single-adhan-as-jamaah .time-value-stack:has(.event-countdown) .time-value {
+    font-size:clamp(1.85rem,2.7vw,2.85rem);
+    font-weight:700;
+}
 
 .landscape-layout .prayer-row .prayer-cell,
 .landscape-layout .prayer-row .jumuah-cell {
@@ -273,7 +417,7 @@
     grid-column:1;
     grid-row:1;
     align-self:end;
-    font-size:clamp(1.05rem,1.25vw,1.4rem);
+    font-size:clamp(1.35rem,1.55vw,1.75rem);
 }
 .additional-times-source {
     grid-column:1;
@@ -281,6 +425,7 @@
     margin-top:3px;
     padding:0;
     border:0;
+    font-size:clamp(.88rem,.96vw,1.08rem);
 }
 .additional-times-list {
     grid-column:2;
@@ -308,14 +453,15 @@
 }
 .additional-time-label {
     color:var(--text);
-    font-size:clamp(.68rem,.72vw,.82rem);
+    font-size:clamp(.9rem,.96vw,1.08rem);
     font-weight:680;
     line-height:1.12;
 }
 .additional-time-value {
     color:var(--accent);
-    font-size:clamp(.92rem,1.02vw,1.15rem);
-    font-weight:840;
+    font-size:clamp(1.2rem,1.3vw,1.48rem);
+    font-weight:700;
+    letter-spacing:0;
     line-height:1;
     white-space:nowrap;
 }
@@ -334,6 +480,10 @@
 
 @media (max-width:1100px) {
     .landscape-layout .board-shell { grid-template-columns:minmax(0,3fr) minmax(230px,1fr); }
+    .landscape-layout[data-board-count="1"] .board-shell,
+    .landscape-layout[data-board-count="2"] .board-shell {
+        grid-template-columns:minmax(0,2fr) minmax(230px,1fr);
+    }
     .landscape-layout .comparison-grid,
     .landscape-layout .prayer-row {
         grid-template-columns:minmax(105px,.32fr) minmax(104px,.26fr) repeat(var(--board-count),minmax(0,1fr));
@@ -353,6 +503,10 @@
 @media (max-width:760px) {
     .landscape-layout .timetable-stage { flex:1 1 auto; }
     .landscape-layout .board-shell { min-width:760px; grid-template-columns:minmax(0,3fr) minmax(210px,1fr); }
+    .landscape-layout[data-board-count="1"] .board-shell,
+    .landscape-layout[data-board-count="2"] .board-shell {
+        grid-template-columns:minmax(0,2fr) minmax(210px,1fr);
+    }
     .landscape-layout .additional-times { min-width:0; max-width:none; }
     .landscape-layout .comparison-grid,
     .landscape-layout .prayer-row,

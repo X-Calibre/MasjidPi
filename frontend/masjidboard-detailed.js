@@ -5,7 +5,7 @@
     if (params.get("layout") === "portrait") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
@@ -132,25 +132,26 @@
 
     function packCommunityPages(items) {
         const pages = [];
+        const regularItems = items.filter((item) => item.type !== "economic");
         let index = 0;
-        while (index < items.length) {
-            const remaining = items.length - index;
+        while (index < regularItems.length) {
+            const remaining = regularItems.length - index;
             if (remaining === 1) {
-                pages.push({layout: "single", entries: [{item: items[index], span: 1}]});
+                pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
                 index += 1;
                 continue;
             }
             if (remaining === 2) {
                 pages.push({layout: "halves", entries: [
-                    {item: items[index], span: 1}, {item: items[index + 1], span: 1},
+                    {item: regularItems[index], span: 1}, {item: regularItems[index + 1], span: 1},
                 ]});
                 index += 2;
                 continue;
             }
 
-            const first = items[index];
-            const second = items[index + 1];
-            const third = items[index + 2];
+            const first = regularItems[index];
+            const second = regularItems[index + 1];
+            const third = regularItems[index + 2];
             const firstDetailed = isDetailedCommunityItem(first);
             const secondDetailed = isDetailedCommunityItem(second);
             const thirdDetailed = isDetailedCommunityItem(third);
@@ -171,12 +172,14 @@
                 index += 2;
             }
         }
+        for (const item of items.filter((entry) => entry.type === "economic")) {
+            pages.push({layout: "single", entries: [{item, span: 1}]});
+        }
         return pages;
     }
 
     function renderCommunityCard(item, span) {
         const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
-        card.append(makeElement("div", "detailed-community-type", communityTypeLabel(item.type)));
         card.append(makeElement("h2", "detailed-community-title", item.title));
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);
@@ -184,20 +187,52 @@
             card.append(body);
         }
 
-        const fields = orderedFields(item);
+        if (item.type === "salaah_change") {
+            const main = makeElement("div", "salaah-change-main");
+            main.append(
+                makeElement("div", "salaah-change-effective", `Effective from\n${formatNoticeDate(item.fields.effective_date)}`),
+                makeElement("div", "salaah-change-time", plainText(item.fields.new_time))
+            );
+            card.append(main);
+        }
+
+        const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
+            item.type !== "economic" || !["Source updated at", "Retrieved at"].includes(field.label)
+        );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");
             for (const field of fields) {
                 const row = makeElement("div", "detailed-community-field");
                 row.append(makeElement("span", "detailed-community-field-label", field.label));
-                const value = makeElement("span", "detailed-community-field-value", field.value);
-                value.dir = "auto";
+                const value = makeElement("span", "detailed-community-field-value");
+                if (item.type === "economic" && field.value.startsWith("R")) {
+                    value.classList.add("economic-accounting-value");
+                    value.append(
+                        makeElement("span", "economic-currency-symbol", "R"),
+                        makeElement("span", "economic-amount", field.value.slice(1))
+                    );
+                } else {
+                    value.textContent = field.value;
+                    value.dir = "auto";
+                }
                 row.append(value);
                 list.append(row);
             }
             card.append(list);
         }
-        card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+        if (item.type === "economic") {
+            const footer = makeElement("footer", "detailed-community-footer");
+            if (item.fields.source_updated_at) {
+                footer.append(makeElement("div", "detailed-community-updated", `Source updated at ${item.fields.source_updated_at}`));
+            }
+            if (item.fields.retrieved_at) {
+                footer.append(makeElement("div", "detailed-community-retrieved", `Retrieved at ${item.fields.retrieved_at}`));
+            }
+            footer.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+            card.append(footer);
+        } else {
+            card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+        }
         return card;
     }
 
@@ -234,26 +269,29 @@
         renderCommunityPage();
     }
 
-    function formatRand(value) {
-        return Number(value).toLocaleString("en-ZA", {style: "currency", currency: "ZAR", minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
-
     function economicCommunityItem(indicators) {
         if (!indicators) return null;
         const effectiveDate = new Date(`${indicators.effective_date}T12:00:00`);
         const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "short", year: "numeric"});
         return {
             type: "economic",
-            title: "Nisaab & Krugerrand",
+            title: "Islamic Economic Indicators",
             body: `Effective ${dateText}`,
             source: indicators.source,
             fields: {
+                rand_dollar: formatRand(indicators.rand_dollar),
                 nisaab: formatRand(indicators.nisaab),
                 krugerrand: formatRand(indicators.krugerrand),
                 gold_24: formatRand(indicators.gold_24_carat_per_gram),
+                gold_22: formatRand(indicators.gold_22_carat_per_gram),
+                gold_18: formatRand(indicators.gold_18_carat_per_gram),
+                gold_14: formatRand(indicators.gold_14_carat_per_gram),
+                gold_9: formatRand(indicators.gold_9_carat_per_gram),
                 silver: formatRand(indicators.silver_per_gram),
                 minimum_mahr: formatRand(indicators.minimum_mahr),
                 mahr_faatimi: formatRand(indicators.mahr_faatimi),
+                source_updated_at: formatUpdatedAt(indicators.source_updated_at),
+                retrieved_at: formatUpdatedAt(indicators.fetched_at),
             },
         };
     }
@@ -289,6 +327,9 @@
 
         const prayerLabel = row.querySelector(":scope > .prayer-label-card");
         if (!prayerLabel) return;
+        const singleMaghribAdhan = prayerLabel.textContent.trim() === "Maghrib" &&
+            labels.length === 1 && labels[0] === "Adhan";
+        row.classList.toggle("single-adhan-as-jamaah", singleMaghribAdhan);
         prayerLabel.insertAdjacentElement("afterend", shared);
 
         for (const cell of cells) {

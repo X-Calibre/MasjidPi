@@ -13,13 +13,14 @@ type fakeAvailability struct {
 	mu        sync.Mutex
 	available bool
 	known     bool
+	updatedAt time.Time
 	events    chan string
 }
 
-func (f *fakeAvailability) IsAvailable(string) (bool, bool) {
+func (f *fakeAvailability) Status(string) (bool, bool, time.Time) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.available, f.known
+	return f.available, f.known, f.updatedAt
 }
 
 func (f *fakeAvailability) Events() <-chan string { return f.events }
@@ -28,6 +29,16 @@ func (f *fakeAvailability) set(available bool) {
 	f.mu.Lock()
 	f.available = available
 	f.known = true
+	f.updatedAt = time.Now().Add(-DefaultMountStartupDelay)
+	f.mu.Unlock()
+	f.events <- "one"
+}
+
+func (f *fakeAvailability) setStartedNow() {
+	f.mu.Lock()
+	f.available = true
+	f.known = true
+	f.updatedAt = time.Now()
 	f.mu.Unlock()
 	f.events <- "one"
 }
@@ -116,5 +127,50 @@ func TestManagerStopsPlaybackWhenAvailabilityBecomesUnknown(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 	if fake.playCount() != plays {
 		t.Fatalf("play calls increased while availability was unknown: %d -> %d", plays, fake.playCount())
+	}
+}
+
+func TestManagerWaitsForMountStartupDelay(t *testing.T) {
+	fake := &fakePlayer{}
+	availability := &fakeAvailability{events: make(chan string, 4)}
+	manager := New(fake, Config{
+		MountStartupDelay:   40 * time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+	manager.SetAvailability(availability)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+	availability.setStartedNow()
+
+	time.Sleep(20 * time.Millisecond)
+	if got := fake.playCount(); got != 0 {
+		t.Fatalf("play calls during mount startup delay = %d, want 0", got)
+	}
+	waitFor(t, time.Second, func() bool { return fake.playCount() == 1 })
+}
+
+func TestManagerCancelsMountStartupWhenMountStops(t *testing.T) {
+	fake := &fakePlayer{}
+	availability := &fakeAvailability{events: make(chan string, 4)}
+	manager := New(fake, Config{
+		MountStartupDelay:   80 * time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+	manager.SetAvailability(availability)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	manager.Start(ctx)
+	manager.Play(stream.Stream{ID: "one", Name: "Masjid One", URL: "relay://one"})
+	availability.setStartedNow()
+	time.Sleep(20 * time.Millisecond)
+	availability.set(false)
+	time.Sleep(100 * time.Millisecond)
+
+	if got := fake.playCount(); got != 0 {
+		t.Fatalf("play calls after mount stopped during startup delay = %d, want 0", got)
 	}
 }

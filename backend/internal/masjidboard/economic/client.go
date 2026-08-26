@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	DefaultAPIURL  = "https://www.jamiatsa.org/wp-json/wp/v2/posts?categories=45&per_page=1&_fields=date,link,title,content"
+	DefaultAPIURL  = "https://www.jamiatsa.org/wp-json/wp/v2/posts?categories=45&per_page=1&_fields=date,modified_gmt,link,title,content"
 	defaultTimeout = 20 * time.Second
 )
 
@@ -25,9 +25,10 @@ type Client struct {
 }
 
 type wordpressPost struct {
-	Date  string `json:"date"`
-	Link  string `json:"link"`
-	Title struct {
+	Date        string `json:"date"`
+	ModifiedGMT string `json:"modified_gmt"`
+	Link        string `json:"link"`
+	Title       struct {
 		Rendered string `json:"rendered"`
 	} `json:"title"`
 	Content struct {
@@ -124,6 +125,11 @@ func parsePost(post wordpressPost, fetchedAt time.Time) (Indicators, error) {
 	if err != nil {
 		return Indicators{}, fmt.Errorf("economic indicators: invalid post date: %w", err)
 	}
+	sourceUpdatedAt, err := time.Parse("2006-01-02T15:04:05", post.ModifiedGMT)
+	if err != nil {
+		return Indicators{}, fmt.Errorf("economic indicators: invalid source modified time: %w", err)
+	}
+	sourceUpdatedAt = sourceUpdatedAt.UTC()
 	dateText, _ := value("date")
 	effective, err := time.Parse("2 Jan 2006", dateText+" "+strconv.Itoa(postDate.Year()))
 	if err != nil {
@@ -139,13 +145,14 @@ func parsePost(post wordpressPost, fetchedAt time.Time) (Indicators, error) {
 	if titleDocument, titleErr := goquery.NewDocumentFromReader(strings.NewReader(monthTitle)); titleErr == nil {
 		monthTitle = strings.TrimSpace(titleDocument.Text())
 	}
-	result := Indicators{Source: SourceName, SourceURL: post.Link, EffectiveDate: effective.Format("2006-01-02"), HijriDate: strings.TrimSpace(hijriDay + " " + monthTitle), FetchedAt: fetchedAt}
+	result := Indicators{Source: SourceName, SourceURL: post.Link, EffectiveDate: effective.Format("2006-01-02"), HijriDate: strings.TrimSpace(hijriDay + " " + monthTitle), SourceUpdatedAt: sourceUpdatedAt, FetchedAt: fetchedAt}
 	fields := []struct {
 		heading string
 		target  *float64
 	}{
 		{"rand-dollar", &result.RandDollar}, {"24 carat", &result.Gold24Carat}, {"22 carat", &result.Gold22Carat},
-		{"18 carat", &result.Gold18Carat}, {"silver", &result.Silver}, {"nisaab", &result.Nisaab},
+		{"18 carat", &result.Gold18Carat}, {"14 carat", &result.Gold14Carat}, {"9 carat", &result.Gold9Carat},
+		{"silver", &result.Silver}, {"nisaab", &result.Nisaab},
 		{"min mahr", &result.MinimumMahr}, {"mahr faatimi", &result.MahrFaatimi}, {"krugerrand", &result.Krugerrand},
 	}
 	for _, field := range fields {

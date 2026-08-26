@@ -9,7 +9,7 @@
     document.body.classList.add("portrait-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, communityTypeLabel, fixtureCommunityItems, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("portraitState");
     const slidesHost = document.getElementById("portraitSlides");
     const dotsHost = document.getElementById("portraitDots");
@@ -147,7 +147,6 @@
 
     function communityCard(item, compact) {
         const card = element("article", "portrait-community-card portrait-community-" + item.type + (compact ? " compact" : ""));
-        card.append(element("div", "portrait-community-type", communityTypeLabel(item.type)));
         card.append(element("h2", "portrait-community-title", item.title));
         if (item.body) {
             const body = element("p", "portrait-community-body", item.body);
@@ -155,7 +154,16 @@
             card.append(body);
         }
 
-        const fields = orderedFields(item);
+        if (item.type === "salaah_change") {
+            const main = element("div", "portrait-salaah-change-main");
+            main.append(
+                element("div", "portrait-salaah-change-effective", "Effective from\n" + formatNoticeDate(item.fields.effective_date)),
+                element("div", "portrait-salaah-change-time", plainText(item.fields.new_time))
+            );
+            card.append(main);
+        }
+
+        const fields = item.type === "salaah_change" ? [] : orderedFields(item);
         if (fields.length > 0) {
             const list = element("div", "portrait-community-fields");
             for (const field of fields) {
@@ -207,24 +215,24 @@
         return result;
     }
 
-    function formatRand(value, decimals = 2) {
-        return Number(value).toLocaleString("en-ZA", {style: "currency", currency: "ZAR", minimumFractionDigits: decimals, maximumFractionDigits: decimals});
-    }
-
     function economicSlide(indicators) {
         if (!indicators) return null;
         const slide = element("article", "portrait-slide portrait-economic-slide");
         const heading = element("header", "portrait-slide-heading");
-        heading.append(element("small", "", "ISLAMIC ECONOMIC INDICATORS"), element("h2", "", "Nisaab & Krugerrand"));
+        heading.append(element("h2", "", "Islamic Economic Indicators"));
         slide.append(heading);
         const effectiveDate = new Date(`${indicators.effective_date}T12:00:00`);
         const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "long", year: "numeric"});
         slide.append(element("div", "portrait-economic-date", `Effective ${dateText}`));
         const values = [
+            ["Rand/Dollar", formatRand(indicators.rand_dollar)],
             ["Nisaab", formatRand(indicators.nisaab)],
             ["Krugerrand", formatRand(indicators.krugerrand)],
             ["Gold 24 ct / g", formatRand(indicators.gold_24_carat_per_gram)],
             ["Gold 22 ct / g", formatRand(indicators.gold_22_carat_per_gram)],
+            ["Gold 18 ct / g", formatRand(indicators.gold_18_carat_per_gram)],
+            ["Gold 14 ct / g", formatRand(indicators.gold_14_carat_per_gram)],
+            ["Gold 9 ct / g", formatRand(indicators.gold_9_carat_per_gram)],
             ["Silver / g", formatRand(indicators.silver_per_gram)],
             ["Minimum Mahr", formatRand(indicators.minimum_mahr)],
             ["Mahr Faatimi", formatRand(indicators.mahr_faatimi)],
@@ -232,10 +240,21 @@
         const grid = element("div", "portrait-economic-values");
         for (const [label, value] of values) {
             const row = element("div", "portrait-economic-value");
-            row.append(element("span", "", label), element("strong", "", value));
+            const accountingValue = element("strong", "portrait-economic-accounting");
+            accountingValue.append(
+                element("span", "portrait-economic-currency", "R"),
+                element("span", "portrait-economic-amount", value.slice(1))
+            );
+            row.append(element("span", "", label), accountingValue);
             grid.append(row);
         }
-        slide.append(grid, element("div", "portrait-economic-source", `Source: ${indicators.source}`));
+        const footer = element("footer", "portrait-economic-footer");
+        const sourceUpdatedAt = formatUpdatedAt(indicators.source_updated_at);
+        const retrievedAt = formatUpdatedAt(indicators.fetched_at);
+        if (sourceUpdatedAt) footer.append(element("div", "portrait-economic-updated", `Source updated at ${sourceUpdatedAt}`));
+        if (retrievedAt) footer.append(element("div", "portrait-economic-retrieved", `Retrieved at ${retrievedAt}`));
+        footer.append(element("div", "portrait-economic-source", `From ${indicators.source}`));
+        slide.append(grid, footer);
         return slide;
     }
 

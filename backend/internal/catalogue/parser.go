@@ -25,10 +25,11 @@ func ParseHTML(r io.Reader) ([]stream.Stream, error) {
 		location := clean(card.Find(".location").Text())
 
 		streams = append(streams, stream.Stream{
-			ID:       id,
-			Name:     name,
-			Location: location,
-			URL:      RelayBaseURL + id,
+			ID:           id,
+			Name:         name,
+			Location:     location,
+			URL:          RelayBaseURL + id,
+			FallbackURLs: []string{IcecastBaseURL + id},
 		})
 	})
 

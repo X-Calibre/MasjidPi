@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net/url"
 	"sync"
 	"time"
 
@@ -15,9 +16,11 @@ import (
 const (
 	DefaultRetryInterval      = 5 * time.Second
 	DefaultStartupGracePeriod = 10 * time.Second
+	DefaultMountStartupDelay  = 2 * time.Second
 	statusCheckInterval       = time.Second
 	stateLoopInterval         = 50 * time.Millisecond
 	maxRetryDelay             = 5 * time.Minute
+	preferredEndpointTTL      = 6 * time.Hour
 )
 
 type State string
@@ -40,7 +43,7 @@ type Player interface {
 }
 
 type Availability interface {
-	IsAvailable(mount string) (available bool, known bool)
+	Status(mount string) (available bool, known bool, updatedAt time.Time)
 	Events() <-chan string
 }
 
@@ -56,6 +59,7 @@ type VolumePersistence interface {
 type Config struct {
 	RetryInterval       time.Duration
 	StartupGracePeriod  time.Duration
+	MountStartupDelay   time.Duration
 	StatusCheckInterval time.Duration
 	Logger              *slog.Logger
 }
@@ -70,9 +74,11 @@ type Manager struct {
 	log                *slog.Logger
 	retryInterval      time.Duration
 	startupGracePeriod time.Duration
+	mountStartupDelay  time.Duration
 	statusInterval     time.Duration
 	wake               chan struct{}
 	selected           *stream.Stream
+	currentURL         string
 	listening          bool
 	state              State
 	lastError          string
@@ -81,6 +87,12 @@ type Manager struct {
 	volumeSet          bool
 	volumeDevice       string
 	volumeSupported    bool
+	preferredEndpoints map[string]preferredEndpoint
+}
+
+type preferredEndpoint struct {
+	url       string
+	expiresAt time.Time
 }
 
 type Status struct {
@@ -95,6 +107,8 @@ type Status struct {
 	Listening       bool   `json:"listening"`
 	StreamID        string `json:"stream_id,omitempty"`
 	StreamName      string `json:"stream_name,omitempty"`
+	Endpoint        string `json:"endpoint,omitempty"`
+	FallbackUsed    bool   `json:"fallback_used,omitempty"`
 	Error           string `json:"error,omitempty"`
 }
 
@@ -105,10 +119,24 @@ func New(player Player, cfg Config) *Manager {
 	if cfg.StartupGracePeriod == 0 {
 		cfg.StartupGracePeriod = DefaultStartupGracePeriod
 	}
+	if cfg.MountStartupDelay == 0 {
+		cfg.MountStartupDelay = DefaultMountStartupDelay
+	}
 	if cfg.StatusCheckInterval == 0 {
 		cfg.StatusCheckInterval = statusCheckInterval
 	}
-	return &Manager{player: player, log: cfg.Logger, retryInterval: cfg.RetryInterval, startupGracePeriod: cfg.StartupGracePeriod, statusInterval: cfg.StatusCheckInterval, wake: make(chan struct{}, 1), state: StateIdle, status: Status{Version: version.Version, State: string(StateIdle), Volume: 100}}
+	return &Manager{
+		player:             player,
+		log:                cfg.Logger,
+		retryInterval:      cfg.RetryInterval,
+		startupGracePeriod: cfg.StartupGracePeriod,
+		mountStartupDelay:  cfg.MountStartupDelay,
+		statusInterval:     cfg.StatusCheckInterval,
+		wake:               make(chan struct{}, 1),
+		state:              StateIdle,
+		status:             Status{Version: version.Version, State: string(StateIdle), Volume: 100},
+		preferredEndpoints: make(map[string]preferredEndpoint),
+	}
 }
 
 func (m *Manager) SetAvailability(availability Availability) {
@@ -168,6 +196,7 @@ func (m *Manager) InitializeVolume() error {
 func (m *Manager) Play(selected stream.Stream) {
 	m.mu.Lock()
 	m.selected = &selected
+	m.currentURL = selected.URL
 	m.listening = true
 	m.state = StateWaiting
 	m.lastError = ""
@@ -185,6 +214,7 @@ func (m *Manager) Play(selected stream.Stream) {
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	m.listening = false
+	m.currentURL = ""
 	m.state = StateIdle
 	m.lastError = ""
 	persistence := m.persistence
@@ -280,6 +310,9 @@ func (m *Manager) Status() Status { m.mu.Lock(); defer m.mu.Unlock(); return m.s
 type runtimeState struct {
 	active         bool
 	activeURL      string
+	selectedID     string
+	candidates     []string
+	candidateIndex int
 	attemptStarted time.Time
 	nextAttempt    time.Time
 	retryAttempt   int
@@ -303,8 +336,51 @@ func (m *Manager) scheduleRetry(state *runtimeState) time.Duration {
 	state.active = false
 	state.activeURL = ""
 	state.attemptStarted = time.Time{}
+	state.candidateIndex = 0
 	state.nextAttempt = time.Now().Add(delay)
 	return delay
+}
+
+func (m *Manager) prepareCandidates(state *runtimeState, selected *stream.Stream) {
+	if state.selectedID == selected.ID && len(state.candidates) > 0 {
+		return
+	}
+	state.reset()
+	state.selectedID = selected.ID
+	state.candidates = selected.PlaybackURLs()
+
+	m.mu.Lock()
+	preferred, ok := m.preferredEndpoints[selected.ID]
+	if ok && time.Now().After(preferred.expiresAt) {
+		delete(m.preferredEndpoints, selected.ID)
+		ok = false
+	}
+	m.mu.Unlock()
+	if !ok || len(state.candidates) < 2 || state.candidates[0] == preferred.url {
+		return
+	}
+	for index, candidate := range state.candidates {
+		if candidate == preferred.url {
+			state.candidates[0], state.candidates[index] = state.candidates[index], state.candidates[0]
+			return
+		}
+	}
+}
+
+func (m *Manager) tryNextCandidate(state *runtimeState) bool {
+	if state.active {
+		_ = m.player.Stop()
+	}
+	state.active = false
+	state.activeURL = ""
+	state.attemptStarted = time.Time{}
+	if state.candidateIndex+1 >= len(state.candidates) {
+		return false
+	}
+	state.candidateIndex++
+	state.nextAttempt = time.Time{}
+	m.notify()
+	return true
 }
 
 func (m *Manager) run(ctx context.Context) {
@@ -350,15 +426,33 @@ func (m *Manager) step(ctx context.Context, state *runtimeState) {
 		return
 	}
 	if availability != nil {
-		available, known := availability.IsAvailable(selected.ID)
+		available, known, updatedAt := availability.Status(selected.ID)
 		if !known || !available {
 			m.stopActive(state)
 			m.setState(StateWaiting, "", nil)
 			return
 		}
+		if !state.active && !updatedAt.IsZero() && time.Now().Before(updatedAt.Add(m.mountStartupDelay)) {
+			m.stopActive(state)
+			m.setState(StateWaiting, "", nil)
+			return
+		}
 	}
-	if state.active && state.activeURL != selected.URL {
+	if state.selectedID != "" && state.selectedID != selected.ID {
 		m.stopActive(state)
+	}
+	m.prepareCandidates(state, selected)
+	if len(state.candidates) == 0 {
+		delay := m.scheduleRetry(state)
+		m.setState(StateRetrying, "stream has no playback URL", nil)
+		m.logRetry(selected, "stream has no playback URL", nil, delay)
+		return
+	}
+	candidateURL := state.candidates[state.candidateIndex]
+	if state.active && state.activeURL != candidateURL {
+		m.stopActive(state)
+		m.prepareCandidates(state, selected)
+		candidateURL = state.candidates[state.candidateIndex]
 	}
 	if state.active {
 		return
@@ -367,15 +461,21 @@ func (m *Manager) step(ctx context.Context, state *runtimeState) {
 		m.setState(StateRetrying, m.retryMessage(state.nextAttempt), nil)
 		return
 	}
+	m.setCurrentEndpoint(candidateURL)
 	m.setState(StateConnecting, "", nil)
-	if err := m.player.Play(selected.URL); err != nil {
+	if err := m.player.Play(candidateURL); err != nil {
+		if m.tryNextCandidate(state) {
+			m.setState(StateConnecting, "", nil)
+			m.logEndpointFailure(selected, candidateURL, err)
+			return
+		}
 		delay := m.scheduleRetry(state)
 		m.setState(StateRetrying, err.Error(), nil)
-		m.logRetry(selected, "relay connection failed", err, delay)
+		m.logRetry(selected, "all stream endpoints failed", err, delay)
 		return
 	}
 	state.active = true
-	state.activeURL = selected.URL
+	state.activeURL = candidateURL
 	state.attemptStarted = time.Now()
 	state.nextAttempt = time.Time{}
 	m.setState(StateConnecting, "", nil)
@@ -397,7 +497,7 @@ func (m *Manager) checkPlayerStatus(state *runtimeState) {
 		return
 	}
 	if availability != nil {
-		available, known := availability.IsAvailable(selected.ID)
+		available, known, _ := availability.Status(selected.ID)
 		if !known || !available {
 			m.stopActive(state)
 			m.setState(StateWaiting, "", status)
@@ -422,13 +522,24 @@ func (m *Manager) checkPlayerStatus(state *runtimeState) {
 			m.setState(StateConnecting, "Connecting to stream...", status)
 			return
 		}
+		failedURL := state.activeURL
+		if m.tryNextCandidate(state) {
+			m.setState(StateConnecting, "", status)
+			m.logEndpointFailure(selected, failedURL, nil)
+			return
+		}
 		delay := m.scheduleRetry(state)
 		m.setState(StateRetrying, "player stopped unexpectedly", status)
-		m.logRetryFromStatus("playback stopped unexpectedly", nil, delay)
+		m.logRetryFromStatus("all stream endpoints stopped unexpectedly", nil, delay)
 		return
 	}
+	newlyPlaying := !state.attemptStarted.IsZero()
 	state.attemptStarted = time.Time{}
 	state.retryAttempt = 0
+	m.rememberEndpoint(selected.ID, state.activeURL)
+	if newlyPlaying {
+		m.logEndpointSuccess(selected, state.activeURL)
+	}
 	if err := m.restoreVolume(&status.Volume); err != nil {
 		delay := m.scheduleRetry(state)
 		m.setState(StateRetrying, err.Error(), status)
@@ -500,6 +611,54 @@ func (m *Manager) logRetryFromStatus(reason string, err error, delay time.Durati
 	}
 	m.log.Warn("Stream playback retry scheduled", args...)
 }
+func (m *Manager) logEndpointFailure(selected *stream.Stream, endpointURL string, err error) {
+	if m.log == nil {
+		return
+	}
+	args := []any{"stream_id", selected.ID, "stream_name", selected.Name, "endpoint", endpointName(endpointURL)}
+	if err != nil {
+		args = append(args, "error", err)
+	}
+	m.log.Warn("Stream endpoint failed; trying fallback", args...)
+}
+func (m *Manager) logEndpointSuccess(selected *stream.Stream, endpointURL string) {
+	if m.log == nil {
+		return
+	}
+	m.log.Info(
+		"Stream playback established",
+		"stream_id", selected.ID,
+		"stream_name", selected.Name,
+		"endpoint", endpointName(endpointURL),
+		"fallback", endpointURL != selected.URL,
+	)
+}
+func (m *Manager) rememberEndpoint(streamID, endpointURL string) {
+	if streamID == "" || endpointURL == "" {
+		return
+	}
+	m.mu.Lock()
+	m.preferredEndpoints[streamID] = preferredEndpoint{url: endpointURL, expiresAt: time.Now().Add(preferredEndpointTTL)}
+	m.mu.Unlock()
+}
+func (m *Manager) setCurrentEndpoint(endpointURL string) {
+	m.mu.Lock()
+	m.currentURL = endpointURL
+	m.mu.Unlock()
+}
+func endpointName(endpointURL string) string {
+	parsed, err := url.Parse(endpointURL)
+	if err != nil {
+		return "primary"
+	}
+	if parsed.Hostname() == "icecast.livemasjid.com" {
+		return "icecast"
+	}
+	if parsed.Hostname() == "relay.livemasjid.com" {
+		return "relay"
+	}
+	return "primary"
+}
 func (m *Manager) logPersistenceError(action string, err error) {
 	if m.log != nil {
 		m.log.Warn("Playback persistence failed", "action", action, "error", err)
@@ -541,10 +700,19 @@ func (m *Manager) updateStatusLocked(playerStatus *player.Status) {
 		status.StreamID = ""
 		status.StreamName = ""
 		status.URL = ""
+		status.Endpoint = ""
+		status.FallbackUsed = false
 	} else {
 		status.StreamID = m.selected.ID
 		status.StreamName = m.selected.Name
-		status.URL = m.selected.URL
+		status.URL = m.currentURL
+		if m.currentURL == "" {
+			status.Endpoint = ""
+			status.FallbackUsed = false
+		} else {
+			status.Endpoint = endpointName(m.currentURL)
+			status.FallbackUsed = m.currentURL != m.selected.URL
+		}
 	}
 	if playerStatus != nil {
 		status.Volume = playerStatus.Volume

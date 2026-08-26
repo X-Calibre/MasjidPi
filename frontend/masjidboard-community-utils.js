@@ -8,6 +8,48 @@
         return (parsed.body.textContent || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim();
     }
 
+    // South African Rand values use a fixed presentation contract throughout
+    // MasjidBoard: R123,456.00. Do not delegate the currency symbol or
+    // separators to the browser locale, which varies across WebKit builds.
+    function formatRand(value, decimals = 2) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount)) return "";
+        return "R" + amount.toLocaleString("en-US", {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+        });
+    }
+
+    function formatNoticeDate(value) {
+        const raw = plainText(value);
+        const match = raw.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?$/);
+        if (!match) return raw;
+        const months = {
+            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+            jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+        };
+        const month = months[match[2].slice(0, 3).toLowerCase()];
+        if (month === undefined) return raw;
+        const now = new Date();
+        let year = match[3] ? Number(match[3]) : now.getFullYear();
+        let date = new Date(year, month, Number(match[1]), 12);
+        if (!match[3] && date.getTime() < now.getTime() - 180 * 24 * 60 * 60 * 1000) {
+            date = new Date(year + 1, month, Number(match[1]), 12);
+        }
+        return date.toLocaleDateString("en-ZA", {
+            weekday: "long", day: "numeric", month: "long",
+        });
+    }
+
+    function formatUpdatedAt(value) {
+        const updatedAt = new Date(value);
+        if (Number.isNaN(updatedAt.getTime())) return String(value || "");
+        return updatedAt.toLocaleString("en-ZA", {
+            day: "numeric", month: "short", year: "numeric",
+            hour: "2-digit", minute: "2-digit", hour12: false,
+        });
+    }
+
     function fieldLabel(name) {
         const labels = {
             address: "Address", bride: "Bride", cemetery: "Cemetery", date: "Date",
@@ -20,7 +62,10 @@
             gasht_in_time: "In Time", first_location: "First Jamaat", first_date: "First Date",
             second_location: "Second Jamaat", second_date: "Second Date",
             nisaab: "Nisaab", krugerrand: "Krugerrand", gold_24: "Gold 24 ct / g",
-            silver: "Silver / g", minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
+            rand_dollar: "Rand/Dollar", gold_22: "Gold 22 ct / g", gold_18: "Gold 18 ct / g",
+            gold_14: "Gold 14 ct / g", gold_9: "Gold 9 ct / g", silver: "Silver / g",
+            minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
+            source_updated_at: "Source updated at", retrieved_at: "Retrieved at",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -36,7 +81,7 @@
             dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
-            economic: ["nisaab", "krugerrand", "gold_24", "silver", "minimum_mahr", "mahr_faatimi"],
+            economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "source_updated_at", "retrieved_at"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]
@@ -44,7 +89,8 @@
         const names = [...preferred, ...Object.keys(fields).sort()].filter((name, index, all) =>
             !titleFields.has(name) && all.indexOf(name) === index && plainText(fields[name])
         );
-        return names.slice(0, 6).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
+        const fieldLimit = item.type === "economic" ? 13 : 6;
+        return names.slice(0, fieldLimit).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
     }
 
     function noticeTitle(notice) {
@@ -250,6 +296,9 @@
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,
+        formatNoticeDate,
+        formatRand,
+        formatUpdatedAt,
         noticeTitle,
         orderedFields,
         plainText,

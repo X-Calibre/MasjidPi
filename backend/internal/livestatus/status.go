@@ -119,16 +119,16 @@ func (c *Client) onMessage(_ mqtt.Client, msg mqtt.Message) {
 	}
 }
 
-func (c *Client) IsAvailable(mount string) (bool, bool) {
+func (c *Client) Status(mount string) (bool, bool, time.Time) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	status, ok := c.mounts[mount]
 	if !ok {
-		return false, false
+		return false, false, time.Time{}
 	}
 
-	return status.Available, true
+	return status.Available, true, status.UpdatedAt
 }
 
 func (c *Client) Events() <-chan string { return c.wake }

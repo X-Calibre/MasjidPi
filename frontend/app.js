@@ -259,10 +259,6 @@ function updateStatusDetail(status) {
     statusDetail.className = detail ? "status-detail status-detail-" + status.state : "status-detail hidden";
 }
 
-function findStreamByURL(url) {
-    return catalogue.find(stream => stream.url === url);
-}
-
 async function refreshStatus() {
     try {
         const status = await getStatus();
@@ -286,8 +282,15 @@ async function refreshStatus() {
         if (!status.url) {
             stream.textContent = "No stream playing";
         } else {
-            const current = findStreamByURL(status.url);
-            stream.textContent = current ? current.name + (current.location ? " — " + current.location : "") + "\n" + current.url : status.url;
+            const current = catalogue.find(item => item.id === status.stream_id);
+            const endpoint = status.endpoint === "icecast"
+                ? "Icecast fallback"
+                : status.endpoint === "relay"
+                    ? "LiveMasjid relay"
+                    : status.url;
+            stream.textContent = current
+                ? current.name + (current.location ? " — " + current.location : "") + "\n" + endpoint
+                : status.url;
         }
     } catch (err) {
         console.error(err);

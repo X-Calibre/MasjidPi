@@ -2,6 +2,8 @@ package playback
 
 import (
 	"context"
+	"errors"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -14,6 +16,7 @@ type fakePlayer struct {
 	mu sync.Mutex
 
 	playCalls   []string
+	playErrors  []error
 	stopCalls   int
 	volume      int
 	volumeCalls []int
@@ -25,6 +28,11 @@ func (f *fakePlayer) Play(url string) error {
 	defer f.mu.Unlock()
 
 	f.playCalls = append(f.playCalls, url)
+	if len(f.playErrors) > 0 {
+		err := f.playErrors[0]
+		f.playErrors = f.playErrors[1:]
+		return err
+	}
 	return nil
 }
 
@@ -64,6 +72,12 @@ func (f *fakePlayer) playCount() int {
 	defer f.mu.Unlock()
 
 	return len(f.playCalls)
+}
+
+func (f *fakePlayer) playedURLs() []string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([]string(nil), f.playCalls...)
 }
 
 func (f *fakePlayer) stopCount() int {
@@ -208,6 +222,85 @@ func TestManagerRetriesAfterPlaybackStops(t *testing.T) {
 	waitFor(t, time.Second, func() bool {
 		return fake.playCount() >= 2
 	})
+}
+
+func TestManagerTriesFallbackBeforeBackoff(t *testing.T) {
+	fake := &fakePlayer{playErrors: []error{errors.New("relay unavailable")}}
+	manager := New(fake, Config{
+		RetryInterval:       time.Second,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	manager.Start(ctx)
+	manager.Play(stream.Stream{
+		ID:           "one",
+		Name:         "Masjid One",
+		URL:          "https://relay.livemasjid.com:8443/one",
+		FallbackURLs: []string{"https://icecast.livemasjid.com/one"},
+	})
+
+	waitFor(t, time.Second, func() bool { return fake.playCount() == 2 })
+	want := []string{"https://relay.livemasjid.com:8443/one", "https://icecast.livemasjid.com/one"}
+	if got := fake.playedURLs(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("played URLs = %#v, want %#v", got, want)
+	}
+}
+
+func TestManagerTriesFallbackWhenPrimaryStopsDuringStartup(t *testing.T) {
+	fake := &fakePlayer{statuses: []*player.Status{{State: "stopped", URL: "https://relay.livemasjid.com:8443/one", Volume: 70}}}
+	manager := New(fake, Config{
+		RetryInterval:       time.Second,
+		StartupGracePeriod:  time.Millisecond,
+		StatusCheckInterval: 10 * time.Millisecond,
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	manager.Start(ctx)
+	manager.Play(stream.Stream{
+		ID:           "one",
+		Name:         "Masjid One",
+		URL:          "https://relay.livemasjid.com:8443/one",
+		FallbackURLs: []string{"https://icecast.livemasjid.com/one"},
+	})
+
+	waitFor(t, time.Second, func() bool { return fake.playCount() == 2 })
+	want := []string{"https://relay.livemasjid.com:8443/one", "https://icecast.livemasjid.com/one"}
+	if got := fake.playedURLs(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("played URLs = %#v, want %#v", got, want)
+	}
+	waitFor(t, time.Second, func() bool { return manager.Status().State == string(StatePlaying) })
+	status := manager.Status()
+	if status.Endpoint != "icecast" || !status.FallbackUsed {
+		t.Fatalf("status endpoint = %q, fallback_used = %v", status.Endpoint, status.FallbackUsed)
+	}
+}
+
+func TestManagerPrefersSuccessfulFallbackForLaterPlayback(t *testing.T) {
+	fake := &fakePlayer{playErrors: []error{errors.New("relay unavailable")}}
+	manager := New(fake, Config{StatusCheckInterval: 10 * time.Millisecond})
+	selected := stream.Stream{
+		ID:           "one",
+		Name:         "Masjid One",
+		URL:          "https://relay.livemasjid.com:8443/one",
+		FallbackURLs: []string{"https://icecast.livemasjid.com/one"},
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	manager.Start(ctx)
+	manager.Play(selected)
+	waitFor(t, time.Second, func() bool { return manager.Status().State == string(StatePlaying) })
+	manager.Stop()
+	waitFor(t, time.Second, func() bool { return fake.stopCount() >= 1 })
+	manager.Play(selected)
+	waitFor(t, time.Second, func() bool { return fake.playCount() == 3 })
+
+	if got := fake.playedURLs()[2]; got != "https://icecast.livemasjid.com/one" {
+		t.Fatalf("later playback URL = %q, want successful fallback", got)
+	}
 }
 
 func TestManagerRestoresVolumeAfterPlayerRecovery(t *testing.T) {

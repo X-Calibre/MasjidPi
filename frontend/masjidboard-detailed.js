@@ -327,6 +327,9 @@
 
         const prayerLabel = row.querySelector(":scope > .prayer-label-card");
         if (!prayerLabel) return;
+        const singleMaghribAdhan = prayerLabel.textContent.trim() === "Maghrib" &&
+            labels.length === 1 && labels[0] === "Adhan";
+        row.classList.toggle("single-adhan-as-jamaah", singleMaghribAdhan);
         prayerLabel.insertAdjacentElement("afterend", shared);
 
         for (const cell of cells) {

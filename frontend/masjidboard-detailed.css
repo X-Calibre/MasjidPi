@@ -339,6 +339,15 @@
     font-size:clamp(1.25rem,1.6vw,1.75rem);
     font-weight:790;
 }
+.landscape-layout .single-adhan-as-jamaah .shared-adhan {
+    color:var(--text);
+    font-size:clamp(1.25rem,1.6vw,1.75rem);
+    font-weight:790;
+}
+.landscape-layout .single-adhan-as-jamaah .time-value-stack:has(.event-countdown) .time-value {
+    font-size:clamp(1.85rem,2.7vw,2.85rem);
+    font-weight:870;
+}
 
 .landscape-layout .prayer-row .prayer-cell,
 .landscape-layout .prayer-row .jumuah-cell {

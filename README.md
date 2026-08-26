@@ -261,6 +261,14 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 **Current stable release: v1.4.0**
 
+**Next maintenance release: v1.4.1**
+
+v1.4.1 improves Listen resilience by caching both LiveMasjid relay and Icecast URLs, waiting briefly for newly announced MQTT mounts to become ready and automatically failing over to Icecast when relay playback cannot start. Successful endpoints are preferred temporarily, playback status and logs identify the active endpoint, and the automatic Listen catalogue refresh moves from seven to 28 days while retaining manual refresh.
+
+MasjidBoard refinements include adaptive landscape proportions, a bundled Fira Sans typeface with lighter large-time weights, more legible announcement and Daily Times content, dedicated centred Salaah-time-change cards with complete dates, and improved standalone Maghrib Adhan presentation.
+
+Islamic Economic Indicators now include the complete published value set, consistent South African Rand formatting, accounting-aligned amounts, source and retrieval timestamps, and a full-height presentation in both display orientations. Retrieval follows a 09:00 South African effective-date policy with bounded weekend attempts, avoiding unnecessary cache writes when Jamiat has not published a newer row.
+
 v1.4.0 unifies the Listener and MasjidBoard configuration experience with shared top-level navigation, a consolidated Now Playing view, dedicated Masjids, Display and Status tabs, layout-aware display previews and consistent version information. It also includes the latest Portrait and Landscape display refinements, clearer primary-masjid behaviour and reduced Listener status polling.
 
 MasjidBoard can optionally display Islamic Economic Indicators published by Jamiatul Ulama South Africa. The cached, source-attributed display prioritises the current Nisaab and Krugerrand values and includes selected gold, silver and Mahr values. The feature is disabled by default and can be enabled from the Board Display settings.

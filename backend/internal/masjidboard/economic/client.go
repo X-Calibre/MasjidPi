@@ -151,7 +151,8 @@ func parsePost(post wordpressPost, fetchedAt time.Time) (Indicators, error) {
 		target  *float64
 	}{
 		{"rand-dollar", &result.RandDollar}, {"24 carat", &result.Gold24Carat}, {"22 carat", &result.Gold22Carat},
-		{"18 carat", &result.Gold18Carat}, {"silver", &result.Silver}, {"nisaab", &result.Nisaab},
+		{"18 carat", &result.Gold18Carat}, {"14 carat", &result.Gold14Carat}, {"9 carat", &result.Gold9Carat},
+		{"silver", &result.Silver}, {"nisaab", &result.Nisaab},
 		{"min mahr", &result.MinimumMahr}, {"mahr faatimi", &result.MahrFaatimi}, {"krugerrand", &result.Krugerrand},
 	}
 	for _, field := range fields {

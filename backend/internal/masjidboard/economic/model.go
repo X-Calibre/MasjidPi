@@ -14,6 +14,8 @@ type Indicators struct {
 	Gold24Carat   float64   `json:"gold_24_carat_per_gram"`
 	Gold22Carat   float64   `json:"gold_22_carat_per_gram"`
 	Gold18Carat   float64   `json:"gold_18_carat_per_gram"`
+	Gold14Carat   float64   `json:"gold_14_carat_per_gram"`
+	Gold9Carat    float64   `json:"gold_9_carat_per_gram"`
 	Silver        float64   `json:"silver_per_gram"`
 	Nisaab        float64   `json:"nisaab"`
 	MinimumMahr   float64   `json:"minimum_mahr"`
@@ -26,4 +28,14 @@ type Indicators struct {
 func (i Indicators) Valid() bool {
 	return i.Source != "" && i.SourceURL != "" && i.EffectiveDate != "" &&
 		i.Nisaab > 0 && i.Krugerrand > 0
+}
+
+// Complete reports whether the cached row includes every value currently
+// displayed by MasjidBoard. Older caches remain valid, but are refreshed once
+// so newly introduced fields can be backfilled from the same source row.
+func (i Indicators) Complete() bool {
+	return i.RandDollar > 0 && i.Gold24Carat > 0 && i.Gold22Carat > 0 &&
+		i.Gold18Carat > 0 && i.Gold14Carat > 0 && i.Gold9Carat > 0 &&
+		i.Silver > 0 && i.Nisaab > 0 && i.MinimumMahr > 0 &&
+		i.MahrFaatimi > 0 && i.Krugerrand > 0
 }

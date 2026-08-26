@@ -237,6 +237,9 @@ func economicRefreshDue(current *economic.Indicators, now time.Time) bool {
 	if current == nil {
 		return true
 	}
+	if !current.Complete() {
+		return true
+	}
 	localNow := now.In(economicRefreshLocation)
 	if localNow.Hour() < economicRefreshHour {
 		return false
@@ -274,7 +277,7 @@ func (s *Service) RefreshEconomicIndicators(ctx context.Context) error {
 	if current != nil {
 		currentDate, currentErr := time.Parse("2006-01-02", current.EffectiveDate)
 		fetchedDate, fetchedErr := time.Parse("2006-01-02", indicators.EffectiveDate)
-		if currentErr == nil && fetchedErr == nil && !fetchedDate.After(currentDate) {
+		if currentErr == nil && fetchedErr == nil && !fetchedDate.After(currentDate) && current.Complete() {
 			return nil
 		}
 	}

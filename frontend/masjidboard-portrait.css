@@ -315,9 +315,9 @@ body.portrait-layout {
     font-weight:600;
 }
 .portrait-economic-values { overflow:hidden; border:2px solid var(--portrait-line); border-radius:16px; background:var(--portrait-panel); }
-.portrait-economic-value { min-height:60px; padding:0 18px; border-top:1px solid var(--portrait-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:20px; }
+.portrait-economic-value { min-height:43px; padding:0 18px; border-top:1px solid var(--portrait-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:18px; }
 .portrait-economic-value:first-child { border-top:0; }
-.portrait-economic-value strong { color:var(--portrait-text); font-size:24px; font-variant-numeric:tabular-nums; }
+.portrait-economic-value strong { color:var(--portrait-text); font-size:21px; font-variant-numeric:tabular-nums; }
 .portrait-economic-accounting { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:baseline; gap:12px; }
 .portrait-economic-currency { justify-self:start; }
 .portrait-economic-amount { justify-self:end; text-align:right; white-space:nowrap; }

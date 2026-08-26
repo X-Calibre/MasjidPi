@@ -15,7 +15,16 @@ import (
 )
 
 func economicResponse(modifiedGMT, effectiveDate string) string {
-	return fmt.Sprintf(`[{"date":"2026-08-14T09:02:11","modified_gmt":%q,"link":"https://www.jamiatsa.org/source/","title":{"rendered":"Rabi al-Awwal 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>%s</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr></tbody></table>"}}]`, modifiedGMT, effectiveDate)
+	return fmt.Sprintf(`[{"date":"2026-08-14T09:02:11","modified_gmt":%q,"link":"https://www.jamiatsa.org/source/","title":{"rendered":"Rabi al-Awwal 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>14 Carat</th><th>9 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>%s</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R1391.75</td><td>R894.69</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr></tbody></table>"}}]`, modifiedGMT, effectiveDate)
+}
+
+func completeIndicators(effectiveDate string) *economic.Indicators {
+	return &economic.Indicators{
+		EffectiveDate: effectiveDate,
+		RandDollar: 1, Gold24Carat: 1, Gold22Carat: 1, Gold18Carat: 1,
+		Gold14Carat: 1, Gold9Carat: 1, Silver: 1, Nisaab: 1,
+		MinimumMahr: 1, MahrFaatimi: 1, Krugerrand: 1,
+	}
 }
 
 func TestRefreshEconomicIndicatorsFetchesOnceForCurrentSourceDay(t *testing.T) {
@@ -52,6 +61,39 @@ func TestRefreshEconomicIndicatorsFetchesOnceForCurrentSourceDay(t *testing.T) {
 	}
 }
 
+func TestRefreshEconomicIndicatorsBackfillsIncompleteCurrentDayCache(t *testing.T) {
+	t.Parallel()
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requests.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, economicResponse("2026-08-24T07:02:11", "24 Aug"))
+	}))
+	defer server.Close()
+
+	cachePath := filepath.Join(t.TempDir(), "indicators.json")
+	now := time.Date(2026, 8, 24, 6, 0, 0, 0, time.UTC)
+	service := &Service{
+		selection: selection.State{ShowEconomicIndicators: true},
+		indicators: &economic.Indicators{
+			EffectiveDate: "2026-08-24", RandDollar: 16.01,
+			Nisaab: 21708.16, Krugerrand: 77626.36,
+		},
+		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
+		economicStore:  economic.Store{Path: cachePath},
+	}
+
+	if err := service.RefreshEconomicIndicators(context.Background()); err != nil {
+		t.Fatalf("refresh error = %v", err)
+	}
+	if got := requests.Load(); got != 1 {
+		t.Fatalf("requests = %d, want 1", got)
+	}
+	if got := service.EconomicIndicators(); got == nil || got.Gold14Carat != 1391.75 || got.Gold9Carat != 894.69 {
+		t.Fatalf("EconomicIndicators() = %+v", got)
+	}
+}
+
 func TestRefreshEconomicIndicatorsWaitsUntilNineInJohannesburg(t *testing.T) {
 	t.Parallel()
 	var requests atomic.Int32
@@ -62,13 +104,12 @@ func TestRefreshEconomicIndicatorsWaitsUntilNineInJohannesburg(t *testing.T) {
 	defer server.Close()
 
 	now := time.Date(2026, 8, 25, 6, 59, 0, 0, time.UTC)
+	current := completeIndicators("2026-08-24")
+	current.SourceUpdatedAt = time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC)
+	current.FetchedAt = time.Date(2026, 8, 24, 19, 0, 0, 0, time.UTC)
 	service := &Service{
 		selection: selection.State{ShowEconomicIndicators: true},
-		indicators: &economic.Indicators{
-			EffectiveDate:   "2026-08-24",
-			SourceUpdatedAt: time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC),
-			FetchedAt:       time.Date(2026, 8, 24, 19, 0, 0, 0, time.UTC),
-		},
+		indicators: current,
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
 	}
 	if err := service.RefreshEconomicIndicators(context.Background()); err != nil {
@@ -91,13 +132,12 @@ func TestRefreshEconomicIndicatorsRetriesUnchangedSource(t *testing.T) {
 
 	originalFetchedAt := time.Date(2026, 8, 24, 19, 0, 0, 0, time.UTC)
 	now := time.Date(2026, 8, 25, 7, 0, 0, 0, time.UTC)
+	current := completeIndicators("2026-08-24")
+	current.SourceUpdatedAt = time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC)
+	current.FetchedAt = originalFetchedAt
 	service := &Service{
 		selection: selection.State{ShowEconomicIndicators: true},
-		indicators: &economic.Indicators{
-			EffectiveDate:   "2026-08-24",
-			SourceUpdatedAt: time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC),
-			FetchedAt:       originalFetchedAt,
-		},
+		indicators: current,
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
 		economicStore:  economic.Store{Path: filepath.Join(t.TempDir(), "indicators.json")},
 	}
@@ -125,12 +165,11 @@ func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) 
 	defer server.Close()
 
 	now := time.Date(2026, 8, 25, 7, 30, 0, 0, time.UTC)
+	current := completeIndicators("2026-08-24")
+	current.SourceUpdatedAt = time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC)
 	service := &Service{
 		selection: selection.State{ShowEconomicIndicators: true},
-		indicators: &economic.Indicators{
-			EffectiveDate:   "2026-08-24",
-			SourceUpdatedAt: time.Date(2026, 8, 24, 7, 2, 11, 0, time.UTC),
-		},
+		indicators: current,
 		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
 		economicStore:  economic.Store{Path: filepath.Join(t.TempDir(), "indicators.json")},
 	}
@@ -150,7 +189,7 @@ func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) 
 
 func TestEconomicRefreshDueLimitsWeekendAttempts(t *testing.T) {
 	t.Parallel()
-	current := &economic.Indicators{EffectiveDate: "2026-08-28"}
+	current := completeIndicators("2026-08-28")
 	tests := []struct {
 		name string
 		now  time.Time

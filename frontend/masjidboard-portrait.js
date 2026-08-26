@@ -225,11 +225,14 @@
         const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "long", year: "numeric"});
         slide.append(element("div", "portrait-economic-date", `Effective ${dateText}`));
         const values = [
+            ["Rand/Dollar", formatRand(indicators.rand_dollar)],
             ["Nisaab", formatRand(indicators.nisaab)],
             ["Krugerrand", formatRand(indicators.krugerrand)],
             ["Gold 24 ct / g", formatRand(indicators.gold_24_carat_per_gram)],
             ["Gold 22 ct / g", formatRand(indicators.gold_22_carat_per_gram)],
             ["Gold 18 ct / g", formatRand(indicators.gold_18_carat_per_gram)],
+            ["Gold 14 ct / g", formatRand(indicators.gold_14_carat_per_gram)],
+            ["Gold 9 ct / g", formatRand(indicators.gold_9_carat_per_gram)],
             ["Silver / g", formatRand(indicators.silver_per_gram)],
             ["Minimum Mahr", formatRand(indicators.minimum_mahr)],
             ["Mahr Faatimi", formatRand(indicators.mahr_faatimi)],

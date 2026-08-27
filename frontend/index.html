@@ -50,8 +50,17 @@
             </nav>
 
             <div id="masjidPanel" class="listen-panel" data-listen-panel="masjid">
-                <h2>Primary Masjid</h2>
-                <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
+                <div class="module-power-row">
+                    <div>
+                        <h2>Primary Masjid</h2>
+                        <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
+                    </div>
+                    <label class="module-power-control" for="masjidPowerSwitch">
+                        <span>Power</span>
+                        <input id="masjidPowerSwitch" type="checkbox" checked>
+                    </label>
+                </div>
+                <div id="masjidPowerStatus" class="stream-count"></div>
 
                 <label for="masjidVolumeSlider">Masjid Volume</label>
                 <input id="masjidVolumeSlider" type="range" min="0" max="150" value="100">
@@ -78,8 +87,17 @@
             </div>
 
             <div id="radioPanel" class="listen-panel hidden" data-listen-panel="radio">
-                <h2>Secondary Radio</h2>
-                <p class="section-intro">Masjid playback always has priority over Radio.</p>
+                <div class="module-power-row">
+                    <div>
+                        <h2>Secondary Radio</h2>
+                        <p class="section-intro">Masjid playback always has priority over Radio.</p>
+                    </div>
+                    <label class="module-power-control" for="radioPowerSwitch">
+                        <span>Power</span>
+                        <input id="radioPowerSwitch" type="checkbox" checked>
+                    </label>
+                </div>
+                <div id="radioPowerStatus" class="stream-count"></div>
 
                 <div class="radio-mode-block">
                     <label>Radio Operation</label>
@@ -153,6 +171,7 @@
 <script src="radio-resume-delay.js"></script>
 <script src="radio-schedule.js"></script>
 <script src="radio-mode.js"></script>
+<script src="module-power.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

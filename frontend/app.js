@@ -3,6 +3,8 @@ let radioCatalogue = [];
 let backendOnline = true;
 let listenStatus = null;
 let favouriteIds = new Set();
+let renderedMasjidID = null;
+let renderedRadioID = null;
 
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
@@ -251,11 +253,17 @@ function renderStatus(status) {
         ? "Controls the selected audio device's hardware volume."
         : "The selected audio device does not provide a controllable hardware mixer.";
 
-    if (status.masjid_id && [...streamInput.options].some(option => option.value === status.masjid_id)) {
-        streamInput.value = status.masjid_id;
+    if (status.masjid_id !== renderedMasjidID) {
+        renderedMasjidID = status.masjid_id || "";
+        if (status.masjid_id && [...streamInput.options].some(option => option.value === status.masjid_id)) {
+            streamInput.value = status.masjid_id;
+        }
     }
-    if (status.radio_id && [...radioInput.options].some(option => option.value === status.radio_id)) {
-        radioInput.value = status.radio_id;
+    if (status.radio_id !== renderedRadioID) {
+        renderedRadioID = status.radio_id || "";
+        if (status.radio_id && [...radioInput.options].some(option => option.value === status.radio_id)) {
+            radioInput.value = status.radio_id;
+        }
     }
 
     playButton.disabled = status.listening;
@@ -350,6 +358,7 @@ streamInput.addEventListener("change", async () => {
     if (!id) return;
     try {
         listenStatus = await setSelection({ masjid_id: id });
+        renderedMasjidID = id;
         updateFavouriteButton();
         await refreshStatus();
         showToast("Primary masjid updated.", "success");
@@ -364,6 +373,7 @@ radioInput.addEventListener("change", async () => {
     if (!id) return;
     try {
         listenStatus = await setSelection({ radio_id: id });
+        renderedRadioID = id;
         await refreshStatus();
         showToast("Secondary radio updated.", "success");
     } catch (err) {
@@ -396,6 +406,7 @@ favourites.addEventListener("click", async event => {
     streamInput.value = id;
     try {
         await setSelection({ masjid_id: id });
+        renderedMasjidID = id;
         await refreshStatus();
     } catch (err) {
         showToast(err.message, "error");

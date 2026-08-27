@@ -10,6 +10,7 @@ type MPV struct {
 	process        *Process
 	ipc            *IPC
 	hardwareVolume *ALSAVolume
+	softwareVolume int
 }
 
 func New(socket string) *MPV {
@@ -17,6 +18,7 @@ func New(socket string) *MPV {
 		process:        NewProcess(socket),
 		ipc:            NewIPC(socket),
 		hardwareVolume: NewALSAVolume(),
+		softwareVolume: 100,
 	}
 }
 
@@ -28,7 +30,7 @@ func (m *MPV) Start() error {
 		_ = m.process.Stop()
 		return err
 	}
-	return m.SoftwareVolume(100)
+	return m.applySoftwareVolume()
 }
 
 func (m *MPV) Restart() error {
@@ -39,7 +41,7 @@ func (m *MPV) Restart() error {
 	if err := m.connectIPC(); err != nil {
 		return err
 	}
-	return m.SoftwareVolume(100)
+	return m.applySoftwareVolume()
 }
 
 func (m *MPV) connectIPC() error {
@@ -134,13 +136,20 @@ func (m *MPV) Volume(volume int) error {
 }
 
 // SoftwareVolume controls mpv's per-source gain without changing the ALSA
-// hardware mixer. The Listen priority controller uses this to maintain
-// independent masjid and radio listening levels.
+// hardware mixer. The selected gain is retained and restored if mpv restarts.
 func (m *MPV) SoftwareVolume(volume int) error {
 	if volume < 0 || volume > 100 {
 		return fmt.Errorf("volume must be between 0 and 100")
 	}
-	return m.SetProperty("volume", volume)
+	if err := m.SetProperty("volume", volume); err != nil {
+		return err
+	}
+	m.softwareVolume = volume
+	return nil
+}
+
+func (m *MPV) applySoftwareVolume() error {
+	return m.SetProperty("volume", m.softwareVolume)
 }
 
 func (m *MPV) HardwareVolume() (int, bool, error) {

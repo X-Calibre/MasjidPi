@@ -75,14 +75,55 @@ func TestControllerUsesRadioUntilMasjidComesOnline(t *testing.T) {
 	if len(output.activations) != 2 || output.activations[1].id != masjid.ID || output.activations[1].volume != 100 {
 		t.Fatalf("masjid activation = %#v", output.activations)
 	}
+}
+
+func TestControllerDelaysRadioAfterActiveMasjidGoesOffline(t *testing.T) {
+	availability := &fakeAvailability{available: map[string]bool{"masjid-a": true}}
+	output := &fakeOutput{}
+	controller := New(availability, output)
+	controller.radioResumeDelay = 20 * time.Millisecond
+	masjid := &stream.Stream{ID: "masjid-a", URL: "https://example.test/masjid"}
+	radio := &stream.Stream{ID: "radio-a", Kind: stream.KindRadio, URL: "https://example.test/radio"}
+	_ = controller.SelectMasjid(masjid)
+	_ = controller.SelectRadio(radio)
+	controller.Listen()
+	controller.step()
 
 	availability.available[masjid.ID] = false
 	controller.step()
-	if got := controller.Status().ActiveSource; got != ActiveRadio {
-		t.Fatalf("active source after masjid offline = %q, want %q", got, ActiveRadio)
+	status := controller.Status()
+	if status.ActiveSource != ActiveNone || !status.RadioResumePending {
+		t.Fatalf("status after masjid offline = %+v, want no active source with pending radio resume", status)
 	}
-	if len(output.activations) != 3 || output.activations[2].id != radio.ID {
-		t.Fatalf("radio resume activation = %#v", output.activations)
+
+	time.Sleep(25 * time.Millisecond)
+	controller.step()
+	status = controller.Status()
+	if status.ActiveSource != ActiveRadio || status.RadioResumePending {
+		t.Fatalf("status after delay = %+v, want radio active and no pending delay", status)
+	}
+}
+
+func TestControllerCancelsRadioDelayWhenMasjidReturns(t *testing.T) {
+	availability := &fakeAvailability{available: map[string]bool{"masjid-a": true}}
+	output := &fakeOutput{}
+	controller := New(availability, output)
+	controller.radioResumeDelay = time.Minute
+	masjid := &stream.Stream{ID: "masjid-a", URL: "https://example.test/masjid"}
+	radio := &stream.Stream{ID: "radio-a", Kind: stream.KindRadio, URL: "https://example.test/radio"}
+	_ = controller.SelectMasjid(masjid)
+	_ = controller.SelectRadio(radio)
+	controller.Listen()
+	controller.step()
+
+	availability.available[masjid.ID] = false
+	controller.step()
+	availability.available[masjid.ID] = true
+	controller.step()
+
+	status := controller.Status()
+	if status.ActiveSource != ActiveMasjid || status.RadioResumePending {
+		t.Fatalf("status after masjid return = %+v, want immediate masjid and cancelled delay", status)
 	}
 }
 

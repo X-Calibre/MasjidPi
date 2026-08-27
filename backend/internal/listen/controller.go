@@ -3,6 +3,7 @@ package listen
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -10,11 +11,11 @@ import (
 )
 
 const (
-	reevaluateInterval          = time.Second
-	MaxSourceVolume             = 150
-	MinRadioResumeDelayMinutes  = 1
-	MaxRadioResumeDelayMinutes  = 30
-	DefaultRadioResumeDelayMinutes = 5
+	reevaluateInterval              = time.Second
+	MaxSourceVolume                 = 150
+	MinRadioResumeDelayMinutes      = 1
+	MaxRadioResumeDelayMinutes      = 30
+	DefaultRadioResumeDelayMinutes  = 5
 )
 
 type Availability interface {
@@ -48,26 +49,33 @@ type Status struct {
 	RadioResumeDelayMinutes int          `json:"radio_resume_delay_minutes"`
 	RadioResumePending      bool         `json:"radio_resume_pending"`
 	RadioResumeAt           string       `json:"radio_resume_at,omitempty"`
+	RadioScheduleEnabled    bool         `json:"radio_schedule_enabled"`
+	RadioScheduleStart      string       `json:"radio_schedule_start,omitempty"`
+	RadioScheduleStop       string       `json:"radio_schedule_stop,omitempty"`
+	RadioScheduleAllowsNow  bool         `json:"radio_schedule_allows_now"`
 	Error                   string       `json:"error,omitempty"`
 }
 
 type Controller struct {
-	mu                 sync.Mutex
-	startOnce          sync.Once
-	availability       Availability
-	output             Output
-	selectedMasjid     *stream.Stream
-	selectedRadio      *stream.Stream
-	listening          bool
-	masjidVolume       int
-	radioVolume        int
-	radioResumeDelay   time.Duration
-	radioResumeAt      time.Time
-	activeSource       ActiveSource
-	activeStreamID     string
-	masjidOnline       bool
-	lastError          string
-	wake               chan struct{}
+	mu                   sync.Mutex
+	startOnce            sync.Once
+	availability         Availability
+	output               Output
+	selectedMasjid       *stream.Stream
+	selectedRadio        *stream.Stream
+	listening            bool
+	masjidVolume         int
+	radioVolume          int
+	radioResumeDelay     time.Duration
+	radioResumeAt        time.Time
+	radioScheduleEnabled bool
+	radioScheduleStart   string
+	radioScheduleStop    string
+	activeSource         ActiveSource
+	activeStreamID       string
+	masjidOnline         bool
+	lastError            string
+	wake                 chan struct{}
 }
 
 func New(availability Availability, output Output) *Controller {
@@ -130,6 +138,52 @@ func (c *Controller) SetRadioResumeDelayMinutes(minutes int) error {
 	return nil
 }
 
+func (c *Controller) SetRadioSchedule(enabled bool, start, stop string) error {
+	if enabled {
+		if _, err := parseClock(start); err != nil {
+			return fmt.Errorf("invalid radio schedule start: %w", err)
+		}
+		if _, err := parseClock(stop); err != nil {
+			return fmt.Errorf("invalid radio schedule stop: %w", err)
+		}
+		if start == stop {
+			return errors.New("radio schedule start and stop times must differ")
+		}
+	}
+	c.mu.Lock()
+	c.radioScheduleEnabled = enabled
+	c.radioScheduleStart = start
+	c.radioScheduleStop = stop
+	if enabled && !radioWindowAllows(time.Now(), start, stop) {
+		c.radioResumeAt = time.Time{}
+	}
+	c.mu.Unlock()
+	c.notify()
+	return nil
+}
+
+// ResumeRadioNow skips only the post-masjid delay. It does not bypass the
+// configured daily radio schedule or masjid priority.
+func (c *Controller) ResumeRadioNow() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.radioResumeAt.IsZero() {
+		return errors.New("radio resume delay is not currently pending")
+	}
+	if c.radioScheduleEnabled && !radioWindowAllows(time.Now(), c.radioScheduleStart, c.radioScheduleStop) {
+		return errors.New("radio is outside its configured playback window")
+	}
+	if c.masjidOnline {
+		return errors.New("masjid is currently online")
+	}
+	if c.selectedRadio == nil {
+		return errors.New("no radio station is selected")
+	}
+	c.radioResumeAt = time.Time{}
+	c.notifyLocked()
+	return nil
+}
+
 func (c *Controller) setSourceVolume(kind stream.Kind, volume int) error {
 	if volume < 0 || volume > MaxSourceVolume {
 		return errors.New("source volume must be between 0 and 150")
@@ -174,6 +228,7 @@ func (c *Controller) Stop() {
 func (c *Controller) Status() Status {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	allowsNow := !c.radioScheduleEnabled || radioWindowAllows(time.Now(), c.radioScheduleStart, c.radioScheduleStop)
 	status := Status{
 		Listening:               c.listening,
 		ActiveSource:            c.activeSource,
@@ -183,6 +238,10 @@ func (c *Controller) Status() Status {
 		RadioVolume:             c.radioVolume,
 		RadioResumeDelayMinutes: int(c.radioResumeDelay / time.Minute),
 		RadioResumePending:      !c.radioResumeAt.IsZero(),
+		RadioScheduleEnabled:    c.radioScheduleEnabled,
+		RadioScheduleStart:      c.radioScheduleStart,
+		RadioScheduleStop:       c.radioScheduleStop,
+		RadioScheduleAllowsNow:  allowsNow,
 		Error:                   c.lastError,
 	}
 	if !c.radioResumeAt.IsZero() {
@@ -230,6 +289,9 @@ func (c *Controller) step() {
 	activeSource := c.activeSource
 	resumeAt := c.radioResumeAt
 	resumeDelay := c.radioResumeDelay
+	scheduleEnabled := c.radioScheduleEnabled
+	scheduleStart := c.radioScheduleStart
+	scheduleStop := c.radioScheduleStop
 	c.mu.Unlock()
 
 	masjidOnline := false
@@ -248,17 +310,22 @@ func (c *Controller) step() {
 		return
 	}
 
-	// Masjid priority is immediate. If it returns during the post-broadcast
-	// radio hold, cancel the hold and restore the masjid without delay.
+	// Masjid priority is always immediate and is never constrained by the radio schedule.
 	if masjidOnline && masjid != nil {
 		c.clearRadioResumeDelay()
 		c.activate(ActiveMasjid, *masjid, masjidVolume)
 		return
 	}
 
-	// A delay is started only when a masjid that was actively playing goes
-	// offline. Starting MasjidPi with an already-offline masjid does not delay
-	// normal radio playback.
+	radioAllowed := !scheduleEnabled || radioWindowAllows(time.Now(), scheduleStart, scheduleStop)
+	if !radioAllowed {
+		c.clearRadioResumeDelay()
+		c.deactivate()
+		return
+	}
+
+	// Start the hold only when an actively playing masjid goes offline while
+	// radio is currently allowed by the daily schedule.
 	if activeSource == ActiveMasjid && resumeAt.IsZero() {
 		c.mu.Lock()
 		c.radioResumeAt = time.Now().Add(resumeDelay)
@@ -283,6 +350,27 @@ func (c *Controller) step() {
 		return
 	}
 	c.deactivate()
+}
+
+func parseClock(value string) (int, error) {
+	parsed, err := time.Parse("15:04", value)
+	if err != nil {
+		return 0, errors.New("time must use HH:MM format")
+	}
+	return parsed.Hour()*60 + parsed.Minute(), nil
+}
+
+func radioWindowAllows(now time.Time, start, stop string) bool {
+	startMinutes, startErr := parseClock(start)
+	stopMinutes, stopErr := parseClock(stop)
+	if startErr != nil || stopErr != nil || startMinutes == stopMinutes {
+		return false
+	}
+	nowMinutes := now.Hour()*60 + now.Minute()
+	if startMinutes < stopMinutes {
+		return nowMinutes >= startMinutes && nowMinutes < stopMinutes
+	}
+	return nowMinutes >= startMinutes || nowMinutes < stopMinutes
 }
 
 func (c *Controller) clearRadioResumeDelay() {
@@ -341,6 +429,12 @@ func (c *Controller) deactivate() {
 }
 
 func (c *Controller) notify() {
+	c.mu.Lock()
+	c.notifyLocked()
+	c.mu.Unlock()
+}
+
+func (c *Controller) notifyLocked() {
 	select {
 	case c.wake <- struct{}{}:
 	default:

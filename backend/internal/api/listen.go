@@ -145,8 +145,8 @@ func (s *Server) listenVolume(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
-	if req.Volume < 0 || req.Volume > 100 {
-		writeError(w, http.StatusBadRequest, "volume must be between 0 and 100")
+	if req.Volume < 0 || req.Volume > listen.MaxSourceVolume {
+		writeError(w, http.StatusBadRequest, "source volume must be between 0 and 150")
 		return
 	}
 

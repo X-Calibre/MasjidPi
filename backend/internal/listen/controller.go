@@ -134,7 +134,9 @@ func (c *Controller) SetMasjidEnabled(enabled bool) {
 	c.masjidEnabled = enabled
 	if !enabled {
 		c.radioEnabled = false
+		c.listening = false
 		c.radioResumeAt = time.Time{}
+		c.masjidOnline = false
 	}
 	c.mu.Unlock()
 	c.notify()
@@ -244,8 +246,22 @@ func (c *Controller) setSourceVolume(kind stream.Kind, volume int) error {
 	return nil
 }
 
-func (c *Controller) Listen() { c.mu.Lock(); c.listening = true; c.mu.Unlock(); c.notify() }
-func (c *Controller) Stop()   { c.mu.Lock(); c.listening = false; c.radioResumeAt = time.Time{}; c.mu.Unlock(); c.notify() }
+func (c *Controller) Listen() {
+	c.mu.Lock()
+	if c.masjidEnabled {
+		c.listening = true
+	}
+	c.mu.Unlock()
+	c.notify()
+}
+
+func (c *Controller) Stop() {
+	c.mu.Lock()
+	c.listening = false
+	c.radioResumeAt = time.Time{}
+	c.mu.Unlock()
+	c.notify()
+}
 
 func (c *Controller) Status() Status {
 	c.mu.Lock()
@@ -481,6 +497,7 @@ func (c *Controller) deactivate() {
 }
 
 func (c *Controller) notify() { c.mu.Lock(); c.notifyLocked(); c.mu.Unlock() }
+
 func (c *Controller) notifyLocked() {
 	select {
 	case c.wake <- struct{}{}:

@@ -46,7 +46,7 @@
             <nav class="app-tabs listen-subtabs" aria-label="Listen settings">
                 <button id="masjidTab" class="app-tab active" type="button" data-listen-tab="masjid" aria-selected="true">Masjid</button>
                 <button id="radioTab" class="app-tab" type="button" data-listen-tab="radio" aria-selected="false">Radio</button>
-                <button id="audioTab" class="app-tab" type="button" data-listen-tab="audio" aria-selected="false">Audio</button>
+                <button id="audioTab" class="app-tab" type="button" data-listen-tab="audio" aria-selected="false">Config</button>
             </nav>
 
             <div id="masjidPanel" class="listen-panel" data-listen-panel="masjid">
@@ -115,11 +115,30 @@
                 <div id="radioVolumeValue">70%</div>
                 <small class="volume-note">Software volume used when the selected radio station is playing. Above 100% applies boost and may cause clipping on loud streams.</small>
 
-                <label for="radioResumeDelaySlider">Radio Resume Delay</label>
-                <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
-                <div id="radioResumeDelayValue">5 minutes</div>
-                <small class="volume-note">In scheduled mode, MasjidPi waits this long after a masjid broadcast ends before resuming Radio.</small>
-                <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
+                <label for="radioStream">Radio Station</label>
+                <select id="radioStream" size="8"></select>
+            </div>
+
+            <div id="audioPanel" class="listen-panel hidden" data-listen-panel="audio">
+                <h2>Configuration</h2>
+                <p class="section-intro">Configure audio output and Radio timing behaviour.</p>
+
+                <label for="audioDevice">Audio output</label>
+                <select id="audioDevice"></select>
+                <small class="volume-note">Select where MasjidPi plays audio.</small>
+
+                <label for="volumeSlider">Master Volume</label>
+                <input id="volumeSlider" type="range" min="0" max="100" value="100">
+                <div id="volumeValue">100%</div>
+                <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
+
+                <div class="radio-config-block">
+                    <label for="radioResumeDelaySlider">Radio Resume Delay</label>
+                    <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
+                    <div id="radioResumeDelayValue">5 minutes</div>
+                    <small class="volume-note">In scheduled mode, MasjidPi waits this long after a masjid broadcast ends before resuming Radio.</small>
+                    <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
+                </div>
 
                 <div class="radio-schedule-block">
                     <label class="radio-schedule-toggle" for="radioScheduleEnabled">
@@ -139,23 +158,6 @@
                     </div>
                     <div id="radioScheduleStatus" class="stream-count"></div>
                 </div>
-
-                <label for="radioStream">Radio Station</label>
-                <select id="radioStream" size="8"></select>
-            </div>
-
-            <div id="audioPanel" class="listen-panel hidden" data-listen-panel="audio">
-                <h2>Audio Output</h2>
-                <p class="section-intro">Master volume controls the selected hardware output independently of Masjid and Radio levels.</p>
-
-                <label for="audioDevice">Audio output</label>
-                <select id="audioDevice"></select>
-                <small class="volume-note">Select where MasjidPi plays audio.</small>
-
-                <label for="volumeSlider">Master Volume</label>
-                <input id="volumeSlider" type="range" min="0" max="100" value="100">
-                <div id="volumeValue">100%</div>
-                <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
             </div>
         </section>
     </main>

@@ -121,11 +121,6 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("load Listen preferences: %w", err)
 	}
-
-	listenController.SetMasjidEnabled(*prefs.MasjidEnabled)
-	if err := listenController.SetRadioEnabled(*prefs.RadioEnabled); err != nil {
-		return fmt.Errorf("restore radio power state: %w", err)
-	}
 	if err := listenController.SetMasjidVolume(prefs.MasjidVolume); err != nil {
 		return fmt.Errorf("restore masjid volume: %w", err)
 	}
@@ -159,10 +154,15 @@ func Run() error {
 			log.Info("Restored selected radio station", "stream_id", selected.ID, "stream_name", selected.Name)
 		}
 	}
-	if *prefs.RadioEnabled {
-		if err := listenController.SetRadioMode(listen.RadioMode(prefs.RadioMode)); err != nil {
-			return fmt.Errorf("restore radio mode: %w", err)
-		}
+
+	masjidEnabled := prefs.MasjidEnabledValue()
+	radioEnabled := prefs.RadioEnabledValue()
+	listenController.SetMasjidEnabled(masjidEnabled)
+	if err := listenController.SetRadioEnabled(radioEnabled); err != nil {
+		return fmt.Errorf("restore radio power state: %w", err)
+	}
+	if err := listenController.SetRadioMode(listen.RadioMode(prefs.RadioMode)); err != nil {
+		return fmt.Errorf("restore radio mode: %w", err)
 	}
 	if prefs.ResumeListening {
 		listenController.Listen()
@@ -311,6 +311,7 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 					log.Warn("Audio device unavailable, falling back to automatic output", "audio_device", name)
 					lastMode = "fallback"
 				}
+			}
 		}
 	}
 }

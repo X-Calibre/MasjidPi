@@ -53,6 +53,11 @@
                 <h2>Primary Masjid</h2>
                 <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
 
+                <label for="masjidVolumeSlider">Masjid Volume</label>
+                <input id="masjidVolumeSlider" type="range" min="0" max="100" value="100">
+                <div id="masjidVolumeValue">100%</div>
+                <small class="volume-note">Software volume used when the selected masjid is playing.</small>
+
                 <div id="favouritesSection" class="favourites-section hidden">
                     <label>Favourites</label>
                     <div id="favourites" class="favourites"></div>
@@ -69,11 +74,6 @@
                     <button id="favouriteButton" class="secondary" type="button">☆ Add to Favourites</button>
                 </div>
 
-                <label for="masjidVolumeSlider">Masjid Volume</label>
-                <input id="masjidVolumeSlider" type="range" min="0" max="100" value="100">
-                <div id="masjidVolumeValue">100%</div>
-                <small class="volume-note">Software volume used when the selected masjid is playing.</small>
-
                 <button id="updateCatalogueButton" class="secondary full-width-action" type="button">🔄 Update Masjid Catalogue</button>
             </div>
 
@@ -81,13 +81,13 @@
                 <h2>Secondary Radio</h2>
                 <p class="section-intro">Radio plays while the selected masjid is offline and stops automatically when the masjid comes online.</p>
 
-                <label for="radioStream">Radio Station</label>
-                <select id="radioStream" size="8"></select>
-
                 <label for="radioVolumeSlider">Radio Volume</label>
                 <input id="radioVolumeSlider" type="range" min="0" max="100" value="70">
                 <div id="radioVolumeValue">70%</div>
                 <small class="volume-note">Software volume used when the selected radio station is playing.</small>
+
+                <label for="radioStream">Radio Station</label>
+                <select id="radioStream" size="8"></select>
             </div>
 
             <div id="audioPanel" class="listen-panel hidden" data-listen-panel="audio">

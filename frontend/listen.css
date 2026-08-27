@@ -82,6 +82,39 @@ button.app-tab {
     cursor: not-allowed;
 }
 
+.selected-masjid-summary {
+    margin: 18px 0 22px;
+    padding: 14px 16px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.selected-masjid-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+#selectedMasjidName {
+    display: block;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.35;
+}
+
+.selected-masjid-location {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
 #masjidVolumeValue,
 #radioVolumeValue,
 #radioResumeDelayValue {

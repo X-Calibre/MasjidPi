@@ -51,14 +51,14 @@ func (s *Server) listenStatus(w http.ResponseWriter, r *http.Request) {
 	controllerStatus := s.listen.Status()
 	playbackStatus := s.playback.Status()
 	writeJSON(w, http.StatusOK, listenStatusResponse{
-		Status:                 controllerStatus,
-		MasterVolume:           playbackStatus.Volume,
-		MasterVolumeSupported:  playbackStatus.VolumeSupported,
-		PlaybackState:          playbackStatus.State,
-		PlaybackMessage:        playbackStatus.Message,
-		PlaybackURL:            playbackStatus.URL,
-		PlaybackEndpoint:       playbackStatus.Endpoint,
-		PlaybackFallbackUsed:   playbackStatus.FallbackUsed,
+		Status:                controllerStatus,
+		MasterVolume:          playbackStatus.Volume,
+		MasterVolumeSupported: playbackStatus.VolumeSupported,
+		PlaybackState:         playbackStatus.State,
+		PlaybackMessage:       playbackStatus.Message,
+		PlaybackURL:           playbackStatus.URL,
+		PlaybackEndpoint:      playbackStatus.Endpoint,
+		PlaybackFallbackUsed:  playbackStatus.FallbackUsed,
 	})
 }
 
@@ -155,6 +155,10 @@ func (s *Server) listenPower(w http.ResponseWriter, r *http.Request) {
 			prefs.RadioEnabled = boolPtr(false)
 		}
 	case "radio":
+		if req.Enabled && !s.listen.Status().MasjidEnabled {
+			s.listen.SetMasjidEnabled(true)
+			prefs.MasjidEnabled = boolPtr(true)
+		}
 		if err := s.listen.SetRadioEnabled(req.Enabled); err != nil {
 			writeError(w, http.StatusConflict, err.Error())
 			return

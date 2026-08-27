@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
+	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
@@ -27,6 +28,7 @@ type Server struct {
 	httpServer                  *http.Server
 	logger                      *slog.Logger
 	playback                    *playback.Manager
+	listen                      *listen.Controller
 	streams                     *stream.Store
 	favourites                  *storage.Favourites
 	preferences                 *storage.Preferences
@@ -57,8 +59,10 @@ type Config struct {
 type Dependencies struct {
 	Logger                 *slog.Logger
 	Playback               *playback.Manager
+	Listen                 *listen.Controller
 	Streams                *stream.Store
 	Favourites             *storage.Favourites
+	Preferences            *storage.Preferences
 	AudioDeviceState       *storage.AudioDeviceState
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
@@ -67,13 +71,18 @@ type Dependencies struct {
 func New(config Config, dependencies Dependencies) *Server {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir(config.Frontend))
+	preferences := dependencies.Preferences
+	if preferences == nil {
+		preferences = storage.NewPreferences(config.PreferencesPath)
+	}
 
 	server := &Server{
 		logger:                   dependencies.Logger,
 		playback:                 dependencies.Playback,
+		listen:                   dependencies.Listen,
 		streams:                  dependencies.Streams,
 		favourites:               dependencies.Favourites,
-		preferences:              storage.NewPreferences(config.PreferencesPath),
+		preferences:              preferences,
 		audioDeviceState:         dependencies.AudioDeviceState,
 		masjidBoardService:       dependencies.MasjidBoardService,
 		masjidBoardMaintenance:   dependencies.MasjidBoardMaintenance,
@@ -102,6 +111,11 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/favourites", server.favouritesHandler)
 		mux.HandleFunc("/api/preferences", server.preferencesHandler)
 		mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
+		mux.HandleFunc("/api/listen/status", server.listenStatus)
+		mux.HandleFunc("/api/listen/selection", server.listenSelection)
+		mux.HandleFunc("/api/listen/volume", server.listenVolume)
+		mux.HandleFunc("/api/listen/start", server.listenStart)
+		mux.HandleFunc("/api/listen/stop", server.listenStop)
 	}
 
 	// Board APIs only exist when the Board component is installed.

@@ -96,12 +96,9 @@ func New(config Config, dependencies Dependencies) *Server {
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
 
-	// Core appliance APIs are always available.
 	mux.HandleFunc("/api/components", server.components)
 	mux.HandleFunc("/api/version", server.version)
 
-	// Listen APIs only exist when the Listen component is installed. This keeps
-	// Board-only appliances from exposing non-functional playback surfaces.
 	if config.Installed.Listen {
 		mux.HandleFunc("/api/player/play", server.play)
 		mux.HandleFunc("/api/player/stop", server.stop)
@@ -114,11 +111,11 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/listen/status", server.listenStatus)
 		mux.HandleFunc("/api/listen/selection", server.listenSelection)
 		mux.HandleFunc("/api/listen/volume", server.listenVolume)
+		mux.HandleFunc("/api/listen/radio-delay", server.listenRadioDelay)
 		mux.HandleFunc("/api/listen/start", server.listenStart)
 		mux.HandleFunc("/api/listen/stop", server.listenStop)
 	}
 
-	// Board APIs only exist when the Board component is installed.
 	if config.Installed.Board {
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
@@ -156,9 +153,6 @@ func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
 	s.audioDeviceState = state
 }
 
-// SetMasjidBoardService retains the MasjidBoard runtime status provider without
-// coupling MasjidBoard availability to the audio subsystem. Production service
-// implementations may also support live selection reconfiguration.
 func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	s.masjidBoardService = service
 	if manager, ok := service.(masjidBoardSelectionManager); ok {
@@ -168,22 +162,16 @@ func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	}
 }
 
-// SetMasjidBoardMaintenance exposes explicit hierarchy/catalogue maintenance
-// operations to the configuration API.
 func (s *Server) SetMasjidBoardMaintenance(service masjidBoardMaintenance) {
 	s.masjidBoardMaintenance = service
 }
 
-// SetMasjidBoardConfigurationPaths configures the disk-first discovery state
-// read and written by the WebUI/API configuration surface.
 func (s *Server) SetMasjidBoardConfigurationPaths(hierarchyPath, scopePath, cataloguePath string) {
 	s.masjidBoardHierarchyPath = hierarchyPath
 	s.masjidBoardScopePath = scopePath
 	s.masjidBoardCataloguePath = cataloguePath
 }
 
-// SetMasjidBoardCataloguePath is retained for callers/tests that only need the
-// catalogue read API.
 func (s *Server) SetMasjidBoardCataloguePath(path string) {
 	s.masjidBoardCataloguePath = path
 }

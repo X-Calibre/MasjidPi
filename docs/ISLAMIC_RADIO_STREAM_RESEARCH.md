@@ -1,6 +1,6 @@
 # South African Islamic Radio Stream Research
 
-**Status:** Active research / Raspberry Pi 4 validation complete for seven streams  
+**Status:** Active research / Raspberry Pi 4 validation complete for eight streams  
 **Last validated:** 2026-08-27  
 **Purpose:** Evaluate South African Islamic radio stations for inclusion in MasjidPi Listen as secondary audio sources.
 
@@ -12,7 +12,7 @@ This investigation identifies suitable South African Islamic radio stations, res
 
 ## Current Validation Summary
 
-Seven stations now have direct endpoints that have been successfully tested with `mpv` on both an x86_64 MasjidPi development environment and the aarch64 Raspberry Pi 4 test platform.
+Eight stations now have direct endpoints that have been successfully tested with `mpv` on both an x86_64 MasjidPi development environment and the aarch64 Raspberry Pi 4 test platform.
 
 | Station | Region | Direct endpoint | Codec | Sample rate | Channels | Bitrate | Container | Pi 4 5-minute soak |
 |---|---|---|---|---:|---|---:|---|---|
@@ -23,12 +23,12 @@ Seven stations now have direct endpoints that have been successfully tested with
 | Radio Al Ansaar | KwaZulu-Natal | `https://edge.iono.fm/xice/467_medium.aac` | AAC | 44.1 kHz | Stereo | ~80.1 kbps | AAC | PASS |
 | Markaz Sahaba Online Radio | KwaZulu-Natal | `http://zas4.ndx.co.za:9088/stream` | MP3 | 44.1 kHz | Mono | 160 kbps | MP3 | PASS |
 | Sirius FM 105.7 | Gauteng | `http://s8.voscast.com:7112/;` | MP3 | 44.1 kHz | Mono | 64 kbps | MP3 | PASS |
+| Salaamedia | Gauteng | `http://capeant.antfarm.co.za:1935/salaam/salaam.stream/playlist.m3u8` | AAC | 44.1 kHz | Stereo | ~129.4 kbps | HLS | PASS |
 
 The remaining candidates are not yet ready for production catalogue inclusion:
 
 | Station | Status |
 |---|---|
-| Salaamedia | Current first-party player confirmed; current raw stream still unresolved |
 | Radio 786 fallback | Primary stream resolved and validated; genuine independent Stream 2/fallback remains unresolved |
 | IFM 88.3 | Current online player confirmed; raw stream unresolved |
 | Islam Alive Radio | Lower priority; not proposed for initial catalogue |
@@ -37,15 +37,15 @@ The remaining candidates are not yet ready for production catalogue inclusion:
 
 ### MasjidPi-Dev
 
-The seven resolved streams were tested using `mpv` for 30 seconds with audio output disabled (`--ao=null`) to isolate network, transport, demuxing and decoding behaviour.
+The resolved streams were tested using `mpv` with audio output disabled (`--ao=null`) to isolate network, transport, demuxing and decoding behaviour.
 
-All seven streams passed.
+The original seven streams passed a 30-second screening test. Salaamedia subsequently passed a five-minute `mpv` soak test on MasjidPi-Dev.
 
-`ffprobe` was then used against the same endpoints to measure codec, sample rate, channel layout, bitrate and container information. The measured properties are recorded in the validation table above.
+`ffprobe` was used to measure codec, sample rate, channel layout, bitrate and container information. The measured properties are recorded in the validation table above.
 
 ### Raspberry Pi 4 — MasjidPi-Test
 
-The same seven streams were tested on the Raspberry Pi test platform:
+The resolved streams were tested on the Raspberry Pi test platform:
 
 ```text
 Linux MasjidPi-Test 6.18.39+rpt-rpi-v8
@@ -66,6 +66,7 @@ Results:
 | Radio 786 | 300 s | PASS |
 | Radio Al Ansaar | 301 s | PASS |
 | Sirius FM | 300 s | PASS |
+| Salaamedia | 300 s | PASS |
 
 This confirms successful operation through the Raspberry Pi network, TLS/HTTP/HLS transport, `mpv`/FFmpeg demuxing and audio decoding stack.
 
@@ -79,9 +80,7 @@ The stream nevertheless remained operational for the complete 300-second test. S
 
 ## Channel Islam International
 
-Channel Islam International currently uses iono.fm for live streaming.
-
-The preferred direct endpoint is:
+Preferred direct endpoint:
 
 ```text
 https://edge.iono.fm/xice/109_medium.aac
@@ -96,8 +95,6 @@ Channels:    Stereo
 Bitrate:     ~69.5 kbps
 Container:   AAC
 ```
-
-The endpoint passed both the x86_64 development test and the Raspberry Pi 4 five-minute soak test.
 
 **Assessment:** Validated candidate.
 
@@ -119,15 +116,11 @@ Bitrate:     64 kbps
 Container:   MP3
 ```
 
-The endpoint passed both the x86_64 development test and Raspberry Pi 4 five-minute soak test.
-
 **Assessment:** Validated candidate.
 
 ## Radio 786
 
-Radio 786's official player provides multiple streams and advises listeners to switch streams when one is buffering or unavailable.
-
-The validated primary endpoint is:
+Validated primary endpoint:
 
 ```text
 https://stream.krypton.co.za/proxy/radio786?mp=/stream
@@ -141,7 +134,7 @@ http://stream.krypton.co.za:8040/stream/
 
 These appear to be two access paths to the same Krypton source and should not be treated as independent fallback services.
 
-Measured properties of the validated HTTPS endpoint:
+Measured properties:
 
 ```text
 Codec:       MP3
@@ -150,8 +143,6 @@ Channels:    Mono
 Bitrate:     56 kbps
 Container:   MP3
 ```
-
-The HTTPS endpoint passed the Raspberry Pi 4 five-minute soak test. A non-fatal TLS message was emitted when the timed test terminated.
 
 The genuine independent Stream 2/fallback endpoint exposed by Radio 786's web player remains to be identified.
 
@@ -175,15 +166,13 @@ Bitrate:     Not reported by ffprobe
 Container:   HLS
 ```
 
-VOC is the current architectural outlier because it uses HLS rather than a continuous MP3/AAC HTTP stream. `mpv` successfully handled the HLS stream on both development and Raspberry Pi 4 environments, including a full five-minute soak test.
-
-This confirms that the proposed radio catalogue does not need to be restricted to Icecast/SHOUTcast-style streams.
+VOC confirms that the proposed radio catalogue does not need to be restricted to Icecast/SHOUTcast-style streams.
 
 **Assessment:** Validated candidate.
 
 ## Radio Al Ansaar
 
-Radio Al Ansaar's current first-party service uses iono.fm. The preferred direct endpoint has now been experimentally confirmed as:
+Preferred direct endpoint:
 
 ```text
 https://edge.iono.fm/xice/467_medium.aac
@@ -199,8 +188,6 @@ Bitrate:     ~80.1 kbps
 Container:   AAC
 ```
 
-The endpoint passed both development and Raspberry Pi 4 playback testing.
-
 The older SimpleStreaming endpoint:
 
 ```text
@@ -213,7 +200,7 @@ should no longer be treated as the preferred long-term endpoint because the stat
 
 ## Markaz Sahaba Online Radio
 
-Markaz Sahaba's official web presence points listeners through NetDynamix. The underlying direct stream has been resolved as:
+Direct stream:
 
 ```text
 http://zas4.ndx.co.za:9088/stream
@@ -229,9 +216,7 @@ Bitrate:     160 kbps
 Container:   MP3
 ```
 
-The endpoint passed both development and Raspberry Pi 4 testing.
-
-At 160 kbps, Markaz Sahaba currently has the highest measured bitrate among the validated stations and therefore consumes substantially more bandwidth than the 56–80 kbps streams in the rest of the group.
+At 160 kbps, Markaz Sahaba currently has the highest measured bitrate among the validated stations.
 
 **Assessment:** Validated candidate.
 
@@ -253,25 +238,51 @@ Bitrate:     64 kbps
 Container:   MP3
 ```
 
-This is a SHOUTcast-style stream. It passed both development and Raspberry Pi 4 playback testing.
-
 **Assessment:** Validated candidate.
 
 ## Salaamedia
 
-Salaamedia's current official Listen Live service remains active.
-
-The historically indexed endpoint is:
+Salaamedia's current direct HLS endpoint has now been verified as:
 
 ```text
 http://capeant.antfarm.co.za:1935/salaam/salaam.stream/playlist.m3u8
 ```
 
-This should currently be treated as a legacy candidate rather than a production endpoint. It has not been sufficiently tied to Salaamedia's current first-party player.
+The endpoint returns HTTP 200 from Wowza Streaming Engine 4.7.6 with MIME type:
 
-The raw stream requested by the current first-party player still needs to be extracted and validated.
+```text
+application/vnd.apple.mpegurl
+```
 
-**Assessment:** Raw current endpoint unresolved.
+The HLS master playlist returned during validation was:
+
+```text
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=128285,CODECS="mp4a.40.2"
+chunklist_w1784185512.m3u8
+```
+
+The child playlist name is dynamically generated and should not be stored in the catalogue. The stable master playlist URL above should be used.
+
+Measured properties:
+
+```text
+Codec:       AAC
+Sample rate: 44100 Hz
+Channels:    Stereo
+Bitrate:     ~129.4 kbps
+Container:   HLS
+Protocol:    HTTP
+```
+
+The advertised HLS bandwidth of 128,285 bps closely matches the approximately 129,370 bps measured by `ffprobe`.
+
+The endpoint passed a five-minute `mpv` soak test on both MasjidPi-Dev and the Raspberry Pi 4 test platform.
+
+The stream currently uses plain HTTP rather than HTTPS. This is not a blocker for `mpv` playback but should be recorded as part of the station's transport characteristics.
+
+**Assessment:** Validated candidate.
 
 ## IFM 88.3
 
@@ -296,21 +307,19 @@ Islam Alive Radio appears in South African Internet-radio listings but currently
 
 ## Proposed Initial Catalogue
 
-The current target catalogue is:
-
 ### Validated candidates
 
 1. Channel Islam International
 2. Radio Islam International
-3. Voice of the Cape
-4. Radio 786 — primary stream
-5. Radio Al Ansaar
-6. Markaz Sahaba Online Radio
-7. Sirius FM 105.7
+3. Salaamedia
+4. Voice of the Cape
+5. Radio 786 — primary stream
+6. Radio Al Ansaar
+7. Markaz Sahaba Online Radio
+8. Sirius FM 105.7
 
 ### Pending endpoint discovery
 
-8. Salaamedia
 9. IFM 88.3
 
 Radio 786's genuine independent fallback stream also remains to be resolved.
@@ -326,13 +335,13 @@ MasjidPi Listen should distinguish between:
 - **Masjids** — individual masjid live streams
 - **Radio Stations** — continuous Islamic radio broadcasters
 
-The validation work also shows that radio streams may use different transports and codecs, including MP3, raw AAC and HLS/AAC. MasjidPi should therefore continue to delegate stream handling to `mpv` rather than attempting to restrict catalogue entries to one transport type.
+The validation work shows that radio streams may use different transports and codecs, including MP3, raw AAC and HLS/AAC. MasjidPi should continue to delegate transport and codec handling to `mpv` rather than restricting catalogue entries to one stream type.
 
 ## Fallback Stream Support
 
 The radio catalogue should support more than one endpoint per station.
 
-Radio 786 provides the clearest first-party justification: its own player exposes multiple streams specifically so listeners can switch when one is unavailable or buffering. CII also has multiple provider variants, and Radio Al Ansaar has changed preferred streaming infrastructure over time.
+Radio 786 provides the clearest first-party justification because its own player exposes multiple streams specifically so listeners can switch when one is unavailable or buffering. CII also has multiple provider variants, and Radio Al Ansaar has changed preferred streaming infrastructure over time.
 
 A simple ordered stream list is preferred unless later requirements justify per-stream metadata:
 
@@ -348,24 +357,7 @@ streams:
 
 Array order should define priority.
 
-Expected player behaviour:
-
-```text
-Try streams[0]
-      |
-      +-- playback starts --> use primary
-      |
-      +-- connection/playback failure
-                  |
-                  v
-            Try streams[1]
-                  |
-                  +-- playback starts --> use fallback
-                  |
-                  +-- failure --> station unavailable
-```
-
-Fallback should be triggered by a genuine connection or playback failure, not by a brief pause or transient buffering event. Aggressive switching could otherwise cause unnecessary movement between healthy sources.
+Fallback should be triggered by a genuine connection or playback failure, not by a brief pause or transient buffering event.
 
 Where two URLs are merely different proxy/access paths to the same upstream service, they should not be represented as independent resilience fallbacks unless testing demonstrates a real availability benefit.
 
@@ -397,10 +389,9 @@ Recommended implementation sequence:
 The following work remains:
 
 - Extract Radio 786's genuine independent Stream 2/fallback endpoint.
-- Verify Salaamedia's current first-party raw stream.
 - Identify IFM 88.3's current raw stream.
-- Test the seven validated streams on Raspberry Pi 3 B hardware.
-- Perform longer soak testing, prioritising VOC, Radio 786, CII and Markaz Sahaba.
+- Test the eight validated streams on Raspberry Pi 3 B hardware.
+- Perform longer soak testing, prioritising VOC, Radio 786, CII, Salaamedia and Markaz Sahaba.
 - Measure Raspberry Pi CPU and memory utilisation during playback.
 - Validate playback through the production ALSA output path rather than `--ao=null`.
 - Test reconnection behaviour after deliberate network interruption.
@@ -434,7 +425,9 @@ For production catalogue entries, validation should ultimately record:
 
 The investigation has progressed from preliminary stream discovery to successful hardware validation.
 
-Seven South African Islamic radio stations now have direct endpoints that have successfully played through MasjidPi's `mpv`/FFmpeg stack on both the x86_64 development environment and an aarch64 Raspberry Pi 4. The test set includes MP3, raw AAC and HLS/AAC streams.
+Eight South African Islamic radio stations now have direct endpoints that have successfully played through MasjidPi's `mpv`/FFmpeg stack on both the x86_64 development environment and an aarch64 Raspberry Pi 4. The test set includes MP3, raw AAC and HLS/AAC streams.
+
+Salaamedia's previously uncertain Antfarm endpoint has now been confirmed as a valid HLS/AAC stream and has passed five-minute playback testing on both environments.
 
 This provides strong evidence that a dedicated Radio Stations catalogue is technically viable in MasjidPi Listen.
 

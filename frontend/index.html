@@ -57,7 +57,8 @@
                     </div>
                     <label class="module-power-control" for="masjidPowerSwitch">
                         <span>Power</span>
-                        <input id="masjidPowerSwitch" type="checkbox" checked>
+                        <input id="masjidPowerSwitch" type="checkbox" checked role="switch" aria-label="Masjid power">
+                        <span class="power-toggle" aria-hidden="true"></span>
                     </label>
                 </div>
                 <div id="masjidPowerStatus" class="stream-count"></div>
@@ -94,7 +95,8 @@
                     </div>
                     <label class="module-power-control" for="radioPowerSwitch">
                         <span>Power</span>
-                        <input id="radioPowerSwitch" type="checkbox" checked>
+                        <input id="radioPowerSwitch" type="checkbox" checked role="switch" aria-label="Radio power">
+                        <span class="power-toggle" aria-hidden="true"></span>
                     </label>
                 </div>
                 <div id="radioPowerStatus" class="stream-count"></div>

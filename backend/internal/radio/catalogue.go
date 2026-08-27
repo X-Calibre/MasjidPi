@@ -14,9 +14,6 @@ func Catalogue() []stream.Stream {
 			Name:     "Channel Islam International",
 			Location: "Gauteng",
 			URL:      "https://edge.iono.fm/xice/109_medium.aac",
-			FallbackURLs: []string{
-				"https://edge.iono.fm/xice/109_medium.mp3",
-			},
 		},
 		{
 			ID:       "radio-radio-islam",

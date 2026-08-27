@@ -23,6 +23,22 @@ button.app-tab {
     color: var(--accent);
     font-weight: bold;
     font-size: 18px;
+    transition: color .15s ease;
+}
+
+#masjidVolumeSlider,
+#radioVolumeSlider {
+    accent-color: var(--accent);
+}
+
+#masjidVolumeSlider.volume-boost,
+#radioVolumeSlider.volume-boost {
+    accent-color: var(--warning);
+}
+
+#masjidVolumeValue.volume-boost,
+#radioVolumeValue.volume-boost {
+    color: var(--warning);
 }
 
 .listen-panel .full-width-action {

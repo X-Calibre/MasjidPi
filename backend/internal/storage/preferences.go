@@ -24,19 +24,19 @@ type PreferencesState struct {
 	LastStreamID string `json:"last_stream_id,omitempty"`
 	Autoplay     bool   `json:"autoplay"`
 
-	SelectedMasjidID         string `json:"selected_masjid_id,omitempty"`
-	SelectedRadioID          string `json:"selected_radio_id,omitempty"`
-	ResumeListening          bool   `json:"resume_listening"`
-	MasjidEnabled            *bool  `json:"masjid_enabled,omitempty"`
-	RadioEnabled             *bool  `json:"radio_enabled,omitempty"`
-	MasjidVolume             int    `json:"masjid_volume"`
-	RadioVolume              int    `json:"radio_volume"`
-	SourceVolumesSet         bool   `json:"source_volumes_set,omitempty"`
-	RadioResumeDelayMinutes  int    `json:"radio_resume_delay_minutes,omitempty"`
-	RadioScheduleEnabled     bool   `json:"radio_schedule_enabled,omitempty"`
-	RadioScheduleStart       string `json:"radio_schedule_start,omitempty"`
-	RadioScheduleStop        string `json:"radio_schedule_stop,omitempty"`
-	RadioMode                string `json:"radio_mode,omitempty"`
+	SelectedMasjidID        string `json:"selected_masjid_id,omitempty"`
+	SelectedRadioID         string `json:"selected_radio_id,omitempty"`
+	ResumeListening         bool   `json:"resume_listening"`
+	MasjidEnabled           *bool  `json:"masjid_enabled,omitempty"`
+	RadioEnabled            *bool  `json:"radio_enabled,omitempty"`
+	MasjidVolume            int    `json:"masjid_volume"`
+	RadioVolume             int    `json:"radio_volume"`
+	SourceVolumesSet        bool   `json:"source_volumes_set,omitempty"`
+	RadioResumeDelayMinutes int    `json:"radio_resume_delay_minutes,omitempty"`
+	RadioScheduleEnabled    bool   `json:"radio_schedule_enabled,omitempty"`
+	RadioScheduleStart      string `json:"radio_schedule_start,omitempty"`
+	RadioScheduleStop       string `json:"radio_schedule_stop,omitempty"`
+	RadioMode               string `json:"radio_mode,omitempty"`
 }
 
 func boolPointer(value bool) *bool { return &value }

@@ -25,9 +25,9 @@ type Client struct {
 }
 
 type wordpressPost struct {
-	Date string `json:"date"`
-	Link string `json:"link"`
-	Title       struct {
+	Date  string `json:"date"`
+	Link  string `json:"link"`
+	Title struct {
 		Rendered string `json:"rendered"`
 	} `json:"title"`
 	Content struct {

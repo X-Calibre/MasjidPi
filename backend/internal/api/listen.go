@@ -27,13 +27,17 @@ type listenVolumeRequest struct {
 	Source string `json:"source"`
 	Volume int    `json:"volume"`
 }
-type listenRadioDelayRequest struct{ Minutes int `json:"minutes"` }
+type listenRadioDelayRequest struct {
+	Minutes int `json:"minutes"`
+}
 type listenRadioScheduleRequest struct {
 	Enabled bool   `json:"enabled"`
 	Start   string `json:"start"`
 	Stop    string `json:"stop"`
 }
-type listenRadioModeRequest struct{ Mode string `json:"mode"` }
+type listenRadioModeRequest struct {
+	Mode string `json:"mode"`
+}
 type listenPowerRequest struct {
 	Module  string `json:"module"`
 	Enabled bool   `json:"enabled"`

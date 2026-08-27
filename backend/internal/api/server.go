@@ -154,7 +154,9 @@ func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 		s.masjidBoardSelectionManager = nil
 	}
 }
-func (s *Server) SetMasjidBoardMaintenance(service masjidBoardMaintenance) { s.masjidBoardMaintenance = service }
+func (s *Server) SetMasjidBoardMaintenance(service masjidBoardMaintenance) {
+	s.masjidBoardMaintenance = service
+}
 func (s *Server) SetMasjidBoardConfigurationPaths(hierarchyPath, scopePath, cataloguePath string) {
 	s.masjidBoardHierarchyPath = hierarchyPath
 	s.masjidBoardScopePath = scopePath

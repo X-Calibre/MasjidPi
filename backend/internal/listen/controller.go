@@ -156,8 +156,12 @@ func (c *Controller) SetRadioEnabled(enabled bool) error {
 	return nil
 }
 
-func (c *Controller) SetMasjidVolume(volume int) error { return c.setSourceVolume(stream.KindMasjid, volume) }
-func (c *Controller) SetRadioVolume(volume int) error  { return c.setSourceVolume(stream.KindRadio, volume) }
+func (c *Controller) SetMasjidVolume(volume int) error {
+	return c.setSourceVolume(stream.KindMasjid, volume)
+}
+func (c *Controller) SetRadioVolume(volume int) error {
+	return c.setSourceVolume(stream.KindRadio, volume)
+}
 
 func (c *Controller) SetRadioMode(mode RadioMode) error {
 	if mode != RadioModeSchedule && mode != RadioModePlayNow && mode != RadioModeStopped {

@@ -2,9 +2,8 @@
     const slider = document.getElementById("radioResumeDelaySlider");
     const value = document.getElementById("radioResumeDelayValue");
     const status = document.getElementById("radioResumeDelayStatus");
-    const resumeNow = document.getElementById("radioResumeNowButton");
 
-    if (!slider || !value || !status || !resumeNow) return;
+    if (!slider || !value || !status) return;
 
     let editing = false;
 
@@ -17,21 +16,16 @@
     }
 
     function renderPending(data) {
-        const pending = Boolean(data.radio_resume_pending && data.radio_resume_at);
-        resumeNow.classList.toggle("hidden", !pending || data.radio_schedule_allows_now === false);
-        if (!pending) {
+        if (!data.radio_resume_pending || !data.radio_resume_at) {
             status.textContent = "";
             status.classList.add("hidden");
             return;
         }
-
         const remainingMs = new Date(data.radio_resume_at).getTime() - Date.now();
         const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
         const minutes = Math.floor(remainingSeconds / 60);
         const seconds = remainingSeconds % 60;
-        status.textContent = data.radio_schedule_allows_now === false
-            ? "Radio is silenced by its daily schedule."
-            : `Radio resumes in ${minutes}:${String(seconds).padStart(2, "0")}`;
+        status.textContent = `Radio resumes in ${minutes}:${String(seconds).padStart(2, "0")}`;
         status.classList.remove("hidden");
     }
 
@@ -70,23 +64,6 @@
             window.MasjidPiUI?.notify?.(err.message, "error");
         } finally {
             editing = false;
-            await refresh();
-        }
-    });
-
-    resumeNow.addEventListener("click", async () => {
-        resumeNow.disabled = true;
-        try {
-            const response = await fetch("/api/listen/radio-resume-now", { method: "POST" });
-            if (!response.ok) {
-                const body = await response.json().catch(() => ({}));
-                throw new Error(body.error || `Request failed (${response.status})`);
-            }
-            window.MasjidPiUI?.notify?.("Radio resumed now.", "success");
-        } catch (err) {
-            window.MasjidPiUI?.notify?.(err.message, "error");
-        } finally {
-            resumeNow.disabled = false;
             await refresh();
         }
     });

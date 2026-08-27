@@ -15,6 +15,8 @@ const (
 	DefaultRadioResumeDelay   = 5
 	MinRadioResumeDelay       = 1
 	MaxRadioResumeDelay       = 30
+	DefaultRadioScheduleStart = "06:00"
+	DefaultRadioScheduleStop  = "22:00"
 )
 
 type PreferencesState struct {
@@ -24,13 +26,16 @@ type PreferencesState struct {
 	LastStreamID string `json:"last_stream_id,omitempty"`
 	Autoplay     bool   `json:"autoplay"`
 
-	SelectedMasjidID       string `json:"selected_masjid_id,omitempty"`
-	SelectedRadioID        string `json:"selected_radio_id,omitempty"`
-	ResumeListening        bool   `json:"resume_listening"`
-	MasjidVolume           int    `json:"masjid_volume"`
-	RadioVolume            int    `json:"radio_volume"`
-	SourceVolumesSet       bool   `json:"source_volumes_set,omitempty"`
-	RadioResumeDelayMinutes int   `json:"radio_resume_delay_minutes,omitempty"`
+	SelectedMasjidID        string `json:"selected_masjid_id,omitempty"`
+	SelectedRadioID         string `json:"selected_radio_id,omitempty"`
+	ResumeListening         bool   `json:"resume_listening"`
+	MasjidVolume            int    `json:"masjid_volume"`
+	RadioVolume             int    `json:"radio_volume"`
+	SourceVolumesSet        bool   `json:"source_volumes_set,omitempty"`
+	RadioResumeDelayMinutes int    `json:"radio_resume_delay_minutes,omitempty"`
+	RadioScheduleEnabled    bool   `json:"radio_schedule_enabled,omitempty"`
+	RadioScheduleStart      string `json:"radio_schedule_start,omitempty"`
+	RadioScheduleStop       string `json:"radio_schedule_stop,omitempty"`
 }
 
 func (s PreferencesState) Normalized() PreferencesState {
@@ -46,6 +51,12 @@ func (s PreferencesState) Normalized() PreferencesState {
 	}
 	if s.RadioResumeDelayMinutes < MinRadioResumeDelay || s.RadioResumeDelayMinutes > MaxRadioResumeDelay {
 		s.RadioResumeDelayMinutes = DefaultRadioResumeDelay
+	}
+	if s.RadioScheduleStart == "" {
+		s.RadioScheduleStart = DefaultRadioScheduleStart
+	}
+	if s.RadioScheduleStop == "" {
+		s.RadioScheduleStop = DefaultRadioScheduleStop
 	}
 	return s
 }

@@ -155,14 +155,18 @@ func Run() error {
 		}
 	}
 
+	// Restore the persisted radio operation mode while the controller still has
+	// its default powered-on module state. Power states are applied immediately
+	// afterwards, so a persisted powered-off Radio can retain its mode without
+	// startup treating the valid configuration as an error.
+	if err := listenController.SetRadioMode(listen.RadioMode(prefs.RadioMode)); err != nil {
+		return fmt.Errorf("restore radio mode: %w", err)
+	}
 	masjidEnabled := prefs.MasjidEnabledValue()
 	radioEnabled := prefs.RadioEnabledValue()
 	listenController.SetMasjidEnabled(masjidEnabled)
 	if err := listenController.SetRadioEnabled(radioEnabled); err != nil {
 		return fmt.Errorf("restore radio power state: %w", err)
-	}
-	if err := listenController.SetRadioMode(listen.RadioMode(prefs.RadioMode)); err != nil {
-		return fmt.Errorf("restore radio mode: %w", err)
 	}
 	if prefs.ResumeListening {
 		listenController.Listen()

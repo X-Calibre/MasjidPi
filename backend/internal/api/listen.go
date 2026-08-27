@@ -29,6 +29,10 @@ type listenVolumeRequest struct {
 	Volume int    `json:"volume"`
 }
 
+type listenRadioDelayRequest struct {
+	Minutes int `json:"minutes"`
+}
+
 func (s *Server) listenStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -175,6 +179,39 @@ func (s *Server) listenVolume(w http.ResponseWriter, r *http.Request) {
 	}
 	prefs.SourceVolumesSet = true
 
+	if err := s.preferences.Save(prefs); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, s.listen.Status())
+}
+
+func (s *Server) listenRadioDelay(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	if s.listen == nil || s.preferences == nil {
+		writeError(w, http.StatusServiceUnavailable, "listen controller is not configured")
+		return
+	}
+
+	var req listenRadioDelayRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+	if err := s.listen.SetRadioResumeDelayMinutes(req.Minutes); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	prefs, err := s.preferences.Load()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	prefs.RadioResumeDelayMinutes = req.Minutes
 	if err := s.preferences.Save(prefs); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return

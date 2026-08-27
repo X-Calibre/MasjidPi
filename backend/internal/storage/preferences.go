@@ -9,9 +9,38 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
 )
 
+const (
+	DefaultMasjidVolume = 100
+	DefaultRadioVolume  = 70
+)
+
 type PreferencesState struct {
+	// Legacy fields are retained during the radio migration so existing
+	// installations and the current WebUI remain compatible until the new
+	// Listen UI is fully deployed.
 	LastStreamID string `json:"last_stream_id,omitempty"`
 	Autoplay     bool   `json:"autoplay"`
+
+	SelectedMasjidID string `json:"selected_masjid_id,omitempty"`
+	SelectedRadioID  string `json:"selected_radio_id,omitempty"`
+	ResumeListening  bool   `json:"resume_listening"`
+	MasjidVolume     int    `json:"masjid_volume"`
+	RadioVolume      int    `json:"radio_volume"`
+	SourceVolumesSet bool   `json:"source_volumes_set,omitempty"`
+}
+
+func (s PreferencesState) Normalized() PreferencesState {
+	if s.SelectedMasjidID == "" && s.LastStreamID != "" {
+		s.SelectedMasjidID = s.LastStreamID
+	}
+	if !s.ResumeListening && s.Autoplay {
+		s.ResumeListening = true
+	}
+	if !s.SourceVolumesSet {
+		s.MasjidVolume = DefaultMasjidVolume
+		s.RadioVolume = DefaultRadioVolume
+	}
+	return s
 }
 
 type Preferences struct {
@@ -33,7 +62,7 @@ func (p *Preferences) Load() (PreferencesState, error) {
 	if err := p.loadLocked(); err != nil {
 		return PreferencesState{}, err
 	}
-	return p.state, nil
+	return p.state.Normalized(), nil
 }
 
 func (p *Preferences) Save(state PreferencesState) error {
@@ -43,7 +72,9 @@ func (p *Preferences) Save(state PreferencesState) error {
 	if err := p.loadLocked(); err != nil {
 		return err
 	}
-	if p.exists && p.state == state {
+	state = state.Normalized()
+	state.SourceVolumesSet = true
+	if p.exists && p.state.Normalized() == state {
 		return nil
 	}
 

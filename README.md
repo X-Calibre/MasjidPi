@@ -9,6 +9,8 @@ It can be installed with one or both of two independent capabilities:
 
 The two capabilities share the same MasjidPi core but remain independently operable.
 
+> **New to MasjidPi?** See the [User Guide](docs/USER_GUIDE.md) for day-to-day operation of Listen, Radio, Board, scheduling, volume controls and troubleshooting.
+
 ## Features
 
 ### Listen
@@ -95,7 +97,7 @@ On an interactive terminal, the installer prompts you to choose **Listen**, **Bo
 
 **No Git checkout or Go installation is required.**
 
-For detailed installation information, see the [Installation Guide](docs/INSTALL.md).
+For detailed installation information, see the [Installation Guide](docs/INSTALL.md). For operating instructions after installation, see the [User Guide](docs/USER_GUIDE.md).
 
 ### Configuration Web UI
 
@@ -270,7 +272,7 @@ cd MasjidPi
 sudo ./scripts/install.sh --source
 ```
 
-See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/MasjidBoard/` for detailed MasjidBoard design and implementation notes.
+See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guide](docs/USER_GUIDE.md) for appliance operation, and `docs/MasjidBoard/` for detailed MasjidBoard design and implementation notes.
 
 ## Project Status
 

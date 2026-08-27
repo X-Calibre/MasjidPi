@@ -309,6 +309,7 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 					log.Warn("Audio device unavailable, falling back to automatic output", "audio_device", name)
 					lastMode = "fallback"
 				}
+			}
 		}
 	}
 }

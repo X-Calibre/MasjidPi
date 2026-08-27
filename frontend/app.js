@@ -219,13 +219,14 @@ function findStream(id) {
 }
 
 function setOffline(offline) {
+    const radioPowered = Boolean(listenStatus?.radio_enabled);
     document.getElementById("offlineBanner").classList.toggle("hidden", !offline);
     streamInput.disabled = offline;
-    radioInput.disabled = offline;
+    radioInput.disabled = offline || !radioPowered;
     streamSearch.disabled = offline;
     favouriteButton.disabled = offline;
     masjidVolumeSlider.disabled = offline;
-    radioVolumeSlider.disabled = offline;
+    radioVolumeSlider.disabled = offline || !radioPowered;
     volumeSlider.disabled = offline || !listenStatus?.master_volume_supported;
     audioDevice.disabled = offline || audioDevice.options.length === 0;
     playButton.disabled = offline || Boolean(listenStatus?.listening);
@@ -244,6 +245,8 @@ function renderStatus(status) {
     volumeValue.textContent = status.master_volume + "%";
 
     volumeSlider.disabled = !status.master_volume_supported;
+    radioInput.disabled = !status.radio_enabled;
+    radioVolumeSlider.disabled = !status.radio_enabled;
     volumeNote.textContent = status.master_volume_supported
         ? "Controls the selected audio device's hardware volume."
         : "The selected audio device does not provide a controllable hardware mixer.";

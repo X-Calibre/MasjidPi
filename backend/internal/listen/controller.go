@@ -9,7 +9,10 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 )
 
-const reevaluateInterval = time.Second
+const (
+	reevaluateInterval = time.Second
+	MaxSourceVolume    = 150
+)
 
 type Availability interface {
 	Status(mount string) (available bool, known bool, updatedAt time.Time)
@@ -105,8 +108,8 @@ func (c *Controller) SetRadioVolume(volume int) error {
 }
 
 func (c *Controller) setSourceVolume(kind stream.Kind, volume int) error {
-	if volume < 0 || volume > 100 {
-		return errors.New("volume must be between 0 and 100")
+	if volume < 0 || volume > MaxSourceVolume {
+		return errors.New("source volume must be between 0 and 150")
 	}
 	c.mu.Lock()
 	if kind == stream.KindMasjid {

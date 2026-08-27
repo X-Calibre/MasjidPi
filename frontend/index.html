@@ -91,6 +91,26 @@
                 <div id="radioResumeDelayValue">5 minutes</div>
                 <small class="volume-note">After a masjid broadcast ends, MasjidPi waits this long before resuming radio. Radio-to-masjid switching remains immediate.</small>
                 <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
+                <button id="radioResumeNowButton" class="secondary hidden" type="button">▶ Play Radio Now</button>
+
+                <div class="radio-schedule-block">
+                    <label class="radio-schedule-toggle" for="radioScheduleEnabled">
+                        <input id="radioScheduleEnabled" type="checkbox">
+                        <span>Limit Radio to Daily Times</span>
+                    </label>
+                    <small class="volume-note">Optional. Outside this window the radio stays silent; masjid playback is unaffected.</small>
+                    <div id="radioScheduleTimes" class="radio-schedule-times">
+                        <div>
+                            <label for="radioScheduleStart">Start time</label>
+                            <input id="radioScheduleStart" type="time" value="06:00" step="60">
+                        </div>
+                        <div>
+                            <label for="radioScheduleStop">Stop time</label>
+                            <input id="radioScheduleStop" type="time" value="22:00" step="60">
+                        </div>
+                    </div>
+                    <div id="radioScheduleStatus" class="stream-count"></div>
+                </div>
 
                 <label for="radioStream">Radio Station</label>
                 <select id="radioStream" size="8"></select>
@@ -121,6 +141,7 @@
 <script src="volume-control.js"></script>
 <script src="source-volume-boost.js"></script>
 <script src="radio-resume-delay.js"></script>
+<script src="radio-schedule.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

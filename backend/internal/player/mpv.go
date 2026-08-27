@@ -6,10 +6,13 @@ import (
 	"time"
 )
 
+const maxSoftwareVolume = 150
+
 type MPV struct {
 	process        *Process
 	ipc            *IPC
 	hardwareVolume *ALSAVolume
+	softwareVolume int
 }
 
 func New(socket string) *MPV {
@@ -17,6 +20,7 @@ func New(socket string) *MPV {
 		process:        NewProcess(socket),
 		ipc:            NewIPC(socket),
 		hardwareVolume: NewALSAVolume(),
+		softwareVolume: 100,
 	}
 }
 
@@ -28,7 +32,7 @@ func (m *MPV) Start() error {
 		_ = m.process.Stop()
 		return err
 	}
-	return m.setSoftwareVolume()
+	return m.applySoftwareVolume()
 }
 
 func (m *MPV) Restart() error {
@@ -39,7 +43,7 @@ func (m *MPV) Restart() error {
 	if err := m.connectIPC(); err != nil {
 		return err
 	}
-	return m.setSoftwareVolume()
+	return m.applySoftwareVolume()
 }
 
 func (m *MPV) connectIPC() error {
@@ -112,6 +116,9 @@ func (m *MPV) Play(url string) error {
 	return err
 }
 
+// Volume controls the hardware output level and is retained as the master
+// volume API used by the existing playback manager. Source-specific gain is
+// controlled independently through SoftwareVolume.
 func (m *MPV) Volume(volume int) error {
 	if volume < 0 || volume > 100 {
 		return fmt.Errorf("volume must be between 0 and 100")
@@ -127,7 +134,31 @@ func (m *MPV) Volume(volume int) error {
 	if !supported {
 		return ErrHardwareVolumeUnsupported
 	}
-	return m.setSoftwareVolume()
+	return nil
+}
+
+// SoftwareVolume controls mpv's per-source gain without changing the ALSA
+// hardware mixer. Values above 100 apply software gain and may clip already
+// loud source material. The selected gain is retained across mpv restarts.
+func (m *MPV) SoftwareVolume(volume int) error {
+	if volume < 0 || volume > maxSoftwareVolume {
+		return fmt.Errorf("source volume must be between 0 and 150")
+	}
+	if err := m.SetProperty("volume-max", maxSoftwareVolume); err != nil {
+		return err
+	}
+	if err := m.SetProperty("volume", volume); err != nil {
+		return err
+	}
+	m.softwareVolume = volume
+	return nil
+}
+
+func (m *MPV) applySoftwareVolume() error {
+	if err := m.SetProperty("volume-max", maxSoftwareVolume); err != nil {
+		return err
+	}
+	return m.SetProperty("volume", m.softwareVolume)
 }
 
 func (m *MPV) HardwareVolume() (int, bool, error) {
@@ -136,10 +167,6 @@ func (m *MPV) HardwareVolume() (int, bool, error) {
 		return 100, false, err
 	}
 	return m.hardwareVolume.Get(device)
-}
-
-func (m *MPV) setSoftwareVolume() error {
-	return m.SetProperty("volume", 100)
 }
 
 func (m *MPV) currentAudioDevice() (string, error) {
@@ -178,10 +205,7 @@ func (m *MPV) AudioDevice(name string) error {
 	if name == "" {
 		return fmt.Errorf("audio device cannot be empty")
 	}
-	if err := m.SetProperty("audio-device", name); err != nil {
-		return err
-	}
-	return m.setSoftwareVolume()
+	return m.SetProperty("audio-device", name)
 }
 
 func (m *MPV) Status() (*Status, error) {

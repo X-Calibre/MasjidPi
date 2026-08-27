@@ -12,10 +12,12 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
@@ -46,8 +48,6 @@ func Run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// A Board-only appliance does not initialize the stream catalogue, MPV,
-	// playback persistence, audio-device monitoring, or LiveMasjid status feed.
 	if !installed.Listen {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		server := newAPIServer(cfg, paths, installed, api.Dependencies{
@@ -62,7 +62,8 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("load stream catalogue: %w", err)
 	}
-	log.Info("Loaded stream catalogue", "streams", len(streamStore.All()))
+	streamStore.Replace(radio.Merge(streamStore.All()))
+	log.Info("Loaded stream catalogue", "streams", len(streamStore.All()), "radio_stations", len(radio.Catalogue()))
 
 	mpv := player.New(cfg.Player.Socket)
 	if err := mpv.Start(); err != nil {
@@ -97,24 +98,6 @@ func Run() error {
 		return fmt.Errorf("initialize hardware volume: %w", err)
 	}
 
-	playbackState := storage.NewPlayback(paths.PlaybackState)
-	playbackManager.SetPersistence(playbackState)
-
-	if streamID, ok, err := playbackState.Load(); err != nil {
-		log.Warn("Could not load last playback stream", "error", err)
-	} else if ok {
-		selected, err := streamStore.FindByID(streamID)
-		if err != nil {
-			log.Warn("Last playback stream is no longer in the catalogue", "stream_id", streamID)
-			if clearErr := playbackState.Clear(); clearErr != nil {
-				log.Warn("Could not clear invalid playback state", "error", clearErr)
-			}
-		} else {
-			log.Info("Resuming last playback stream", "stream_id", selected.ID, "stream_name", selected.Name)
-			playbackManager.Play(*selected)
-		}
-	}
-
 	mpvVersion, err := mpv.Version()
 	if err != nil {
 		return fmt.Errorf("get MPV version: %w", err)
@@ -129,22 +112,80 @@ func Run() error {
 	liveStatus := livestatus.New("livemasjid.com", 1883, log)
 	liveStatus.Start(ctx)
 	defer liveStatus.Close()
-	playbackManager.SetAvailability(liveStatus)
 	log.Info("LiveMasjid live-status monitor started")
 
 	playbackManager.Start(ctx)
+	listenController := listen.New(liveStatus, playback.NewListenOutput(playbackManager))
+	preferences := storage.NewPreferences(paths.PreferencesState)
+	prefs, err := preferences.Load()
+	if err != nil {
+		return fmt.Errorf("load Listen preferences: %w", err)
+	}
+	if err := listenController.SetMasjidVolume(prefs.MasjidVolume); err != nil {
+		return fmt.Errorf("restore masjid volume: %w", err)
+	}
+	if err := listenController.SetRadioVolume(prefs.RadioVolume); err != nil {
+		return fmt.Errorf("restore radio volume: %w", err)
+	}
+	if err := listenController.SetRadioResumeDelayMinutes(prefs.RadioResumeDelayMinutes); err != nil {
+		return fmt.Errorf("restore radio resume delay: %w", err)
+	}
+	if err := listenController.SetRadioSchedule(prefs.RadioScheduleEnabled, prefs.RadioScheduleStart, prefs.RadioScheduleStop); err != nil {
+		return fmt.Errorf("restore radio schedule: %w", err)
+	}
+
+	if prefs.SelectedMasjidID != "" {
+		selected, findErr := streamStore.FindByID(prefs.SelectedMasjidID)
+		if findErr != nil {
+			log.Warn("Selected masjid is no longer in the catalogue", "stream_id", prefs.SelectedMasjidID)
+		} else if selectErr := listenController.SelectMasjid(selected); selectErr != nil {
+			log.Warn("Could not restore selected masjid", "stream_id", selected.ID, "error", selectErr)
+		} else {
+			log.Info("Restored selected masjid", "stream_id", selected.ID, "stream_name", selected.Name)
+		}
+	}
+	if prefs.SelectedRadioID != "" {
+		selected, findErr := streamStore.FindByID(prefs.SelectedRadioID)
+		if findErr != nil {
+			log.Warn("Selected radio station is no longer in the catalogue", "stream_id", prefs.SelectedRadioID)
+		} else if selectErr := listenController.SelectRadio(selected); selectErr != nil {
+			log.Warn("Could not restore selected radio station", "stream_id", selected.ID, "error", selectErr)
+		} else {
+			log.Info("Restored selected radio station", "stream_id", selected.ID, "stream_name", selected.Name)
+		}
+	}
+
+	// Restore the persisted radio operation mode while the controller still has
+	// its default powered-on module state. Power states are applied immediately
+	// afterwards, so a persisted powered-off Radio can retain its mode without
+	// startup treating the valid configuration as an error.
+	if err := listenController.SetRadioMode(listen.RadioMode(prefs.RadioMode)); err != nil {
+		return fmt.Errorf("restore radio mode: %w", err)
+	}
+	masjidEnabled := prefs.MasjidEnabledValue()
+	radioEnabled := prefs.RadioEnabledValue()
+	listenController.SetMasjidEnabled(masjidEnabled)
+	if err := listenController.SetRadioEnabled(radioEnabled); err != nil {
+		return fmt.Errorf("restore radio power state: %w", err)
+	}
+	if prefs.ResumeListening {
+		listenController.Listen()
+		log.Info("Restoring Listen active state")
+	}
+	listenController.Start(ctx)
+
 	go monitorAudioDevice(ctx, playbackManager, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
 	dependencies := api.Dependencies{
 		Logger:           log,
 		Playback:         playbackManager,
+		Listen:           listenController,
 		Streams:          streamStore,
 		Favourites:       favourites,
+		Preferences:      preferences,
 		AudioDeviceState: audioDeviceState,
 	}
-
-	// MasjidBoard remains completely absent on Listen-only appliances.
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		dependencies.MasjidBoardService = masjidBoardService
@@ -160,7 +201,6 @@ func Run() error {
 		return fmt.Errorf("catalogue refresh interval must be greater than zero")
 	}
 	go monitorCatalogueRefresh(ctx, catalogueRefreshInterval, paths.Catalogue, streamStore, log)
-
 	return runHTTPServer(ctx, server, log)
 }
 
@@ -191,7 +231,6 @@ func runHTTPServer(ctx context.Context, server *api.Server, log interface {
 			log.Error("HTTP shutdown failed", "error", err)
 		}
 	}()
-
 	if err := server.Start(); err != nil {
 		return fmt.Errorf("HTTP server stopped: %w", err)
 	}
@@ -204,7 +243,6 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 }) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -215,8 +253,8 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 				log.Warn("Scheduled catalogue update failed", "error", err)
 				continue
 			}
-			streams.Replace(updated)
-			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()))
+			streams.Replace(radio.Merge(updated))
+			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()), "radio_stations", len(radio.Catalogue()))
 		}
 	}
 }
@@ -226,7 +264,6 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 }) {
 	ticker := time.NewTicker(audioDeviceCheckInterval)
 	defer ticker.Stop()
-
 	lastMode := ""
 	for {
 		select {
@@ -237,7 +274,6 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 			if err != nil || !ok || name == "" {
 				continue
 			}
-
 			devices, err := mpv.AudioDevices()
 			if err != nil {
 				continue
@@ -249,7 +285,6 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 					break
 				}
 			}
-
 			if available {
 				current, err := mpv.GetProperty("audio-device")
 				if err != nil {
@@ -267,7 +302,6 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 				}
 				continue
 			}
-
 			current, err := mpv.GetProperty("audio-device")
 			if err != nil {
 				continue

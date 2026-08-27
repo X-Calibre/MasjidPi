@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
+	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
@@ -20,13 +21,13 @@ type masjidBoardStatusProvider interface {
 	Selection() selection.State
 	Results() []masjidboardruntime.Result
 }
-
 type masjidBoardEconomicProvider interface{ EconomicIndicators() *economic.Indicators }
 
 type Server struct {
 	httpServer                  *http.Server
 	logger                      *slog.Logger
 	playback                    *playback.Manager
+	listen                      *listen.Controller
 	streams                     *stream.Store
 	favourites                  *storage.Favourites
 	preferences                 *storage.Preferences
@@ -57,8 +58,10 @@ type Config struct {
 type Dependencies struct {
 	Logger                 *slog.Logger
 	Playback               *playback.Manager
+	Listen                 *listen.Controller
 	Streams                *stream.Store
 	Favourites             *storage.Favourites
+	Preferences            *storage.Preferences
 	AudioDeviceState       *storage.AudioDeviceState
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
@@ -67,13 +70,17 @@ type Dependencies struct {
 func New(config Config, dependencies Dependencies) *Server {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir(config.Frontend))
-
+	preferences := dependencies.Preferences
+	if preferences == nil {
+		preferences = storage.NewPreferences(config.PreferencesPath)
+	}
 	server := &Server{
 		logger:                   dependencies.Logger,
 		playback:                 dependencies.Playback,
+		listen:                   dependencies.Listen,
 		streams:                  dependencies.Streams,
 		favourites:               dependencies.Favourites,
-		preferences:              storage.NewPreferences(config.PreferencesPath),
+		preferences:              preferences,
 		audioDeviceState:         dependencies.AudioDeviceState,
 		masjidBoardService:       dependencies.MasjidBoardService,
 		masjidBoardMaintenance:   dependencies.MasjidBoardMaintenance,
@@ -87,12 +94,8 @@ func New(config Config, dependencies Dependencies) *Server {
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
 
-	// Core appliance APIs are always available.
 	mux.HandleFunc("/api/components", server.components)
 	mux.HandleFunc("/api/version", server.version)
-
-	// Listen APIs only exist when the Listen component is installed. This keeps
-	// Board-only appliances from exposing non-functional playback surfaces.
 	if config.Installed.Listen {
 		mux.HandleFunc("/api/player/play", server.play)
 		mux.HandleFunc("/api/player/stop", server.stop)
@@ -102,9 +105,16 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/favourites", server.favouritesHandler)
 		mux.HandleFunc("/api/preferences", server.preferencesHandler)
 		mux.HandleFunc("/api/catalogue/update", server.updateCatalogue)
+		mux.HandleFunc("/api/listen/status", server.listenStatus)
+		mux.HandleFunc("/api/listen/selection", server.listenSelection)
+		mux.HandleFunc("/api/listen/power", server.listenPower)
+		mux.HandleFunc("/api/listen/volume", server.listenVolume)
+		mux.HandleFunc("/api/listen/radio-delay", server.listenRadioDelay)
+		mux.HandleFunc("/api/listen/radio-schedule", server.listenRadioSchedule)
+		mux.HandleFunc("/api/listen/radio-mode", server.listenRadioMode)
+		mux.HandleFunc("/api/listen/start", server.listenStart)
+		mux.HandleFunc("/api/listen/stop", server.listenStop)
 	}
-
-	// Board APIs only exist when the Board component is installed.
 	if config.Installed.Board {
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
@@ -117,7 +127,6 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
 		mux.HandleFunc("/api/masjidboard/layout", server.masjidBoardLayout)
 	}
-
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/", "/index.html":
@@ -131,20 +140,12 @@ func New(config Config, dependencies Dependencies) *Server {
 				return
 			}
 		}
-
 		fileServer.ServeHTTP(w, r)
 	})
-
 	return server
 }
 
-func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) {
-	s.audioDeviceState = state
-}
-
-// SetMasjidBoardService retains the MasjidBoard runtime status provider without
-// coupling MasjidBoard availability to the audio subsystem. Production service
-// implementations may also support live selection reconfiguration.
+func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) { s.audioDeviceState = state }
 func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 	s.masjidBoardService = service
 	if manager, ok := service.(masjidBoardSelectionManager); ok {
@@ -153,27 +154,15 @@ func (s *Server) SetMasjidBoardService(service masjidBoardStatusProvider) {
 		s.masjidBoardSelectionManager = nil
 	}
 }
-
-// SetMasjidBoardMaintenance exposes explicit hierarchy/catalogue maintenance
-// operations to the configuration API.
 func (s *Server) SetMasjidBoardMaintenance(service masjidBoardMaintenance) {
 	s.masjidBoardMaintenance = service
 }
-
-// SetMasjidBoardConfigurationPaths configures the disk-first discovery state
-// read and written by the WebUI/API configuration surface.
 func (s *Server) SetMasjidBoardConfigurationPaths(hierarchyPath, scopePath, cataloguePath string) {
 	s.masjidBoardHierarchyPath = hierarchyPath
 	s.masjidBoardScopePath = scopePath
 	s.masjidBoardCataloguePath = cataloguePath
 }
-
-// SetMasjidBoardCataloguePath is retained for callers/tests that only need the
-// catalogue read API.
-func (s *Server) SetMasjidBoardCataloguePath(path string) {
-	s.masjidBoardCataloguePath = path
-}
-
+func (s *Server) SetMasjidBoardCataloguePath(path string) { s.masjidBoardCataloguePath = path }
 func (s *Server) Start() error {
 	s.logger.Info("Starting HTTP server", "address", s.httpServer.Addr)
 	err := s.httpServer.ListenAndServe()
@@ -182,12 +171,10 @@ func (s *Server) Start() error {
 	}
 	return err
 }
-
 func (s *Server) Shutdown(ctx context.Context) error {
 	s.logger.Info("Stopping HTTP server")
 	return s.httpServer.Shutdown(ctx)
 }
-
 func (s *Server) home(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(version.AppName + " is running\nVersion: " + version.Version + "\n"))
 }

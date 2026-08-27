@@ -22,8 +22,9 @@ jobs:
       - name: Validate release tag
         shell: bash
         run: |
-          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
             echo "Invalid release tag: $GITHUB_REF_NAME"
+            echo "Expected vX.Y.Z or vX.Y.Z-rc.N"
             exit 1
           fi
 
@@ -109,13 +110,22 @@ jobs:
           cat dist/SHA256SUMS
 
       - name: Publish GitHub Release
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ github.ref_name }}
         run: |
+          set -Eeuo pipefail
+
+          release_flags=()
+          if [[ "$VERSION" =~ -rc\.[0-9]+$ ]]; then
+            release_flags+=(--prerelease)
+          fi
+
           gh release create "$VERSION" \
             dist/masjidpi-${VERSION}-linux-arm64.tar.gz \
             dist/masjidpi-${VERSION}-linux-amd64.tar.gz \
             dist/SHA256SUMS \
             --title "$VERSION" \
-            --generate-notes
+            --generate-notes \
+            "${release_flags[@]}"

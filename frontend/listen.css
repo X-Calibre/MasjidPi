@@ -1,0 +1,218 @@
+button.app-tab {
+    background: transparent;
+    border: 0;
+}
+
+.listen-subtabs {
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+.listen-panel h2 {
+    margin-bottom: 8px;
+}
+
+.listen-panel .section-intro {
+    margin-bottom: 12px;
+}
+
+.module-power-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 8px;
+}
+
+.module-power-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+.module-power-control input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.module-power-control input + .power-toggle {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--border);
+    transition: background-color .15s ease, box-shadow .15s ease;
+}
+
+.module-power-control input + .power-toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    transition: transform .15s ease;
+}
+
+.module-power-control input:checked + .power-toggle {
+    background: var(--accent);
+}
+
+.module-power-control input:checked + .power-toggle::after {
+    transform: translateX(24px);
+}
+
+.module-power-control input:focus-visible + .power-toggle {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.module-power-control input:disabled + .power-toggle {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.selected-masjid-summary {
+    margin: 18px 0 22px;
+    padding: 14px 16px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.selected-masjid-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+#selectedMasjidName {
+    display: block;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.35;
+}
+
+.selected-masjid-location {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+#masjidVolumeValue,
+#radioVolumeValue,
+#radioResumeDelayValue {
+    text-align: center;
+    margin-top: 10px;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 18px;
+    transition: color .15s ease;
+}
+
+#masjidVolumeSlider,
+#radioVolumeSlider {
+    accent-color: var(--accent);
+}
+
+#masjidVolumeSlider.volume-boost,
+#radioVolumeSlider.volume-boost {
+    accent-color: var(--warning);
+}
+
+#masjidVolumeValue.volume-boost,
+#radioVolumeValue.volume-boost {
+    color: var(--warning);
+}
+
+.radio-mode-block {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.radio-mode-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.radio-mode-actions button.active {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+#radioModeStop.active {
+    border-color: var(--warning);
+    box-shadow: inset 0 0 0 1px var(--warning);
+}
+
+.radio-schedule-block {
+    margin: 24px 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.radio-schedule-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.radio-schedule-toggle input {
+    width: auto;
+    margin: 0;
+}
+
+.radio-schedule-times {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+    transition: opacity .15s ease;
+}
+
+.radio-schedule-times input {
+    width: 100%;
+}
+
+.radio-schedule-disabled {
+    opacity: .55;
+}
+
+.listen-panel .full-width-action {
+    margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+    .listen-subtabs {
+        flex-direction: row;
+    }
+
+    .module-power-row {
+        align-items: center;
+    }
+
+    .radio-mode-actions,
+    .radio-schedule-times {
+        grid-template-columns: 1fr;
+    }
+}

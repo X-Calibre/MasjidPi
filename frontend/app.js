@@ -1,82 +1,111 @@
-let catalogue = [];
-let filteredCatalogue = [];
+let masjidCatalogue = [];
+let radioCatalogue = [];
 let backendOnline = true;
-let playerStatus = null;
-let preferences = { last_stream_id: "", autoplay: false };
+let listenStatus = null;
 let favouriteIds = new Set();
+let renderedMasjidID = null;
+let renderedRadioID = null;
 
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
-const volume = document.getElementById("volume");
-const volumeNote = document.getElementById("volumeNote");
-const stream = document.getElementById("url");
+const currentStream = document.getElementById("url");
+const sourceExplanation = document.getElementById("sourceExplanation");
 const streamInput = document.getElementById("stream");
+const radioInput = document.getElementById("radioStream");
 const streamSearch = document.getElementById("streamSearch");
 const streamCount = document.getElementById("streamCount");
 const favouritesSection = document.getElementById("favouritesSection");
 const favourites = document.getElementById("favourites");
 const favouriteButton = document.getElementById("favouriteButton");
+const masjidVolumeSlider = document.getElementById("masjidVolumeSlider");
+const masjidVolumeValue = document.getElementById("masjidVolumeValue");
+const radioVolumeSlider = document.getElementById("radioVolumeSlider");
+const radioVolumeValue = document.getElementById("radioVolumeValue");
 const volumeSlider = document.getElementById("volumeSlider");
 const volumeValue = document.getElementById("volumeValue");
+const volumeNote = document.getElementById("volumeNote");
 const audioDevice = document.getElementById("audioDevice");
 const playButton = document.getElementById("play");
 const stopButton = document.getElementById("stop");
 const updateCatalogueButton = document.getElementById("updateCatalogueButton");
-const autoplay = document.getElementById("autoplay");
 
-async function getStatus() {
-    const response = await fetch("/api/player/status");
-    if (!response.ok) throw new Error("Unable to get player status");
+async function requestJSON(url, options = {}) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        let message = `Request failed (${response.status})`;
+        try {
+            const body = await response.json();
+            if (body.error) message = body.error;
+        } catch (_) {}
+        throw new Error(message);
+    }
     return response.json();
+}
+
+function jsonOptions(method, body) {
+    return {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    };
+}
+
+async function getListenStatus() {
+    return requestJSON("/api/listen/status");
+}
+
+async function getStreams(kind) {
+    return requestJSON(`/api/streams?kind=${encodeURIComponent(kind)}`);
+}
+
+async function setSelection(body) {
+    return requestJSON("/api/listen/selection", jsonOptions("PUT", body));
+}
+
+async function setSourceVolume(source, volume) {
+    return requestJSON("/api/listen/volume", jsonOptions("PUT", { source, volume }));
+}
+
+async function startListening() {
+    return requestJSON("/api/listen/start", { method: "POST" });
+}
+
+async function stopListening() {
+    return requestJSON("/api/listen/stop", { method: "POST" });
 }
 
 async function getAudioDevices() {
-    const response = await fetch("/api/player/volume?devices=1");
-    if (!response.ok) throw new Error("Unable to get audio devices");
-    return response.json();
+    return requestJSON("/api/player/volume?devices=1");
 }
 
 async function setAudioDevice(name) {
-    const response = await fetch("/api/player/volume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audio_device: name })
-    });
-    if (!response.ok) throw new Error("Unable to change audio device");
-    return response.json();
-}
-
-async function getPreferences() {
-    const response = await fetch("/api/preferences");
-    if (!response.ok) throw new Error("Unable to load preferences");
-    return response.json();
-}
-
-async function savePreferences(next) {
-    const updated = { ...preferences, ...next };
-    const response = await fetch("/api/preferences", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated)
-    });
-    if (!response.ok) throw new Error("Unable to save preferences");
-    preferences = await response.json();
+    return requestJSON("/api/player/volume", jsonOptions("POST", { audio_device: name }));
 }
 
 async function loadFavourites() {
-    const response = await fetch("/api/favourites");
-    if (!response.ok) throw new Error("Unable to load favourites");
-    const data = await response.json();
+    const data = await requestJSON("/api/favourites");
     favouriteIds = new Set(data.ids || []);
 }
 
 async function saveFavourites() {
-    const response = await fetch("/api/favourites", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: [...favouriteIds] })
-    });
-    if (!response.ok) throw new Error("Unable to save favourites");
+    await requestJSON("/api/favourites", jsonOptions("PUT", { ids: [...favouriteIds] }));
+}
+
+async function updateCatalogue() {
+    return requestJSON("/api/catalogue/update", { method: "POST" });
+}
+
+function showToast(message, type = "success") {
+    window.MasjidPiUI.notify(message, type);
+}
+
+function setBusy(button, busy, busyText, normalText) {
+    button.disabled = busy;
+    button.textContent = busy ? busyText : normalText;
+}
+
+function streamLabel(item) {
+    return item.location ? `${item.name} — ${item.location}` : item.name;
 }
 
 function streamMatchesQuery(item, query) {
@@ -86,13 +115,46 @@ function streamMatchesQuery(item, query) {
         .some(value => value.toLowerCase().includes(query));
 }
 
-function streamLabel(item) {
-    return item.location ? `${item.name} — ${item.location}` : item.name;
+function renderMasjids(preferredId = listenStatus?.masjid_id || streamInput.value) {
+    const query = streamSearch.value.trim().toLowerCase();
+    const filtered = masjidCatalogue.filter(item => streamMatchesQuery(item, query));
+    streamInput.innerHTML = "";
+
+    for (const item of filtered) {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = streamLabel(item);
+        streamInput.appendChild(option);
+    }
+
+    if (preferredId && filtered.some(item => item.id === preferredId)) {
+        streamInput.value = preferredId;
+    }
+
+    streamCount.textContent = query
+        ? `${filtered.length} of ${masjidCatalogue.length} masjids`
+        : `${masjidCatalogue.length} masjids`;
+    streamCount.classList.toggle("hidden", masjidCatalogue.length === 0);
+    renderFavourites();
+    updateFavouriteButton();
 }
 
-function renderFavourites(query) {
+function renderRadios(preferredId = listenStatus?.radio_id || radioInput.value) {
+    radioInput.innerHTML = "";
+    for (const item of radioCatalogue) {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = streamLabel(item);
+        radioInput.appendChild(option);
+    }
+    if (preferredId && radioCatalogue.some(item => item.id === preferredId)) {
+        radioInput.value = preferredId;
+    }
+}
+
+function renderFavourites() {
     favourites.innerHTML = "";
-    const favouriteStreams = catalogue.filter(item => favouriteIds.has(item.id) && streamMatchesQuery(item, query));
+    const favouriteStreams = masjidCatalogue.filter(item => favouriteIds.has(item.id));
     favouritesSection.classList.toggle("hidden", favouriteStreams.length === 0);
 
     for (const item of favouriteStreams) {
@@ -100,52 +162,37 @@ function renderFavourites(query) {
         button.type = "button";
         button.className = "favourite-item";
         button.dataset.id = item.id;
+
         const label = document.createElement("span");
         label.textContent = `★ ${streamLabel(item)}`;
+
         const remove = document.createElement("span");
         remove.className = "favourite-remove";
         remove.textContent = "×";
         remove.title = "Remove from favourites";
         remove.setAttribute("aria-label", `Remove ${item.name} from favourites`);
+
         button.append(label, remove);
         favourites.appendChild(button);
     }
 }
 
-function renderStreams(preferredId = streamInput.value) {
-    const query = streamSearch.value.trim().toLowerCase();
-    filteredCatalogue = catalogue.filter(item => streamMatchesQuery(item, query));
-    streamInput.innerHTML = "";
-
-    for (const item of filteredCatalogue) {
-        const option = document.createElement("option");
-        option.value = item.id;
-        option.textContent = streamLabel(item);
-        streamInput.appendChild(option);
-    }
-
-    if (preferredId && filteredCatalogue.some(item => item.id === preferredId)) {
-        streamInput.value = preferredId;
-    } else if (filteredCatalogue.length > 0 && !streamInput.value) {
-        streamInput.selectedIndex = 0;
-    }
-
-    streamCount.textContent = query ? `${filteredCatalogue.length} of ${catalogue.length} masjids` : `${catalogue.length} masjids`;
-    streamCount.classList.toggle("hidden", catalogue.length === 0);
-    renderFavourites(query);
-    updateFavouriteButton();
+function updateFavouriteButton() {
+    const selected = masjidCatalogue.find(item => item.id === streamInput.value);
+    const isFavourite = selected && favouriteIds.has(selected.id);
+    favouriteButton.disabled = !backendOnline || !selected;
+    favouriteButton.textContent = isFavourite ? "★ Remove from Favourites" : "☆ Add to Favourites";
 }
 
 async function loadStreams() {
-    const currentSelection = streamInput.value;
-    const response = await fetch("/api/streams");
-    if (!response.ok) {
-        console.error("Unable to load streams");
-        return;
-    }
-    catalogue = await response.json();
-    const preferred = currentSelection || preferences.last_stream_id;
-    renderStreams(preferred);
+    const [masjids, radios] = await Promise.all([
+        getStreams("masjid"),
+        getStreams("radio")
+    ]);
+    masjidCatalogue = masjids;
+    radioCatalogue = radios;
+    renderMasjids();
+    renderRadios();
 }
 
 async function loadAudioDevices() {
@@ -155,7 +202,7 @@ async function loadAudioDevices() {
         for (const device of devices) {
             const option = document.createElement("option");
             option.value = device.name;
-            option.textContent = device.description ? device.description : device.name;
+            option.textContent = device.description || device.name;
             audioDevice.appendChild(option);
         }
         audioDevice.disabled = !backendOnline || devices.length === 0;
@@ -169,185 +216,200 @@ async function loadAudioDevices() {
     }
 }
 
-async function playStream(id) {
-    const response = await fetch("/api/player/play", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-    });
-    if (!response.ok) throw new Error("Unable to play stream");
-}
-
-async function stopStream() {
-    const response = await fetch("/api/player/stop", { method: "POST" });
-    if (!response.ok) throw new Error("Unable to stop playback");
-}
-
-async function setVolume(level) {
-    const response = await fetch("/api/player/volume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ volume: level })
-    });
-    if (!response.ok) throw new Error("Unable to change volume");
-}
-
-async function updateCatalogue() {
-    const response = await fetch("/api/catalogue/update", { method: "POST" });
-    if (!response.ok) throw new Error("Unable to update catalogue");
-    return response.json();
-}
-
-function showToast(message, type = "success") {
-    window.MasjidPiUI.notify(message, type);
-}
-
-function setBusy(button, busy, busyText, normalText) {
-    button.disabled = busy;
-    if (busy) {
-        button.dataset.label = normalText;
-        button.textContent = busyText;
-    } else {
-        button.textContent = button.dataset.label || normalText;
-    }
+function findStream(id) {
+    return masjidCatalogue.find(item => item.id === id) || radioCatalogue.find(item => item.id === id);
 }
 
 function setOffline(offline) {
-    const banner = document.getElementById("offlineBanner");
-    banner.classList.toggle("hidden", !offline);
-    playButton.disabled = offline;
-    stopButton.disabled = offline;
+    const radioPowered = Boolean(listenStatus?.radio_enabled);
+    document.getElementById("offlineBanner").classList.toggle("hidden", !offline);
     streamInput.disabled = offline;
+    radioInput.disabled = offline || !radioPowered;
     streamSearch.disabled = offline;
     favouriteButton.disabled = offline;
-    volumeSlider.disabled = offline || !playerStatus?.volume_supported;
+    masjidVolumeSlider.disabled = offline;
+    radioVolumeSlider.disabled = offline || !radioPowered;
+    volumeSlider.disabled = offline || !listenStatus?.master_volume_supported;
     audioDevice.disabled = offline || audioDevice.options.length === 0;
+    playButton.disabled = offline || Boolean(listenStatus?.listening);
+    stopButton.disabled = offline || !listenStatus?.listening;
     updateCatalogueButton.disabled = offline;
 }
 
-function updateFavouriteButton() {
-    const selectedId = streamInput.value;
-    const selected = catalogue.find(item => item.id === selectedId);
-    const isFavourite = selected && favouriteIds.has(selected.id);
-    favouriteButton.disabled = !backendOnline || !selected;
-    favouriteButton.textContent = isFavourite ? "★ Remove from Favourites" : "☆ Add to Favourites";
-}
+function renderStatus(status) {
+    listenStatus = status;
 
-function updateControls(status) {
-    if (!backendOnline) {
-        setOffline(true);
-        return;
-    }
-    const active = ["waiting", "connecting", "playing", "retrying"].includes(status.state);
-    const selectedCurrentStream = active && status.stream_id && streamInput.value === status.stream_id;
-    playButton.disabled = selectedCurrentStream;
-    stopButton.disabled = !active;
-    streamInput.disabled = false;
-    streamSearch.disabled = false;
-    volumeSlider.disabled = !status.volume_supported;
-    volumeNote.textContent = status.volume_supported
+    masjidVolumeSlider.value = status.masjid_volume;
+    masjidVolumeValue.textContent = status.masjid_volume + "%";
+    radioVolumeSlider.value = status.radio_volume;
+    radioVolumeValue.textContent = status.radio_volume + "%";
+    volumeSlider.value = status.master_volume;
+    volumeValue.textContent = status.master_volume + "%";
+
+    volumeSlider.disabled = !status.master_volume_supported;
+    radioInput.disabled = !status.radio_enabled;
+    radioVolumeSlider.disabled = !status.radio_enabled;
+    volumeNote.textContent = status.master_volume_supported
         ? "Controls the selected audio device's hardware volume."
         : "The selected audio device does not provide a controllable hardware mixer.";
-    audioDevice.disabled = audioDevice.options.length === 0;
-    updateCatalogueButton.disabled = false;
-    updateFavouriteButton();
-}
 
-function updateStatusDetail(status) {
+    if (status.masjid_id !== renderedMasjidID) {
+        renderedMasjidID = status.masjid_id || "";
+        if (status.masjid_id && [...streamInput.options].some(option => option.value === status.masjid_id)) {
+            streamInput.value = status.masjid_id;
+        }
+    }
+    if (status.radio_id !== renderedRadioID) {
+        renderedRadioID = status.radio_id || "";
+        if (status.radio_id && [...radioInput.options].some(option => option.value === status.radio_id)) {
+            radioInput.value = status.radio_id;
+        }
+    }
+
+    playButton.disabled = status.listening;
+    stopButton.disabled = !status.listening;
+    updateFavouriteButton();
+
     const detail = status.error || "";
     statusDetail.textContent = detail;
-    statusDetail.className = detail ? "status-detail status-detail-" + status.state : "status-detail hidden";
+    statusDetail.className = detail ? "status-detail status-detail-error" : "status-detail hidden";
+
+    if (!status.listening) {
+        state.textContent = "Stopped";
+        state.className = "status-badge status-idle";
+        currentStream.textContent = "Listening is stopped";
+        sourceExplanation.textContent = "Start Listening to use Masjid priority with Radio as the secondary source.";
+        return;
+    }
+
+    if (status.active_source === "masjid") {
+        const current = findStream(status.active_stream_id);
+        state.textContent = status.playback_state === "playing" ? "Masjid" : status.playback_state;
+        state.className = "status-badge status-playing";
+        currentStream.textContent = current ? streamLabel(current) : "Selected masjid";
+        const radio = findStream(status.radio_id);
+        sourceExplanation.textContent = radio
+            ? `${radio.name} is standing by and will resume when the masjid goes offline.`
+            : "The selected masjid has priority.";
+        return;
+    }
+
+    if (status.active_source === "radio") {
+        const current = findStream(status.active_stream_id);
+        state.textContent = status.playback_state === "playing" ? "Radio" : status.playback_state;
+        state.className = "status-badge status-playing";
+        currentStream.textContent = current ? streamLabel(current) : "Selected radio station";
+        sourceExplanation.textContent = status.masjid_id
+            ? "Radio is playing while the selected masjid is offline. It will stop automatically when the masjid comes online."
+            : "Radio is playing. Select a primary masjid to enable automatic priority switching.";
+        return;
+    }
+
+    state.textContent = "Waiting";
+    state.className = "status-badge status-waiting";
+    currentStream.textContent = "No source currently playing";
+    sourceExplanation.textContent = status.masjid_id
+        ? "Waiting for the selected masjid. Select a radio station for continuous secondary audio."
+        : "Select a primary masjid and/or secondary radio station.";
 }
 
 async function refreshStatus() {
     try {
-        const status = await getStatus();
-        playerStatus = status;
+        const status = await getListenStatus();
         if (!backendOnline) {
             backendOnline = true;
-            setOffline(false);
             showToast("Connection to MasjidPi restored.", "success");
         }
-        document.getElementById("version").textContent = "MasjidPi " + status.version;
-        state.textContent = status.message || status.state;
-        state.className = "status-badge status-" + status.state;
-        updateStatusDetail(status);
-        volume.textContent = status.volume + "%";
-        volumeSlider.value = status.volume;
-        volumeValue.textContent = status.volume + "%";
-        if (status.audio_device && [...audioDevice.options].some(option => option.value === status.audio_device)) {
-            audioDevice.value = status.audio_device;
-        }
-        updateControls(status);
-        if (!status.url) {
-            stream.textContent = "No stream playing";
-        } else {
-            const current = catalogue.find(item => item.id === status.stream_id);
-            const endpoint = status.endpoint === "icecast"
-                ? "Icecast fallback"
-                : status.endpoint === "relay"
-                    ? "LiveMasjid relay"
-                    : status.url;
-            stream.textContent = current
-                ? current.name + (current.location ? " — " + current.location : "") + "\n" + endpoint
-                : status.url;
-        }
+        renderStatus(status);
+        setOffline(false);
     } catch (err) {
         console.error(err);
         if (backendOnline) {
             backendOnline = false;
-            setOffline(true);
-            state.textContent = "Offline";
-            state.className = "status-badge status-error";
-            statusDetail.textContent = "Unable to reach MasjidPi.";
-            statusDetail.className = "status-detail status-detail-error";
             showToast("Connection to MasjidPi lost.", "error");
         }
+        state.textContent = "Offline";
+        state.className = "status-badge status-error";
+        statusDetail.textContent = "Unable to reach MasjidPi.";
+        statusDetail.className = "status-detail status-detail-error";
+        setOffline(true);
     }
 }
 
-streamSearch.addEventListener("input", () => {
-    renderStreams(streamInput.value);
-    if (playerStatus) updateControls(playerStatus);
+function activateTab(name) {
+    document.querySelectorAll("[data-listen-tab]").forEach(button => {
+        const active = button.dataset.listenTab === name;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    document.querySelectorAll("[data-listen-panel]").forEach(panel => {
+        panel.classList.toggle("hidden", panel.dataset.listenPanel !== name);
+    });
+}
+
+document.querySelectorAll("[data-listen-tab]").forEach(button => {
+    button.addEventListener("click", () => activateTab(button.dataset.listenTab));
 });
+
+streamSearch.addEventListener("input", () => renderMasjids(streamInput.value));
 
 streamInput.addEventListener("change", async () => {
     const id = streamInput.value;
     if (!id) return;
     try {
-        await savePreferences({ last_stream_id: id });
+        listenStatus = await setSelection({ masjid_id: id });
+        renderedMasjidID = id;
+        updateFavouriteButton();
+        await refreshStatus();
+        showToast("Primary masjid updated.", "success");
     } catch (err) {
         showToast(err.message, "error");
+        await refreshStatus();
     }
-    updateFavouriteButton();
-    if (playerStatus) updateControls(playerStatus);
+});
+
+radioInput.addEventListener("change", async () => {
+    const id = radioInput.value;
+    if (!id) return;
+    try {
+        listenStatus = await setSelection({ radio_id: id });
+        renderedRadioID = id;
+        await refreshStatus();
+        showToast("Secondary radio updated.", "success");
+    } catch (err) {
+        showToast(err.message, "error");
+        await refreshStatus();
+    }
 });
 
 favourites.addEventListener("click", async event => {
     const item = event.target.closest(".favourite-item");
     if (!item) return;
     const id = item.dataset.id;
+
     if (event.target.closest(".favourite-remove")) {
         favouriteIds.delete(id);
         try {
             await saveFavourites();
+            renderFavourites();
+            updateFavouriteButton();
             showToast("Removed from favourites.", "success");
         } catch (err) {
+            favouriteIds.add(id);
             showToast(err.message, "error");
         }
-        renderStreams(streamInput.value);
-        if (playerStatus) updateControls(playerStatus);
         return;
     }
-    if (catalogue.some(stream => stream.id === id)) {
-        streamInput.value = id;
-        try {
-            await savePreferences({ last_stream_id: id });
-        } catch (err) {
-            showToast(err.message, "error");
-        }
-        updateFavouriteButton();
-        if (playerStatus) updateControls(playerStatus);
+
+    streamSearch.value = "";
+    renderMasjids(id);
+    streamInput.value = id;
+    try {
+        await setSelection({ masjid_id: id });
+        renderedMasjidID = id;
+        await refreshStatus();
+    } catch (err) {
+        showToast(err.message, "error");
     }
 });
 
@@ -355,59 +417,70 @@ favouriteButton.addEventListener("click", async () => {
     const id = streamInput.value;
     if (!id) return;
     const wasFavourite = favouriteIds.has(id);
-    if (wasFavourite) {
-        favouriteIds.delete(id);
-    } else {
-        favouriteIds.add(id);
-    }
+    if (wasFavourite) favouriteIds.delete(id); else favouriteIds.add(id);
+
     try {
         await saveFavourites();
+        renderFavourites();
+        updateFavouriteButton();
         showToast(wasFavourite ? "Removed from favourites." : "Added to favourites.", "success");
     } catch (err) {
         if (wasFavourite) favouriteIds.add(id); else favouriteIds.delete(id);
+        renderFavourites();
+        updateFavouriteButton();
         showToast(err.message, "error");
     }
-    renderStreams(id);
-    if (playerStatus) updateControls(playerStatus);
+});
+
+masjidVolumeSlider.addEventListener("input", () => {
+    masjidVolumeValue.textContent = masjidVolumeSlider.value + "%";
+});
+
+masjidVolumeSlider.addEventListener("change", async () => {
+    try {
+        await setSourceVolume("masjid", Number(masjidVolumeSlider.value));
+        await refreshStatus();
+    } catch (err) {
+        showToast(err.message, "error");
+        await refreshStatus();
+    }
+});
+
+radioVolumeSlider.addEventListener("input", () => {
+    radioVolumeValue.textContent = radioVolumeSlider.value + "%";
+});
+
+radioVolumeSlider.addEventListener("change", async () => {
+    try {
+        await setSourceVolume("radio", Number(radioVolumeSlider.value));
+        await refreshStatus();
+    } catch (err) {
+        showToast(err.message, "error");
+        await refreshStatus();
+    }
 });
 
 playButton.addEventListener("click", async () => {
-    if (!streamInput.value) {
-        showToast("Please select a masjid.", "warning");
-        return;
-    }
-    setBusy(playButton, true, "Playing...", "▶ Play");
+    setBusy(playButton, true, "Starting...", "▶ Start Listening");
     try {
-        await playStream(streamInput.value);
+        await startListening();
+        await refreshStatus();
     } catch (err) {
         showToast(err.message, "error");
     } finally {
-        setBusy(playButton, false, "Playing...", "▶ Play");
-        await refreshStatus();
+        playButton.textContent = "▶ Start Listening";
     }
 });
 
 stopButton.addEventListener("click", async () => {
     setBusy(stopButton, true, "Stopping...", "■ Stop");
     try {
-        await stopStream();
+        await stopListening();
+        await refreshStatus();
     } catch (err) {
         showToast(err.message, "error");
     } finally {
-        setBusy(stopButton, false, "Stopping...", "■ Stop");
-        await refreshStatus();
-    }
-});
-
-volumeSlider.addEventListener("input", async () => {
-    const value = Number(volumeSlider.value);
-    volumeValue.textContent = value + "%";
-    try {
-        await setVolume(value);
-        await refreshStatus();
-    } catch (err) {
-        console.error(err);
-        await refreshStatus();
+        stopButton.textContent = "■ Stop";
     }
 });
 
@@ -416,53 +489,46 @@ audioDevice.addEventListener("change", async () => {
     if (!selected) return;
     audioDevice.disabled = true;
     try {
-        const status = await setAudioDevice(selected);
-        playerStatus = status;
-        updateControls(status);
+        await setAudioDevice(selected);
         showToast("Audio output changed.", "success");
+        await refreshStatus();
     } catch (err) {
         showToast(err.message, "error");
         await loadAudioDevices();
         await refreshStatus();
-    }
-});
-
-autoplay.addEventListener("change", async () => {
-    try {
-        await savePreferences({ autoplay: autoplay.checked });
-    } catch (err) {
-        showToast(err.message, "error");
+    } finally {
+        audioDevice.disabled = false;
     }
 });
 
 updateCatalogueButton.addEventListener("click", async () => {
+    setBusy(updateCatalogueButton, true, "Updating...", "🔄 Update Masjid Catalogue");
     try {
-        setBusy(updateCatalogueButton, true, "Updating...", "🔄 Update Catalogue");
         await updateCatalogue();
         await loadStreams();
         await refreshStatus();
-        showToast("Catalogue updated successfully.", "success");
+        showToast("Masjid catalogue updated successfully.", "success");
     } catch (err) {
         showToast(err.message, "error");
     } finally {
-        setBusy(updateCatalogueButton, false, "Updating...", "🔄 Update Catalogue");
+        updateCatalogueButton.textContent = "🔄 Update Masjid Catalogue";
     }
 });
 
 async function initialize() {
     try {
-        preferences = await getPreferences();
-        await loadFavourites();
+        await Promise.all([loadFavourites(), loadAudioDevices()]);
+        listenStatus = await getListenStatus();
+        await loadStreams();
+        renderStatus(listenStatus);
+        setOffline(false);
     } catch (err) {
         console.error(err);
-        showToast("Unable to load saved preferences.", "error");
+        backendOnline = false;
+        setOffline(true);
     }
 
-    autoplay.checked = preferences.autoplay === true;
-    await loadStreams();
-    await loadAudioDevices();
-    await refreshStatus();
-    setInterval(refreshStatus, 2500);
+    setInterval(refreshStatus, 1000);
 }
 
 initialize();

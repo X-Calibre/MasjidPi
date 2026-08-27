@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listen - MasjidPi</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="listen.css">
 </head>
 <body data-component-page="listen">
 <div class="container">
@@ -29,60 +30,144 @@
             <div class="section-heading-row">
                 <div>
                     <h2>Now Playing</h2>
-                    <p class="section-intro">Current stream and playback controls.</p>
+                    <p id="sourceExplanation" class="section-intro">Masjid has priority; radio plays while the masjid is offline.</p>
                 </div>
                 <span id="state" class="status-badge">Unknown</span>
             </div>
             <div id="statusDetail" class="status-detail hidden"></div>
-            <span id="volume" hidden></span>
             <pre id="url" class="current-stream">No stream playing</pre>
-
-            <label for="volumeSlider">Volume</label>
-            <input id="volumeSlider" type="range" min="0" max="100" value="100">
-            <div id="volumeValue">100%</div>
-            <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
-
             <div class="buttons">
-                <button id="play">▶ Play selected masjid</button>
-                <button id="stop">■ Stop</button>
+                <button id="play" type="button">▶ Start Listening</button>
+                <button id="stop" type="button">■ Stop</button>
             </div>
         </section>
 
-        <section class="card">
-            <h2>Choose a Masjid</h2>
-            <p class="section-intro">Search the catalogue or quickly select a favourite.</p>
+        <section class="card listen-source-card">
+            <nav class="app-tabs listen-subtabs" aria-label="Listen settings">
+                <button id="masjidTab" class="app-tab active" type="button" data-listen-tab="masjid" aria-selected="true">Masjid</button>
+                <button id="radioTab" class="app-tab" type="button" data-listen-tab="radio" aria-selected="false">Radio</button>
+                <button id="audioTab" class="app-tab" type="button" data-listen-tab="audio" aria-selected="false">Config</button>
+            </nav>
 
-            <div id="favouritesSection" class="favourites-section hidden">
-                <label>Favourites</label>
-                <div id="favourites" class="favourites"></div>
+            <div id="masjidPanel" class="listen-panel" data-listen-panel="masjid">
+                <div class="module-power-row">
+                    <div>
+                        <h2>Primary Masjid</h2>
+                        <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
+                    </div>
+                    <label class="module-power-control" for="masjidPowerSwitch">
+                        <span>Power</span>
+                        <input id="masjidPowerSwitch" type="checkbox" checked role="switch" aria-label="Masjid power">
+                        <span class="power-toggle" aria-hidden="true"></span>
+                    </label>
+                </div>
+                <div id="masjidPowerStatus" class="stream-count"></div>
+
+                <div id="selectedMasjidSummary" class="selected-masjid-summary" aria-live="polite">
+                    <span class="selected-masjid-label">Selected Masjid</span>
+                    <strong id="selectedMasjidName">Loading…</strong>
+                    <span id="selectedMasjidLocation" class="selected-masjid-location"></span>
+                </div>
+
+                <label for="masjidVolumeSlider">Masjid Volume</label>
+                <input id="masjidVolumeSlider" type="range" min="0" max="150" value="100">
+                <div id="masjidVolumeValue">100%</div>
+                <small class="volume-note">Software volume used when the selected masjid is playing. Above 100% applies boost and may cause clipping on loud streams.</small>
+
+                <div id="favouritesSection" class="favourites-section hidden">
+                    <label>Favourites</label>
+                    <div id="favourites" class="favourites"></div>
+                </div>
+
+                <label for="streamSearch">Search</label>
+                <input id="streamSearch" type="search" placeholder="Search by masjid name or location..." autocomplete="off">
+                <div id="streamCount" class="stream-count"></div>
+
+                <label for="stream">Masjid</label>
+                <select id="stream" size="8"></select>
+
+                <div class="stream-actions">
+                    <button id="favouriteButton" class="secondary" type="button">☆ Add to Favourites</button>
+                </div>
+
+                <button id="updateCatalogueButton" class="secondary full-width-action" type="button">🔄 Update Masjid Catalogue</button>
             </div>
 
-            <label for="streamSearch">Search</label>
-            <input id="streamSearch" type="search" placeholder="Search by masjid name or location..." autocomplete="off">
-            <div id="streamCount" class="stream-count"></div>
+            <div id="radioPanel" class="listen-panel hidden" data-listen-panel="radio">
+                <div class="module-power-row">
+                    <div>
+                        <h2>Secondary Radio</h2>
+                        <p class="section-intro">Masjid playback always has priority over Radio.</p>
+                    </div>
+                    <label class="module-power-control" for="radioPowerSwitch">
+                        <span>Power</span>
+                        <input id="radioPowerSwitch" type="checkbox" checked role="switch" aria-label="Radio power">
+                        <span class="power-toggle" aria-hidden="true"></span>
+                    </label>
+                </div>
+                <div id="radioPowerStatus" class="stream-count"></div>
 
-            <label for="stream">Results</label>
-            <select id="stream" size="8"></select>
+                <div class="radio-mode-block">
+                    <label>Radio Operation</label>
+                    <div class="radio-mode-actions" role="group" aria-label="Radio operation mode">
+                        <button id="radioModeSchedule" class="secondary" type="button">Play on Schedule</button>
+                        <button id="radioModePlayNow" class="secondary" type="button">▶ Play Now</button>
+                        <button id="radioModeStop" class="secondary" type="button">■ Stop Radio</button>
+                    </div>
+                    <div id="radioModeStatus" class="stream-count"></div>
+                    <small class="volume-note">Play Now temporarily overrides quiet time and the post-masjid delay. A masjid broadcast or the next schedule boundary returns Radio to scheduled operation. Stop Radio remains in effect until Play on Schedule or Play Now is selected.</small>
+                </div>
 
-            <div class="stream-actions">
-                <button id="favouriteButton" class="secondary" type="button">☆ Add to Favourites</button>
+                <label for="radioVolumeSlider">Radio Volume</label>
+                <input id="radioVolumeSlider" type="range" min="0" max="150" value="70">
+                <div id="radioVolumeValue">70%</div>
+                <small class="volume-note">Software volume used when the selected radio station is playing. Above 100% applies boost and may cause clipping on loud streams.</small>
+
+                <label for="radioStream">Radio Station</label>
+                <select id="radioStream" size="8"></select>
             </div>
 
-            <label class="checkbox startup-option">
-                <input type="checkbox" id="autoplay">
-                Play the selected masjid automatically after startup
-            </label>
-        </section>
+            <div id="audioPanel" class="listen-panel hidden" data-listen-panel="audio">
+                <h2>Configuration</h2>
+                <p class="section-intro">Configure audio output and Radio timing behaviour.</p>
 
-        <details class="card advanced-card">
-            <summary>Audio and catalogue settings</summary>
-            <div class="advanced-content">
                 <label for="audioDevice">Audio output</label>
                 <select id="audioDevice"></select>
                 <small class="volume-note">Select where MasjidPi plays audio.</small>
-                <button id="updateCatalogueButton" class="secondary full-width-action" type="button">🔄 Update Masjid Catalogue</button>
+
+                <label for="volumeSlider">Master Volume</label>
+                <input id="volumeSlider" type="range" min="0" max="100" value="100">
+                <div id="volumeValue">100%</div>
+                <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
+
+                <div class="radio-config-block">
+                    <label for="radioResumeDelaySlider">Radio Resume Delay</label>
+                    <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
+                    <div id="radioResumeDelayValue">5 minutes</div>
+                    <small class="volume-note">In scheduled mode, MasjidPi waits this long after a masjid broadcast ends before resuming Radio.</small>
+                    <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
+                </div>
+
+                <div class="radio-schedule-block">
+                    <label class="radio-schedule-toggle" for="radioScheduleEnabled">
+                        <input id="radioScheduleEnabled" type="checkbox">
+                        <span>Limit Radio to Daily Times</span>
+                    </label>
+                    <small class="volume-note">Optional. Outside this window Radio stays silent in scheduled mode; masjid playback is unaffected.</small>
+                    <div id="radioScheduleTimes" class="radio-schedule-times">
+                        <div>
+                            <label for="radioScheduleStart">Start time</label>
+                            <input id="radioScheduleStart" type="time" value="06:00" step="60">
+                        </div>
+                        <div>
+                            <label for="radioScheduleStop">Stop time</label>
+                            <input id="radioScheduleStop" type="time" value="22:00" step="60">
+                        </div>
+                    </div>
+                    <div id="radioScheduleStatus" class="stream-count"></div>
+                </div>
             </div>
-        </details>
+        </section>
     </main>
 
     <footer class="footer"><span id="version">MasjidPi</span></footer>
@@ -92,7 +177,12 @@
 <script src="components-ui.js"></script>
 <script src="app.js"></script>
 <script src="volume-control.js"></script>
-<script src="masjid-selector.js"></script>
+<script src="source-volume-boost.js"></script>
+<script src="radio-resume-delay.js"></script>
+<script src="radio-schedule.js"></script>
+<script src="radio-mode.js"></script>
+<script src="module-power.js"></script>
+<script src="selected-masjid.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

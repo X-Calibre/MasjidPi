@@ -16,6 +16,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
@@ -62,7 +63,8 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("load stream catalogue: %w", err)
 	}
-	log.Info("Loaded stream catalogue", "streams", len(streamStore.All()))
+	streamStore.Replace(radio.Merge(streamStore.All()))
+	log.Info("Loaded stream catalogue", "streams", len(streamStore.All()), "radio_stations", len(radio.Catalogue()))
 
 	mpv := player.New(cfg.Player.Socket)
 	if err := mpv.Start(); err != nil {
@@ -215,8 +217,8 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 				log.Warn("Scheduled catalogue update failed", "error", err)
 				continue
 			}
-			streams.Replace(updated)
-			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()))
+			streams.Replace(radio.Merge(updated))
+			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()), "radio_stations", len(radio.Catalogue()))
 		}
 	}
 }

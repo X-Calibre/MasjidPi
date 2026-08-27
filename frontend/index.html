@@ -79,7 +79,18 @@
 
             <div id="radioPanel" class="listen-panel hidden" data-listen-panel="radio">
                 <h2>Secondary Radio</h2>
-                <p class="section-intro">Radio plays while the selected masjid is offline and stops automatically when the masjid comes online.</p>
+                <p class="section-intro">Masjid playback always has priority over Radio.</p>
+
+                <div class="radio-mode-block">
+                    <label>Radio Operation</label>
+                    <div class="radio-mode-actions" role="group" aria-label="Radio operation mode">
+                        <button id="radioModeSchedule" class="secondary" type="button">Play on Schedule</button>
+                        <button id="radioModePlayNow" class="secondary" type="button">▶ Play Now</button>
+                        <button id="radioModeStop" class="secondary" type="button">■ Stop Radio</button>
+                    </div>
+                    <div id="radioModeStatus" class="stream-count"></div>
+                    <small class="volume-note">Play Now temporarily overrides quiet time and the post-masjid delay. A masjid broadcast or the next schedule boundary returns Radio to scheduled operation. Stop Radio remains in effect until Play on Schedule or Play Now is selected.</small>
+                </div>
 
                 <label for="radioVolumeSlider">Radio Volume</label>
                 <input id="radioVolumeSlider" type="range" min="0" max="150" value="70">
@@ -89,16 +100,15 @@
                 <label for="radioResumeDelaySlider">Radio Resume Delay</label>
                 <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
                 <div id="radioResumeDelayValue">5 minutes</div>
-                <small class="volume-note">After a masjid broadcast ends, MasjidPi waits this long before resuming radio. Radio-to-masjid switching remains immediate.</small>
+                <small class="volume-note">In scheduled mode, MasjidPi waits this long after a masjid broadcast ends before resuming Radio.</small>
                 <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
-                <button id="radioResumeNowButton" class="secondary hidden" type="button">▶ Play Radio Now</button>
 
                 <div class="radio-schedule-block">
                     <label class="radio-schedule-toggle" for="radioScheduleEnabled">
                         <input id="radioScheduleEnabled" type="checkbox">
                         <span>Limit Radio to Daily Times</span>
                     </label>
-                    <small class="volume-note">Optional. Outside this window the radio stays silent; masjid playback is unaffected.</small>
+                    <small class="volume-note">Optional. Outside this window Radio stays silent in scheduled mode; masjid playback is unaffected.</small>
                     <div id="radioScheduleTimes" class="radio-schedule-times">
                         <div>
                             <label for="radioScheduleStart">Start time</label>
@@ -142,6 +152,7 @@
 <script src="source-volume-boost.js"></script>
 <script src="radio-resume-delay.js"></script>
 <script src="radio-schedule.js"></script>
+<script src="radio-mode.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

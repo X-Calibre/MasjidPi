@@ -63,6 +63,12 @@
                 </div>
                 <div id="masjidPowerStatus" class="stream-count"></div>
 
+                <div id="selectedMasjidSummary" class="selected-masjid-summary" aria-live="polite">
+                    <span class="selected-masjid-label">Selected Masjid</span>
+                    <strong id="selectedMasjidName">Loading…</strong>
+                    <span id="selectedMasjidLocation" class="selected-masjid-location"></span>
+                </div>
+
                 <label for="masjidVolumeSlider">Masjid Volume</label>
                 <input id="masjidVolumeSlider" type="range" min="0" max="150" value="100">
                 <div id="masjidVolumeValue">100%</div>
@@ -176,6 +182,7 @@
 <script src="radio-schedule.js"></script>
 <script src="radio-mode.js"></script>
 <script src="module-power.js"></script>
+<script src="selected-masjid.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

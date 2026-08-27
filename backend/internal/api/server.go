@@ -112,6 +112,8 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/listen/selection", server.listenSelection)
 		mux.HandleFunc("/api/listen/volume", server.listenVolume)
 		mux.HandleFunc("/api/listen/radio-delay", server.listenRadioDelay)
+		mux.HandleFunc("/api/listen/radio-schedule", server.listenRadioSchedule)
+		mux.HandleFunc("/api/listen/radio-resume-now", server.listenRadioResumeNow)
 		mux.HandleFunc("/api/listen/start", server.listenStart)
 		mux.HandleFunc("/api/listen/stop", server.listenStop)
 	}

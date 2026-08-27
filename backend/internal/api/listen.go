@@ -153,6 +153,8 @@ func (s *Server) listenPower(w http.ResponseWriter, r *http.Request) {
 		prefs.MasjidEnabled = boolPtr(req.Enabled)
 		if !req.Enabled {
 			prefs.RadioEnabled = boolPtr(false)
+			prefs.ResumeListening = false
+			prefs.Autoplay = false
 		}
 	case "radio":
 		if req.Enabled && !s.listen.Status().MasjidEnabled {
@@ -321,7 +323,8 @@ func (s *Server) listenStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.listen.Listen()
-	if err := s.persistResumeListening(true); err != nil {
+	listening := s.listen.Status().Listening
+	if err := s.persistResumeListening(listening); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

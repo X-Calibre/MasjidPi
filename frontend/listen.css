@@ -16,6 +16,28 @@ button.app-tab {
     margin-bottom: 12px;
 }
 
+.module-power-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 8px;
+}
+
+.module-power-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    margin-top: 4px;
+}
+
+.module-power-control input {
+    width: auto;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
 #masjidVolumeValue,
 #radioVolumeValue,
 #radioResumeDelayValue {
@@ -106,6 +128,10 @@ button.app-tab {
 @media (max-width: 600px) {
     .listen-subtabs {
         flex-direction: row;
+    }
+
+    .module-power-row {
+        align-items: center;
     }
 
     .radio-mode-actions,

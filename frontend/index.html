@@ -54,9 +54,9 @@
                 <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
 
                 <label for="masjidVolumeSlider">Masjid Volume</label>
-                <input id="masjidVolumeSlider" type="range" min="0" max="100" value="100">
+                <input id="masjidVolumeSlider" type="range" min="0" max="150" value="100">
                 <div id="masjidVolumeValue">100%</div>
-                <small class="volume-note">Software volume used when the selected masjid is playing.</small>
+                <small class="volume-note">Software volume used when the selected masjid is playing. Above 100% applies boost and may cause clipping on loud streams.</small>
 
                 <div id="favouritesSection" class="favourites-section hidden">
                     <label>Favourites</label>
@@ -82,9 +82,9 @@
                 <p class="section-intro">Radio plays while the selected masjid is offline and stops automatically when the masjid comes online.</p>
 
                 <label for="radioVolumeSlider">Radio Volume</label>
-                <input id="radioVolumeSlider" type="range" min="0" max="100" value="70">
+                <input id="radioVolumeSlider" type="range" min="0" max="150" value="70">
                 <div id="radioVolumeValue">70%</div>
-                <small class="volume-note">Software volume used when the selected radio station is playing.</small>
+                <small class="volume-note">Software volume used when the selected radio station is playing. Above 100% applies boost and may cause clipping on loud streams.</small>
 
                 <label for="radioStream">Radio Station</label>
                 <select id="radioStream" size="8"></select>

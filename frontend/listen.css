@@ -42,6 +42,44 @@ button.app-tab {
     color: var(--warning);
 }
 
+#radioResumeNowButton {
+    margin-top: 10px;
+}
+
+.radio-schedule-block {
+    margin: 24px 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.radio-schedule-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.radio-schedule-toggle input {
+    width: auto;
+    margin: 0;
+}
+
+.radio-schedule-times {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+    transition: opacity .15s ease;
+}
+
+.radio-schedule-times input {
+    width: 100%;
+}
+
+.radio-schedule-disabled {
+    opacity: .55;
+}
+
 .listen-panel .full-width-action {
     margin-top: 24px;
 }
@@ -49,5 +87,9 @@ button.app-tab {
 @media (max-width: 600px) {
     .listen-subtabs {
         flex-direction: row;
+    }
+
+    .radio-schedule-times {
+        grid-template-columns: 1fr;
     }
 }

@@ -51,4 +51,7 @@ func TestPreferencesLegacyStateNormalizesForPriorityListening(t *testing.T) {
 	if state.RadioVolume != DefaultRadioVolume {
 		t.Fatalf("RadioVolume = %d, want %d", state.RadioVolume, DefaultRadioVolume)
 	}
+	if state.RadioResumeDelayMinutes != DefaultRadioResumeDelay {
+		t.Fatalf("RadioResumeDelayMinutes = %d, want %d", state.RadioResumeDelayMinutes, DefaultRadioResumeDelay)
+	}
 }

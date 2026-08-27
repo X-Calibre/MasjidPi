@@ -130,6 +130,9 @@ func Run() error {
 	if err := listenController.SetRadioResumeDelayMinutes(prefs.RadioResumeDelayMinutes); err != nil {
 		return fmt.Errorf("restore radio resume delay: %w", err)
 	}
+	if err := listenController.SetRadioSchedule(prefs.RadioScheduleEnabled, prefs.RadioScheduleStart, prefs.RadioScheduleStop); err != nil {
+		return fmt.Errorf("restore radio schedule: %w", err)
+	}
 
 	if prefs.SelectedMasjidID != "" {
 		selected, findErr := streamStore.FindByID(prefs.SelectedMasjidID)

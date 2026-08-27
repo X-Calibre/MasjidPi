@@ -33,6 +33,12 @@ type listenRadioDelayRequest struct {
 	Minutes int `json:"minutes"`
 }
 
+type listenRadioScheduleRequest struct {
+	Enabled bool   `json:"enabled"`
+	Start   string `json:"start"`
+	Stop    string `json:"stop"`
+}
+
 func (s *Server) listenStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -214,6 +220,57 @@ func (s *Server) listenRadioDelay(w http.ResponseWriter, r *http.Request) {
 	prefs.RadioResumeDelayMinutes = req.Minutes
 	if err := s.preferences.Save(prefs); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, s.listen.Status())
+}
+
+func (s *Server) listenRadioSchedule(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	if s.listen == nil || s.preferences == nil {
+		writeError(w, http.StatusServiceUnavailable, "listen controller is not configured")
+		return
+	}
+
+	var req listenRadioScheduleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+	if err := s.listen.SetRadioSchedule(req.Enabled, req.Start, req.Stop); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	prefs, err := s.preferences.Load()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	prefs.RadioScheduleEnabled = req.Enabled
+	prefs.RadioScheduleStart = req.Start
+	prefs.RadioScheduleStop = req.Stop
+	if err := s.preferences.Save(prefs); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, s.listen.Status())
+}
+
+func (s *Server) listenRadioResumeNow(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	if s.listen == nil {
+		writeError(w, http.StatusServiceUnavailable, "listen controller is not configured")
+		return
+	}
+	if err := s.listen.ResumeRadioNow(); err != nil {
+		writeError(w, http.StatusConflict, err.Error())
 		return
 	}
 	writeJSON(w, http.StatusOK, s.listen.Status())

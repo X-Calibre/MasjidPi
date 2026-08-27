@@ -37,14 +37,14 @@
         updating = true;
         masjidSwitch.checked = Boolean(data.masjid_enabled);
         radioSwitch.checked = Boolean(data.radio_enabled);
-        radioSwitch.disabled = !data.masjid_enabled;
+        radioSwitch.disabled = false;
 
         masjidStatus.textContent = data.masjid_enabled
             ? "Masjid module is powered on."
-            : "Masjid module is powered off. Radio is also forced off.";
+            : "Masjid module is powered off. Radio is also off.";
 
         if (!data.masjid_enabled) {
-            radioStatus.textContent = "Radio cannot be powered on while Masjid is off.";
+            radioStatus.textContent = "Turning Radio on will also power Masjid on automatically.";
         } else {
             radioStatus.textContent = data.radio_enabled
                 ? "Radio module is powered on."
@@ -52,7 +52,6 @@
         }
 
         for (const control of radioControls) {
-            if (control === radioSwitch) continue;
             control.disabled = !data.radio_enabled;
         }
         updating = false;
@@ -86,14 +85,20 @@
 
     radioSwitch.addEventListener("change", async () => {
         if (updating) return;
+        const enabling = radioSwitch.checked;
+        const masjidWasOff = !masjidSwitch.checked;
         radioSwitch.disabled = true;
         try {
-            const data = await setPower("radio", radioSwitch.checked);
+            const data = await setPower("radio", enabling);
             render(data);
-            window.MasjidPiUI?.notify?.(
-                radioSwitch.checked ? "Radio powered on." : "Radio powered off.",
-                "success"
-            );
+            if (enabling && masjidWasOff && data.masjid_enabled) {
+                window.MasjidPiUI?.notify?.("Radio powered on. Masjid was also powered on automatically.", "success");
+            } else {
+                window.MasjidPiUI?.notify?.(
+                    enabling ? "Radio powered on." : "Radio powered off.",
+                    "success"
+                );
+            }
         } catch (err) {
             window.MasjidPiUI?.notify?.(err.message, "error");
             await refresh();

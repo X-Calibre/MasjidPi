@@ -197,7 +197,7 @@
         }
 
         const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
-            item.type !== "economic" || !["Source updated at", "Retrieved at"].includes(field.label)
+            item.type !== "economic" || field.label !== "Retrieved at"
         );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");
@@ -222,9 +222,6 @@
         }
         if (item.type === "economic") {
             const footer = makeElement("footer", "detailed-community-footer");
-            if (item.fields.source_updated_at) {
-                footer.append(makeElement("div", "detailed-community-updated", `Source updated at ${item.fields.source_updated_at}`));
-            }
             if (item.fields.retrieved_at) {
                 footer.append(makeElement("div", "detailed-community-retrieved", `Retrieved at ${item.fields.retrieved_at}`));
             }
@@ -290,7 +287,6 @@
                 silver: formatRand(indicators.silver_per_gram),
                 minimum_mahr: formatRand(indicators.minimum_mahr),
                 mahr_faatimi: formatRand(indicators.mahr_faatimi),
-                source_updated_at: formatUpdatedAt(indicators.source_updated_at),
                 retrieved_at: formatUpdatedAt(indicators.fetched_at),
             },
         };

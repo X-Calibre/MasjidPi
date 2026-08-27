@@ -65,7 +65,7 @@
             rand_dollar: "Rand/Dollar", gold_22: "Gold 22 ct / g", gold_18: "Gold 18 ct / g",
             gold_14: "Gold 14 ct / g", gold_9: "Gold 9 ct / g", silver: "Silver / g",
             minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
-            source_updated_at: "Source updated at", retrieved_at: "Retrieved at",
+            retrieved_at: "Retrieved at",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -81,7 +81,7 @@
             dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
-            economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "source_updated_at", "retrieved_at"],
+            economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "retrieved_at"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]

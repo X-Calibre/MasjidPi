@@ -21,7 +21,6 @@ type Indicators struct {
 	MinimumMahr     float64   `json:"minimum_mahr"`
 	MahrFaatimi     float64   `json:"mahr_faatimi"`
 	Krugerrand      float64   `json:"krugerrand"`
-	SourceUpdatedAt time.Time `json:"source_updated_at,omitempty"`
 	FetchedAt       time.Time `json:"fetched_at"`
 }
 

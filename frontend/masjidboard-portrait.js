@@ -249,9 +249,7 @@
             grid.append(row);
         }
         const footer = element("footer", "portrait-economic-footer");
-        const sourceUpdatedAt = formatUpdatedAt(indicators.source_updated_at);
         const retrievedAt = formatUpdatedAt(indicators.fetched_at);
-        if (sourceUpdatedAt) footer.append(element("div", "portrait-economic-updated", `Source updated at ${sourceUpdatedAt}`));
         if (retrievedAt) footer.append(element("div", "portrait-economic-retrieved", `Retrieved at ${retrievedAt}`));
         footer.append(element("div", "portrait-economic-source", `From ${indicators.source}`));
         slide.append(grid, footer);

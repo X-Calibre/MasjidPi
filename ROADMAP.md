@@ -91,7 +91,7 @@ v1.4.1 adds:
 - Dedicated, centred Salaah-time-change cards with complete formatted dates
 - Clearer standalone Maghrib Adhan presentation
 - Complete Islamic Economic Indicator fields with standard South African Rand and accounting presentation
-- Separate source-update and retrieval timestamps for economic data
+- Separate effective and retrieval dates for economic data
 - Effective-date-driven economic refreshes from 09:00 South African time with bounded weekend attempts
 
 The updated Listen catalogue, manual refresh, normal relay playback and automatic Icecast failover were validated on the Raspberry Pi 4 test appliance. Automated Go tests, race-enabled playback tests, vet checks, shell syntax checks and frontend JavaScript validation also passed.

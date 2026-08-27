@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const maxSoftwareVolume = 150
+
 type MPV struct {
 	process        *Process
 	ipc            *IPC
@@ -136,10 +138,14 @@ func (m *MPV) Volume(volume int) error {
 }
 
 // SoftwareVolume controls mpv's per-source gain without changing the ALSA
-// hardware mixer. The selected gain is retained and restored if mpv restarts.
+// hardware mixer. Values above 100 apply software gain and may clip already
+// loud source material. The selected gain is retained across mpv restarts.
 func (m *MPV) SoftwareVolume(volume int) error {
-	if volume < 0 || volume > 100 {
-		return fmt.Errorf("volume must be between 0 and 100")
+	if volume < 0 || volume > maxSoftwareVolume {
+		return fmt.Errorf("source volume must be between 0 and 150")
+	}
+	if err := m.SetProperty("volume-max", maxSoftwareVolume); err != nil {
+		return err
 	}
 	if err := m.SetProperty("volume", volume); err != nil {
 		return err
@@ -149,6 +155,9 @@ func (m *MPV) SoftwareVolume(volume int) error {
 }
 
 func (m *MPV) applySoftwareVolume() error {
+	if err := m.SetProperty("volume-max", maxSoftwareVolume); err != nil {
+		return err
+	}
 	return m.SetProperty("volume", m.softwareVolume)
 }
 

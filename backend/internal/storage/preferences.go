@@ -41,21 +41,29 @@ type PreferencesState struct {
 
 func boolPointer(value bool) *bool { return &value }
 
+func (s PreferencesState) MasjidEnabledValue() bool {
+	if s.MasjidEnabled == nil {
+		return true
+	}
+	return *s.MasjidEnabled
+}
+
+func (s PreferencesState) RadioEnabledValue() bool {
+	if !s.MasjidEnabledValue() {
+		return false
+	}
+	if s.RadioEnabled == nil {
+		return true
+	}
+	return *s.RadioEnabled
+}
+
 func (s PreferencesState) Normalized() PreferencesState {
 	if s.SelectedMasjidID == "" && s.LastStreamID != "" {
 		s.SelectedMasjidID = s.LastStreamID
 	}
 	if !s.ResumeListening && s.Autoplay {
 		s.ResumeListening = true
-	}
-	if s.MasjidEnabled == nil {
-		s.MasjidEnabled = boolPointer(true)
-	}
-	if s.RadioEnabled == nil {
-		s.RadioEnabled = boolPointer(true)
-	}
-	if !*s.MasjidEnabled {
-		s.RadioEnabled = boolPointer(false)
 	}
 	if !s.SourceVolumesSet {
 		s.MasjidVolume = DefaultMasjidVolume
@@ -74,6 +82,24 @@ func (s PreferencesState) Normalized() PreferencesState {
 		s.RadioMode = DefaultRadioMode
 	}
 	return s
+}
+
+func preferencesEqual(a, b PreferencesState) bool {
+	return a.LastStreamID == b.LastStreamID &&
+		a.Autoplay == b.Autoplay &&
+		a.SelectedMasjidID == b.SelectedMasjidID &&
+		a.SelectedRadioID == b.SelectedRadioID &&
+		a.ResumeListening == b.ResumeListening &&
+		a.MasjidEnabledValue() == b.MasjidEnabledValue() &&
+		a.RadioEnabledValue() == b.RadioEnabledValue() &&
+		a.MasjidVolume == b.MasjidVolume &&
+		a.RadioVolume == b.RadioVolume &&
+		a.SourceVolumesSet == b.SourceVolumesSet &&
+		a.RadioResumeDelayMinutes == b.RadioResumeDelayMinutes &&
+		a.RadioScheduleEnabled == b.RadioScheduleEnabled &&
+		a.RadioScheduleStart == b.RadioScheduleStart &&
+		a.RadioScheduleStop == b.RadioScheduleStop &&
+		a.RadioMode == b.RadioMode
 }
 
 type Preferences struct {
@@ -103,7 +129,7 @@ func (p *Preferences) Save(state PreferencesState) error {
 	}
 	state = state.Normalized()
 	state.SourceVolumesSet = true
-	if p.exists && p.state.Normalized() == state {
+	if p.exists && preferencesEqual(p.state.Normalized(), state) {
 		return nil
 	}
 	if err := atomicfile.WriteJSON(p.path, state, 0600); err != nil {

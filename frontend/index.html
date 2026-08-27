@@ -86,6 +86,12 @@
                 <div id="radioVolumeValue">70%</div>
                 <small class="volume-note">Software volume used when the selected radio station is playing. Above 100% applies boost and may cause clipping on loud streams.</small>
 
+                <label for="radioResumeDelaySlider">Radio Resume Delay</label>
+                <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
+                <div id="radioResumeDelayValue">5 minutes</div>
+                <small class="volume-note">After a masjid broadcast ends, MasjidPi waits this long before resuming radio. Radio-to-masjid switching remains immediate.</small>
+                <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
+
                 <label for="radioStream">Radio Station</label>
                 <select id="radioStream" size="8"></select>
             </div>
@@ -114,6 +120,7 @@
 <script src="app.js"></script>
 <script src="volume-control.js"></script>
 <script src="source-volume-boost.js"></script>
+<script src="radio-resume-delay.js"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

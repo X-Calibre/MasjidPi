@@ -6,6 +6,8 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 )
 
+const maxSoftwareVolume = 150
+
 type softwareVolumePlayer interface {
 	SoftwareVolume(volume int) error
 }
@@ -37,8 +39,8 @@ func (o *ListenOutput) SetSoftwareVolume(volume int) error {
 	if o == nil || o.manager == nil {
 		return errors.New("playback manager is not configured")
 	}
-	if volume < 0 || volume > 100 {
-		return errors.New("volume must be between 0 and 100")
+	if volume < 0 || volume > maxSoftwareVolume {
+		return errors.New("source volume must be between 0 and 150")
 	}
 	player, ok := o.manager.player.(softwareVolumePlayer)
 	if !ok {

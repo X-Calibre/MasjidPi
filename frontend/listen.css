@@ -1,0 +1,36 @@
+button.app-tab {
+    background: transparent;
+    border: 0;
+}
+
+.listen-subtabs {
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+.listen-panel h2 {
+    margin-bottom: 8px;
+}
+
+.listen-panel .section-intro {
+    margin-bottom: 12px;
+}
+
+#masjidVolumeValue,
+#radioVolumeValue {
+    text-align: center;
+    margin-top: 10px;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.listen-panel .full-width-action {
+    margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+    .listen-subtabs {
+        flex-direction: row;
+    }
+}

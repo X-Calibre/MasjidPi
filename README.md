@@ -4,7 +4,7 @@ MasjidPi is a lightweight home appliance for staying connected to your masjid.
 
 It can be installed with one or both of two independent capabilities:
 
-- **Listen** — live masjid audio streaming, favourites, playback recovery, volume control and audio-device selection.
+- **Listen** — priority live masjid audio with optional secondary Islamic radio, favourites, playback recovery, independent source volume control and audio-device selection.
 - **Board** — prayer and Jumu'ah times displayed as a dedicated HDMI MasjidBoard appliance.
 
 The two capabilities share the same MasjidPi core but remain independently operable.
@@ -15,7 +15,16 @@ The two capabilities share the same MasjidPi core but remain independently opera
 
 - Browse and search LiveMasjid streams
 - Save favourite masājid
-- Play and stop streams
+- Select a primary masjid whose live stream always has playback priority
+- Select a secondary South African Islamic radio station for continuous audio while the masjid is offline
+- Immediate Radio-to-Masjid interruption when the selected masjid comes online
+- Configurable 1–30 minute Radio resume delay after a masjid broadcast ends
+- Optional daily Radio playback window for quiet hours
+- Explicit **Play on Schedule**, **Play Now** and **Stop Radio** operating modes
+- Persistent Masjid and Radio module power controls with Masjid as the required priority module
+- Independent Masjid and Radio software volumes from 0–150%, including visible boost indication above 100%
+- Separate hardware Master Volume where the selected ALSA device exposes a controllable mixer
+- Play and stop Listen operation
 - Select the audio output device
 - Automatic stream/network reconnection
 - Automatic recovery from audio-device interruptions
@@ -68,7 +77,7 @@ The configuration interface lets you choose up to three locations and MasjidBoar
 
 ### Listen
 
-Listen provides live masjid audio streaming with favourites, catalogue search, playback controls, volume and audio-output selection.
+Listen provides primary masjid audio with optional secondary Islamic radio, favourites, catalogue search, source-priority controls, independent source volumes, scheduling and audio-output selection.
 
 ![MasjidPi Listen interface](docs/images/masjidpi-listen-v1.3.0.png)
 
@@ -225,6 +234,12 @@ Listen installations can check playback status with:
 curl -s http://127.0.0.1:8080/api/player/status
 ```
 
+Listen installations can check the combined Masjid/Radio controller status with:
+
+```bash
+curl -s http://127.0.0.1:8080/api/listen/status
+```
+
 Board installations can check Board status with:
 
 ```bash
@@ -259,23 +274,23 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap and `docs/Masji
 
 ## Project Status
 
-**Current stable release: v1.4.0**
+**Current stable release: v1.4.1**
 
-**Next maintenance release: v1.4.1**
+**Next release candidate: v1.5.0-rc.1**
+
+v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
+
+The Listen Web UI now separates Masjid, Radio and Config functions, adds persistent module power switches and clearly identifies the selected masjid even while offline. Turning Masjid off also powers Radio off and stops the Listen controller; turning Radio on while Masjid is off automatically enables Masjid first. The Radio schedule, operation mode, power state, source volumes and selections are persisted as appropriate across restart. `Play Now` remains intentionally temporary.
+
+The first v1.5.0 release candidate will be accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the actual ARM64 RC artifact on Raspberry Pi hardware before promotion to v1.5.0.
 
 v1.4.1 improves Listen resilience by caching both LiveMasjid relay and Icecast URLs, waiting briefly for newly announced MQTT mounts to become ready and automatically failing over to Icecast when relay playback cannot start. Successful endpoints are preferred temporarily, playback status and logs identify the active endpoint, and the automatic Listen catalogue refresh moves from seven to 28 days while retaining manual refresh.
 
-MasjidBoard refinements include adaptive landscape proportions, a bundled Fira Sans typeface with lighter large-time weights, more legible announcement and Daily Times content, dedicated centred Salaah-time-change cards with complete dates, and improved standalone Maghrib Adhan presentation.
+MasjidBoard refinements in v1.4.1 include adaptive landscape proportions, a bundled Fira Sans typeface with lighter large-time weights, more legible announcement and Daily Times content, dedicated centred Salaah-time-change cards with complete dates, and improved standalone Maghrib Adhan presentation.
 
-Islamic Economic Indicators now include the complete published value set, consistent South African Rand formatting, accounting-aligned amounts, effective and retrieval dates, and a full-height presentation in both display orientations. Retrieval follows a 09:00 South African effective-date policy with bounded weekend attempts, avoiding unnecessary cache writes when Jamiat has not published a newer row.
+Islamic Economic Indicators include the complete published value set, consistent South African Rand formatting, accounting-aligned amounts, effective and retrieval dates, and a full-height presentation in both display orientations. Retrieval follows a 09:00 South African effective-date policy with bounded weekend attempts, avoiding unnecessary cache writes when Jamiat has not published a newer row.
 
-v1.4.0 unifies the Listener and MasjidBoard configuration experience with shared top-level navigation, a consolidated Now Playing view, dedicated Masjids, Display and Status tabs, layout-aware display previews and consistent version information. It also includes the latest Portrait and Landscape display refinements, clearer primary-masjid behaviour and reduced Listener status polling.
-
-MasjidBoard can optionally display Islamic Economic Indicators published by Jamiatul Ulama South Africa. The cached, source-attributed display prioritises the current Nisaab and Krugerrand values and includes selected gold, silver and Mahr values. The feature is disabled by default and can be enabled from the Board Display settings.
-
-The combined Listen + Board source build was installed and validated on Debian 13 in the MasjidPi Proxmox LXC. Both component APIs and configuration pages responded successfully, the existing three-masjid configuration was preserved, and the integrated WebUI and display configuration were reviewed before release.
-
-The published v1.4.0 release was subsequently installed and validated on both the Raspberry Pi 4 test unit and Raspberry Pi 3B production unit. Listen, Board and the optional Islamic Economic Indicators display operated successfully, and the new content rendered correctly on the target hardware.
+The published v1.4.0 release was installed and validated on both the Raspberry Pi 4 test unit and Raspberry Pi 3B production unit. Listen, Board and the optional Islamic Economic Indicators display operated successfully, and the new content rendered correctly on the target hardware.
 
 ## Acknowledgements
 

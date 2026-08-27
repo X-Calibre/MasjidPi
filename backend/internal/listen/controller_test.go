@@ -1,6 +1,7 @@
 package listen
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -104,6 +105,30 @@ func TestControllerDelaysRadioAfterActiveMasjidGoesOffline(t *testing.T) {
 	}
 }
 
+func TestControllerCanOverridePendingRadioDelay(t *testing.T) {
+	availability := &fakeAvailability{available: map[string]bool{"masjid-a": true}}
+	output := &fakeOutput{}
+	controller := New(availability, output)
+	controller.radioResumeDelay = time.Minute
+	masjid := &stream.Stream{ID: "masjid-a", URL: "https://example.test/masjid"}
+	radio := &stream.Stream{ID: "radio-a", Kind: stream.KindRadio, URL: "https://example.test/radio"}
+	_ = controller.SelectMasjid(masjid)
+	_ = controller.SelectRadio(radio)
+	controller.Listen()
+	controller.step()
+
+	availability.available[masjid.ID] = false
+	controller.step()
+	if err := controller.ResumeRadioNow(); err != nil {
+		t.Fatalf("ResumeRadioNow: %v", err)
+	}
+	controller.step()
+	status := controller.Status()
+	if status.ActiveSource != ActiveRadio || status.RadioResumePending {
+		t.Fatalf("status after manual override = %+v, want radio active immediately", status)
+	}
+}
+
 func TestControllerCancelsRadioDelayWhenMasjidReturns(t *testing.T) {
 	availability := &fakeAvailability{available: map[string]bool{"masjid-a": true}}
 	output := &fakeOutput{}
@@ -124,6 +149,46 @@ func TestControllerCancelsRadioDelayWhenMasjidReturns(t *testing.T) {
 	status := controller.Status()
 	if status.ActiveSource != ActiveMasjid || status.RadioResumePending {
 		t.Fatalf("status after masjid return = %+v, want immediate masjid and cancelled delay", status)
+	}
+}
+
+func TestControllerRadioScheduleSilencesOutsideWindow(t *testing.T) {
+	availability := &fakeAvailability{available: map[string]bool{"masjid-a": false}}
+	output := &fakeOutput{}
+	controller := New(availability, output)
+	radio := &stream.Stream{ID: "radio-a", Kind: stream.KindRadio, URL: "https://example.test/radio"}
+	_ = controller.SelectRadio(radio)
+
+	now := time.Now()
+	start := now.Add(2 * time.Minute)
+	stop := now.Add(3 * time.Minute)
+	startText := fmt.Sprintf("%02d:%02d", start.Hour(), start.Minute())
+	stopText := fmt.Sprintf("%02d:%02d", stop.Hour(), stop.Minute())
+	if err := controller.SetRadioSchedule(true, startText, stopText); err != nil {
+		t.Fatal(err)
+	}
+	controller.Listen()
+	controller.step()
+
+	status := controller.Status()
+	if status.ActiveSource != ActiveNone || status.RadioScheduleAllowsNow {
+		t.Fatalf("status outside schedule = %+v, want silence", status)
+	}
+}
+
+func TestRadioWindowAllowsDaytimeAndOvernightRanges(t *testing.T) {
+	day := time.Date(2026, 8, 27, 12, 0, 0, 0, time.Local)
+	if !radioWindowAllows(day, "06:00", "22:00") {
+		t.Fatal("12:00 should be inside 06:00-22:00")
+	}
+	if radioWindowAllows(time.Date(2026, 8, 27, 23, 0, 0, 0, time.Local), "06:00", "22:00") {
+		t.Fatal("23:00 should be outside 06:00-22:00")
+	}
+	if !radioWindowAllows(time.Date(2026, 8, 27, 23, 0, 0, 0, time.Local), "22:00", "02:00") {
+		t.Fatal("23:00 should be inside overnight 22:00-02:00")
+	}
+	if !radioWindowAllows(time.Date(2026, 8, 28, 1, 0, 0, 0, time.Local), "22:00", "02:00") {
+		t.Fatal("01:00 should be inside overnight 22:00-02:00")
 	}
 }
 

@@ -17,7 +17,8 @@ button.app-tab {
 }
 
 #masjidVolumeValue,
-#radioVolumeValue {
+#radioVolumeValue,
+#radioResumeDelayValue {
     text-align: center;
     margin-top: 10px;
     color: var(--accent);

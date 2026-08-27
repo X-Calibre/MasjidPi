@@ -10,8 +10,11 @@ import (
 )
 
 const (
-	DefaultMasjidVolume = 100
-	DefaultRadioVolume  = 70
+	DefaultMasjidVolume       = 100
+	DefaultRadioVolume        = 70
+	DefaultRadioResumeDelay   = 5
+	MinRadioResumeDelay       = 1
+	MaxRadioResumeDelay       = 30
 )
 
 type PreferencesState struct {
@@ -21,12 +24,13 @@ type PreferencesState struct {
 	LastStreamID string `json:"last_stream_id,omitempty"`
 	Autoplay     bool   `json:"autoplay"`
 
-	SelectedMasjidID string `json:"selected_masjid_id,omitempty"`
-	SelectedRadioID  string `json:"selected_radio_id,omitempty"`
-	ResumeListening  bool   `json:"resume_listening"`
-	MasjidVolume     int    `json:"masjid_volume"`
-	RadioVolume      int    `json:"radio_volume"`
-	SourceVolumesSet bool   `json:"source_volumes_set,omitempty"`
+	SelectedMasjidID       string `json:"selected_masjid_id,omitempty"`
+	SelectedRadioID        string `json:"selected_radio_id,omitempty"`
+	ResumeListening        bool   `json:"resume_listening"`
+	MasjidVolume           int    `json:"masjid_volume"`
+	RadioVolume            int    `json:"radio_volume"`
+	SourceVolumesSet       bool   `json:"source_volumes_set,omitempty"`
+	RadioResumeDelayMinutes int   `json:"radio_resume_delay_minutes,omitempty"`
 }
 
 func (s PreferencesState) Normalized() PreferencesState {
@@ -39,6 +43,9 @@ func (s PreferencesState) Normalized() PreferencesState {
 	if !s.SourceVolumesSet {
 		s.MasjidVolume = DefaultMasjidVolume
 		s.RadioVolume = DefaultRadioVolume
+	}
+	if s.RadioResumeDelayMinutes < MinRadioResumeDelay || s.RadioResumeDelayMinutes > MaxRadioResumeDelay {
+		s.RadioResumeDelayMinutes = DefaultRadioResumeDelay
 	}
 	return s
 }

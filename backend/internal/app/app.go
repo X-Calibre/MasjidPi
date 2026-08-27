@@ -12,6 +12,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
@@ -99,24 +100,6 @@ func Run() error {
 		return fmt.Errorf("initialize hardware volume: %w", err)
 	}
 
-	playbackState := storage.NewPlayback(paths.PlaybackState)
-	playbackManager.SetPersistence(playbackState)
-
-	if streamID, ok, err := playbackState.Load(); err != nil {
-		log.Warn("Could not load last playback stream", "error", err)
-	} else if ok {
-		selected, err := streamStore.FindByID(streamID)
-		if err != nil {
-			log.Warn("Last playback stream is no longer in the catalogue", "stream_id", streamID)
-			if clearErr := playbackState.Clear(); clearErr != nil {
-				log.Warn("Could not clear invalid playback state", "error", clearErr)
-			}
-		} else {
-			log.Info("Resuming last playback stream", "stream_id", selected.ID, "stream_name", selected.Name)
-			playbackManager.Play(*selected)
-		}
-	}
-
 	mpvVersion, err := mpv.Version()
 	if err != nil {
 		return fmt.Errorf("get MPV version: %w", err)
@@ -128,21 +111,64 @@ func Run() error {
 	log.Info("Player status", "status", status)
 	log.Info("Connected to MPV", "version", mpvVersion)
 
+	// The Listen controller owns LiveMasjid availability and source priority.
+	// PlaybackManager remains a generic endpoint/retry engine and therefore does
+	// not receive the availability feed directly.
 	liveStatus := livestatus.New("livemasjid.com", 1883, log)
 	liveStatus.Start(ctx)
 	defer liveStatus.Close()
-	playbackManager.SetAvailability(liveStatus)
 	log.Info("LiveMasjid live-status monitor started")
 
 	playbackManager.Start(ctx)
+	listenController := listen.New(liveStatus, playback.NewListenOutput(playbackManager))
+	preferences := storage.NewPreferences(paths.PreferencesState)
+	prefs, err := preferences.Load()
+	if err != nil {
+		return fmt.Errorf("load Listen preferences: %w", err)
+	}
+	if err := listenController.SetMasjidVolume(prefs.MasjidVolume); err != nil {
+		return fmt.Errorf("restore masjid volume: %w", err)
+	}
+	if err := listenController.SetRadioVolume(prefs.RadioVolume); err != nil {
+		return fmt.Errorf("restore radio volume: %w", err)
+	}
+
+	if prefs.SelectedMasjidID != "" {
+		selected, findErr := streamStore.FindByID(prefs.SelectedMasjidID)
+		if findErr != nil {
+			log.Warn("Selected masjid is no longer in the catalogue", "stream_id", prefs.SelectedMasjidID)
+		} else if selectErr := listenController.SelectMasjid(selected); selectErr != nil {
+			log.Warn("Could not restore selected masjid", "stream_id", selected.ID, "error", selectErr)
+		} else {
+			log.Info("Restored selected masjid", "stream_id", selected.ID, "stream_name", selected.Name)
+		}
+	}
+	if prefs.SelectedRadioID != "" {
+		selected, findErr := streamStore.FindByID(prefs.SelectedRadioID)
+		if findErr != nil {
+			log.Warn("Selected radio station is no longer in the catalogue", "stream_id", prefs.SelectedRadioID)
+		} else if selectErr := listenController.SelectRadio(selected); selectErr != nil {
+			log.Warn("Could not restore selected radio station", "stream_id", selected.ID, "error", selectErr)
+		} else {
+			log.Info("Restored selected radio station", "stream_id", selected.ID, "stream_name", selected.Name)
+		}
+	}
+	if prefs.ResumeListening {
+		listenController.Listen()
+		log.Info("Restoring Listen active state")
+	}
+	listenController.Start(ctx)
+
 	go monitorAudioDevice(ctx, playbackManager, mpv, audioDeviceState, log)
 
 	favourites := storage.NewFavourites(paths.FavouritesState)
 	dependencies := api.Dependencies{
 		Logger:           log,
 		Playback:         playbackManager,
+		Listen:           listenController,
 		Streams:          streamStore,
 		Favourites:       favourites,
+		Preferences:      preferences,
 		AudioDeviceState: audioDeviceState,
 	}
 
@@ -283,7 +309,6 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 					log.Warn("Audio device unavailable, falling back to automatic output", "audio_device", name)
 					lastMode = "fallback"
 				}
-			}
 		}
 	}
 }

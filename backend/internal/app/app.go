@@ -48,8 +48,6 @@ func Run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// A Board-only appliance does not initialize the stream catalogue, MPV,
-	// playback persistence, audio-device monitoring, or LiveMasjid status feed.
 	if !installed.Listen {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		server := newAPIServer(cfg, paths, installed, api.Dependencies{
@@ -111,9 +109,6 @@ func Run() error {
 	log.Info("Player status", "status", status)
 	log.Info("Connected to MPV", "version", mpvVersion)
 
-	// The Listen controller owns LiveMasjid availability and source priority.
-	// PlaybackManager remains a generic endpoint/retry engine and therefore does
-	// not receive the availability feed directly.
 	liveStatus := livestatus.New("livemasjid.com", 1883, log)
 	liveStatus.Start(ctx)
 	defer liveStatus.Close()
@@ -131,6 +126,9 @@ func Run() error {
 	}
 	if err := listenController.SetRadioVolume(prefs.RadioVolume); err != nil {
 		return fmt.Errorf("restore radio volume: %w", err)
+	}
+	if err := listenController.SetRadioResumeDelayMinutes(prefs.RadioResumeDelayMinutes); err != nil {
+		return fmt.Errorf("restore radio resume delay: %w", err)
 	}
 
 	if prefs.SelectedMasjidID != "" {
@@ -172,7 +170,6 @@ func Run() error {
 		AudioDeviceState: audioDeviceState,
 	}
 
-	// MasjidBoard remains completely absent on Listen-only appliances.
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		dependencies.MasjidBoardService = masjidBoardService

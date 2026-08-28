@@ -154,32 +154,6 @@ Once selected, Radio remains stopped until you explicitly select either:
 
 A schedule boundary or masjid broadcast does not automatically cancel Stop Radio.
 
-## 6. Config tab
-
-The Config tab contains settings that affect Listen audio and Radio timing behaviour.
-
-### Audio Output
-
-Choose the ALSA-compatible output device MasjidPi should use for Listen playback.
-
-Available outputs depend on the hardware and operating system.
-
-### Master Volume
-
-Master Volume controls the selected audio device's hardware mixer where the device exposes a supported hardware volume control.
-
-This is separate from Masjid Volume and Radio Volume.
-
-Conceptually:
-
-```text
-Masjid Volume ─┐
-               ├─ software source level ─> Master Volume ─> audio hardware
-Radio Volume ──┘
-```
-
-Some output devices do not expose a controllable hardware mixer. On those devices, Master Volume may be unavailable. Masjid and Radio software volume controls continue to work.
-
 ### Radio Resume Delay
 
 After a masjid broadcast ends, scheduled Radio playback does not need to resume immediately.
@@ -211,6 +185,32 @@ Radio can then operate automatically during the day while remaining silent overn
 
 The schedule affects Radio only. Masjid broadcasts remain available regardless of the Radio quiet-time window.
 
+## 6. Audio tab
+
+The Audio tab contains settings for Listen audio output and master hardware volume.
+
+### Audio Output
+
+Choose the ALSA-compatible output device MasjidPi should use for Listen playback.
+
+Available outputs depend on the hardware and operating system.
+
+### Master Volume
+
+Master Volume controls the selected audio device's hardware mixer where the device exposes a supported hardware volume control.
+
+This is separate from Masjid Volume and Radio Volume.
+
+Conceptually:
+
+```text
+Masjid Volume ─┐
+               ├─ software source level ─> Master Volume ─> audio hardware
+Radio Volume ──┘
+```
+
+Some output devices do not expose a controllable hardware mixer. On those devices, Master Volume may be unavailable. Masjid and Radio software volume controls continue to work.
+
 ## 7. Common Listen configurations
 
 ### Radio during the day, silence at night
@@ -219,7 +219,7 @@ The schedule affects Radio only. Masjid broadcasts remain available regardless o
 2. Turn Radio Power on.
 3. Select your masjid and Radio station.
 4. Select **Play on Schedule**.
-5. In Config, enable **Limit Radio to Daily Times**.
+5. In Radio, enable **Limit Radio to Daily Times**.
 6. Set the desired start and stop times.
 
 ### Radio whenever the masjid is offline
@@ -300,7 +300,7 @@ See [INSTALL.md](INSTALL.md) for the supported installation and update procedure
 Release candidates such as:
 
 ```text
-v1.5.0-rc.1
+v1.5.0-rc.2
 ```
 
 are prerelease builds intended for validation before the corresponding stable release. They may contain known or undiscovered defects and should not replace a validated production installation unless you specifically intend to test the RC.

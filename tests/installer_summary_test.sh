@@ -46,8 +46,8 @@ TEST_AVAHI_ACTIVE=true \
     print_summary > "$TEST_ROOT/mdns-summary"
 grep -Fq 'Hostname:    http://MasjidPi-Test.local:8080' "$TEST_ROOT/mdns-summary"
 
-TEST_ROUTE_ADDRESS= \
-TEST_HOST_ADDRESSES= \
+TEST_ROUTE_ADDRESS='' \
+TEST_HOST_ADDRESSES='' \
 TEST_FQDN=localhost \
 TEST_SHORT_NAME=localhost \
 TEST_AVAHI_ACTIVE=false \

@@ -47,7 +47,9 @@ jobs:
           shellcheck -e SC1091,SC2034 scripts/*.sh tests/*.sh
 
       - name: Test installer network configuration
-        run: bash tests/installer_network_test.sh
+        run: |
+          bash tests/installer_network_test.sh
+          bash tests/installer_summary_test.sh
 
       - name: Validate JavaScript syntax
         run: node --check frontend/*.js

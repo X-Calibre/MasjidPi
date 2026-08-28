@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const refreshIntervalMs = 60_000;
+    const refreshIntervalMs = 10_000;
 
     const displayState = document.getElementById("displayState");
     const unconfiguredState = document.getElementById("unconfiguredState");
@@ -277,7 +277,9 @@
         try {
             const response = await fetch("/api/masjidboard/display", {cache: "no-store"});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            render(await response.json());
+            const view = await response.json();
+            render(view);
+            window.dispatchEvent(new CustomEvent("masjidpi:board-view", {detail: view}));
             connectionState.textContent = "";
             connectionState.classList.remove("warning");
         } catch (error) {
@@ -291,5 +293,11 @@
     updateClock();
     window.setInterval(updateClock, 1_000);
     refresh();
-    window.setInterval(refresh, refreshIntervalMs);
+    const scheduleRefresh = () => {
+        window.setTimeout(async () => {
+            await refresh();
+            scheduleRefresh();
+        }, document.hidden ? 30_000 : refreshIntervalMs);
+    };
+    scheduleRefresh();
 })();

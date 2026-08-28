@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -17,12 +18,25 @@ type fakeProvider struct {
 	calls int
 }
 
+type coordinatedProvider struct {
+	board   model.Board
+	started chan<- struct{}
+	release <-chan struct{}
+}
+
+func (p coordinatedProvider) Fetch(context.Context) (model.Board, error) {
+	p.started <- struct{}{}
+	<-p.release
+	return p.board, nil
+}
+
 func (p *fakeProvider) Fetch(context.Context) (model.Board, error) {
 	p.calls++
 	return p.board, p.err
 }
 
 type fakeCache struct {
+	mu      sync.Mutex
 	entries map[string]cache.Entry
 	loadErr map[string]error
 	saveErr error
@@ -30,6 +44,8 @@ type fakeCache struct {
 }
 
 func (c *fakeCache) Load(id string) (cache.Entry, bool, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if err := c.loadErr[id]; err != nil {
 		return cache.Entry{}, false, err
 	}
@@ -38,6 +54,8 @@ func (c *fakeCache) Load(id string) (cache.Entry, bool, error) {
 }
 
 func (c *fakeCache) Save(entry cache.Entry) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.saves = append(c.saves, entry)
 	if c.saveErr != nil {
 		return c.saveErr
@@ -90,6 +108,33 @@ func TestFetchAllCurrentPersistsLastKnownGood(t *testing.T) {
 	}
 	if len(store.saves) != 1 || store.saves[0].CatalogueID != "masjidboardlive:brits-jamia" || !store.saves[0].SuccessfulAt.Equal(now) {
 		t.Fatalf("saved entries = %+v", store.saves)
+	}
+}
+
+func TestFetchAllFetchesSelectedBoardsConcurrently(t *testing.T) {
+	started := make(chan struct{}, 2)
+	release := make(chan struct{})
+	store := &fakeCache{entries: make(map[string]cache.Entry)}
+	items := []Item{
+		{Selection: selectedBoard("one", "One"), Provider: coordinatedProvider{board: board("one", "One", 5), started: started, release: release}},
+		{Selection: selectedBoard("two", "Two"), Provider: coordinatedProvider{board: board("two", "Two", 6), started: started, release: release}},
+	}
+	coord, err := New(items, store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	done := make(chan []Result, 1)
+	go func() { done <- coord.FetchAll(context.Background()) }()
+	for range 2 {
+		select {
+		case <-started:
+		case <-time.After(time.Second):
+			t.Fatal("selected board fetches did not start concurrently")
+		}
+	}
+	close(release)
+	if results := <-done; len(results) != 2 || results[0].Selection.Name != "One" || results[1].Selection.Name != "Two" {
+		t.Fatalf("ordered results = %+v", results)
 	}
 }
 

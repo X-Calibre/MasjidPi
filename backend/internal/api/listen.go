@@ -84,16 +84,12 @@ func (s *Server) listenSelection(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "masjid_id or radio_id is required")
 		return
 	}
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	var selectedMasjidID, selectedRadioID *string
 	if req.MasjidID != nil {
 		if *req.MasjidID == "" {
 			_ = s.listen.SelectMasjid(nil)
-			prefs.SelectedMasjidID = ""
-			prefs.LastStreamID = ""
+			value := ""
+			selectedMasjidID = &value
 		} else {
 			selected, err := s.streams.FindByID(*req.MasjidID)
 			if err != nil {
@@ -104,14 +100,15 @@ func (s *Server) listenSelection(w http.ResponseWriter, r *http.Request) {
 				writeError(w, http.StatusBadRequest, err.Error())
 				return
 			}
-			prefs.SelectedMasjidID = selected.ID
-			prefs.LastStreamID = selected.ID
+			value := selected.ID
+			selectedMasjidID = &value
 		}
 	}
 	if req.RadioID != nil {
 		if *req.RadioID == "" {
 			_ = s.listen.SelectRadio(nil)
-			prefs.SelectedRadioID = ""
+			value := ""
+			selectedRadioID = &value
 		} else {
 			selected, err := s.streams.FindByID(*req.RadioID)
 			if err != nil {
@@ -122,10 +119,19 @@ func (s *Server) listenSelection(w http.ResponseWriter, r *http.Request) {
 				writeError(w, http.StatusBadRequest, err.Error())
 				return
 			}
-			prefs.SelectedRadioID = selected.ID
+			value := selected.ID
+			selectedRadioID = &value
 		}
 	}
-	if err := s.preferences.Save(prefs); err != nil {
+	if _, err := s.preferences.Update(func(prefs *storage.PreferencesState) {
+		if selectedMasjidID != nil {
+			prefs.SelectedMasjidID = *selectedMasjidID
+			prefs.LastStreamID = *selectedMasjidID
+		}
+		if selectedRadioID != nil {
+			prefs.SelectedRadioID = *selectedRadioID
+		}
+	}); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -146,35 +152,38 @@ func (s *Server) listenPower(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	var update func(*storage.PreferencesState)
 	switch req.Module {
 	case "masjid":
 		s.listen.SetMasjidEnabled(req.Enabled)
-		prefs.MasjidEnabled = boolPtr(req.Enabled)
+		update = func(prefs *storage.PreferencesState) { prefs.MasjidEnabled = boolPtr(req.Enabled) }
 		if !req.Enabled {
-			prefs.RadioEnabled = boolPtr(false)
-			prefs.ResumeListening = false
-			prefs.Autoplay = false
+			update = func(prefs *storage.PreferencesState) {
+				prefs.MasjidEnabled = boolPtr(false)
+				prefs.RadioEnabled = boolPtr(false)
+				prefs.ResumeListening = false
+				prefs.Autoplay = false
+			}
 		}
 	case "radio":
 		if req.Enabled && !s.listen.Status().MasjidEnabled {
 			s.listen.SetMasjidEnabled(true)
-			prefs.MasjidEnabled = boolPtr(true)
 		}
 		if err := s.listen.SetRadioEnabled(req.Enabled); err != nil {
 			writeError(w, http.StatusConflict, err.Error())
 			return
 		}
-		prefs.RadioEnabled = boolPtr(req.Enabled)
+		update = func(prefs *storage.PreferencesState) {
+			if req.Enabled {
+				prefs.MasjidEnabled = boolPtr(true)
+			}
+			prefs.RadioEnabled = boolPtr(req.Enabled)
+		}
 	default:
 		writeError(w, http.StatusBadRequest, "module must be masjid or radio")
 		return
 	}
-	if err := s.preferences.Save(prefs); err != nil {
+	if _, err := s.preferences.Update(update); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -201,28 +210,30 @@ func (s *Server) listenVolume(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "source volume must be between 0 and 150")
 		return
 	}
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	var update func(*storage.PreferencesState)
 	switch req.Source {
 	case "masjid":
-		err = s.listen.SetMasjidVolume(req.Volume)
-		prefs.MasjidVolume = req.Volume
+		err := s.listen.SetMasjidVolume(req.Volume)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		update = func(prefs *storage.PreferencesState) { prefs.MasjidVolume = req.Volume }
 	case "radio":
-		err = s.listen.SetRadioVolume(req.Volume)
-		prefs.RadioVolume = req.Volume
+		err := s.listen.SetRadioVolume(req.Volume)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		update = func(prefs *storage.PreferencesState) { prefs.RadioVolume = req.Volume }
 	default:
 		writeError(w, http.StatusBadRequest, "source must be masjid or radio")
 		return
 	}
-	if err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	prefs.SourceVolumesSet = true
-	if err := s.preferences.Save(prefs); err != nil {
+	if _, err := s.preferences.Update(func(prefs *storage.PreferencesState) {
+		update(prefs)
+		prefs.SourceVolumesSet = true
+	}); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -243,13 +254,7 @@ func (s *Server) listenRadioDelay(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	prefs.RadioResumeDelayMinutes = req.Minutes
-	if err := s.preferences.Save(prefs); err != nil {
+	if _, err := s.preferences.Update(func(prefs *storage.PreferencesState) { prefs.RadioResumeDelayMinutes = req.Minutes }); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -270,15 +275,11 @@ func (s *Server) listenRadioSchedule(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	prefs.RadioScheduleEnabled = req.Enabled
-	prefs.RadioScheduleStart = req.Start
-	prefs.RadioScheduleStop = req.Stop
-	if err := s.preferences.Save(prefs); err != nil {
+	if _, err := s.preferences.Update(func(prefs *storage.PreferencesState) {
+		prefs.RadioScheduleEnabled = req.Enabled
+		prefs.RadioScheduleStart = req.Start
+		prefs.RadioScheduleStop = req.Stop
+	}); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -304,17 +305,13 @@ func (s *Server) listenRadioMode(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusConflict, err.Error())
 		return
 	}
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	if mode == listen.RadioModeStopped {
-		prefs.RadioMode = "stopped"
-	} else {
-		prefs.RadioMode = "schedule"
-	}
-	if err := s.preferences.Save(prefs); err != nil {
+	if _, err := s.preferences.Update(func(prefs *storage.PreferencesState) {
+		if mode == listen.RadioModeStopped {
+			prefs.RadioMode = "stopped"
+		} else {
+			prefs.RadioMode = "schedule"
+		}
+	}); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -349,11 +346,9 @@ func (s *Server) listenStop(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) persistResumeListening(enabled bool) error {
-	prefs, err := s.preferences.Load()
-	if err != nil {
-		return err
-	}
-	prefs.ResumeListening = enabled
-	prefs.Autoplay = enabled
-	return s.preferences.Save(storage.PreferencesState(prefs))
+	_, err := s.preferences.Update(func(prefs *storage.PreferencesState) {
+		prefs.ResumeListening = enabled
+		prefs.Autoplay = enabled
+	})
+	return err
 }

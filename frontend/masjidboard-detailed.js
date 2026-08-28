@@ -15,7 +15,6 @@
     const communityPanel = document.getElementById("detailedCommunityPanel");
     const communityCards = document.getElementById("detailedCommunityCards");
     const communityEmpty = document.getElementById("detailedCommunityEmpty");
-    const refreshIntervalMs = 60_000;
     const communityPageIntervalMs = 15_000;
     let communityItems = [];
     let communityPages = [];
@@ -374,11 +373,7 @@
     });
     if (prayerGrid) observer.observe(prayerGrid, {childList: true, subtree: true});
 
-    async function refresh() {
-        try {
-            const response = await fetch("/api/masjidboard/display", {cache: "no-store"});
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const view = await response.json();
+    function refresh(view) {
             const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
             document.body.dataset.boardCount = String(Math.max(1, boards.length));
             render(boards[0] || null);
@@ -399,13 +394,9 @@
                 renderCommunityContent(boards);
             }
             addSharedPrayerLabels();
-        } catch (error) {
-            console.warn("Landscape MasjidBoard times refresh failed", error);
-        }
     }
 
-    refresh();
-    window.setInterval(refresh, refreshIntervalMs);
+    window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
     window.setInterval(() => {
         if (communityPages.length <= 1) return;
         communityPage = (communityPage + 1) % communityPages.length;

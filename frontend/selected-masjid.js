@@ -6,12 +6,6 @@
     let catalogue = [];
     let lastMasjidID = null;
 
-    async function getJSON(url) {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Request failed (${response.status})`);
-        return response.json();
-    }
-
     function render(masjidID) {
         lastMasjidID = masjidID || "";
         if (!masjidID) {
@@ -31,22 +25,6 @@
         locationEl.textContent = selected.location || "";
     }
 
-    async function refresh() {
-        try {
-            const [status, streams] = await Promise.all([
-                getJSON("/api/listen/status"),
-                catalogue.length ? Promise.resolve(catalogue) : getJSON("/api/streams?kind=masjid")
-            ]);
-            catalogue = streams;
-            render(status.masjid_id);
-        } catch (_) {
-            if (lastMasjidID === null) {
-                nameEl.textContent = "Unable to load selected masjid";
-                locationEl.textContent = "";
-            }
-        }
-    }
-
     const streamInput = document.getElementById("stream");
     if (streamInput) {
         streamInput.addEventListener("change", () => {
@@ -58,6 +36,9 @@
         });
     }
 
-    refresh();
-    setInterval(refresh, 2000);
+    window.addEventListener("masjidpi:listen-status", event => render(event.detail.masjid_id));
+    window.addEventListener("masjidpi:masjid-catalogue", event => {
+        catalogue = event.detail;
+        if (lastMasjidID !== null) render(lastMasjidID);
+    });
 })();

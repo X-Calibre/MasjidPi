@@ -26,7 +26,13 @@ func BuildAt(configured bool, selected selection.State, results []masjidboardrun
 		byID[result.Selection.CatalogueID] = result
 	}
 
-	view := View{Configured: configured, Boards: make([]Board, 0, len(selected.Boards))}
+	view := View{
+		Configured:    configured,
+		Layout:        selected.EffectiveLayout(),
+		Theme:         selected.EffectiveTheme(),
+		SlideDuration: selected.EffectiveSlideDurationSeconds(),
+		Boards:        make([]Board, 0, len(selected.Boards)),
+	}
 	for _, selectedBoard := range selected.Boards {
 		item := Board{
 			CatalogueID: selectedBoard.CatalogueID,

@@ -343,23 +343,11 @@
         state.classList.remove("hidden");
     }
 
-    async function refresh() {
-        try {
-            const [displayResponse, layoutResponse] = await Promise.all([
-                fetch("/api/masjidboard/display", {cache: "no-store"}),
-                fetch("/api/masjidboard/layout", {cache: "no-store"}),
-            ]);
-            if (!displayResponse.ok) throw new Error(`HTTP ${displayResponse.status}`);
-            render(await displayResponse.json());
-            if (layoutResponse.ok) {
-                const preference = await layoutResponse.json();
-                const duration = Number(preference.slide_duration_seconds);
-                slideDurationSeconds = duration >= 5 && duration <= 60 ? duration : 15;
-                startTimer();
-            }
-        } catch (error) {
-            console.warn("Portrait MasjidBoard refresh failed", error);
-        }
+    function refresh(view) {
+        render(view);
+        const duration = Number(view.slide_duration_seconds);
+        slideDurationSeconds = duration >= 5 && duration <= 60 ? duration : 15;
+        startTimer();
     }
 
     state.addEventListener("pointerdown", (event) => { gestureStart = {x: event.clientX, y: event.clientY}; });
@@ -371,8 +359,7 @@
         if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) showSlide(activeSlide + (dx < 0 ? 1 : -1));
     });
 
-    refresh();
+    window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
     updateHeader();
     window.setInterval(updateHeader, 1000);
-    window.setInterval(refresh, 60000);
 })();

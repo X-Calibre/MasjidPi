@@ -127,6 +127,27 @@ func (p *Preferences) Save(state PreferencesState) error {
 	if err := p.loadLocked(); err != nil {
 		return err
 	}
+	return p.saveLocked(state)
+}
+
+// Update applies a focused mutation while holding the store lock for the
+// complete read-modify-write operation. This prevents concurrent API requests
+// for unrelated settings from overwriting one another.
+func (p *Preferences) Update(update func(*PreferencesState)) (PreferencesState, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if err := p.loadLocked(); err != nil {
+		return PreferencesState{}, err
+	}
+	state := p.state.Normalized()
+	update(&state)
+	if err := p.saveLocked(state); err != nil {
+		return PreferencesState{}, err
+	}
+	return p.state.Normalized(), nil
+}
+
+func (p *Preferences) saveLocked(state PreferencesState) error {
 	state = state.Normalized()
 	state.SourceVolumesSet = true
 	if p.exists && preferencesEqual(p.state.Normalized(), state) {

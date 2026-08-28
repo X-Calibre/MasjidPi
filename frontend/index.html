@@ -43,13 +43,13 @@
         </section>
 
         <section class="card listen-source-card">
-            <nav class="app-tabs listen-subtabs" aria-label="Listen settings">
-                <button id="masjidTab" class="app-tab active" type="button" data-listen-tab="masjid" aria-selected="true">Masjid</button>
-                <button id="radioTab" class="app-tab" type="button" data-listen-tab="radio" aria-selected="false">Radio</button>
-                <button id="audioTab" class="app-tab" type="button" data-listen-tab="audio" aria-selected="false">Config</button>
+            <nav class="app-tabs listen-subtabs" aria-label="Listen settings" role="tablist">
+                <button id="masjidTab" class="app-tab active" type="button" role="tab" data-listen-tab="masjid" aria-controls="masjidPanel" aria-selected="true">Masjid</button>
+                <button id="radioTab" class="app-tab" type="button" role="tab" data-listen-tab="radio" aria-controls="radioPanel" aria-selected="false" tabindex="-1">Radio</button>
+                <button id="audioTab" class="app-tab" type="button" role="tab" data-listen-tab="audio" aria-controls="audioPanel" aria-selected="false" tabindex="-1">Audio</button>
             </nav>
 
-            <div id="masjidPanel" class="listen-panel" data-listen-panel="masjid">
+            <div id="masjidPanel" class="listen-panel" role="tabpanel" aria-labelledby="masjidTab" data-listen-panel="masjid">
                 <div class="module-power-row">
                     <div>
                         <h2>Primary Masjid</h2>
@@ -93,7 +93,7 @@
                 <button id="updateCatalogueButton" class="secondary full-width-action" type="button">🔄 Update Masjid Catalogue</button>
             </div>
 
-            <div id="radioPanel" class="listen-panel hidden" data-listen-panel="radio">
+            <div id="radioPanel" class="listen-panel hidden" role="tabpanel" aria-labelledby="radioTab" data-listen-panel="radio">
                 <div class="module-power-row">
                     <div>
                         <h2>Secondary Radio</h2>
@@ -125,20 +125,6 @@
 
                 <label for="radioStream">Radio Station</label>
                 <select id="radioStream" size="8"></select>
-            </div>
-
-            <div id="audioPanel" class="listen-panel hidden" data-listen-panel="audio">
-                <h2>Configuration</h2>
-                <p class="section-intro">Configure audio output and Radio timing behaviour.</p>
-
-                <label for="audioDevice">Audio output</label>
-                <select id="audioDevice"></select>
-                <small class="volume-note">Select where MasjidPi plays audio.</small>
-
-                <label for="volumeSlider">Master Volume</label>
-                <input id="volumeSlider" type="range" min="0" max="100" value="100">
-                <div id="volumeValue">100%</div>
-                <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
 
                 <div class="radio-config-block">
                     <label for="radioResumeDelaySlider">Radio Resume Delay</label>
@@ -166,6 +152,20 @@
                     </div>
                     <div id="radioScheduleStatus" class="stream-count"></div>
                 </div>
+            </div>
+
+            <div id="audioPanel" class="listen-panel hidden" role="tabpanel" aria-labelledby="audioTab" data-listen-panel="audio">
+                <h2>Audio</h2>
+                <p class="section-intro">Configure the appliance audio output and master hardware volume.</p>
+
+                <label for="audioDevice">Audio output</label>
+                <select id="audioDevice"></select>
+                <small class="volume-note">Select where MasjidPi plays audio.</small>
+
+                <label for="volumeSlider">Master Volume</label>
+                <input id="volumeSlider" type="range" min="0" max="100" value="100">
+                <div id="volumeValue">100%</div>
+                <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
             </div>
         </section>
     </main>

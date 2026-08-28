@@ -52,4 +52,6 @@ jobs:
           bash tests/installer_summary_test.sh
 
       - name: Validate JavaScript syntax
-        run: node --check frontend/*.js
+        run: |
+          node --check frontend/*.js
+          node tests/masjidboard_date_utils_test.js

@@ -11,6 +11,7 @@
     const currentTime = document.getElementById("currentTime");
     const currentDate = document.getElementById("currentDate");
     const connectionState = document.getElementById("connectionState");
+    const dateUtils = window.MasjidBoardDate;
     let latestView = null;
 
     function displayDate() {
@@ -252,7 +253,7 @@
 
     function renderPrayers(boards, now = displayNow()) {
         prayerGrid.replaceChildren();
-        const friday = displayDate().getDay() === 5;
+        const friday = boards.length > 0 && dateUtils.isIslamicFriday(boards[0], now);
         const nextByBoard = new Map(boards.map((board) => [board.catalogue_id, nextEventForBoard(board, now, friday)]));
         prayerGrid.classList.toggle("friday", friday);
         appendPrayerRow(boards, "fajr", "Fajr", nextByBoard, now);

@@ -96,7 +96,7 @@
         head.append(element("span", "", "Salaah"), element("span", "", "Adhan"), element("span", "", "Jamaah"));
         table.append(head);
         const now = utils.displayNow();
-        const friday = utils.displayDate().getDay() === 5;
+        const friday = dateUtils.isIslamicFriday(board, now);
         const next = utils.nextEventForBoard(board, now, friday);
         for (const key of ["fajr", "dhuhr", "asr", "maghrib", "esha"]) {
             if (friday && key === "dhuhr") {
@@ -320,7 +320,7 @@
         if (!latestView || !latestView.boards || !latestView.boards[0]) return;
         const board = latestView.boards[0];
         const now = utils.displayNow();
-        const friday = utils.displayDate().getDay() === 5;
+        const friday = dateUtils.isIslamicFriday(board, now);
         const event = utils.nextEventForBoard(board, now, friday);
         const formatted = formatEvent(event);
         clock.textContent = now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});

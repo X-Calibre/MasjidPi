@@ -25,8 +25,6 @@
         control.slider.addEventListener("change", () => syncControl(control));
     });
 
-    // app.js refreshes slider values from backend status once per second.
-    // Keep the visual boost state aligned with those programmatic updates too.
     syncAll();
-    setInterval(syncAll, 500);
+    window.addEventListener("masjidpi:listen-status", syncAll);
 })();

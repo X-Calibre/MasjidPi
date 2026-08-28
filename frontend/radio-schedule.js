@@ -28,7 +28,7 @@
     async function save() {
         if (enabled.checked && start.value === stop.value) {
             window.MasjidPiUI?.notify?.("Radio start and stop times must differ.", "error");
-            await refresh();
+            await window.MasjidPiRefreshListenStatus?.();
             return;
         }
 
@@ -54,23 +54,18 @@
             window.MasjidPiUI?.notify?.(err.message, "error");
         } finally {
             editing = false;
-            await refresh();
+            await window.MasjidPiRefreshListenStatus?.();
         }
     }
 
-    async function refresh() {
-        try {
-            const response = await fetch("/api/listen/status");
-            if (!response.ok) return;
-            const data = await response.json();
-            if (!editing) {
-                enabled.checked = Boolean(data.radio_schedule_enabled);
-                if (data.radio_schedule_start) start.value = data.radio_schedule_start;
-                if (data.radio_schedule_stop) stop.value = data.radio_schedule_stop;
-                renderEnabled();
-            }
-            renderStatus(data);
-        } catch (_) {}
+    function refresh(data) {
+        if (!editing) {
+            enabled.checked = Boolean(data.radio_schedule_enabled);
+            if (data.radio_schedule_start) start.value = data.radio_schedule_start;
+            if (data.radio_schedule_stop) stop.value = data.radio_schedule_stop;
+            renderEnabled();
+        }
+        renderStatus(data);
     }
 
     enabled.addEventListener("change", async () => {
@@ -85,6 +80,5 @@
     }
 
     renderEnabled();
-    refresh();
-    setInterval(refresh, 5000);
+    window.addEventListener("masjidpi:listen-status", event => refresh(event.detail));
 })();

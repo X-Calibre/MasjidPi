@@ -29,17 +29,12 @@
         status.classList.remove("hidden");
     }
 
-    async function refresh() {
-        try {
-            const response = await fetch("/api/listen/status");
-            if (!response.ok) return;
-            const data = await response.json();
-            if (!editing && Number.isInteger(data.radio_resume_delay_minutes)) {
-                slider.value = data.radio_resume_delay_minutes;
-                renderValue(data.radio_resume_delay_minutes);
-            }
-            renderPending(data);
-        } catch (_) {}
+    function refresh(data) {
+        if (!editing && Number.isInteger(data.radio_resume_delay_minutes)) {
+            slider.value = data.radio_resume_delay_minutes;
+            renderValue(data.radio_resume_delay_minutes);
+        }
+        renderPending(data);
     }
 
     slider.addEventListener("input", () => {
@@ -64,11 +59,10 @@
             window.MasjidPiUI?.notify?.(err.message, "error");
         } finally {
             editing = false;
-            await refresh();
+            await window.MasjidPiRefreshListenStatus?.();
         }
     });
 
     renderValue(Number(slider.value));
-    refresh();
-    setInterval(refresh, 1000);
+    window.addEventListener("masjidpi:listen-status", event => refresh(event.detail));
 })();

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -23,6 +24,7 @@ func (p fakeProvider) Fetch(context.Context) (model.Board, error) {
 }
 
 type memoryCache struct {
+	mu      sync.RWMutex
 	entries map[string]cache.Entry
 }
 
@@ -31,11 +33,15 @@ func newMemoryCache() *memoryCache {
 }
 
 func (c *memoryCache) Load(id string) (cache.Entry, bool, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	entry, ok := c.entries[id]
 	return entry, ok, nil
 }
 
 func (c *memoryCache) Save(entry cache.Entry) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.entries[entry.CatalogueID] = entry
 	return nil
 }
@@ -107,10 +113,12 @@ func TestServiceKeepsBoardFailuresIndependent(t *testing.T) {
 		serviceBoard("three", "Three"),
 	}}
 	cacheStore := newMemoryCache()
-	cacheStore.entries[state.Boards[1].CatalogueID] = cache.Entry{
+	if err := cacheStore.Save(cache.Entry{
 		CatalogueID:  state.Boards[1].CatalogueID,
 		SuccessfulAt: time.Date(2026, 8, 18, 15, 0, 0, 0, time.UTC),
 		Board:        liveBoard("two", "Two cached"),
+	}); err != nil {
+		t.Fatal(err)
 	}
 
 	service, err := newWithFactory(state, cacheStore, func(board selection.Board) (provider.Provider, error) {

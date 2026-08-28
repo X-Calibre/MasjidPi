@@ -2,13 +2,27 @@
 
 This document defines the release-candidate acceptance checks for MasjidPi v1.5.0.
 
-The first planned release candidate is `v1.5.0-rc.1`.
+The current planned release candidate is `v1.5.0-rc.2`. RC1 completed its initial soak-testing phase; RC2 carries the resulting runtime, backend and Web UI optimisation pass.
 
 ## Scope
 
 v1.5.0 introduces secondary Islamic radio playback to MasjidPi Listen while preserving the selected masjid as the priority audio source.
 
 The release also includes the outstanding enhancements and bug fixes already incorporated into `feature/radio-secondary-stream`.
+
+## RC2 optimisation delta
+
+In addition to the original v1.5.0 Radio scope, RC2 includes:
+
+- one shared Listen status poll instead of independent polling by each control module;
+- event-driven playback retry and startup-delay timers instead of a 50 ms idle loop;
+- adaptive audio-device checks with fast missing-device recovery and slower healthy-state checks;
+- one shared MasjidBoard display view supplying layout, theme, slide duration and renderer data;
+- transactional preference mutations that preserve unrelated concurrent setting changes;
+- concurrent retrieval of up to three selected boards while preserving configured display order;
+- Radio timing controls grouped under Radio and a dedicated Audio tab;
+- keyboard-accessible Listen tabs with session-only active-tab memory; and
+- version footer retrieval through the component-independent version API.
 
 ## Radio catalogue
 
@@ -91,11 +105,12 @@ Validate the persistent Masjid and Radio module power switches:
 
 ## Web UI acceptance
 
-- Listen sub-tabs are Masjid, Radio and Config.
+- Listen sub-tabs are Masjid, Radio and Audio.
 - Masjid and Radio power controls are rendered as on/off toggle switches.
 - The Masjid tab always shows a clear Selected Masjid summary even when nothing is playing.
-- The Radio tab contains Radio operation mode, Radio Volume and Radio Station selection.
-- The Config tab contains audio output, Master Volume, Radio Resume Delay and Radio scheduling.
+- The Radio tab contains Radio operation mode, Radio Volume, Radio Station selection, Radio Resume Delay and Radio scheduling.
+- The Audio tab contains audio output and Master Volume.
+- Left and right arrow keys move between the Listen tabs, and the active tab is retained across a page refresh.
 - Powered-off Radio controls remain visually stable with no polling-induced flicker.
 - The Masjid catalogue can be freely scrolled without the one-second status poll snapping the list back to the selected masjid.
 - The same non-snapping behavior applies to the Radio station list.
@@ -135,7 +150,7 @@ Before merging to `main`:
 
 ```bash
 cd ~/MasjidPi
-git pull --ff-only origin feature/radio-secondary-stream
+git pull --ff-only origin optimisation/v1.5.0-rc2
 
 make test
 
@@ -156,15 +171,15 @@ After the feature branch is merged into `main` and `main` is validated:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.0-rc.1 -m "MasjidPi v1.5.0-rc.1"
-git push origin v1.5.0-rc.1
+git tag -a v1.5.0-rc.2 -m "MasjidPi v1.5.0-rc.2"
+git push origin v1.5.0-rc.2
 ```
 
 The release workflow must publish ARM64 and AMD64 archives plus `SHA256SUMS`, and the GitHub release must be marked as a prerelease.
 
 ## Raspberry Pi acceptance
 
-Install the actual `v1.5.0-rc.1` release artifact on the Raspberry Pi 4 test appliance rather than performing the final acceptance only from a source build.
+Install the actual `v1.5.0-rc.2` release artifact on the Raspberry Pi 4 test appliance rather than performing the final acceptance only from a source build.
 
 Recommended minimum RC acceptance:
 
@@ -178,8 +193,12 @@ Recommended minimum RC acceptance:
 8. source volumes, including >100% boost, work;
 9. service restart and full reboot restore the intended persistent state;
 10. Board remains operational alongside Listen.
+11. Listen controls remain synchronized without flicker and generate only one status request per polling cycle.
+12. Landscape and Portrait layout, theme and slide-duration changes reach the HDMI display through the shared Board view.
+13. Audio-device fallback and reconnection still work with adaptive checking.
+14. Multiple selected boards refresh successfully and remain in configured order.
 
-If release-blocking defects are found, fix them on the development branch and publish `v1.5.0-rc.2` after repeating the automated and hardware acceptance gates.
+If release-blocking defects are found, fix them on the development branch and publish a subsequent release candidate after repeating the automated and hardware acceptance gates.
 
 ## Soak monitoring
 

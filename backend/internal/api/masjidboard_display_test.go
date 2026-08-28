@@ -30,7 +30,7 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 
 	s := &Server{masjidBoardService: fakeMasjidBoardStatusProvider{
 		configured: true,
-		selection:  selection.State{Boards: []selection.Board{first, second}},
+		selection:  selection.State{Layout: selection.LayoutPortrait, Theme: selection.ThemeRuby, SlideDurationSeconds: 30, Boards: []selection.Board{first, second}},
 		results: []masjidboardruntime.Result{
 			{Selection: first, Board: &cached, Status: masjidboardruntime.StatusStale, LastSuccessfulUpdate: updated, UpdateError: errors.New("secret diagnostic")},
 			{Selection: second, Status: masjidboardruntime.StatusUnavailable, UpdateError: errors.New("another diagnostic")},
@@ -51,6 +51,9 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	}
 	if !got.Configured || len(got.Boards) != 2 {
 		t.Fatalf("view = %+v", got)
+	}
+	if got.Layout != selection.LayoutPortrait || got.Theme != selection.ThemeRuby || got.SlideDuration != 30 {
+		t.Fatalf("display preferences = %+v", got)
 	}
 	if got.Boards[0].CatalogueID != first.CatalogueID || got.Boards[1].CatalogueID != second.CatalogueID {
 		t.Fatalf("order changed: %+v", got.Boards)

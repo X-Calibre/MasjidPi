@@ -23,7 +23,11 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
-const audioDeviceCheckInterval = 2 * time.Second
+const (
+	audioDeviceMissingCheckInterval = 2 * time.Second
+	audioDeviceErrorCheckInterval   = 10 * time.Second
+	audioDeviceHealthyCheckInterval = 30 * time.Second
+)
 
 func Run() error {
 	log := logger.New()
@@ -262,20 +266,23 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *player.MPV, state *storage.AudioDeviceState, log interface {
 	Warn(msg string, args ...any)
 }) {
-	ticker := time.NewTicker(audioDeviceCheckInterval)
-	defer ticker.Stop()
+	timer := time.NewTimer(audioDeviceMissingCheckInterval)
+	defer timer.Stop()
 	lastMode := ""
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-ticker.C:
+		case <-timer.C:
+			nextCheck := audioDeviceErrorCheckInterval
 			name, ok, err := state.Load()
 			if err != nil || !ok || name == "" {
+				timer.Reset(nextCheck)
 				continue
 			}
 			devices, err := mpv.AudioDevices()
 			if err != nil {
+				timer.Reset(nextCheck)
 				continue
 			}
 			available := false
@@ -286,13 +293,16 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 				}
 			}
 			if available {
+				nextCheck = audioDeviceHealthyCheckInterval
 				current, err := mpv.GetProperty("audio-device")
 				if err != nil {
+					timer.Reset(audioDeviceErrorCheckInterval)
 					continue
 				}
 				currentName, _ := current.(string)
 				if currentName != name {
 					if err := manager.AudioDevice(name); err != nil {
+						timer.Reset(audioDeviceErrorCheckInterval)
 						continue
 					}
 					if lastMode != "restored" {
@@ -300,15 +310,19 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 						lastMode = "restored"
 					}
 				}
+				timer.Reset(nextCheck)
 				continue
 			}
+			nextCheck = audioDeviceMissingCheckInterval
 			current, err := mpv.GetProperty("audio-device")
 			if err != nil {
+				timer.Reset(audioDeviceErrorCheckInterval)
 				continue
 			}
 			currentName, _ := current.(string)
 			if currentName == name {
 				if err := manager.AudioDevice("auto"); err != nil {
+					timer.Reset(audioDeviceErrorCheckInterval)
 					continue
 				}
 				if lastMode != "fallback" {
@@ -316,6 +330,7 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 					lastMode = "fallback"
 				}
 			}
+			timer.Reset(nextCheck)
 		}
 	}
 }

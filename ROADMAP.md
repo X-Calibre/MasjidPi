@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.4.0 is the current stable release. v1.4.1 is being prepared.**
+**v1.4.1 is the current stable release. v1.5.0-rc.2 is being prepared for release-candidate validation.**
 
 The current product provides:
 
@@ -95,6 +95,21 @@ v1.4.1 adds:
 - Effective-date-driven economic refreshes from 09:00 South African time with bounded weekend attempts
 
 The updated Listen catalogue, manual refresh, normal relay playback and automatic Icecast failover were validated on the Raspberry Pi 4 test appliance. Automated Go tests, race-enabled playback tests, vet checks, shell syntax checks and frontend JavaScript validation also passed.
+
+### v1.5.0 release candidate
+
+v1.5.0 adds secondary Islamic radio playback while retaining the selected masjid as the immediate priority source. It includes independent Masjid and Radio software volumes, scheduled and manual Radio modes, a configurable post-masjid resume delay, persistent module power controls and a dedicated Radio catalogue.
+
+RC2 adds a focused appliance optimisation pass:
+
+- shared Listen and Board frontend state retrieval;
+- event-driven playback scheduling instead of high-frequency idle polling;
+- adaptive audio-device recovery checks;
+- transactional preference updates;
+- concurrent multi-board retrieval with stable display ordering; and
+- clearer, accessible Masjid, Radio and Audio configuration tabs.
+
+RC2 requires automated validation followed by installation of the published ARM64 prerelease artifact and Raspberry Pi soak testing before stable promotion.
 
 ---
 

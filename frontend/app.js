@@ -6,6 +6,14 @@ let favouriteIds = new Set();
 let renderedMasjidID = null;
 let renderedRadioID = null;
 
+function publishListenStatus(status) {
+    window.dispatchEvent(new CustomEvent("masjidpi:listen-status", {detail: status}));
+}
+
+function publishMasjidCatalogue(items) {
+    window.dispatchEvent(new CustomEvent("masjidpi:masjid-catalogue", {detail: items}));
+}
+
 const state = document.getElementById("state");
 const statusDetail = document.getElementById("statusDetail");
 const currentStream = document.getElementById("url");
@@ -191,6 +199,7 @@ async function loadStreams() {
     ]);
     masjidCatalogue = masjids;
     radioCatalogue = radios;
+    publishMasjidCatalogue(masjids);
     renderMasjids();
     renderRadios();
 }
@@ -234,6 +243,23 @@ function setOffline(offline) {
     playButton.disabled = offline || Boolean(listenStatus?.listening);
     stopButton.disabled = offline || !listenStatus?.listening;
     updateCatalogueButton.disabled = offline;
+    document.getElementById("masjidPowerSwitch").disabled = offline;
+    document.getElementById("radioPowerSwitch").disabled = offline;
+}
+
+function updateControlAvailability(status) {
+    const radioEnabled = backendOnline && Boolean(status.radio_enabled);
+    for (const id of [
+        "radioModeSchedule", "radioModePlayNow", "radioModeStop", "radioVolumeSlider",
+        "radioResumeDelaySlider", "radioScheduleEnabled", "radioStream"
+    ]) {
+        const control = document.getElementById(id);
+        if (control) control.disabled = !radioEnabled;
+    }
+    for (const id of ["radioScheduleStart", "radioScheduleStop"]) {
+        const control = document.getElementById(id);
+        if (control) control.disabled = !radioEnabled || !document.getElementById("radioScheduleEnabled")?.checked;
+    }
 }
 
 function renderStatus(status) {
@@ -269,6 +295,8 @@ function renderStatus(status) {
     playButton.disabled = status.listening;
     stopButton.disabled = !status.listening;
     updateFavouriteButton();
+    publishListenStatus(status);
+    updateControlAvailability(status);
 
     const detail = status.error || "";
     statusDetail.textContent = detail;
@@ -336,20 +364,35 @@ async function refreshStatus() {
     }
 }
 
+window.MasjidPiRefreshListenStatus = refreshStatus;
+
 function activateTab(name) {
     document.querySelectorAll("[data-listen-tab]").forEach(button => {
         const active = button.dataset.listenTab === name;
         button.classList.toggle("active", active);
         button.setAttribute("aria-selected", active ? "true" : "false");
+        button.tabIndex = active ? 0 : -1;
     });
     document.querySelectorAll("[data-listen-panel]").forEach(panel => {
         panel.classList.toggle("hidden", panel.dataset.listenPanel !== name);
     });
+    sessionStorage.setItem("masjidpi-listen-tab", name);
 }
 
 document.querySelectorAll("[data-listen-tab]").forEach(button => {
     button.addEventListener("click", () => activateTab(button.dataset.listenTab));
+    button.addEventListener("keydown", event => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        const tabs = Array.from(document.querySelectorAll("[data-listen-tab]"));
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        const next = tabs[(tabs.indexOf(button) + direction + tabs.length) % tabs.length];
+        activateTab(next.dataset.listenTab);
+        next.focus();
+    });
 });
+
+const savedListenTab = sessionStorage.getItem("masjidpi-listen-tab");
+if (["masjid", "radio", "audio"].includes(savedListenTab)) activateTab(savedListenTab);
 
 streamSearch.addEventListener("input", () => renderMasjids(streamInput.value));
 
@@ -528,7 +571,13 @@ async function initialize() {
         setOffline(true);
     }
 
-    setInterval(refreshStatus, 1000);
+    const scheduleRefresh = () => {
+        window.setTimeout(async () => {
+            await refreshStatus();
+            scheduleRefresh();
+        }, document.hidden ? 5000 : 1000);
+    };
+    scheduleRefresh();
 }
 
 initialize();

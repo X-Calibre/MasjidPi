@@ -59,18 +59,11 @@
         }
     }
 
-    async function refresh() {
-        try {
-            const response = await fetch("/api/listen/status");
-            if (!response.ok) return;
-            render(await response.json());
-        } catch (_) {}
-    }
+    const refresh = () => window.MasjidPiRefreshListenStatus?.();
 
     scheduleButton.addEventListener("click", () => setMode("schedule"));
     playNowButton.addEventListener("click", () => setMode("play_now"));
     stopButton.addEventListener("click", () => setMode("stopped"));
 
-    refresh();
-    setInterval(refresh, 1000);
+    window.addEventListener("masjidpi:listen-status", event => render(event.detail));
 })();

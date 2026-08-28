@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
@@ -92,9 +93,15 @@ func newWithClock(items []Item, cacheStore CacheStore, now func() time.Time) (*C
 // never prevents later boards from being attempted or returned.
 func (c *Coordinator) FetchAll(ctx context.Context) []Result {
 	results := make([]Result, len(c.items))
+	var workers sync.WaitGroup
+	workers.Add(len(c.items))
 	for i, item := range c.items {
-		results[i] = c.fetchOne(ctx, item)
+		go func() {
+			defer workers.Done()
+			results[i] = c.fetchOne(ctx, item)
+		}()
 	}
+	workers.Wait()
 	return results
 }
 

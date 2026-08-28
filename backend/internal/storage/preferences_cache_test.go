@@ -2,8 +2,36 @@ package storage
 
 import (
 	"os"
+	"sync"
 	"testing"
 )
+
+func TestPreferencesUpdatePreservesConcurrentFields(t *testing.T) {
+	state := NewPreferences(t.TempDir() + "/preferences.json")
+	start := make(chan struct{})
+	var workers sync.WaitGroup
+	workers.Add(2)
+	go func() {
+		defer workers.Done()
+		<-start
+		_, _ = state.Update(func(value *PreferencesState) { value.SelectedMasjidID = "masjid-1" })
+	}()
+	go func() {
+		defer workers.Done()
+		<-start
+		_, _ = state.Update(func(value *PreferencesState) { value.SelectedRadioID = "radio-1" })
+	}()
+	close(start)
+	workers.Wait()
+
+	got, err := state.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.SelectedMasjidID != "masjid-1" || got.SelectedRadioID != "radio-1" {
+		t.Fatalf("concurrent updates lost: %+v", got)
+	}
+}
 
 func TestPreferencesLoadUsesCachedState(t *testing.T) {
 	path := t.TempDir() + "/preferences.json"

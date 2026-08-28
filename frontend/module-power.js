@@ -6,18 +6,6 @@
 
     if (!masjidSwitch || !radioSwitch || !masjidStatus || !radioStatus) return;
 
-    const radioControls = [
-        "radioModeSchedule",
-        "radioModePlayNow",
-        "radioModeStop",
-        "radioVolumeSlider",
-        "radioResumeDelaySlider",
-        "radioScheduleEnabled",
-        "radioScheduleStart",
-        "radioScheduleStop",
-        "radioStream"
-    ].map(id => document.getElementById(id)).filter(Boolean);
-
     let updating = false;
 
     async function setPower(module, enabled) {
@@ -51,19 +39,10 @@
                 : "Radio module is powered off until switched back on.";
         }
 
-        for (const control of radioControls) {
-            control.disabled = !data.radio_enabled;
-        }
         updating = false;
     }
 
-    async function refresh() {
-        try {
-            const response = await fetch("/api/listen/status");
-            if (!response.ok) return;
-            render(await response.json());
-        } catch (_) {}
-    }
+    const refresh = () => window.MasjidPiRefreshListenStatus?.();
 
     masjidSwitch.addEventListener("change", async () => {
         if (updating) return;
@@ -77,9 +56,8 @@
             );
         } catch (err) {
             window.MasjidPiUI?.notify?.(err.message, "error");
-            await refresh();
         } finally {
-            masjidSwitch.disabled = false;
+            await refresh();
         }
     });
 
@@ -101,12 +79,10 @@
             }
         } catch (err) {
             window.MasjidPiUI?.notify?.(err.message, "error");
-            await refresh();
         } finally {
             await refresh();
         }
     });
 
-    refresh();
-    setInterval(refresh, 2000);
+    window.addEventListener("masjidpi:listen-status", event => render(event.detail));
 })();

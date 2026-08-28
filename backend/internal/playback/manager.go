@@ -18,7 +18,6 @@ const (
 	DefaultStartupGracePeriod = 10 * time.Second
 	DefaultMountStartupDelay  = 2 * time.Second
 	statusCheckInterval       = time.Second
-	stateLoopInterval         = 50 * time.Millisecond
 	maxRetryDelay             = 5 * time.Minute
 	preferredEndpointTTL      = 6 * time.Hour
 )
@@ -384,10 +383,14 @@ func (m *Manager) tryNextCandidate(state *runtimeState) bool {
 }
 
 func (m *Manager) run(ctx context.Context) {
-	loop := time.NewTicker(stateLoopInterval)
-	defer loop.Stop()
 	statusTicker := time.NewTicker(m.statusInterval)
 	defer statusTicker.Stop()
+	stepTimer := time.NewTimer(time.Hour)
+	if !stepTimer.Stop() {
+		<-stepTimer.C
+	}
+	defer stepTimer.Stop()
+	var stepDeadline <-chan time.Time
 	m.mu.Lock()
 	availability := m.availability
 	m.mu.Unlock()
@@ -396,6 +399,21 @@ func (m *Manager) run(ctx context.Context) {
 		availabilityEvents = availability.Events()
 	}
 	state := runtimeState{}
+	resetStepTimer := func() {
+		if !stepTimer.Stop() {
+			select {
+			case <-stepTimer.C:
+			default:
+			}
+		}
+		delay, ok := m.nextStepDelay(&state)
+		if !ok {
+			stepDeadline = nil
+			return
+		}
+		stepTimer.Reset(delay)
+		stepDeadline = stepTimer.C
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -403,16 +421,42 @@ func (m *Manager) run(ctx context.Context) {
 			return
 		case <-m.wake:
 			m.step(ctx, &state)
+			resetStepTimer()
 		case <-availabilityEvents:
 			m.step(ctx, &state)
-		case <-loop.C:
+			resetStepTimer()
+		case <-stepDeadline:
 			m.step(ctx, &state)
+			resetStepTimer()
 		case <-statusTicker.C:
 			if state.active {
 				m.checkPlayerStatus(&state)
 			}
+			resetStepTimer()
 		}
 	}
+}
+
+func (m *Manager) nextStepDelay(state *runtimeState) (time.Duration, bool) {
+	now := time.Now()
+	deadline := state.nextAttempt
+	selected, listening, availability := m.snapshot()
+	if listening && selected != nil && availability != nil && !state.active {
+		if available, known, updatedAt := availability.Status(selected.ID); available && known && !updatedAt.IsZero() {
+			startupDeadline := updatedAt.Add(m.mountStartupDelay)
+			if startupDeadline.After(now) && (deadline.IsZero() || startupDeadline.Before(deadline)) {
+				deadline = startupDeadline
+			}
+		}
+	}
+	if deadline.IsZero() {
+		return 0, false
+	}
+	delay := deadline.Sub(now)
+	if delay < time.Millisecond {
+		delay = time.Millisecond
+	}
+	return delay, true
 }
 
 func (m *Manager) step(ctx context.Context, state *runtimeState) {

@@ -60,7 +60,7 @@
         const footer = document.getElementById("version");
         if (!footer) return;
         try {
-            const response = await fetch("/api/player/status", {cache: "no-store"});
+            const response = await fetch("/api/version", {cache: "no-store"});
             if (!response.ok) return;
             const status = await response.json();
             if (status.version) footer.textContent = "MasjidPi " + status.version;

@@ -55,3 +55,4 @@ jobs:
         run: |
           node --check frontend/*.js
           node tests/masjidboard_date_utils_test.js
+          node tests/masjidboard_font_preview_test.js

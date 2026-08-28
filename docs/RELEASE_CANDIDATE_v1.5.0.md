@@ -181,6 +181,24 @@ Recommended minimum RC acceptance:
 
 If release-blocking defects are found, fix them on the development branch and publish `v1.5.0-rc.2` after repeating the automated and hardware acceptance gates.
 
+## Soak monitoring
+
+Run the release candidate on Raspberry Pi hardware for at least 24 hours, preferably 48 hours, while exercising normal Listen and Board behaviour.
+
+Use the temporary systemd-based monitor documented in [`RC_SOAK_MONITORING.md`](RC_SOAK_MONITORING.md). It continues running across SSH disconnects and reboots and records service restart counts, resource usage, Raspberry Pi temperature/throttling state, Listen status, Board status summaries, and recent warnings/errors.
+
+During the soak period confirm:
+
+- no unexpected `masjidpi.service` or `masjidpi-display.service` restarts;
+- no sustained process RSS growth;
+- no unexpected memory or swap pressure;
+- Raspberry Pi throttling remains `0x0`;
+- no repeated audio reconnect loops or source oscillation;
+- Listen and Board HTTP endpoints remain available;
+- Board provider failures remain isolated and last-known-good fallback continues to operate.
+
+Stop and disable the temporary monitor after RC acceptance as described in the monitoring guide.
+
 ## Stable promotion
 
 Promote to `v1.5.0` only after the RC has passed Raspberry Pi hardware validation and no release-blocking regressions remain.

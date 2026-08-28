@@ -272,6 +272,10 @@ function renderStatus(status) {
     volumeSlider.value = status.master_volume;
     volumeValue.textContent = status.master_volume + "%";
 
+    if (status.audio_device && [...audioDevice.options].some(option => option.value === status.audio_device)) {
+        audioDevice.value = status.audio_device;
+    }
+
     volumeSlider.disabled = !status.master_volume_supported;
     radioInput.disabled = !status.radio_enabled;
     radioVolumeSlider.disabled = !status.radio_enabled;

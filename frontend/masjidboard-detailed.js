@@ -228,7 +228,7 @@
             footer.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
             card.append(footer);
         } else {
-            card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+            card.append(makeElement("div", "detailed-community-source", `Source: ${item.source}`));
         }
         return card;
     }

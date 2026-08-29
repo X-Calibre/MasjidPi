@@ -176,7 +176,7 @@
             }
             card.append(list);
         }
-        card.append(element("div", "portrait-community-source", "From " + item.source));
+        card.append(element("div", "portrait-community-source", "Source: " + item.source));
         return card;
     }
 

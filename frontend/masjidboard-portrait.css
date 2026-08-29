@@ -62,7 +62,7 @@ body.portrait-layout {
 .portrait-next { height:104px; margin-top:10px; padding:11px 17px; border:2px solid var(--portrait-line); border-radius:18px; display:grid; grid-template-columns:1.25fr 1.2fr .9fr; align-items:center; column-gap:16px; background:var(--portrait-panel); }
 #portraitNextTime { color:var(--portrait-text); font-size:48px; font-weight:800; letter-spacing:-.015em; text-align:right; font-variant-numeric:tabular-nums; }
 .portrait-next-name { color:var(--portrait-text); font-size:23px; font-weight:700; line-height:1.18; text-align:left; white-space:pre-line; }
-.portrait-countdown { align-self:center; justify-self:center; color:var(--portrait-countdown); font-size:18px; font-weight:700; line-height:1.2; text-align:center; font-variant-numeric:tabular-nums; }
+.portrait-countdown { align-self:center; justify-self:center; color:var(--portrait-countdown); font-size:20px; font-weight:700; line-height:1.2; text-align:center; font-variant-numeric:tabular-nums; transform:translateX(-8px); }
 .portrait-slides { position:absolute; top:300px; left:0; width:600px; height:724px; overflow:hidden; }
 .portrait-slide {
     position:absolute;

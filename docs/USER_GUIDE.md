@@ -265,14 +265,14 @@ The Board configuration page lets you select up to three masjids from MasjidBoar
 
 MasjidPi supports dedicated HDMI presentation including:
 
-- **Landscape (1920 × 1080)**
-- **Portrait (600 × 1024)**
+- **TV / Monitor (responsive landscape)**
+- **7-inch Appliance Display (600 × 1024)** — purpose-built for the integrated screen in the physical MasjidPi appliance
 
 The presentation adapts to the number of configured masjids.
 
 ### Themes
 
-Board includes curated colour themes. Theme and orientation changes can be made from the Web UI without restarting the display service.
+Board includes curated colour themes. Theme and display-mode changes can be made from the Web UI without restarting the display service.
 
 ### Display information
 

@@ -16,8 +16,10 @@ assert.match(detailedCSS, /grid-template-columns:\s*clamp\(120px,9vw,10\.3125rem
 assert.match(detailedCSS, /@media \(min-width:1101px\)/);
 assert.doesNotMatch(detailedCSS, /@media \(min-width:1101px\) and \(max-width:2000px\)/);
 assert.match(detailedCSS, /@media \(max-width:1500px\)[^}]*\.landscape-layout \.time-value-stack:has\(\.event-countdown\) \{ gap:0; \}/s);
-assert.match(configHTML, /Landscape \(responsive\)/);
-assert.match(configJS, /Responsive landscape/);
+assert.match(configHTML, /TV \/ Monitor \(responsive landscape\)/);
+assert.match(configHTML, /7-inch Appliance Display \(600 × 1024\)/);
+assert.match(configJS, /7-inch appliance display \(600 × 1024\)/);
 assert.doesNotMatch(configHTML, /Landscape \(1920 × 1080\)/);
+assert.doesNotMatch(configHTML, />Portrait \(600 × 1024\)</);
 
 console.log("MasjidBoard responsive landscape tests passed");

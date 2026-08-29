@@ -1,6 +1,6 @@
 # MasjidBoard Display Layouts
 
-**Status:** Landscape and Portrait appliance layouts implemented
+**Status:** Responsive TV / Monitor and dedicated 7-inch Appliance Display layouts implemented
 **Branch:** `docs/masjidboard-live-data-inventory` / PR #38
 
 ## Purpose
@@ -249,9 +249,9 @@ The grid automatically adapts its column count to the number of selected boards,
 
 ## Layout Selection
 
-The configuration UI persists either `landscape` or `portrait`. The display observes the saved preference and switches without restarting the display service.
+The configuration UI presents TV / Monitor and 7-inch Appliance Display modes while persisting the existing internal values `landscape` and `portrait`. The display observes the saved preference and switches without restarting the display service.
 
-Landscape targets 1920 × 1080 and Portrait targets 600 × 1024. Further resolution-specific layouts may be added where they provide clear value.
+TV / Monitor mode responsively supports landscape displays from 1366 × 768 through 4K. The 7-inch Appliance Display targets the integrated 600 × 1024 screen in the physical MasjidPi appliance. Further hardware-specific layouts may be added where they provide clear value.
 
 Potential alternative layouts may make different use of the same normalized display data, for example:
 

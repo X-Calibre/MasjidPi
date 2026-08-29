@@ -208,7 +208,7 @@ Recommended minimum RC acceptance:
 9. service restart and full reboot restore the intended persistent state;
 10. Board remains operational alongside Listen.
 11. Listen controls remain synchronized without flicker and generate only one status request per polling cycle.
-12. Landscape and Portrait layout, theme and slide-duration changes reach the HDMI display through the shared Board view.
+12. TV / Monitor and 7-inch Appliance Display layout, theme and slide-duration changes reach the HDMI display through the shared Board view.
 13. Audio-device fallback and reconnection still work with adaptive checking.
 14. Multiple selected boards refresh successfully and remain in configured order.
 15. The persisted HDMI audio output remains selected after upgrade, service restart and reboot.

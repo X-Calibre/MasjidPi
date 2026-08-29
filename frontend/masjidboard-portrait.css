@@ -116,13 +116,13 @@ body.portrait-layout {
 
 .portrait-listen-panel { position:absolute; z-index:20; inset:0; }
 .portrait-listen-panel.hidden { display:none; }
-.portrait-listen-backdrop { position:absolute; inset:0; width:100%; border:0; background:rgba(0,0,0,.64); }
+.portrait-listen-backdrop { position:absolute; inset:0; width:100%; border:0; background:transparent; }
 .portrait-listen-sheet {
     position:absolute;
     right:0;
     bottom:0;
     left:0;
-    height:920px;
+    height:724px;
     padding:10px 24px 22px;
     overflow:hidden;
     border:2px solid var(--portrait-strong-line);
@@ -131,6 +131,8 @@ body.portrait-layout {
     background:var(--portrait-header-bg);
     box-shadow:0 -14px 40px rgba(0,0,0,.5);
     color:var(--portrait-text);
+    display:flex;
+    flex-direction:column;
 }
 .portrait-listen-handle { width:76px; height:6px; margin:0 auto 10px; border-radius:10px; background:var(--portrait-strong-line); }
 .portrait-listen-heading { height:64px; display:flex; align-items:center; justify-content:space-between; }
@@ -156,7 +158,7 @@ body.portrait-layout {
 .portrait-listen-tabs { height:54px; margin-top:12px; padding:4px; border:1px solid var(--portrait-line); border-radius:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:4px; background:var(--portrait-panel); }
 .portrait-listen-tabs button { border:0; border-radius:10px; color:var(--portrait-muted); background:transparent; font-size:18px; font-weight:800; }
 .portrait-listen-tabs button.active { color:var(--portrait-countdown-text); background:var(--portrait-accent); }
-.portrait-listen-content { height:514px; overflow:hidden; }
+.portrait-listen-content { flex:1 1 auto; min-height:0; overflow:hidden; }
 .portrait-listen-content section { height:100%; overflow-y:auto; overscroll-behavior:contain; padding:2px 2px 10px; }
 .portrait-listen-content section.hidden { display:none; }
 .portrait-source-heading { margin:14px 2px 7px; display:flex; align-items:baseline; justify-content:space-between; gap:10px; }

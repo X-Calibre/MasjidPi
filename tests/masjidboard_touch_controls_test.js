@@ -29,6 +29,8 @@ assert.match(controller, /\/api\/masjidboard\/layout/);
 assert.match(controller, /\["black-white", "Black & White"/);
 assert.match(portrait, /masjidpi:portrait-listen-panel/);
 assert.match(css, /var\(--portrait-panel\)/);
+assert.match(css, /\.portrait-listen-sheet\s*\{[^}]*height:724px/s);
+assert.match(css, /\.portrait-listen-content\s*\{[^}]*flex:1 1 auto;[^}]*min-height:0/s);
 assert.match(themes, /--portrait-danger:var\(--danger\)/);
 
 console.log("MasjidBoard touch-control tests passed");

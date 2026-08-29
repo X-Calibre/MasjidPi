@@ -329,6 +329,20 @@ html.landscape-layout {
     font-size:clamp(1.15rem,1.42vw,1.62rem);
 }
 
+/* A 768px-high viewport leaves about 32px for each value slot. Compact only
+   the value/countdown stack at narrower landscape widths so it cannot collide
+   with the neighbouring Jamaah value; Full HD keeps the established sizing. */
+@media (max-width:1500px) {
+    .landscape-layout .time-value-stack:has(.event-countdown) { gap:0; }
+    .landscape-layout .time-value-stack:has(.event-countdown) .time-value {
+        font-size:clamp(1.1rem,1.3vw,1.5rem);
+    }
+    .landscape-layout .time-value-stack .event-countdown {
+        margin-top:0;
+        font-size:clamp(.64rem,.68vw,.74rem);
+    }
+}
+
 /* With fewer masjids, use the recovered horizontal space for the label
    columns rather than making the masjid cells excessively wide. */
 .landscape-layout[data-board-count="2"] .comparison-grid,

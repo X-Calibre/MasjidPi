@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listen - MasjidPi</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="listen.css?v=20260829-power-toggle">
+    <link rel="stylesheet" href="listen.css?v=20260829-live-resume-status">
 </head>
 <body data-component-page="listen">
 <div class="container">
@@ -32,7 +32,10 @@
                     <h2>Now Playing</h2>
                     <p id="sourceExplanation" class="section-intro">Masjid has priority; radio plays while the masjid is offline.</p>
                 </div>
-                <span id="state" class="status-badge">Unknown</span>
+                <div class="now-playing-state">
+                    <span id="state" class="status-badge">Unknown</span>
+                    <span id="radioResumeDelayStatus" class="radio-resume-status hidden"></span>
+                </div>
             </div>
             <div id="statusDetail" class="status-detail hidden"></div>
             <pre id="url" class="current-stream">No stream playing</pre>
@@ -131,7 +134,6 @@
                     <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
                     <div id="radioResumeDelayValue">5 minutes</div>
                     <small class="volume-note">In scheduled mode, MasjidPi waits this long after a masjid broadcast ends before resuming Radio.</small>
-                    <div id="radioResumeDelayStatus" class="stream-count hidden"></div>
                 </div>
 
                 <div class="radio-schedule-block">
@@ -175,7 +177,7 @@
 
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
 <script src="components-ui.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=20260829-live-resume-status"></script>
 <script src="volume-control.js"></script>
 <script src="source-volume-boost.js"></script>
 <script src="radio-resume-delay.js"></script>

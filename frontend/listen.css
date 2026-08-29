@@ -3,6 +3,22 @@ button.app-tab {
     border: 0;
 }
 
+.now-playing-state {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+}
+
+.radio-resume-status {
+    color: var(--warning);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
 .listen-subtabs {
     margin-top: 0;
     margin-bottom: 24px;
@@ -225,6 +241,10 @@ button.app-tab {
 
     .module-power-row {
         align-items: center;
+    }
+
+    .now-playing-state {
+        align-items: flex-start;
     }
 
     .radio-mode-actions,

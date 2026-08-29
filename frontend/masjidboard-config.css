@@ -63,6 +63,18 @@
     color: var(--subtle);
     line-height: 1.4;
 }
+.config-save-status {
+    display: block;
+    min-height: 1.3em;
+    margin-top: 10px;
+    color: var(--subtle);
+    font-size: 13px;
+}
+.config-save-status.saving,
+.config-save-status.unsaved { color: var(--warning); }
+.config-save-status.unsaved { font-weight: 600; }
+.config-save-status.saved { color: var(--accent); }
+.config-save-status.error { color: var(--danger); }
 .board-selection {
     display: flex;
     flex-direction: column;

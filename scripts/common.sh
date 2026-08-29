@@ -43,6 +43,42 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+primary_ipv4_address() {
+    local address=""
+
+    if command_exists ip; then
+        address="$(
+            ip -4 route get 1.1.1.1 2>/dev/null \
+                | awk '{for (i = 1; i <= NF; i++) if ($i == "src") {print $(i + 1); exit}}'
+        )"
+    fi
+
+    if [[ -z "$address" ]] && command_exists hostname; then
+        address="$(hostname -I 2>/dev/null | awk '{for (i = 1; i <= NF; i++) if ($i !~ /^127\./ && $i !~ /^169\.254\./) {print $i; exit}}')"
+    fi
+
+    printf '%s\n' "$address"
+}
+
+web_hostname() {
+    command_exists hostname || return
+
+    local fqdn short_name
+    fqdn="$(hostname --fqdn 2>/dev/null || true)"
+    short_name="$(hostname --short 2>/dev/null || true)"
+
+    if [[ "$fqdn" == *.* && "$fqdn" != "localhost.localdomain" ]]; then
+        printf '%s\n' "$fqdn"
+        return
+    fi
+
+    if [[ -n "$short_name" ]] \
+        && command_exists systemctl \
+        && systemctl is-active --quiet avahi-daemon.service 2>/dev/null; then
+        printf '%s.local\n' "$short_name"
+    fi
+}
+
 detect_os() {
 
     source /etc/os-release
@@ -70,6 +106,10 @@ print_summary() {
 
     VERSION="$(get_version)"
 
+    local ip_address host_name
+    ip_address="$(primary_ipv4_address)"
+    host_name="$(web_hostname)"
+
     echo
     echo "========================================="
     echo " MasjidPi installation complete"
@@ -83,7 +123,15 @@ print_summary() {
 
     echo "Web Interface"
     echo
-    echo "    http://localhost:8080"
+    if [[ -n "$ip_address" ]]; then
+        echo "    IP address:  http://${ip_address}:8080"
+    fi
+    if [[ -n "$host_name" ]]; then
+        echo "    Hostname:    http://${host_name}:8080"
+    fi
+    if [[ -z "$ip_address" && -z "$host_name" ]]; then
+        echo "    http://localhost:8080"
+    fi
     echo
 
     echo "Service"

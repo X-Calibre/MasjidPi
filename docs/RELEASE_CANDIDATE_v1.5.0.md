@@ -2,7 +2,7 @@
 
 This document defines the release-candidate acceptance checks for MasjidPi v1.5.0.
 
-The current planned release candidate is `v1.5.0-rc.2`. RC1 completed its initial soak-testing phase; RC2 carries the resulting runtime, backend and Web UI optimisation pass.
+The current planned release candidate is `v1.5.0-rc.3`. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, and RC3 addresses issues and opportunities identified during RC2 hardware soak testing.
 
 ## Scope
 
@@ -23,6 +23,20 @@ In addition to the original v1.5.0 Radio scope, RC2 includes:
 - Radio timing controls grouped under Radio and a dedicated Audio tab;
 - keyboard-accessible Listen tabs with session-only active-tab memory; and
 - version footer retrieval through the component-independent version API.
+
+## RC3 hardware-soak delta
+
+RC3 adds:
+
+- synchronization of the Audio output control with the persisted active backend device;
+- preservation of the selected audio output across release upgrades;
+- idempotent disabling of NetworkManager Wi-Fi power saving on Raspberry Pi appliances without restarting NetworkManager;
+- reachable IPv4 and local hostname Web UI addresses in the installer completion summary;
+- Jumu'ah presentation from the Thursday Islamic-date rollover through the Friday rollover;
+- temporary IBM Plex Sans and Source Sans 3 display-preview options for typography evaluation;
+- targeted one-second clock and countdown updates instead of rebuilding the complete prayer grid;
+- structural Board rendering only when API data or minute/event state changes; and
+- automatic saving for HDMI display settings and selected-masjid changes, while retaining explicit saving for location scope changes.
 
 ## Radio catalogue
 
@@ -150,7 +164,7 @@ Before merging to `main`:
 
 ```bash
 cd ~/MasjidPi
-git pull --ff-only origin optimisation/v1.5.0-rc2
+git pull --ff-only origin fix/v1.5.0-rc3
 
 make test
 
@@ -171,15 +185,15 @@ After the feature branch is merged into `main` and `main` is validated:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.0-rc.2 -m "MasjidPi v1.5.0-rc.2"
-git push origin v1.5.0-rc.2
+git tag -a v1.5.0-rc.3 -m "MasjidPi v1.5.0-rc.3"
+git push origin v1.5.0-rc.3
 ```
 
 The release workflow must publish ARM64 and AMD64 archives plus `SHA256SUMS`, and the GitHub release must be marked as a prerelease.
 
 ## Raspberry Pi acceptance
 
-Install the actual `v1.5.0-rc.2` release artifact on the Raspberry Pi 4 test appliance rather than performing the final acceptance only from a source build.
+Install the actual `v1.5.0-rc.3` release artifact on the Raspberry Pi 4 test appliance rather than performing the final acceptance only from a source build.
 
 Recommended minimum RC acceptance:
 
@@ -197,6 +211,12 @@ Recommended minimum RC acceptance:
 12. Landscape and Portrait layout, theme and slide-duration changes reach the HDMI display through the shared Board view.
 13. Audio-device fallback and reconnection still work with adaptive checking.
 14. Multiple selected boards refresh successfully and remain in configured order.
+15. The persisted HDMI audio output remains selected after upgrade, service restart and reboot.
+16. Wi-Fi power saving is disabled after installation and remains disabled after reboot.
+17. The installer summary reports a reachable IPv4 Web UI URL and local hostname URL where available.
+18. Jumu'ah replaces Dhuhr from the Thursday Islamic-date rollover until the Friday rollover.
+19. Board display settings and selected-masjid actions save automatically; location scope changes still require explicit saving.
+20. Cog/WPE RSS remains bounded during the soak test and does not repeat RC2's rapid prayer-grid allocation growth.
 
 If release-blocking defects are found, fix them on the development branch and publish a subsequent release candidate after repeating the automated and hardware acceptance gates.
 

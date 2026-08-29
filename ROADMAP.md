@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.4.1 is the current stable release. v1.5.0-rc.2 is being prepared for release-candidate validation.**
+**v1.4.1 is the current stable release. v1.5.0-rc.3 is being prepared for release-candidate validation.**
 
 The current product provides:
 
@@ -109,7 +109,9 @@ RC2 adds a focused appliance optimisation pass:
 - concurrent multi-board retrieval with stable display ordering; and
 - clearer, accessible Masjid, Radio and Audio configuration tabs.
 
-RC2 requires automated validation followed by installation of the published ARM64 prerelease artifact and Raspberry Pi soak testing before stable promotion.
+RC3 adds upgrade-safe audio-output selection, Raspberry Pi Wi-Fi power-save configuration, reachable installer summary addresses, Islamic-rollover-aligned Jumu'ah presentation, reduced Cog/WPE render churn and automatic saving for safe Board configuration actions.
+
+RC3 requires automated validation followed by installation of the published ARM64 prerelease artifact and Raspberry Pi soak testing before stable promotion.
 
 ---
 

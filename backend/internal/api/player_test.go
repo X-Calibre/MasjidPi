@@ -15,7 +15,8 @@ import (
 )
 
 type apiTestPlayer struct {
-	volume int
+	volume      int
+	audioDevice string
 }
 
 func (p *apiTestPlayer) Play(string) error { return nil }
@@ -27,9 +28,16 @@ func (p *apiTestPlayer) Volume(volume int) error {
 func (p *apiTestPlayer) AudioDevices() ([]player.AudioDevice, error) {
 	return nil, nil
 }
-func (p *apiTestPlayer) AudioDevice(string) error { return nil }
+func (p *apiTestPlayer) AudioDevice(name string) error {
+	p.audioDevice = name
+	return nil
+}
 func (p *apiTestPlayer) Status() (*player.Status, error) {
-	return &player.Status{Volume: p.volume, VolumeSupported: true, AudioDevice: "auto"}, nil
+	audioDevice := p.audioDevice
+	if audioDevice == "" {
+		audioDevice = "auto"
+	}
+	return &player.Status{Volume: p.volume, VolumeSupported: true, AudioDevice: audioDevice}, nil
 }
 
 func newAPITestServer(t *testing.T) *Server {

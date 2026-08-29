@@ -9,6 +9,7 @@ source "$SCRIPT_DIR/os.sh"
 source "$SCRIPT_DIR/version.sh"
 source "$SCRIPT_DIR/components.sh"
 source "$SCRIPT_DIR/packages.sh"
+source "$SCRIPT_DIR/network.sh"
 source "$SCRIPT_DIR/go.sh"
 source "$SCRIPT_DIR/github.sh"
 source "$SCRIPT_DIR/runtime.sh"
@@ -98,6 +99,8 @@ main() {
         install_packages release
         prepare_release
     fi
+
+    configure_raspberry_pi_wifi
 
     save_components
 

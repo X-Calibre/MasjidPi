@@ -41,9 +41,20 @@ jobs:
         shell: bash
         run: |
           bash -n scripts/*.sh
+          bash -n tests/*.sh
           # These files are sourced by install.sh, so their shared globals look
           # unused when ShellCheck analyses each file independently.
-          shellcheck -e SC1091,SC2034 scripts/*.sh
+          shellcheck -e SC1091,SC2034 scripts/*.sh tests/*.sh
+
+      - name: Test installer network configuration
+        run: |
+          bash tests/installer_network_test.sh
+          bash tests/installer_summary_test.sh
 
       - name: Validate JavaScript syntax
-        run: node --check frontend/*.js
+        run: |
+          node --check frontend/*.js
+          node tests/masjidboard_autosave_test.js
+          node tests/masjidboard_date_utils_test.js
+          node tests/masjidboard_font_preview_test.js
+          node tests/masjidboard_render_cadence_test.js

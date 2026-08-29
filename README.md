@@ -278,7 +278,7 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guid
 
 **Current stable release: v1.4.1**
 
-**Current release candidate: v1.5.0-rc.2**
+**Next release candidate: v1.5.0-rc.3**
 
 v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
 
@@ -286,7 +286,9 @@ The Listen Web UI separates Masjid, Radio and Audio functions, adds persistent m
 
 RC2 reduces duplicate Web UI polling, replaces the playback manager's high-frequency idle loop with event-driven timers, makes audio-device recovery checks adaptive, shares Board display retrieval across renderers, prevents concurrent preference updates from overwriting unrelated settings and refreshes selected boards concurrently while preserving display order.
 
-The v1.5.0 release candidate will be accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the actual ARM64 RC2 artifact on Raspberry Pi hardware before promotion to v1.5.0.
+RC3 preserves and reflects the selected audio output across upgrades, disables NetworkManager Wi-Fi power saving on Raspberry Pi appliances, reports reachable Web UI addresses after installation, aligns Jumu'ah presentation with the Islamic-date rollover, reduces Cog/WPE display render churn and introduces safe automatic saving for Board display and masjid-selection settings.
+
+The v1.5.0 release candidate will be accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the actual ARM64 RC3 artifact on Raspberry Pi hardware before promotion to v1.5.0.
 
 v1.4.1 improves Listen resilience by caching both LiveMasjid relay and Icecast URLs, waiting briefly for newly announced MQTT mounts to become ready and automatically failing over to Icecast when relay playback cannot start. Successful endpoints are preferred temporarily, playback status and logs identify the active endpoint, and the automatic Listen catalogue refresh moves from seven to 28 days while retaining manual refresh.
 

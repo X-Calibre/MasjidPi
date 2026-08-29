@@ -12,6 +12,7 @@ type listenStatusResponse struct {
 	listen.Status
 	MasterVolume          int    `json:"master_volume"`
 	MasterVolumeSupported bool   `json:"master_volume_supported"`
+	AudioDevice           string `json:"audio_device,omitempty"`
 	PlaybackState         string `json:"playback_state"`
 	PlaybackMessage       string `json:"playback_message,omitempty"`
 	PlaybackURL           string `json:"playback_url,omitempty"`
@@ -58,6 +59,7 @@ func (s *Server) listenStatus(w http.ResponseWriter, r *http.Request) {
 		Status:                controllerStatus,
 		MasterVolume:          playbackStatus.Volume,
 		MasterVolumeSupported: playbackStatus.VolumeSupported,
+		AudioDevice:           playbackStatus.AudioDevice,
 		PlaybackState:         playbackStatus.State,
 		PlaybackMessage:       playbackStatus.Message,
 		PlaybackURL:           playbackStatus.URL,

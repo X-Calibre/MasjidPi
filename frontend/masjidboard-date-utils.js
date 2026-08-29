@@ -23,16 +23,25 @@
         });
     }
 
-    function islamicWeekday(board, now = new Date()) {
-        const date = boardGregorianDate(board);
+    function islamicDayDate(board, now = new Date()) {
+        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const sunset = board && board.astronomical ? board.astronomical.sunset : null;
         if (validTime(sunset)) {
             const rolloverSeconds = sunset.hour * 3600 + sunset.minute * 60 + 185;
             const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            if (nowSeconds >= rolloverSeconds) date.setDate(date.getDate() + 1);
+            if (nowSeconds > rolloverSeconds) date.setDate(date.getDate() + 1);
         }
+        return date;
+    }
+
+    function islamicWeekday(board, now = new Date()) {
+        const date = islamicDayDate(board, now);
         return islamicWeekdays[date.getDay()];
     }
 
-    window.MasjidBoardDate = {boardGregorianDate, formatGregorianDate, islamicWeekday};
+    function isIslamicFriday(board, now = new Date()) {
+        return islamicDayDate(board, now).getDay() === 5;
+    }
+
+    window.MasjidBoardDate = {boardGregorianDate, formatGregorianDate, islamicWeekday, isIslamicFriday};
 })();

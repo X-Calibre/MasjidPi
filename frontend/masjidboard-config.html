@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasjidBoard Configuration - MasjidPi</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="masjidboard-config.css">
+    <link rel="stylesheet" href="masjidboard-config.css?v=20260829-autosave">
     <link rel="stylesheet" href="masjidboard-theme-config.css">
 </head>
 <body data-component-page="board">
@@ -34,6 +34,7 @@
         <div class="section-heading-row"><div><h2>Locations</h2><p class="config-intro">Choose up to three locations whose MasjidBoards should be available for selection.</p></div><button id="refreshHierarchyButton" class="secondary compact-button" type="button">Refresh Location List</button></div>
         <div id="locationConfiguration" class="location-configuration"><p class="status-detail">Loading location hierarchy…</p></div>
         <div class="configuration-actions"><button id="addLocationButton" class="secondary" type="button">+ Add Location</button><button id="saveLocationsButton" type="button">Save Locations</button></div>
+        <small id="locationSaveStatus" class="config-save-status" aria-live="polite"></small>
         <small id="hierarchyMeta" class="config-meta"></small>
     </section>
     <section class="card">
@@ -44,7 +45,7 @@
             <select id="availableBoards" size="7" aria-label="Available MasjidBoards"></select><div id="availableBoardMeta" class="config-meta"></div>
             <button id="addBoardButton" class="secondary" type="button">+ Add Selected Masjid</button>
         </div>
-        <div class="configuration-actions board-save-actions"><button id="saveBoardsButton" type="button">Save Selected Masjids</button></div>
+        <small id="boardSaveStatus" class="config-save-status" aria-live="polite">Changes are saved automatically.</small>
     </section>
     </div>
     <div id="boardPanelDisplay" class="board-panel" data-board-panel="display" hidden>
@@ -67,7 +68,7 @@
                 <label class="board-theme-option theme-black-white"><input type="radio" name="boardTheme" value="black-white"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Black &amp; White</strong><small>Monochrome</small></label>
             </div>
         </fieldset>
-        <div class="configuration-actions board-save-actions"><button id="saveDisplayLayoutButton" type="button">Save HDMI Display</button></div>
+        <small id="displaySaveStatus" class="config-save-status" aria-live="polite">Changes are saved automatically.</small>
     </section>
     </div>
     <div id="boardPanelStatus" class="board-panel" data-board-panel="status" hidden>
@@ -80,6 +81,6 @@
     <footer class="footer"><span id="version">MasjidPi</span></footer>
 </div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
-<script src="components-ui.js"></script><script src="masjidboard-config.js"></script><script src="masjidboard-layout-config.js"></script><script src="masjidboard-tabs.js"></script>
+<script src="components-ui.js"></script><script src="masjidboard-config.js?v=20260829-autosave"></script><script src="masjidboard-layout-config.js?v=20260829-autosave"></script><script src="masjidboard-tabs.js"></script>
 </body>
 </html>

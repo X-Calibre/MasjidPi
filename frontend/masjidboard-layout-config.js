@@ -51,7 +51,7 @@
     }
 
     function describe(layout, theme) {
-        const layoutName = {landscape: "Landscape (1920 × 1080)", portrait: "Portrait (600 × 1024)"}[normaliseLayout(layout)];
+        const layoutName = {landscape: "Responsive landscape", portrait: "Portrait (600 × 1024)"}[normaliseLayout(layout)];
         return `${layoutName} layout with the ${themeNames[theme] || "Emerald"} theme will be used automatically on HDMI output.`;
     }
 

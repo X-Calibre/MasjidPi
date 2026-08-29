@@ -1,4 +1,11 @@
-/* Default 1920 × 1080 Landscape MasjidBoard layout. */
+/* Scale the 1920 × 1080 reference design with the limiting viewport
+   dimension. This preserves its proportions on 16:9 displays while allowing
+   nearby landscape aspect ratios to use their full available width. */
+html.landscape-layout {
+    font-size:clamp(11px,min(.833333vw,1.481481vh),32px);
+}
+
+/* Responsive Landscape MasjidBoard layout. */
 .landscape-layout .board-shell {
     display:grid;
     grid-template-columns:minmax(0,3fr) minmax(280px,1fr);

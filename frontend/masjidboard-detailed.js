@@ -7,6 +7,7 @@
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
+    document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
     const prayerGrid = document.getElementById("prayerGrid");

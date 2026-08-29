@@ -54,6 +54,9 @@
     let gestureStart = null;
     let busy = false;
     let currentTheme = document.body.dataset.boardTheme || "emerald";
+    const volumeSaveTimers = {master:0, masjid:0, radio:0};
+    const volumeSaveSerials = {master:0, masjid:0, radio:0};
+    const pendingVolumes = {master:null, masjid:null, radio:null};
 
     function jsonOptions(method, body) {
         return {method, headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
@@ -215,7 +218,8 @@
         if (status) {
             const values = {master:status.master_volume, masjid:status.masjid_volume, radio:status.radio_volume};
             for (const [name, control] of Object.entries(volumeControls)) {
-                if (document.activeElement !== control) control.value = values[name];
+                const displayed = pendingVolumes[name] ?? values[name];
+                if (document.activeElement !== control) control.value = displayed;
                 volumeOutputs[name].textContent = `${control.value}%`;
             }
             masterVolume.disabled = busy || !status.master_volume_supported;
@@ -363,12 +367,43 @@
     for (const button of panel.querySelectorAll("[data-listen-close]")) button.addEventListener("click", () => setOpen(false));
     openButton.addEventListener("click", () => setOpen(true));
 
+    async function saveVolume(name, value) {
+        window.clearTimeout(volumeSaveTimers[name]);
+        const serial = ++volumeSaveSerials[name];
+        pendingVolumes[name] = value;
+        volumeOutputs[name].textContent = `${value}%`;
+        try {
+            if (name === "master") {
+                await requestJSON("/api/player/volume", jsonOptions("POST", {volume:value, persist:true}));
+            } else {
+                await requestJSON("/api/listen/volume", jsonOptions("PUT", {source:name, volume:value}));
+            }
+            const refreshed = await requestJSON("/api/listen/status");
+            if (serial === volumeSaveSerials[name]) {
+                status = refreshed;
+                setConnectionError();
+            }
+        } catch (error) {
+            if (serial === volumeSaveSerials[name]) setConnectionError(error.message);
+        } finally {
+            if (serial === volumeSaveSerials[name]) {
+                pendingVolumes[name] = null;
+                renderStatus();
+            }
+        }
+    }
+
+    function scheduleVolumeSave(name) {
+        const value = Number(volumeControls[name].value);
+        pendingVolumes[name] = value;
+        volumeOutputs[name].textContent = `${value}%`;
+        window.clearTimeout(volumeSaveTimers[name]);
+        volumeSaveTimers[name] = window.setTimeout(() => saveVolume(name, value), 120);
+    }
+
     for (const [name, control] of Object.entries(volumeControls)) {
-        control.addEventListener("input", () => { volumeOutputs[name].textContent = `${control.value}%`; });
-        control.addEventListener("change", () => runAction(async () => {
-            if (name === "master") await requestJSON("/api/player/volume", jsonOptions("POST", {volume:Number(control.value)}));
-            else await requestJSON("/api/listen/volume", jsonOptions("PUT", {source:name, volume:Number(control.value)}));
-        }));
+        control.addEventListener("input", () => scheduleVolumeSave(name));
+        control.addEventListener("change", () => saveVolume(name, Number(control.value)));
     }
     panel.addEventListener("click", event => {
         const stepButton = event.target.closest("[data-volume-step]");
@@ -376,8 +411,7 @@
         const [name, amount] = stepButton.dataset.volumeStep.split(":");
         const control = volumeControls[name];
         control.value = Math.max(Number(control.min), Math.min(Number(control.max), Number(control.value) + Number(amount)));
-        control.dispatchEvent(new Event("input"));
-        control.dispatchEvent(new Event("change"));
+        saveVolume(name, Number(control.value));
     });
 
     playMasjid.addEventListener("click", () => runAction(async () => {

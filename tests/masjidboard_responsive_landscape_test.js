@@ -12,6 +12,9 @@ const configJS = fs.readFileSync(path.join(root, "frontend/masjidboard-layout-co
 
 assert.match(detailedCSS, /html\.landscape-layout\s*\{[^}]*font-size:\s*clamp\(11px,min\(\.833333vw,1\.481481vh\),32px\)/s);
 assert.match(detailedJS, /document\.documentElement\.classList\.add\("landscape-layout"\)/);
+assert.match(detailedCSS, /grid-template-columns:\s*clamp\(120px,9vw,10\.3125rem\) minmax\(0,1fr\)/);
+assert.match(detailedCSS, /@media \(min-width:1101px\)/);
+assert.doesNotMatch(detailedCSS, /@media \(min-width:1101px\) and \(max-width:2000px\)/);
 assert.match(configHTML, /Landscape \(responsive\)/);
 assert.match(configJS, /Responsive landscape/);
 assert.doesNotMatch(configHTML, /Landscape \(1920 × 1080\)/);

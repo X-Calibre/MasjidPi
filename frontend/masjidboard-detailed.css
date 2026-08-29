@@ -415,7 +415,7 @@ html.landscape-layout {
 /* Daily Times becomes a compact horizontal strip below the timetable. */
 .landscape-layout .additional-times {
     display:grid;
-    grid-template-columns:clamp(120px,9vw,165px) minmax(0,1fr);
+    grid-template-columns:clamp(120px,9vw,10.3125rem) minmax(0,1fr);
     grid-template-rows:1fr 1fr;
     column-gap:clamp(8px,.75vw,12px);
     padding:clamp(9px,.85vw,13px);
@@ -478,7 +478,7 @@ html.landscape-layout {
    while preserving the established row heights and Daily Times proportions.
    The prayer-name column gets the larger share so long names such as Maghrib
    retain comfortable horizontal padding. */
-@media (min-width:1101px) and (max-width:2000px) {
+@media (min-width:1101px) {
     .landscape-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
     .landscape-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
         grid-template-columns:minmax(205px,.53fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));

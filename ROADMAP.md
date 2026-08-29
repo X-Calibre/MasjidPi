@@ -113,6 +113,17 @@ RC3 adds upgrade-safe audio-output selection, Raspberry Pi Wi-Fi power-save conf
 
 RC3 requires automated validation followed by installation of the published ARM64 prerelease artifact and Raspberry Pi soak testing before stable promotion.
 
+RC4 work includes responsive TV / Monitor scaling from 1366 × 768 through 4K, dedicated 7-inch Appliance Display naming, clearer Listen power controls and improved placement of the live Radio resume countdown.
+
+Planned RC4 Board/Listen coordination:
+
+- Show a toast notification on both the TV / Monitor and 7-inch Appliance Display layouts whenever Listen changes the active source between Masjid and Radio.
+- Identify the Masjid or Radio station by name in every source-change notification.
+- Show a persistent waiting-for-Radio notification during the configured post-masjid resume delay, including the selected Radio station name and live remaining countdown.
+- Keep the waiting notification visible for the full countdown instead of applying the normal transient toast timeout.
+- Replace the waiting notification when Radio starts, and clear it if the pending resume is cancelled, Listen is stopped, or another Masjid broadcast begins.
+- Avoid duplicate notifications when repeated status updates report the same source and transition state.
+
 ---
 
 ## Remaining Work

@@ -125,7 +125,7 @@
         for (const item of favouriteMasjids) {
             const button = document.createElement("button");
             button.type = "button";
-            button.dataset.sourceID = item.id;
+            button.dataset.sourceId = item.id;
             button.textContent = label(item);
             button.classList.toggle("selected", item.id === selectedMasjidID);
             button.classList.toggle("playing", status?.active_source === "masjid" && item.id === status.active_stream_id);
@@ -138,7 +138,7 @@
         for (const item of radios) {
             const button = document.createElement("button");
             button.type = "button";
-            button.dataset.sourceID = item.id;
+            button.dataset.sourceId = item.id;
             button.textContent = label(item);
             button.classList.toggle("selected", item.id === selectedRadioID);
             button.classList.toggle("playing", status?.active_source === "radio" && item.id === status.active_stream_id);
@@ -317,17 +317,35 @@
         await requestJSON("/api/listen/selection", jsonOptions("PUT", {[`${source}_id`]:id}));
     }
 
+    async function selectSource(source, id) {
+        if (busy || !id) return;
+        const previous = source === "masjid" ? selectedMasjidID : selectedRadioID;
+        if (source === "masjid") selectedMasjidID = id;
+        else selectedRadioID = id;
+        renderSources();
+        setBusy(true);
+        setConnectionError();
+        try {
+            await ensureSelection(source, id);
+            status = await requestJSON("/api/listen/status");
+        } catch (error) {
+            if (source === "masjid") selectedMasjidID = previous;
+            else selectedRadioID = previous;
+            setConnectionError(error.message);
+        } finally {
+            setBusy(false);
+        }
+    }
+
     favouriteHost.addEventListener("click", event => {
         const button = event.target.closest("button[data-source-id]");
         if (!button) return;
-        selectedMasjidID = button.dataset.sourceID;
-        renderSources();
+        selectSource("masjid", button.dataset.sourceId);
     });
     radioHost.addEventListener("click", event => {
         const button = event.target.closest("button[data-source-id]");
         if (!button) return;
-        selectedRadioID = button.dataset.sourceID;
-        renderSources();
+        selectSource("radio", button.dataset.sourceId);
     });
     themeHost.addEventListener("click", event => {
         const button = event.target.closest("button[data-theme]");

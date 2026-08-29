@@ -44,6 +44,16 @@ body.portrait-layout {
    original Inter/system UI stack. Both remain available after Fira Sans. */
 .portrait-layout .portrait-state { position:absolute; inset:0; display:block; color:var(--portrait-text); background:var(--portrait-bg); touch-action:none; font-family:var(--board-font-family); }
 .portrait-header { height:300px; padding:14px 28px 12px; border-bottom:2px solid var(--portrait-strong-line); background:var(--portrait-header-bg); display:flex; flex-direction:column; }
+.portrait-header .board-source-toast {
+    flex:0 0 48px;
+    width:100%;
+    padding:6px 14px;
+    border-radius:12px;
+}
+.portrait-header .board-source-toast-label { font-size:11px; }
+.portrait-header .board-source-toast-message { font-size:16px; }
+.portrait-header:has(.board-source-toast:not(.hidden)) .portrait-clock-row { height:112px; }
+.portrait-header:has(.board-source-toast:not(.hidden)) .portrait-next { height:88px; margin-top:6px; }
 .portrait-clock-row { height:132px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:24px; }
 .portrait-clock { color:var(--portrait-text); font-size:100px; font-weight:700; line-height:.9; letter-spacing:-.025em; font-variant-numeric:tabular-nums; }
 .portrait-information { height:112px; min-width:0; display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; color:var(--portrait-secondary-text); font-size:17px; line-height:1.2; text-align:right; }

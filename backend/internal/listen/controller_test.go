@@ -56,6 +56,25 @@ func TestControllerUsesRadioUntilMasjidComesOnline(t *testing.T) {
 	}
 }
 
+func TestStatusIncludesSelectedAndActiveSourceNames(t *testing.T) {
+	availability := &fakeAvailability{available: map[string]bool{"masjid-a": false}}
+	controller := New(availability, &fakeOutput{})
+	masjid := &stream.Stream{ID: "masjid-a", Name: "Masjid us Salaam"}
+	radio := &stream.Stream{ID: "radio-a", Kind: stream.KindRadio, Name: "Radio Islam International"}
+	_ = controller.SelectMasjid(masjid)
+	_ = controller.SelectRadio(radio)
+	controller.Listen()
+	controller.step()
+
+	status := controller.Status()
+	if status.MasjidName != masjid.Name || status.RadioName != radio.Name {
+		t.Fatalf("selected names missing from status: %+v", status)
+	}
+	if status.ActiveSource != ActiveRadio || status.ActiveStreamName != radio.Name {
+		t.Fatalf("active source name missing from status: %+v", status)
+	}
+}
+
 func TestControllerDelaysRadioAfterActiveMasjidGoesOffline(t *testing.T) {
 	availability := &fakeAvailability{available: map[string]bool{"masjid-a": true}}
 	output := &fakeOutput{}

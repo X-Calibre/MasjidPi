@@ -48,9 +48,12 @@ type Status struct {
 	RadioEnabled            bool         `json:"radio_enabled"`
 	ActiveSource            ActiveSource `json:"active_source"`
 	ActiveStreamID          string       `json:"active_stream_id,omitempty"`
+	ActiveStreamName        string       `json:"active_stream_name,omitempty"`
 	MasjidID                string       `json:"masjid_id,omitempty"`
+	MasjidName              string       `json:"masjid_name,omitempty"`
 	MasjidOnline            bool         `json:"masjid_online"`
 	RadioID                 string       `json:"radio_id,omitempty"`
+	RadioName               string       `json:"radio_name,omitempty"`
 	MasjidVolume            int          `json:"masjid_volume"`
 	RadioVolume             int          `json:"radio_volume"`
 	RadioMode               RadioMode    `json:"radio_mode"`
@@ -294,9 +297,17 @@ func (c *Controller) Status() Status {
 	}
 	if c.selectedMasjid != nil {
 		status.MasjidID = c.selectedMasjid.ID
+		status.MasjidName = c.selectedMasjid.Name
 	}
 	if c.selectedRadio != nil {
 		status.RadioID = c.selectedRadio.ID
+		status.RadioName = c.selectedRadio.Name
+	}
+	switch c.activeSource {
+	case ActiveMasjid:
+		status.ActiveStreamName = status.MasjidName
+	case ActiveRadio:
+		status.ActiveStreamName = status.RadioName
 	}
 	return status
 }

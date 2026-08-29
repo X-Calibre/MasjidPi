@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <title>MasjidBoard Â· MasjidPi</title>
-    <link rel="stylesheet" href="masjidboard-display.css?v=20260828-font-preview">
-    <link rel="stylesheet" href="masjidboard-detailed.css?v=20260829-responsive-landscape-2">
+    <link rel="stylesheet" href="masjidboard-display.css?v=20260829-source-transition-toast">
+    <link rel="stylesheet" href="masjidboard-detailed.css?v=20260829-source-transition-toast">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
-    <link rel="stylesheet" href="masjidboard-portrait.css?v=20260823-portrait-card-clean">
+    <link rel="stylesheet" href="masjidboard-portrait.css?v=20260829-source-transition-toast">
     <link rel="stylesheet" href="masjidboard-themes.css?v=20260823-new-card-fixtures">
 </head>
 <body data-board-theme="emerald">
 <main class="board-shell" aria-live="polite">
     <header class="board-topbar">
+        <div class="board-source-toast hidden" data-board-source-toast role="status" aria-live="polite">
+            <span class="board-source-toast-label"></span>
+            <strong class="board-source-toast-message"></strong>
+        </div>
         <div id="detailedDateBlock" class="detailed-date-block" aria-label="Current date">
             <time id="detailedGregorianDate" class="detailed-gregorian-date"></time>
             <div id="detailedIslamicDate" class="detailed-islamic-date"></div>
@@ -64,6 +68,10 @@
                     <div id="portraitIslamicDate"></div>
                 </div>
             </div>
+            <div class="board-source-toast hidden" data-board-source-toast role="status" aria-live="polite">
+                <span class="board-source-toast-label"></span>
+                <strong class="board-source-toast-message"></strong>
+            </div>
             <div class="portrait-next">
                 <strong id="portraitNextName" class="portrait-next-name">-</strong>
                 <div id="portraitCountdown" class="portrait-countdown"></div>
@@ -81,5 +89,6 @@
 <script src="masjidboard-community-utils.js?v=20260823-portrait-card-clean"></script>
 <script src="masjidboard-detailed.js?v=20260829-responsive-landscape"></script>
 <script src="masjidboard-portrait.js?v=20260823-portrait-card-clean"></script>
+<script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
 </body>
 </html>

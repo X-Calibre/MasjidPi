@@ -300,7 +300,7 @@ See [INSTALL.md](INSTALL.md) for the supported installation and update procedure
 Release candidates such as:
 
 ```text
-v1.5.0-rc.2
+v1.5.0-rc.3
 ```
 
 are prerelease builds intended for validation before the corresponding stable release. They may contain known or undiscovered defects and should not replace a validated production installation unless you specifically intend to test the RC.

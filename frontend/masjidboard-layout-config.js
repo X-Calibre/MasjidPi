@@ -4,14 +4,18 @@
     const endpoint = "/api/masjidboard/layout";
     const select = document.getElementById("displayLayout");
     const themeInputs = Array.from(document.querySelectorAll('input[name="boardTheme"]'));
-    const saveButton = document.getElementById("saveDisplayLayoutButton");
+    const saveStatus = document.getElementById("displaySaveStatus");
     const meta = document.getElementById("displayLayoutMeta");
     const slideDuration = document.getElementById("slideDuration");
     const slideDurationValue = document.getElementById("slideDurationValue");
     const showEconomicIndicators = document.getElementById("showEconomicIndicators");
     const previewLink = document.getElementById("displayPreviewLink");
 
-    if (!select || !saveButton || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators || themeInputs.length === 0) return;
+    if (!select || !saveStatus || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators || themeInputs.length === 0) return;
+
+    let lastSavedState = null;
+    let savePending = false;
+    let saving = false;
 
     const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "black-white"]);
     const themeNames = {
@@ -53,6 +57,39 @@
 
     function updateDurationLabel() { slideDurationValue.textContent = `${slideDuration.value} seconds`; }
 
+    function normaliseState(state) {
+        return {
+            layout: normaliseLayout(state && state.layout),
+            theme: state && supportedThemes.has(state.theme) ? state.theme : "emerald",
+            slide_duration_seconds: Number(state && state.slide_duration_seconds) || 15,
+            show_economic_indicators: Boolean(state && state.show_economic_indicators),
+        };
+    }
+
+    function currentState() {
+        return normaliseState({
+            layout: select.value,
+            theme: selectedTheme(),
+            slide_duration_seconds: Number(slideDuration.value),
+            show_economic_indicators: showEconomicIndicators.checked,
+        });
+    }
+
+    function applyState(state) {
+        select.value = state.layout;
+        setTheme(state.theme);
+        slideDuration.value = String(state.slide_duration_seconds);
+        showEconomicIndicators.checked = state.show_economic_indicators;
+        updateDurationLabel();
+        updatePreviewLink(state.layout);
+        meta.textContent = describe(state.layout, state.theme);
+    }
+
+    function setSaveStatus(message, className = "") {
+        saveStatus.textContent = message;
+        saveStatus.className = `config-save-status${className ? ` ${className}` : ""}`;
+    }
+
     function updatePreviewLink(layout) {
         if (!previewLink) return;
         previewLink.href = normaliseLayout(layout) === "portrait" ? "masjidboard.html?layout=portrait" : "masjidboard.html";
@@ -60,47 +97,59 @@
     }
 
     async function load() {
-        select.disabled = true; saveButton.disabled = true;
+        select.disabled = true;
+        slideDuration.disabled = true;
+        showEconomicIndicators.disabled = true;
         for (const input of themeInputs) input.disabled = true;
         try {
-            const state = await request();
-            const layout = normaliseLayout(state && state.layout);
-            const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";
-            select.value = layout; setTheme(theme); updatePreviewLink(layout);
-            slideDuration.value = String(state && state.slide_duration_seconds || 15);
-            showEconomicIndicators.checked = Boolean(state && state.show_economic_indicators);
-            updateDurationLabel();
-            meta.textContent = describe(layout, theme);
+            lastSavedState = normaliseState(await request());
+            applyState(lastSavedState);
+            setSaveStatus("Changes are saved automatically.");
         } catch (error) {
             meta.textContent = `Could not load HDMI display settings: ${error.message}`;
+            setSaveStatus("Settings could not be loaded.", "error");
         } finally {
-            select.disabled = false; saveButton.disabled = false;
+            select.disabled = false;
+            slideDuration.disabled = false;
+            showEconomicIndicators.disabled = false;
             for (const input of themeInputs) input.disabled = false;
         }
     }
 
-    async function save() {
-        saveButton.disabled = true; saveButton.textContent = "Saving…";
-        try {
-            const state = await request({
-                method: "PUT",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({layout: select.value, theme: selectedTheme(), slide_duration_seconds: Number(slideDuration.value), show_economic_indicators: showEconomicIndicators.checked}),
-            });
-            const layout = normaliseLayout(state && state.layout);
-            const theme = state && supportedThemes.has(state.theme) ? state.theme : "emerald";
-            select.value = layout; setTheme(theme); updatePreviewLink(layout); meta.textContent = describe(layout, theme);
-            showBanner(`HDMI display saved: ${{landscape: "Landscape", portrait: "Portrait"}[layout]}, ${themeNames[theme]}.`);
-        } catch (error) {
-            showBanner(`Could not save HDMI display settings: ${error.message}`, "error");
-        } finally {
-            saveButton.disabled = false; saveButton.textContent = "Save HDMI Display";
+    async function drainSaves() {
+        if (saving) return;
+        saving = true;
+        while (savePending) {
+            savePending = false;
+            const candidate = currentState();
+            setSaveStatus("Saving…", "saving");
+            try {
+                lastSavedState = normaliseState(await request({
+                    method: "PUT",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(candidate),
+                }));
+                if (!savePending) applyState(lastSavedState);
+                setSaveStatus(savePending ? "Saving…" : "Saved", savePending ? "saving" : "saved");
+            } catch (error) {
+                savePending = false;
+                if (lastSavedState) applyState(lastSavedState);
+                setSaveStatus("Could not save changes.", "error");
+                showBanner(`Could not save HDMI display settings: ${error.message}`, "error");
+            }
         }
+        saving = false;
     }
 
-    select.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); updatePreviewLink(select.value); });
+    function saveAutomatically() {
+        savePending = true;
+        void drainSaves();
+    }
+
+    select.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); updatePreviewLink(select.value); saveAutomatically(); });
     slideDuration.addEventListener("input", updateDurationLabel);
-    for (const input of themeInputs) input.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); });
-    saveButton.addEventListener("click", save);
+    slideDuration.addEventListener("change", saveAutomatically);
+    showEconomicIndicators.addEventListener("change", saveAutomatically);
+    for (const input of themeInputs) input.addEventListener("change", () => { meta.textContent = describe(select.value, selectedTheme()); saveAutomatically(); });
     load();
 })();

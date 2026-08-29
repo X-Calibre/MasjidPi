@@ -1,0 +1,27 @@
+"use strict";
+
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const frontend = path.join(__dirname, "..", "frontend");
+const html = fs.readFileSync(path.join(frontend, "masjidboard-config.html"), "utf8");
+const display = fs.readFileSync(path.join(frontend, "masjidboard-layout-config.js"), "utf8");
+const boards = fs.readFileSync(path.join(frontend, "masjidboard-config.js"), "utf8");
+
+assert.doesNotMatch(html, /id="saveDisplayLayoutButton"/, "HDMI settings should not require a save button");
+assert.doesNotMatch(html, /id="saveBoardsButton"/, "selected masjids should not require a save button");
+assert.match(html, /id="saveLocationsButton"/, "location scope retains its deliberate save boundary");
+assert.match(html, /id="displaySaveStatus"[^>]*aria-live="polite"/, "display autosave status must be announced");
+assert.match(html, /id="boardSaveStatus"[^>]*aria-live="polite"/, "masjid autosave status must be announced");
+assert.match(html, /id="locationSaveStatus"[^>]*aria-live="polite"/, "unsaved location status must be announced");
+
+assert.match(display, /slideDuration\.addEventListener\("change", saveAutomatically\)/, "slide duration saves only when adjustment is committed");
+assert.match(display, /showEconomicIndicators\.addEventListener\("change", saveAutomatically\)/, "indicator visibility saves immediately");
+assert.match(display, /while \(savePending\)/, "display saves must be serialized");
+
+assert.match(boards, /window\.setTimeout\(\(\) => \{ void drainBoardSaves\(\); \}, 450\)/, "reordering saves must be debounced");
+assert.match(boards, /selectedBoards = lastSavedBoards\.map/, "failed masjid saves must roll back");
+assert.match(boards, /markLocationsUnsaved\(\)/, "location edits must expose their unsaved state");
+
+console.log("MasjidBoard autosave tests passed");

@@ -54,6 +54,7 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check frontend/*.js
+          node tests/masjidboard_autosave_test.js
           node tests/masjidboard_date_utils_test.js
           node tests/masjidboard_font_preview_test.js
           node tests/masjidboard_render_cadence_test.js

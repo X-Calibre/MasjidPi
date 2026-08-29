@@ -51,7 +51,10 @@
     }
 
     function describe(layout, theme) {
-        const layoutName = {landscape: "Landscape (1920 × 1080)", portrait: "Portrait (600 × 1024)"}[normaliseLayout(layout)];
+        const layoutName = {
+            landscape: "TV / monitor (responsive landscape)",
+            portrait: "7-inch appliance display (600 × 1024)",
+        }[normaliseLayout(layout)];
         return `${layoutName} layout with the ${themeNames[theme] || "Emerald"} theme will be used automatically on HDMI output.`;
     }
 
@@ -93,7 +96,8 @@
     function updatePreviewLink(layout) {
         if (!previewLink) return;
         previewLink.href = normaliseLayout(layout) === "portrait" ? "masjidboard.html?layout=portrait" : "masjidboard.html";
-        previewLink.setAttribute("aria-label", `Open ${normaliseLayout(layout)} display preview`);
+        const previewName = normaliseLayout(layout) === "portrait" ? "7-inch appliance display" : "TV / monitor";
+        previewLink.setAttribute("aria-label", `Open ${previewName} preview`);
     }
 
     async function load() {

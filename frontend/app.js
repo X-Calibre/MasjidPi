@@ -340,6 +340,10 @@ function renderStatus(status) {
     state.textContent = "Waiting";
     state.className = "status-badge status-waiting";
     currentStream.textContent = "No source currently playing";
+    if (status.radio_resume_pending) {
+        sourceExplanation.textContent = "The masjid broadcast has ended. Radio will resume after the configured delay.";
+        return;
+    }
     sourceExplanation.textContent = status.masjid_id
         ? "Waiting for the selected masjid. Select a radio station for continuous secondary audio."
         : "Select a primary masjid and/or secondary radio station.";

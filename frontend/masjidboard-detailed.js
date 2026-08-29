@@ -7,6 +7,7 @@
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
+    document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
     const panel = document.getElementById("additionalTimes");
     const prayerGrid = document.getElementById("prayerGrid");
@@ -227,7 +228,7 @@
             footer.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
             card.append(footer);
         } else {
-            card.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
+            card.append(makeElement("div", "detailed-community-source", `Source: ${item.source}`));
         }
         return card;
     }

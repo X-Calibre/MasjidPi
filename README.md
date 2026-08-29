@@ -39,7 +39,8 @@ The two capabilities share the same MasjidPi core but remain independently opera
 - Prayer and Jumu'ah timetable display
 - Up to three selected masjids
 - Responsive one-, two- and three-board HDMI layouts
-- **Landscape (1920 × 1080)** and **Portrait (600 × 1024)** user-selectable HDMI layouts
+- **TV / Monitor** responsive landscape mode and a dedicated **7-inch Appliance Display (600 × 1024)** mode
+- Theme-aware 7-inch touch controls for favourite Masjids, Radio stations, playback modes and Master/Masjid/Radio volume
 - Landscape timetable with shared Adhan/Jamaah headings and a full-width Daily Times footer
 - Rotating, source-labelled community cards for announcements, Nikah, funerals, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information when supplied by MasjidBoard Live
 - Gregorian date plus masjid-adjusted Islamic date with Islamic weekday transliteration
@@ -67,7 +68,7 @@ Only the dependencies, backend subsystems, APIs, configuration pages and applian
 
 ### MasjidBoard HDMI display
 
-The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select Landscape or Portrait presentation. Landscape combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, Daily Times and rotating community cards when supplied upstream. Board colour themes are also user-selectable from the Web UI.
+The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select the responsive TV / Monitor presentation or the purpose-built 7-inch Appliance Display used by the physical MasjidPi appliance. TV / Monitor mode combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, Daily Times and rotating community cards when supplied upstream. Board colour themes are also user-selectable from the Web UI.
 
 ![MasjidBoard Landscape HDMI display with Funeral and Nikaah notice fixtures](docs/images/masjidboard-display-v1.3.0.png)
 
@@ -278,7 +279,7 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guid
 
 **Current stable release: v1.4.1**
 
-**Next release candidate: v1.5.0-rc.3**
+**Next release candidate: v1.5.0-rc.4**
 
 v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
 
@@ -288,7 +289,9 @@ RC2 reduces duplicate Web UI polling, replaces the playback manager's high-frequ
 
 RC3 preserves and reflects the selected audio output across upgrades, disables NetworkManager Wi-Fi power saving on Raspberry Pi appliances, reports reachable Web UI addresses after installation, aligns Jumu'ah presentation with the Islamic-date rollover, reduces Cog/WPE display render churn and introduces safe automatic saving for Board display and masjid-selection settings.
 
-The v1.5.0 release candidate will be accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the actual ARM64 RC3 artifact on Raspberry Pi hardware before promotion to v1.5.0.
+RC4 adds responsive TV / Monitor rendering from 1366 × 768 through 4K, a dedicated touch control panel for the 7-inch Appliance Display, named Board notifications for Listen source transitions, and further configuration-interface refinements. The touch panel provides favourite Masjid selection, Radio selection and operating modes, source and master volume controls, playback actions, theme selection, and automatic closure after 60 seconds without activity.
+
+The v1.5.0 release candidate will be accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the actual ARM64 RC4 artifact on Raspberry Pi hardware before promotion to v1.5.0.
 
 v1.4.1 improves Listen resilience by caching both LiveMasjid relay and Icecast URLs, waiting briefly for newly announced MQTT mounts to become ready and automatically failing over to Icecast when relay playback cannot start. Successful endpoints are preferred temporarily, playback status and logs identify the active endpoint, and the automatic Listen catalogue refresh moves from seven to 28 days while retaining manual refresh.
 

@@ -1,4 +1,11 @@
-/* Default 1920 × 1080 Landscape MasjidBoard layout. */
+/* Scale the 1920 × 1080 reference design with the limiting viewport
+   dimension. This preserves its proportions on 16:9 displays while allowing
+   nearby landscape aspect ratios to use their full available width. */
+html.landscape-layout {
+    font-size:clamp(11px,min(.833333vw,1.481481vh),32px);
+}
+
+/* Responsive Landscape MasjidBoard layout. */
 .landscape-layout .board-shell {
     display:grid;
     grid-template-columns:minmax(0,3fr) minmax(280px,1fr);
@@ -10,6 +17,16 @@
     grid-template-columns:minmax(0,2fr) minmax(280px,1fr);
 }
 .landscape-layout .board-topbar { grid-column:1; grid-row:1; }
+.landscape-layout .board-topbar .board-source-toast {
+    position:absolute;
+    top:0;
+    left:50%;
+    width:min(48%,560px);
+    min-height:clamp(58px,7.2vh,78px);
+    padding:clamp(9px,.85vw,14px) clamp(14px,1.3vw,22px);
+    transform:translateX(-50%);
+    text-align:center;
+}
 .landscape-layout .display-state { grid-column:1; grid-row:2; }
 .landscape-layout .empty-state { grid-column:1 / span 2; grid-row:1 / span 2; }
 .landscape-layout .landscape-layout-shell { flex-direction:column; gap:clamp(8px,.9vh,12px); }
@@ -322,6 +339,20 @@
     font-size:clamp(1.15rem,1.42vw,1.62rem);
 }
 
+/* A 768px-high viewport leaves about 32px for each value slot. Compact only
+   the value/countdown stack at narrower landscape widths so it cannot collide
+   with the neighbouring Jamaah value; Full HD keeps the established sizing. */
+@media (max-width:1500px) {
+    .landscape-layout .time-value-stack:has(.event-countdown) { gap:0; }
+    .landscape-layout .time-value-stack:has(.event-countdown) .time-value {
+        font-size:clamp(1.1rem,1.3vw,1.5rem);
+    }
+    .landscape-layout .time-value-stack .event-countdown {
+        margin-top:0;
+        font-size:clamp(.64rem,.68vw,.74rem);
+    }
+}
+
 /* With fewer masjids, use the recovered horizontal space for the label
    columns rather than making the masjid cells excessively wide. */
 .landscape-layout[data-board-count="2"] .comparison-grid,
@@ -408,7 +439,7 @@
 /* Daily Times becomes a compact horizontal strip below the timetable. */
 .landscape-layout .additional-times {
     display:grid;
-    grid-template-columns:clamp(120px,9vw,165px) minmax(0,1fr);
+    grid-template-columns:clamp(120px,9vw,10.3125rem) minmax(0,1fr);
     grid-template-rows:1fr 1fr;
     column-gap:clamp(8px,.75vw,12px);
     padding:clamp(9px,.85vw,13px);
@@ -471,7 +502,7 @@
    while preserving the established row heights and Daily Times proportions.
    The prayer-name column gets the larger share so long names such as Maghrib
    retain comfortable horizontal padding. */
-@media (min-width:1101px) and (max-width:2000px) {
+@media (min-width:1101px) {
     .landscape-layout:not([data-board-count="1"]):not([data-board-count="2"]) .comparison-grid,
     .landscape-layout:not([data-board-count="1"]):not([data-board-count="2"]) .prayer-row {
         grid-template-columns:minmax(205px,.53fr) minmax(135px,.32fr) repeat(var(--board-count),minmax(0,1fr));

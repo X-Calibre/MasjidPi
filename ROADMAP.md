@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.4.1 is the current stable release. v1.5.0-rc.3 is being prepared for release-candidate validation.**
+**v1.4.1 is the current stable release. v1.5.0-rc.4 is being prepared for release-candidate validation.**
 
 The current product provides:
 
@@ -112,6 +112,21 @@ RC2 adds a focused appliance optimisation pass:
 RC3 adds upgrade-safe audio-output selection, Raspberry Pi Wi-Fi power-save configuration, reachable installer summary addresses, Islamic-rollover-aligned Jumu'ah presentation, reduced Cog/WPE render churn and automatic saving for safe Board configuration actions.
 
 RC3 requires automated validation followed by installation of the published ARM64 prerelease artifact and Raspberry Pi soak testing before stable promotion.
+
+RC4 work includes responsive TV / Monitor scaling from 1366 × 768 through 4K, dedicated 7-inch Appliance Display naming, clearer Listen power controls and improved placement of the live Radio resume countdown.
+
+RC4 also adds a theme-aware touch control sheet to the 7-inch Appliance Display. Masjid, Radio and Theme tabs provide live status, favourite Masjid and Radio selection, Master/Masjid/Radio volume control, Masjid start/Listen stop, all three Radio operating modes, and saved display-theme selection without exposing the full administrative Web UI.
+
+RC4 Board/Listen coordination also includes:
+
+- Toast notifications on both the TV / Monitor and 7-inch Appliance Display layouts whenever Listen changes the active source between Masjid and Radio.
+- The Masjid or Radio station name in every source-change notification.
+- A persistent waiting-for-Radio notification during the configured post-masjid resume delay, including the selected Radio station name and live remaining countdown.
+- A waiting notification that remains visible for the full countdown instead of using the normal 10-second timeout.
+- Replacement or removal when Radio starts, the pending resume is cancelled, Listen stops, or another Masjid broadcast begins.
+- Duplicate suppression when repeated status updates report the same source and transition state.
+
+The appliance touch panel closes after 60 seconds without user activity, while taps, scrolling, swiping, keyboard input and control changes restart the inactivity timer.
 
 ---
 

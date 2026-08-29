@@ -35,7 +35,7 @@ Current MasjidBoard components include:
 - dedicated MasjidBoard configuration WebUI;
 - read-only MasjidBoard display page;
 - Cog/WPE DRM appliance display runtime on Raspberry Pi OS Lite;
-- Landscape and Portrait display orientations;
+- responsive TV / Monitor and dedicated 7-inch Appliance Display modes;
 - Core timetable retrieval with optional Premium community-content enrichment; and
 - adaptive rotating community-content cards in Landscape mode.
 
@@ -126,9 +126,9 @@ This lifecycle has been verified in automated tests and a real provider-outage r
 
 ## Display Layouts and Community Content
 
-The read-only display is `/masjidboard.html`, supports one, two or three selected Masjids, and offers Landscape (1920 × 1080) and Portrait (600 × 1024) orientations.
+The read-only display is `/masjidboard.html`, supports one, two or three selected Masjids, and offers a responsive TV / Monitor mode plus a dedicated 7-inch Appliance Display (600 × 1024) mode.
 
-Landscape shows current local time/date, selected Masjid names, Fajr, Dhuhr or Friday Jumu'ah, Asr, Maghrib, Esha, per-board stale/unavailable state, per-Masjid countdowns and a full-width Daily Times footer. Portrait presents the same core timetable information for the narrower appliance display target.
+TV / Monitor mode shows current local time/date, selected Masjid names, Fajr, Dhuhr or Friday Jumu'ah, Asr, Maghrib, Esha, per-board stale/unavailable state, per-Masjid countdowns and a full-width Daily Times footer. The 7-inch Appliance Display presents the same core timetable information for the integrated physical-appliance screen.
 
 Jumu'ah replaces Dhuhr on Friday. Timed Jumu'ah events are displayed chronologically with provider labels preserved. The countdown rolls to the following day's first Fajr event after the final visible event of the day.
 
@@ -156,7 +156,7 @@ Manual/runtime validation now includes:
 - component-aware installer dependencies and self-tests;
 - transactional profile/update handling and rollback;
 - Board display-service cleanup when Board is removed.
-- Landscape and Portrait preference changes and persistence;
+- TV / Monitor and 7-inch Appliance Display preference changes and persistence;
 - complete anonymised rotating-card fixtures, including RTL and dense-content cases;
 - optional Premium enrichment with Core fallback;
 - Raspberry Pi 4 native-1080p display using Cog's GLES renderer;

@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <title>MasjidBoard Â· MasjidPi</title>
-    <link rel="stylesheet" href="masjidboard-display.css?v=20260828-font-preview">
-    <link rel="stylesheet" href="masjidboard-detailed.css?v=20260823-card-clean">
+    <link rel="stylesheet" href="masjidboard-display.css?v=20260829-source-transition-toast">
+    <link rel="stylesheet" href="masjidboard-detailed.css?v=20260829-source-transition-toast">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
-    <link rel="stylesheet" href="masjidboard-portrait.css?v=20260823-portrait-card-clean">
-    <link rel="stylesheet" href="masjidboard-themes.css?v=20260823-new-card-fixtures">
+    <link rel="stylesheet" href="masjidboard-portrait.css?v=20260829-touch-controls-consistency">
+    <link rel="stylesheet" href="masjidboard-themes.css?v=20260829-touch-controls">
 </head>
 <body data-board-theme="emerald">
 <main class="board-shell" aria-live="polite">
     <header class="board-topbar">
+        <div class="board-source-toast hidden" data-board-source-toast role="status" aria-live="polite">
+            <span class="board-source-toast-label"></span>
+            <strong class="board-source-toast-message"></strong>
+        </div>
         <div id="detailedDateBlock" class="detailed-date-block" aria-label="Current date">
             <time id="detailedGregorianDate" class="detailed-gregorian-date"></time>
             <div id="detailedIslamicDate" class="detailed-islamic-date"></div>
@@ -64,6 +68,10 @@
                     <div id="portraitIslamicDate"></div>
                 </div>
             </div>
+            <div class="board-source-toast hidden" data-board-source-toast role="status" aria-live="polite">
+                <span class="board-source-toast-label"></span>
+                <strong class="board-source-toast-message"></strong>
+            </div>
             <div class="portrait-next">
                 <strong id="portraitNextName" class="portrait-next-name">-</strong>
                 <div id="portraitCountdown" class="portrait-countdown"></div>
@@ -71,7 +79,87 @@
             </div>
         </header>
         <div id="portraitSlides" class="portrait-slides"></div>
-        <footer class="portrait-footer"><div id="portraitDots" class="portrait-dots"></div></footer>
+        <footer class="portrait-footer">
+            <div id="portraitDots" class="portrait-dots"></div>
+            <span class="portrait-listen-hint">↑ Swipe up for controls</span>
+        </footer>
+        <aside id="portraitListenPanel" class="portrait-listen-panel hidden" aria-label="Listen controls" aria-modal="true" role="dialog">
+            <button class="portrait-listen-backdrop" type="button" data-listen-close aria-label="Close Listen controls"></button>
+            <section class="portrait-listen-sheet">
+                <div class="portrait-listen-handle" aria-hidden="true"></div>
+                <header class="portrait-listen-heading">
+                    <div>
+                        <small>LISTEN CONTROLS</small>
+                        <h2>Now Playing</h2>
+                    </div>
+                    <button class="portrait-listen-close" type="button" data-listen-close aria-label="Close Listen controls">×</button>
+                </header>
+                <div id="portraitListenConnection" class="portrait-listen-connection hidden" role="status"></div>
+                <div class="portrait-listen-status">
+                    <span id="portraitListenState" class="portrait-listen-badge">Loading</span>
+                    <div>
+                        <strong id="portraitListenNowPlaying">Loading Listen status…</strong>
+                        <span id="portraitListenDetail"></span>
+                    </div>
+                </div>
+                <div class="portrait-volume-control portrait-master-volume">
+                    <div class="portrait-control-label"><label for="portraitMasterVolume">Master Volume</label><output id="portraitMasterVolumeValue">--%</output></div>
+                    <div class="portrait-volume-row">
+                        <button type="button" data-volume-step="master:-5" aria-label="Decrease master volume">−</button>
+                        <input id="portraitMasterVolume" type="range" min="0" max="100" step="1" value="100">
+                        <button type="button" data-volume-step="master:5" aria-label="Increase master volume">+</button>
+                    </div>
+                </div>
+                <nav class="portrait-listen-tabs" aria-label="Listen source" role="tablist">
+                    <button id="portraitMasjidTab" class="active" type="button" role="tab" data-touch-tab="masjid" aria-controls="portraitMasjidPanel" aria-selected="true">Masjid</button>
+                    <button id="portraitRadioTab" type="button" role="tab" data-touch-tab="radio" aria-controls="portraitRadioPanel" aria-selected="false">Radio</button>
+                    <button id="portraitThemeTab" type="button" role="tab" data-touch-tab="theme" aria-controls="portraitThemePanel" aria-selected="false">Theme</button>
+                </nav>
+                <div class="portrait-listen-content">
+                    <section id="portraitMasjidPanel" data-touch-panel="masjid" role="tabpanel" aria-labelledby="portraitMasjidTab">
+                        <div class="portrait-volume-control">
+                            <div class="portrait-control-label"><label for="portraitMasjidVolume">Masjid Volume</label><output id="portraitMasjidVolumeValue">--%</output></div>
+                            <div class="portrait-volume-row">
+                                <button type="button" data-volume-step="masjid:-5" aria-label="Decrease Masjid volume">−</button>
+                                <input id="portraitMasjidVolume" type="range" min="0" max="150" step="1" value="100">
+                                <button type="button" data-volume-step="masjid:5" aria-label="Increase Masjid volume">+</button>
+                            </div>
+                        </div>
+                        <div class="portrait-source-heading"><strong>Favourite Masjids</strong><span id="portraitMasjidSelection"></span></div>
+                        <div id="portraitFavouriteMasjids" class="portrait-source-list" role="listbox" aria-label="Favourite Masjids"></div>
+                        <div class="portrait-listen-actions portrait-masjid-actions">
+                            <button id="portraitPlayMasjid" class="primary" type="button">▶ Play Masjid</button>
+                            <button id="portraitStopListening" class="danger" type="button">■ Stop Listening</button>
+                        </div>
+                    </section>
+                    <section id="portraitRadioPanel" class="hidden" data-touch-panel="radio" role="tabpanel" aria-labelledby="portraitRadioTab">
+                        <div class="portrait-volume-control">
+                            <div class="portrait-control-label"><label for="portraitRadioVolume">Radio Volume</label><output id="portraitRadioVolumeValue">--%</output></div>
+                            <div class="portrait-volume-row">
+                                <button type="button" data-volume-step="radio:-5" aria-label="Decrease Radio volume">−</button>
+                                <input id="portraitRadioVolume" type="range" min="0" max="150" step="1" value="70">
+                                <button type="button" data-volume-step="radio:5" aria-label="Increase Radio volume">+</button>
+                            </div>
+                        </div>
+                        <div class="portrait-source-heading"><strong>Radio Station</strong><span id="portraitRadioSelection"></span></div>
+                        <div id="portraitRadioStations" class="portrait-source-list portrait-radio-list" role="listbox" aria-label="Radio stations"></div>
+                        <div id="portraitRadioModeDetail" class="portrait-radio-mode-detail"></div>
+                        <div class="portrait-radio-actions" role="group" aria-label="Radio operation mode">
+                            <button id="portraitRadioSchedule" type="button">Scheduled Play</button>
+                            <button id="portraitRadioPlayNow" type="button">▶ Play Now</button>
+                            <button id="portraitRadioStop" class="danger" type="button">■ Stop Radio</button>
+                        </div>
+                    </section>
+                    <section id="portraitThemePanel" class="hidden" data-touch-panel="theme" role="tabpanel" aria-labelledby="portraitThemeTab">
+                        <div class="portrait-theme-intro">
+                            <strong>Display Theme</strong>
+                            <span>Choose the colour theme used throughout the 7-inch Appliance Display.</span>
+                        </div>
+                        <div id="portraitThemeChoices" class="portrait-theme-grid" role="radiogroup" aria-label="Display theme"></div>
+                    </section>
+                </div>
+            </section>
+        </aside>
     </section>
 </main>
 
@@ -79,7 +167,9 @@
 <script src="masjidboard-date-utils.js?v=20260823-new-card-fixtures"></script>
 <script src="masjidboard-display.js?v=20260829-wpe-cadence"></script>
 <script src="masjidboard-community-utils.js?v=20260823-portrait-card-clean"></script>
-<script src="masjidboard-detailed.js?v=20260823-new-card-fixtures"></script>
-<script src="masjidboard-portrait.js?v=20260823-portrait-card-clean"></script>
+<script src="masjidboard-detailed.js?v=20260829-responsive-landscape"></script>
+<script src="masjidboard-portrait.js?v=20260829-touch-controls"></script>
+<script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
+<script src="masjidboard-touch-controls.js?v=20260829-touch-controls-timeout"></script>
 </body>
 </html>

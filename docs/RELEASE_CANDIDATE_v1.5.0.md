@@ -2,7 +2,7 @@
 
 This document defines the release-candidate acceptance checks for MasjidPi v1.5.0.
 
-The current planned release candidate is `v1.5.0-rc.3`. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, and RC3 addresses issues and opportunities identified during RC2 hardware soak testing.
+The current planned release candidate is `v1.5.0-rc.4`. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, RC3 addressed issues identified during RC2 hardware soak testing, and RC4 adds the responsive and touch-oriented Board appliance experience.
 
 ## Scope
 
@@ -37,6 +37,21 @@ RC3 adds:
 - targeted one-second clock and countdown updates instead of rebuilding the complete prayer grid;
 - structural Board rendering only when API data or minute/event state changes; and
 - automatic saving for HDMI display settings and selected-masjid changes, while retaining explicit saving for location scope changes.
+
+## RC4 Board and appliance delta
+
+RC4 adds:
+
+- responsive TV / Monitor rendering validated at 1366 × 768, 1920 × 1080, 2048 × 1152 and 3840 × 2160;
+- dedicated naming for the 7-inch Appliance Display while retaining the existing internal layout value;
+- clearer Listen power toggles and placement of the live Radio resume countdown in Now Playing;
+- named source-transition notifications on both Board layouts, with a persistent Radio-resume countdown;
+- a theme-aware touch control panel for the 7-inch Appliance Display;
+- favourite Masjid and Radio selection, playback actions and all three Radio operating modes from the touch panel;
+- Master, Masjid and Radio volume controls from the touch panel;
+- all six saved display themes from the touch panel;
+- consistent selected, playing and unavailable-control states; and
+- automatic touch-panel closure after 60 seconds without user activity.
 
 ## Radio catalogue
 
@@ -164,7 +179,7 @@ Before merging to `main`:
 
 ```bash
 cd ~/MasjidPi
-git pull --ff-only origin fix/v1.5.0-rc3
+git pull --ff-only origin enhancements/v1.5.0-rc4
 
 make test
 
@@ -177,6 +192,8 @@ git status -sb
 
 The working tree must be clean and all tests/vet checks must pass.
 
+The pull request CI run must also pass. CI runs Go formatting, vet and race-enabled tests, ShellCheck, installer tests, frontend JavaScript syntax validation and every JavaScript regression test in `tests/`.
+
 ## RC publication
 
 After the feature branch is merged into `main` and `main` is validated:
@@ -185,15 +202,15 @@ After the feature branch is merged into `main` and `main` is validated:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.0-rc.3 -m "MasjidPi v1.5.0-rc.3"
-git push origin v1.5.0-rc.3
+git tag -a v1.5.0-rc.4 -m "MasjidPi v1.5.0-rc.4"
+git push origin v1.5.0-rc.4
 ```
 
 The release workflow must publish ARM64 and AMD64 archives plus `SHA256SUMS`, and the GitHub release must be marked as a prerelease.
 
 ## Raspberry Pi acceptance
 
-Install the actual `v1.5.0-rc.3` release artifact on the Raspberry Pi 4 test appliance rather than performing the final acceptance only from a source build.
+Install the actual `v1.5.0-rc.4` release artifact on the Raspberry Pi 4 test appliance rather than performing the final acceptance only from a source build.
 
 Recommended minimum RC acceptance:
 
@@ -221,6 +238,9 @@ Recommended minimum RC acceptance:
 22. The touch panel selects only favourited Masjids, selects available Radio stations, and changes Master, Masjid and Radio volumes without desynchronising the full Web UI.
 23. Touch-panel Masjid start/Listen stop and Radio Scheduled Play, Play Now and Stop Radio actions preserve the established source-priority semantics.
 24. All six themes can be applied and persisted from the Theme tab, and the complete control sheet remains legible in every theme.
+25. Board source notifications name the active Masjid or Radio station, remain visible throughout a pending Radio-resume countdown, and do not appear merely because the Board loaded or reconnected.
+26. The appliance control sheet closes after 60 seconds without activity and remains open while the user taps, scrolls, swipes, types or adjusts a control.
+27. The TV / Monitor layout remains unclipped and proportionate at 1366 × 768, 1920 × 1080, 2048 × 1152 and 3840 × 2160.
 
 If release-blocking defects are found, fix them on the development branch and publish a subsequent release candidate after repeating the automated and hardware acceptance gates.
 

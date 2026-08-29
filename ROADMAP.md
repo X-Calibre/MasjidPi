@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.4.1 is the current stable release. v1.5.0-rc.3 is being prepared for release-candidate validation.**
+**v1.4.1 is the current stable release. v1.5.0-rc.4 is being prepared for release-candidate validation.**
 
 The current product provides:
 
@@ -117,14 +117,16 @@ RC4 work includes responsive TV / Monitor scaling from 1366 × 768 through 4K, d
 
 RC4 also adds a theme-aware touch control sheet to the 7-inch Appliance Display. Masjid, Radio and Theme tabs provide live status, favourite Masjid and Radio selection, Master/Masjid/Radio volume control, Masjid start/Listen stop, all three Radio operating modes, and saved display-theme selection without exposing the full administrative Web UI.
 
-Planned RC4 Board/Listen coordination:
+RC4 Board/Listen coordination also includes:
 
-- Show a toast notification on both the TV / Monitor and 7-inch Appliance Display layouts whenever Listen changes the active source between Masjid and Radio.
-- Identify the Masjid or Radio station by name in every source-change notification.
-- Show a persistent waiting-for-Radio notification during the configured post-masjid resume delay, including the selected Radio station name and live remaining countdown.
-- Keep the waiting notification visible for the full countdown instead of applying the normal transient toast timeout.
-- Replace the waiting notification when Radio starts, and clear it if the pending resume is cancelled, Listen is stopped, or another Masjid broadcast begins.
-- Avoid duplicate notifications when repeated status updates report the same source and transition state.
+- Toast notifications on both the TV / Monitor and 7-inch Appliance Display layouts whenever Listen changes the active source between Masjid and Radio.
+- The Masjid or Radio station name in every source-change notification.
+- A persistent waiting-for-Radio notification during the configured post-masjid resume delay, including the selected Radio station name and live remaining countdown.
+- A waiting notification that remains visible for the full countdown instead of using the normal 10-second timeout.
+- Replacement or removal when Radio starts, the pending resume is cancelled, Listen stops, or another Masjid broadcast begins.
+- Duplicate suppression when repeated status updates report the same source and transition state.
+
+The appliance touch panel closes after 60 seconds without user activity, while taps, scrolling, swiping, keyboard input and control changes restart the inactivity timer.
 
 ---
 

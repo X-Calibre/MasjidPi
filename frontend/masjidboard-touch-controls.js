@@ -50,12 +50,14 @@
     let selectedMasjidID = "";
     let selectedRadioID = "";
     let refreshTimer = 0;
+    let inactivityTimer = 0;
     let gestureStart = null;
     let busy = false;
     let currentTheme = document.body.dataset.boardTheme || "emerald";
     const volumeSaveTimers = {master:0, masjid:0, radio:0};
     const volumeSaveSerials = {master:0, masjid:0, radio:0};
     const pendingVolumes = {master:null, masjid:null, radio:null};
+    const inactivityTimeout = 60000;
 
     function jsonOptions(method, body) {
         return {method, headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
@@ -95,13 +97,20 @@
         renderStatus();
     }
 
+    function resetInactivityTimer() {
+        window.clearTimeout(inactivityTimer);
+        if (open) inactivityTimer = window.setTimeout(() => setOpen(false), inactivityTimeout);
+    }
+
     function setOpen(value) {
         open = value;
         panel.classList.toggle("hidden", !open);
         panel.setAttribute("aria-hidden", open ? "false" : "true");
         window.dispatchEvent(new CustomEvent("masjidpi:portrait-listen-panel", {detail:{open}}));
         window.clearTimeout(refreshTimer);
+        window.clearTimeout(inactivityTimer);
         if (open) {
+            resetInactivityTimer();
             loadPanel();
             panel.querySelector(".portrait-listen-close")?.focus();
         }
@@ -317,6 +326,7 @@
             setConnectionError(error.message);
         } finally {
             setBusy(false);
+            resetInactivityTimer();
         }
     }
 
@@ -408,6 +418,11 @@
         control.addEventListener("input", () => scheduleVolumeSave(name));
         control.addEventListener("change", () => saveVolume(name, Number(control.value)));
     }
+    const listenSheet = panel.querySelector(".portrait-listen-sheet");
+    for (const eventName of ["pointerdown", "keydown", "input", "change"]) {
+        listenSheet.addEventListener(eventName, resetInactivityTimer);
+    }
+    listenSheet.addEventListener("scroll", resetInactivityTimer, true);
     panel.addEventListener("click", event => {
         const stepButton = event.target.closest("[data-volume-step]");
         if (!stepButton) return;

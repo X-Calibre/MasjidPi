@@ -27,10 +27,23 @@ button.app-tab {
 .module-power-control {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     white-space: nowrap;
-    margin-top: 4px;
+    margin: 0;
+    padding: 6px 7px 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--field);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.module-power-control:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    background: var(--field-hover);
 }
 
 .module-power-control input {
@@ -44,40 +57,43 @@ button.app-tab {
 .module-power-control input + .power-toggle {
     position: relative;
     display: inline-block;
-    width: 52px;
-    height: 28px;
+    width: 46px;
+    height: 26px;
     flex: 0 0 auto;
+    border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
     border-radius: 999px;
     background: var(--border);
-    transition: background-color .15s ease, box-shadow .15s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18);
+    transition: background-color .15s ease, border-color .15s ease;
 }
 
 .module-power-control input + .power-toggle::after {
     content: "";
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 22px;
-    height: 22px;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: var(--card-bg);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .38);
     transition: transform .15s ease;
 }
 
 .module-power-control input:checked + .power-toggle {
     background: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 80%, var(--text));
 }
 
 .module-power-control input:checked + .power-toggle::after {
-    transform: translateX(24px);
+    transform: translateX(20px);
 }
 
-.module-power-control input:focus-visible + .power-toggle {
+.module-power-control:has(input:focus-visible) {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
-.module-power-control input:disabled + .power-toggle {
+.module-power-control:has(input:disabled) {
     opacity: .5;
     cursor: not-allowed;
 }

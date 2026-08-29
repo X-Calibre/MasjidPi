@@ -290,6 +290,7 @@
 
     function startTimer() {
         window.clearInterval(slideTimer);
+        if (state.classList.contains("listen-panel-open")) return;
         if (slides.length < 2) return;
         slideTimer = window.setInterval(() => showSlide(activeSlide + 1, false), slideDurationSeconds * 1000);
     }
@@ -360,6 +361,11 @@
     });
 
     window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    window.addEventListener("masjidpi:portrait-listen-panel", event => {
+        state.classList.toggle("listen-panel-open", Boolean(event.detail && event.detail.open));
+        if (state.classList.contains("listen-panel-open")) window.clearInterval(slideTimer);
+        else startTimer();
+    });
     updateHeader();
     window.setInterval(updateHeader, 1000);
 })();

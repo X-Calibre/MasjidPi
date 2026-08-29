@@ -270,9 +270,21 @@ MasjidPi supports dedicated HDMI presentation including:
 
 The presentation adapts to the number of configured masjids.
 
+#### 7-inch touch controls
+
+On the 7-inch Appliance Display, swipe up or tap **Controls ↑** to open the touch control sheet. Opening the sheet pauses slide rotation; swipe down from its handle/header, tap ×, or tap outside the sheet to close it and resume the slideshow.
+
+The control sheet provides:
+
+- a **Masjid** tab for choosing a favourited masjid, adjusting Masjid and Master volume, starting playback and stopping Listen;
+- a **Radio** tab for choosing a station, adjusting Radio and Master volume, and selecting Scheduled Play, Play Now or Stop Radio; and
+- a **Theme** tab for immediately applying and saving any supported Board colour theme.
+
+Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
+
 ### Themes
 
-Board includes curated colour themes. Theme and display-mode changes can be made from the Web UI without restarting the display service.
+Board includes curated colour themes. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
 
 ### Display information
 

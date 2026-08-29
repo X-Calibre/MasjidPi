@@ -44,6 +44,9 @@ body.portrait-layout[data-board-theme]:not([data-board-theme="emerald"]) {
     --portrait-upcoming-line:var(--accent);
     --portrait-dot:color-mix(in srgb,var(--muted) 55%,var(--panel));
     --portrait-dot-line:var(--muted);
+    --portrait-danger:var(--danger);
+    --portrait-danger-bg:color-mix(in srgb,var(--danger) 22%,var(--panel));
+    --portrait-danger-text:var(--text);
 }
 
 body[data-board-theme]:not([data-board-theme="emerald"]) .board-header { background:var(--panel); }

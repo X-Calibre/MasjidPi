@@ -115,6 +115,8 @@ RC3 requires automated validation followed by installation of the published ARM6
 
 RC4 work includes responsive TV / Monitor scaling from 1366 × 768 through 4K, dedicated 7-inch Appliance Display naming, clearer Listen power controls and improved placement of the live Radio resume countdown.
 
+RC4 also adds a theme-aware touch control sheet to the 7-inch Appliance Display. Masjid, Radio and Theme tabs provide live status, favourite Masjid and Radio selection, Master/Masjid/Radio volume control, Masjid start/Listen stop, all three Radio operating modes, and saved display-theme selection without exposing the full administrative Web UI.
+
 Planned RC4 Board/Listen coordination:
 
 - Show a toast notification on both the TV / Monitor and 7-inch Appliance Display layouts whenever Listen changes the active source between Masjid and Radio.

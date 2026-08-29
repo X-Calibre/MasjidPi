@@ -40,6 +40,7 @@ The two capabilities share the same MasjidPi core but remain independently opera
 - Up to three selected masjids
 - Responsive one-, two- and three-board HDMI layouts
 - **TV / Monitor** responsive landscape mode and a dedicated **7-inch Appliance Display (600 × 1024)** mode
+- Theme-aware 7-inch touch controls for favourite Masjids, Radio stations, playback modes and Master/Masjid/Radio volume
 - Landscape timetable with shared Adhan/Jamaah headings and a full-width Daily Times footer
 - Rotating, source-labelled community cards for announcements, Nikah, funerals, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information when supplied by MasjidBoard Live
 - Gregorian date plus masjid-adjusted Islamic date with Islamic weekday transliteration

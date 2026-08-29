@@ -128,7 +128,7 @@
             const button = document.createElement("button");
             button.type = "button";
             button.dataset.sourceId = item.id;
-            button.textContent = label(item);
+            button.textContent = item.name || "Unknown Masjid";
             button.classList.toggle("selected", item.id === selectedMasjidID);
             button.classList.toggle("playing", status?.active_source === "masjid" && item.id === status.active_stream_id);
             button.setAttribute("role", "option");
@@ -199,7 +199,9 @@
             statusBadge.textContent = "Masjid";
             statusBadge.className = "portrait-listen-badge";
             nowPlaying.textContent = status.active_stream_name || status.masjid_name || "Selected Masjid";
-            detail.textContent = "Masjid has priority over Radio.";
+            detail.textContent = status.radio_name
+                ? `${status.radio_name} is standing by.`
+                : "Radio will resume when the Masjid broadcast ends.";
         } else if (status.active_source === "radio") {
             statusBadge.textContent = "Radio";
             statusBadge.className = "portrait-listen-badge";
@@ -222,6 +224,7 @@
                 volumeOutputs[name].textContent = `${control.value}%`;
             }
             masterVolume.disabled = busy || !status.master_volume_supported;
+            volumeOutputs.master.textContent = status.master_volume_supported ? `${masterVolume.value}%` : "Unavailable";
             masjidVolume.disabled = busy;
             radioVolume.disabled = busy || !status.radio_enabled;
             selectedMasjidID ||= status.masjid_id || "";
@@ -230,7 +233,9 @@
             for (const control of Object.values(volumeControls)) control.disabled = true;
         }
 
-        playMasjid.disabled = busy || !selectedMasjidID;
+        const selectedMasjidPlaying = status?.active_source === "masjid" && status.active_stream_id === selectedMasjidID;
+        playMasjid.disabled = busy || !selectedMasjidID || selectedMasjidPlaying;
+        playMasjid.textContent = selectedMasjidPlaying ? "Masjid Playing" : "▶ Play Masjid";
         stopListening.disabled = busy || !status?.listening;
         for (const [mode, button] of Object.entries(radioModeButtons)) {
             button.disabled = busy || !selectedRadioID || !status || (mode === "stopped" && !status.radio_enabled);

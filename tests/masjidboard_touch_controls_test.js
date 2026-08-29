@@ -37,11 +37,15 @@ assert.match(controller, /control\.addEventListener\("input", \(\) => scheduleVo
 assert.match(controller, /window\.setTimeout\(\(\) => saveVolume\(name, value\), 120\)/);
 assert.match(controller, /pendingVolumes\[name\] \?\? values\[name\]/);
 assert.match(controller, /\{volume:value, persist:true\}/);
+assert.match(controller, /volumeOutputs\.master\.textContent = status\.master_volume_supported \? `\$\{masterVolume\.value\}%` : "Unavailable"/);
+assert.match(controller, /playMasjid\.textContent = selectedMasjidPlaying \? "Masjid Playing" : "▶ Play Masjid"/);
 assert.match(controller, /\["black-white", "Black & White"/);
 assert.match(portrait, /masjidpi:portrait-listen-panel/);
 assert.match(css, /var\(--portrait-panel\)/);
 assert.match(css, /\.portrait-listen-sheet\s*\{[^}]*height:724px/s);
 assert.match(css, /\.portrait-listen-content\s*\{[^}]*flex:1 1 auto;[^}]*min-height:0/s);
+assert.match(css, /\.portrait-listen-status\s*\{[^}]*height:76px;[^}]*flex:0 0 76px/s);
+assert.match(css, /\.portrait-theme-option\s*\{[^}]*height:84px/s);
 assert.match(themes, /--portrait-danger:var\(--danger\)/);
 
 console.log("MasjidBoard touch-control tests passed");

@@ -56,7 +56,7 @@ body.portrait-layout {
 .portrait-header:has(.board-source-toast:not(.hidden)) .portrait-next { height:88px; margin-top:6px; }
 .portrait-clock-row { height:132px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:24px; }
 .portrait-clock { color:var(--portrait-text); font-size:100px; font-weight:700; line-height:.9; letter-spacing:-.025em; font-variant-numeric:tabular-nums; }
-.portrait-information { height:112px; min-width:0; display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; color:var(--portrait-secondary-text); font-size:17px; line-height:1.2; text-align:right; }
+.portrait-information { height:112px; min-width:0; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:8px; color:var(--portrait-secondary-text); font-size:17px; line-height:1.2; text-align:right; }
 .portrait-information strong { max-width:100%; overflow:hidden; color:var(--portrait-text); font-size:24px; text-overflow:ellipsis; white-space:nowrap; }
 .portrait-information div { color:var(--portrait-heading-accent); font-weight:800; }
 .portrait-next { height:104px; margin-top:10px; padding:11px 17px; border:2px solid var(--portrait-line); border-radius:18px; display:grid; grid-template-columns:145px minmax(0,1fr) 140px; align-items:center; column-gap:12px; background:var(--portrait-panel); }

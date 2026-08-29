@@ -272,7 +272,7 @@ The presentation adapts to the number of configured masjids.
 
 #### 7-inch touch controls
 
-On the 7-inch Appliance Display, swipe up or tap **Controls ↑** to open the touch control sheet. Opening the sheet pauses slide rotation; swipe down from its handle/header, tap ×, or tap outside the sheet to close it and resume the slideshow.
+On the 7-inch Appliance Display, swipe up to open the touch control sheet. A small on-screen hint identifies the gesture. Opening the sheet pauses slide rotation; swipe down from its handle/header, tap ×, or tap outside the sheet to close it and resume the slideshow.
 
 The control sheet provides:
 

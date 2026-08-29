@@ -27,7 +27,6 @@
     };
     const playMasjid = document.getElementById("portraitPlayMasjid");
     const stopListening = document.getElementById("portraitStopListening");
-    const openButton = document.getElementById("portraitOpenListenPanel");
     const radioModeButtons = {
         schedule: document.getElementById("portraitRadioSchedule"),
         play_now: document.getElementById("portraitRadioPlayNow"),
@@ -365,7 +364,6 @@
 
     for (const button of panel.querySelectorAll("[data-touch-tab]")) button.addEventListener("click", () => activateTab(button.dataset.touchTab));
     for (const button of panel.querySelectorAll("[data-listen-close]")) button.addEventListener("click", () => setOpen(false));
-    openButton.addEventListener("click", () => setOpen(true));
 
     async function saveVolume(name, value) {
         window.clearTimeout(volumeSaveTimers[name]);

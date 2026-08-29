@@ -217,7 +217,7 @@ Recommended minimum RC acceptance:
 18. Jumu'ah replaces Dhuhr from the Thursday Islamic-date rollover until the Friday rollover.
 19. Board display settings and selected-masjid actions save automatically; location scope changes still require explicit saving.
 20. Cog/WPE RSS remains bounded during the soak test and does not repeat RC2's rapid prayer-grid allocation growth.
-21. On a 600 × 1024 touch display, swipe-up and the Controls button open the appliance control sheet, slide rotation pauses, and swipe-down/close resumes it.
+21. On a 600 × 1024 touch display, the swipe-up hint is visible, swipe-up opens the appliance control sheet, slide rotation pauses, and swipe-down/close resumes it.
 22. The touch panel selects only favourited Masjids, selects available Radio stations, and changes Master, Masjid and Radio volumes without desynchronising the full Web UI.
 23. Touch-panel Masjid start/Listen stop and Radio Scheduled Play, Play Now and Stop Radio actions preserve the established source-priority semantics.
 24. All six themes can be applied and persisted from the Theme tab, and the complete control sheet remains legible in every theme.

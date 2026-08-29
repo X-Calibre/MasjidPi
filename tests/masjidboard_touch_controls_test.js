@@ -12,6 +12,8 @@ const controller = fs.readFileSync(path.join(root, "frontend/masjidboard-touch-c
 const portrait = fs.readFileSync(path.join(root, "frontend/masjidboard-portrait.js"), "utf8");
 
 assert.match(html, /id="portraitListenPanel"/);
+assert.match(html, /↑ Swipe up for controls/);
+assert.doesNotMatch(html, /id="portraitOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
 assert.match(html, /data-touch-tab="radio"/);
 assert.match(html, /data-touch-tab="theme"/);
@@ -22,6 +24,7 @@ assert.match(html, /Master Volume/);
 assert.match(html, /Masjid Volume/);
 assert.match(html, /Radio Volume/);
 assert.match(controller, /dy < -70/);
+assert.doesNotMatch(controller, /portraitOpenListenPanel/);
 assert.match(controller, /dy > 70/);
 assert.match(controller, /\/api\/favourites/);
 assert.match(controller, /\/api\/listen\/radio-mode/);

@@ -111,7 +111,7 @@ body.portrait-layout {
 .portrait-dots { display:flex; gap:8px; }
 .portrait-dots button { width:8px; height:8px; padding:0; border:1px solid var(--portrait-dot-line); border-radius:10px; background:var(--portrait-dot); cursor:pointer; }
 .portrait-dots button.active { width:24px; border-color:var(--portrait-heading-accent); background:var(--portrait-accent); }
-.portrait-open-listen { min-width:92px; min-height:42px; padding:7px 12px; border:1px solid var(--portrait-line); border-radius:12px; color:var(--portrait-heading-accent); background:var(--portrait-panel); font-size:14px; font-weight:800; }
+.portrait-listen-hint { color:var(--portrait-muted); font-size:12px; font-weight:700; letter-spacing:.02em; }
 .portrait-state.listen-panel-open { touch-action:pan-y; }
 
 .portrait-listen-panel { position:absolute; z-index:20; inset:0; }

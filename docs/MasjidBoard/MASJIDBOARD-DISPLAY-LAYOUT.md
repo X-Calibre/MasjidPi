@@ -253,7 +253,7 @@ The configuration UI presents TV / Monitor and 7-inch Appliance Display modes wh
 
 TV / Monitor mode responsively supports landscape displays from 1366 × 768 through 4K. The 7-inch Appliance Display targets the integrated 600 × 1024 screen in the physical MasjidPi appliance. Further hardware-specific layouts may be added where they provide clear value.
 
-The 7-inch mode also provides an appliance-specific touch sheet opened by swiping up or using the visible Controls button. Its Masjid and Radio tabs reuse the existing Listen APIs for live status, favourite/station selection, three volume controls and playback modes. A third Theme tab updates the same saved Board preference used by the configuration Web UI. The slideshow pauses while the sheet is open and resumes when it closes. These controls are deliberately absent from TV / Monitor mode.
+The 7-inch mode also provides an appliance-specific touch sheet opened by swiping up, with a small persistent text hint identifying the gesture. Its Masjid and Radio tabs reuse the existing Listen APIs for live status, favourite/station selection, three volume controls and playback modes. A third Theme tab updates the same saved Board preference used by the configuration Web UI. The slideshow pauses while the sheet is open and resumes when it closes. These controls are deliberately absent from TV / Monitor mode.
 
 Potential alternative layouts may make different use of the same normalized display data, for example:
 

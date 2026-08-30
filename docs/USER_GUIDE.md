@@ -20,6 +20,10 @@ http://<masjidpi-ip-address>:8080
 
 The browser does not need to remain open. MasjidPi continues operating as an appliance after you close the Web UI.
 
+The Web UI shows a **Listen** tab, a **Board** tab, or both, according to the components installed on the appliance. The **Theme** button changes only the Web UI between System, Light and Dark appearance. Board display themes are configured separately in Board settings.
+
+![MasjidPi Web UI showing the Listen and Board navigation](images/user-guide/web-ui-navigation.png)
+
 ## 2. Listen: how audio priority works
 
 Listen has two possible audio sources:
@@ -39,12 +43,18 @@ The **Now Playing** section shows the current Listen state and active stream.
 
 Typical states include:
 
-- **Playing / Masjid** — the selected masjid is currently playing.
-- **Playing / Radio** — the selected Radio station is currently playing.
+- **Masjid** — the selected masjid is currently playing.
+- **Radio** — the selected Radio station is currently playing.
 - **Waiting** — Listen is active but no source should currently be playing, for example while waiting for the selected masjid or a permitted Radio condition.
 - **Stopped** — the Listen controller is stopped.
 
 The Masjid tab also shows the configured **Selected Masjid** independently of Now Playing. This remains visible when the masjid is offline or nothing is currently playing.
+
+Use **Start Listening** to start the Listen controller after it has been stopped. Use **Stop** to stop all current Listen playback without changing the saved Masjid and Radio selections or their module power settings.
+
+When a post-masjid Radio resume delay is active, Now Playing shows the remaining **Radio resumes in…** countdown next to the Waiting state.
+
+![Now Playing showing the active source and Listen controls](images/user-guide/listen-now-playing.png)
 
 ## 4. Masjid tab
 
@@ -69,9 +79,13 @@ Use **Search** to filter the masjid catalogue by name or location, then select a
 
 The **Selected Masjid** summary near the top of the tab identifies the configured primary masjid even while its stream is offline.
 
+Masjid selection is saved immediately. Selecting a masjid does not require it to be online and does not by itself start a stopped Listen controller.
+
 ### Favourites
 
 Frequently used masajid can be added to **Favourites** for quicker selection.
+
+Select a masjid and use **Add to Favourites** or **Remove from Favourites**. Favourites are also the only masjids offered by the simplified touch controls on the 7-inch Appliance Display.
 
 ### Masjid Volume
 
@@ -87,6 +101,8 @@ Values above 100% apply software amplification. The UI changes the volume indica
 
 Masjid Volume is independent of Radio Volume.
 
+![Masjid tab showing power, selection, favourites and source volume](images/user-guide/listen-masjid-tab.png)
+
 ## 5. Radio tab
 
 Radio is optional. If you do not want secondary Radio playback, leave Radio Power off.
@@ -100,6 +116,8 @@ Turning Radio Power off prevents Radio playback but does not disable Masjid play
 ### Selecting a Radio station
 
 Choose a station from the **Radio Station** list. The catalogue contains validated South African Islamic radio streams supported by the current MasjidPi release.
+
+The selected station is saved immediately. Selecting a station changes the configured Radio source but does not necessarily start playback; playback remains governed by the selected Radio operating mode and Masjid priority.
 
 ### Radio Volume
 
@@ -185,6 +203,10 @@ Radio can then operate automatically during the day while remaining silent overn
 
 The schedule affects Radio only. Masjid broadcasts remain available regardless of the Radio quiet-time window.
 
+The schedule may cross midnight. For example, `22:00–02:00` permits Radio during that overnight window.
+
+![Radio tab showing power, operating modes, station, volume, delay and schedule](images/user-guide/listen-radio-tab.png)
+
 ## 6. Audio tab
 
 The Audio tab contains settings for Listen audio output and master hardware volume.
@@ -210,6 +232,10 @@ Radio Volume ──┘
 ```
 
 Some output devices do not expose a controllable hardware mixer. On those devices, Master Volume may be unavailable. Masjid and Radio software volume controls continue to work.
+
+The selected Audio Output is saved and restored after service restart, appliance reboot and normal release upgrade.
+
+![Audio tab showing output selection and Master Volume](images/user-guide/listen-audio-tab.png)
 
 ## 7. Common Listen configurations
 
@@ -259,7 +285,20 @@ Board is available when the Board component is installed.
 
 ### Selecting MasjidBoards
 
-The Board configuration page lets you select up to three masjids from MasjidBoard Live and arrange their display order.
+The Board page contains **Masjids**, **Display** and **Status** tabs.
+
+In **Masjids**:
+
+1. Choose up to three locations to define which MasjidBoards are available.
+2. Select **Save Locations** after changing the location scope.
+3. Search the resulting catalogue and add between one and three MasjidBoards.
+4. Arrange the selected MasjidBoards in the required display order.
+
+Selected-Masjid additions, removals and ordering are saved automatically. Location-scope changes require the explicit **Save Locations** action because they rebuild the available catalogue.
+
+In TV / Monitor mode, the first selected masjid supplies the shared Daily Times information. In the 7-inch Appliance Display, each selected masjid receives its own rotating Salaah Times slide, while shared Daily Times come from the first selected masjid.
+
+![Board Masjids tab showing locations and selected MasjidBoards](images/user-guide/board-masjids-tab.png)
 
 ### Layout
 
@@ -269,6 +308,20 @@ MasjidPi supports dedicated HDMI presentation including:
 - **7-inch Appliance Display (600 × 1024)** — purpose-built for the integrated screen in the physical MasjidPi appliance
 
 The presentation adapts to the number of configured masjids.
+
+The **Display** tab also configures:
+
+- slide duration from 5 to 60 seconds;
+- one of six Board colour themes; and
+- optional Islamic Economic Indicators.
+
+Display mode, slide duration, theme and the Economic Indicators option are saved automatically. **Open Display Preview** opens the currently selected layout in the browser.
+
+![Board Display tab showing layout, duration, information and theme settings](images/user-guide/board-display-tab.png)
+
+![TV / Monitor responsive Board layout](images/user-guide/board-tv-monitor-layout.png)
+
+![7-inch Appliance Display layout](images/user-guide/board-7-inch-layout.png)
 
 #### 7-inch touch controls
 
@@ -282,9 +335,27 @@ The control sheet provides:
 
 Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
 
+The panel closes automatically after 60 seconds without user activity. Tapping, scrolling, swiping, using the keyboard or adjusting a control restarts that timer. The time and upcoming-event section remains visible while the panel is open.
+
+![7-inch touch controls showing the Masjid tab](images/user-guide/board-touch-masjid-tab.png)
+
+![7-inch touch controls showing the Radio tab](images/user-guide/board-touch-radio-tab.png)
+
+![7-inch touch controls showing the Theme tab](images/user-guide/board-touch-theme-tab.png)
+
 ### Themes
 
 Board includes curated colour themes. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
+
+The Board theme is an appliance setting shared by the HDMI display, browser preview and touch panel. It is separate from the System/Light/Dark theme used by the configuration Web UI.
+
+### Listen source notifications
+
+When Listen switches to a masjid or Radio station, both Board layouts show a notification naming the new source for 10 seconds. A notification is not shown merely because the Board page loaded or reconnected.
+
+While Radio is waiting for the configured post-masjid resume delay, the notification names the selected station, shows the live countdown and remains visible until the waiting state ends. It is then replaced by the Radio-playing notification or cleared if playback is cancelled or superseded.
+
+![Board notification showing a Listen source transition](images/user-guide/board-source-notification.png)
 
 ### Display information
 
@@ -298,6 +369,14 @@ Depending on available upstream data, Board can show:
 - optional Islamic Economic Indicators sourced from Jamiatul Ulama South Africa.
 
 Not every masjid supplies every type of content.
+
+Notice cards identify their upstream masjid with **Source:**. Islamic Economic Indicators retain their own Jamiat attribution and update information.
+
+### Board status
+
+The **Status** tab reports each selected MasjidBoard as Current, Stale or Unavailable, together with its most recent update information. Use **Refresh Timetables** to request an immediate refresh.
+
+![Board Status tab showing current and cached timetable state](images/user-guide/board-status-tab.png)
 
 ### Upstream outages
 
@@ -391,6 +470,12 @@ Board status is available at:
 ```bash
 curl -s http://127.0.0.1:8080/api/masjidboard/status
 ```
+
+### Touch controls do not open
+
+The swipe-up controls are available only in **7-inch Appliance Display (600 × 1024)** mode. Confirm that this mode is selected in Board → Display and that the small **Swipe up for controls** hint is visible.
+
+Swipe upward from the lower display area. The panel closes automatically after 60 seconds without activity.
 
 ## 12. Further documentation
 

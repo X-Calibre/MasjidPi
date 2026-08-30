@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.4.1 is the current stable release. v1.5.0-rc.4 is being prepared for release-candidate validation.**
+**v1.5.0 is the current stable release.**
 
 The current product provides:
 
@@ -96,7 +96,7 @@ v1.4.1 adds:
 
 The updated Listen catalogue, manual refresh, normal relay playback and automatic Icecast failover were validated on the Raspberry Pi 4 test appliance. Automated Go tests, race-enabled playback tests, vet checks, shell syntax checks and frontend JavaScript validation also passed.
 
-### v1.5.0 release candidate
+### v1.5.0 additions
 
 v1.5.0 adds secondary Islamic radio playback while retaining the selected masjid as the immediate priority source. It includes independent Masjid and Radio software volumes, scheduled and manual Radio modes, a configurable post-masjid resume delay, persistent module power controls and a dedicated Radio catalogue.
 
@@ -110,8 +110,6 @@ RC2 adds a focused appliance optimisation pass:
 - clearer, accessible Masjid, Radio and Audio configuration tabs.
 
 RC3 adds upgrade-safe audio-output selection, Raspberry Pi Wi-Fi power-save configuration, reachable installer summary addresses, Islamic-rollover-aligned Jumu'ah presentation, reduced Cog/WPE render churn and automatic saving for safe Board configuration actions.
-
-RC3 requires automated validation followed by installation of the published ARM64 prerelease artifact and Raspberry Pi soak testing before stable promotion.
 
 RC4 work includes responsive TV / Monitor scaling from 1366 × 768 through 4K, dedicated 7-inch Appliance Display naming, clearer Listen power controls and improved placement of the live Radio resume countdown.
 
@@ -128,11 +126,13 @@ RC4 Board/Listen coordination also includes:
 
 The appliance touch panel closes after 60 seconds without user activity, while taps, scrolling, swiping, keyboard input and control changes restart the inactivity timer.
 
+The published RC4 ARM64 artifact passed installation and self-test on the Raspberry Pi 4 appliance. RC3 completed a 24-hour Raspberry Pi 3B soak with no MasjidPi or display-service restarts, while RC4 passed initial Raspberry Pi 4 runtime validation with current Board data, successful Listen source changes, no throttling and no application failures. Automated tests and the complete RC4 documentation and screenshot review also passed before stable promotion.
+
 ---
 
 ## Remaining Work
 
-There are no known release-blocking items for v1.4.1.
+There are no known release-blocking items for v1.5.0.
 
 Ongoing reliability work:
 

@@ -388,13 +388,13 @@ Normal users should install official releases rather than development branches.
 
 See [INSTALL.md](INSTALL.md) for the supported installation and update procedure.
 
-Release candidates such as:
+Release candidates use a version such as:
 
 ```text
-v1.5.0-rc.4
+vX.Y.Z-rc.N
 ```
 
-are prerelease builds intended for validation before the corresponding stable release. They may contain known or undiscovered defects and should not replace a validated production installation unless you specifically intend to test the RC.
+These are prerelease builds intended for validation before the corresponding stable release. They may contain known or undiscovered defects and should not replace a validated production installation unless you specifically intend to test the RC.
 
 Normal upgrades preserve MasjidPi's persistent configuration and runtime data.
 

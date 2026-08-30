@@ -1,8 +1,19 @@
-# MasjidPi v1.5.0 Release Candidate Checklist
+# MasjidPi v1.5.0 Release Acceptance Record
 
-This document defines the release-candidate acceptance checks for MasjidPi v1.5.0.
+This document records the release-candidate acceptance checks used to promote MasjidPi v1.5.0.
 
-The current planned release candidate is `v1.5.0-rc.4`. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, RC3 addressed issues identified during RC2 hardware soak testing, and RC4 adds the responsive and touch-oriented Board appliance experience.
+`v1.5.0-rc.4` was selected for stable promotion. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, RC3 addressed issues identified during RC2 hardware soak testing, and RC4 added the responsive and touch-oriented Board appliance experience.
+
+## Acceptance outcome
+
+- Automated Go, vet, race, shell and frontend validation passed in CI.
+- The published ARM64 RC4 archive and checksum were downloaded and verified successfully.
+- The RC4 release upgrade and installer self-test passed on the Raspberry Pi 4 test appliance while preserving the Listen + Board profile and settings.
+- Both MasjidPi services remained active with zero restarts during initial RC4 appliance validation; Listen source changes and current Board updates were confirmed.
+- RC3 completed approximately 24 hours on the Raspberry Pi 3B with zero MasjidPi and display-service restarts, stable Listen playback and current Board data.
+- Responsive Board layouts were validated from 1366 × 768 through 3840 × 2160, and the 600 × 1024 appliance layout and touch controls were validated separately.
+- The v1.5.0 User Guide, all relative documentation links and all 14 guide screenshots passed structural and visual review.
+- No release-blocking application defect remained at promotion. Historical undervoltage and throttling flags on the Raspberry Pi 3B were attributed to its power supply and retained as a hardware follow-up.
 
 ## Scope
 
@@ -173,13 +184,14 @@ On Raspberry Pi hardware, allow each bundled radio station to play long enough t
 
 The detailed codec/bitrate measurements from development are recorded separately in `docs/ISLAMIC_RADIO_STREAM_RESEARCH.md`.
 
-## Automated validation
+## Automated validation procedure
 
-Before merging to `main`:
+For subsequent maintenance validation:
 
 ```bash
 cd ~/MasjidPi
-git pull --ff-only origin enhancements/v1.5.0-rc4
+git switch main
+git pull --ff-only origin main
 
 make test
 
@@ -194,7 +206,7 @@ The working tree must be clean and all tests/vet checks must pass.
 
 The pull request CI run must also pass. CI runs Go formatting, vet and race-enabled tests, ShellCheck, installer tests, frontend JavaScript syntax validation and every JavaScript regression test in `tests/`.
 
-## RC publication
+## Stable publication
 
 After the feature branch is merged into `main` and `main` is validated:
 
@@ -202,11 +214,11 @@ After the feature branch is merged into `main` and `main` is validated:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.0-rc.4 -m "MasjidPi v1.5.0-rc.4"
-git push origin v1.5.0-rc.4
+git tag -a v1.5.0 -m "MasjidPi v1.5.0"
+git push origin v1.5.0
 ```
 
-The release workflow must publish ARM64 and AMD64 archives plus `SHA256SUMS`, and the GitHub release must be marked as a prerelease.
+The release workflow must publish ARM64 and AMD64 archives plus `SHA256SUMS`. The GitHub release must be a stable release rather than a prerelease.
 
 ## Raspberry Pi acceptance
 
@@ -264,4 +276,4 @@ Stop and disable the temporary monitor after RC acceptance as described in the m
 
 ## Stable promotion
 
-Promote to `v1.5.0` only after the RC has passed Raspberry Pi hardware validation and no release-blocking regressions remain.
+v1.5.0 was approved for stable promotion after the RC passed Raspberry Pi hardware validation and no release-blocking regressions remained. Continue longer-term Raspberry Pi 3B monitoring and issue a maintenance release if a software defect is subsequently identified.

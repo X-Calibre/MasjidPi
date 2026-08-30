@@ -277,9 +277,7 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guid
 
 ## Project Status
 
-**Current stable release: v1.4.1**
-
-**Next release candidate: v1.5.0-rc.4**
+**Current stable release: v1.5.0**
 
 v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
 
@@ -291,7 +289,7 @@ RC3 preserves and reflects the selected audio output across upgrades, disables N
 
 RC4 adds responsive TV / Monitor rendering from 1366 × 768 through 4K, a dedicated touch control panel for the 7-inch Appliance Display, named Board notifications for Listen source transitions, and further configuration-interface refinements. The touch panel provides favourite Masjid selection, Radio selection and operating modes, source and master volume controls, playback actions, theme selection, and automatic closure after 60 seconds without activity.
 
-The v1.5.0 release candidate will be accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the actual ARM64 RC4 artifact on Raspberry Pi hardware before promotion to v1.5.0.
+The v1.5.0 release was accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the published ARM64 RC4 artifact on Raspberry Pi hardware before stable promotion.
 
 v1.4.1 improves Listen resilience by caching both LiveMasjid relay and Icecast URLs, waiting briefly for newly announced MQTT mounts to become ready and automatically failing over to Icecast when relay playback cannot start. Successful endpoints are preferred temporarily, playback status and logs identify the active endpoint, and the automatic Listen catalogue refresh moves from seven to 28 days while retaining manual refresh.
 

@@ -138,7 +138,9 @@ body.portrait-layout {
 .portrait-listen-heading { height:64px; flex:0 0 64px; display:flex; align-items:center; justify-content:space-between; }
 .portrait-listen-heading small { color:var(--portrait-heading-accent); font-size:13px; font-weight:800; letter-spacing:.12em; }
 .portrait-listen-heading h2 { margin:2px 0 0; font-size:28px; line-height:1; }
-.portrait-listen-close { width:48px; height:48px; padding:0; border:1px solid var(--portrait-line); border-radius:50%; color:var(--portrait-text); background:var(--portrait-panel); font-size:34px; line-height:1; }
+.portrait-listen-close { position:relative; width:48px; height:48px; flex:0 0 48px; padding:0; border:1px solid var(--portrait-line); border-radius:50%; color:var(--portrait-text); background:var(--portrait-panel); font-size:0; }
+.portrait-listen-close::before,.portrait-listen-close::after { content:""; position:absolute; top:50%; left:50%; width:18px; height:2px; border-radius:2px; background:currentColor; transform:translate(-50%,-50%) rotate(45deg); }
+.portrait-listen-close::after { transform:translate(-50%,-50%) rotate(-45deg); }
 .portrait-listen-connection { margin:4px 0 8px; padding:10px 14px; border-radius:10px; color:var(--portrait-danger-text); background:var(--portrait-danger-bg); font-size:15px; font-weight:700; }
 .portrait-listen-status { height:76px; flex:0 0 76px; padding:12px 14px; border:1px solid var(--portrait-line); border-radius:14px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:12px; background:var(--portrait-panel); }
 .portrait-listen-status strong,.portrait-listen-status span { display:block; }

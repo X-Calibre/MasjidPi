@@ -12,6 +12,8 @@ const controller = fs.readFileSync(path.join(root, "frontend/masjidboard-touch-c
 const portrait = fs.readFileSync(path.join(root, "frontend/masjidboard-portrait.js"), "utf8");
 
 assert.match(html, /id="portraitListenPanel"/);
+assert.match(html, /class="portrait-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
+assert.match(html, /masjidboard-portrait\.css\?v=20260831-centred-close-control/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="portraitOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
@@ -49,6 +51,8 @@ assert.match(css, /var\(--portrait-panel\)/);
 assert.match(css, /\.portrait-listen-sheet\s*\{[^}]*height:724px/s);
 assert.match(css, /\.portrait-listen-content\s*\{[^}]*flex:1 1 auto;[^}]*min-height:0/s);
 assert.match(css, /\.portrait-listen-status\s*\{[^}]*height:76px;[^}]*flex:0 0 76px/s);
+assert.match(css, /\.portrait-listen-close::before,\.portrait-listen-close::after\s*\{[^}]*top:50%;[^}]*left:50%;[^}]*transform:translate\(-50%,-50%\) rotate\(45deg\)/s);
+assert.match(css, /\.portrait-listen-close::after\s*\{[^}]*rotate\(-45deg\)/s);
 assert.match(css, /\.portrait-theme-option\s*\{[^}]*height:84px/s);
 assert.match(themes, /--portrait-danger:var\(--danger\)/);
 

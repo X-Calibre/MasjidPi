@@ -12,7 +12,6 @@ import (
 // diagnostic error strings. Boards remain in the user's selected order.
 type View struct {
 	Configured         bool                 `json:"configured"`
-	Layout             string               `json:"layout"`
 	Theme              string               `json:"theme"`
 	SlideDuration      int                  `json:"slide_duration_seconds"`
 	Boards             []Board              `json:"boards"`

@@ -148,6 +148,7 @@ func TestStoreRejectsPersistedEmptySelection(t *testing.T) {
 func TestStoreLoadsLegacyLayoutFieldAndDropsItOnSave(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "selection.json")
 	legacy := `{"boards":[{"catalogue_id":"masjidboardlive:brits-jamia","provider":"masjidboardlive","external_id":"brits-jamia","name":"Brits Jamia Masjid","time_zone_offset_ms":7200000}],"layout":"portrait","theme":"midnight","slide_duration_seconds":30}`
+	legacy = strings.ReplaceAll(legacy, `\"`, `"`)
 	if err := os.WriteFile(path, []byte(legacy), 0600); err != nil {
 		t.Fatal(err)
 	}

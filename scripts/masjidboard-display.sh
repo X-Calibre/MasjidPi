@@ -4,6 +4,8 @@ set -Eeuo pipefail
 
 MASJIDBOARD_BASE_URL="${MASJIDBOARD_BASE_URL:-http://127.0.0.1:8080/masjidboard.html}"
 MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
+MASJIDPI_USB_SYSFS_ROOT="${MASJIDPI_USB_SYSFS_ROOT:-/sys/bus/usb/devices}"
+MASJIDPI_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
 
 wait_for_masjidpi() {
     while ! curl --silent --show-error --fail --max-time 2 \
@@ -14,11 +16,14 @@ wait_for_masjidpi() {
 
 waveshare_touch_present() {
     local device
-    for device in /sys/bus/usb/devices/*; do
+    for device in "$MASJIDPI_USB_SYSFS_ROOT"/*; do
         [[ -r "$device/idVendor" && -r "$device/idProduct" ]] || continue
         [[ "$(<"$device/idVendor")" == "0eef" ]] || continue
         [[ "$(<"$device/idProduct")" == "0005" ]] || continue
 
+        # Some kernels/udev timing windows may expose VID/PID before optional
+        # descriptive strings. When the strings are present, require the
+        # validated Waveshare identity as an additional guard.
         if [[ -r "$device/manufacturer" && -r "$device/product" ]]; then
             [[ "$(<"$device/manufacturer")" == "WaveShare" ]] || continue
             [[ "$(<"$device/product")" == "WS170120" ]] || continue
@@ -30,7 +35,7 @@ waveshare_touch_present() {
 
 hdmi_1024x600_present() {
     local connector
-    for connector in /sys/class/drm/card*-HDMI-A-*; do
+    for connector in "$MASJIDPI_DRM_SYSFS_ROOT"/card*-HDMI-A-*; do
         [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
         [[ "$(<"$connector/status")" == "connected" ]] || continue
         grep -Fxq '1024x600' "$connector/modes" && return 0
@@ -90,4 +95,6 @@ main() {
     exec cog --platform=drm --platform-params="$platform_params" "$(display_url "$profile")"
 }
 
-main "$@"
+if [[ "${MASJIDBOARD_DISPLAY_LIBRARY_ONLY:-0}" != "1" ]]; then
+    main "$@"
+fi

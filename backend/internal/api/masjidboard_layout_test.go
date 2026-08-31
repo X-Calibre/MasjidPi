@@ -10,28 +10,27 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
 
-type fakeLayoutService struct{ state selection.State }
+type fakeDisplaySettingsService struct{ state selection.State }
 
-func (f *fakeLayoutService) Configured() bool                     { return f.state.Configured() }
-func (f *fakeLayoutService) Selection() selection.State           { return f.state }
-func (f *fakeLayoutService) Results() []masjidboardruntime.Result { return nil }
-func (f *fakeLayoutService) SetLayout(layout string) error        { f.state.Layout = layout; return nil }
-func (f *fakeLayoutService) SetTheme(theme string) error          { f.state.Theme = theme; return nil }
-func (f *fakeLayoutService) SetSlideDurationSeconds(seconds int) error {
+func (f *fakeDisplaySettingsService) Configured() bool                     { return f.state.Configured() }
+func (f *fakeDisplaySettingsService) Selection() selection.State           { return f.state }
+func (f *fakeDisplaySettingsService) Results() []masjidboardruntime.Result { return nil }
+func (f *fakeDisplaySettingsService) SetTheme(theme string) error          { f.state.Theme = theme; return nil }
+func (f *fakeDisplaySettingsService) SetSlideDurationSeconds(seconds int) error {
 	f.state.SlideDurationSeconds = seconds
 	return nil
 }
-func (f *fakeLayoutService) SetShowEconomicIndicators(show bool) error {
+func (f *fakeDisplaySettingsService) SetShowEconomicIndicators(show bool) error {
 	f.state.ShowEconomicIndicators = show
 	return nil
 }
 
-func testLayoutState() selection.State {
+func testDisplaySettingsState() selection.State {
 	return selection.State{Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}}}
 }
 
-func TestMasjidBoardLayoutDefaultsToLandscapeEmerald(t *testing.T) {
-	service := &fakeLayoutService{state: testLayoutState()}
+func TestMasjidBoardDisplaySettingsDefaults(t *testing.T) {
+	service := &fakeDisplaySettingsService{state: testDisplaySettingsState()}
 	server := &Server{masjidBoardService: service}
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/masjidboard/layout", nil)
@@ -39,31 +38,31 @@ func TestMasjidBoardLayoutDefaultsToLandscapeEmerald(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"layout":"landscape","theme":"emerald","slide_duration_seconds":15,"show_economic_indicators":false}` {
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"emerald","slide_duration_seconds":15,"show_economic_indicators":false}` {
 		t.Fatalf("body=%s", got)
 	}
 }
 
-func TestMasjidBoardLayoutPUTUpdatesPreferences(t *testing.T) {
-	service := &fakeLayoutService{state: testLayoutState()}
+func TestMasjidBoardDisplaySettingsPUTUpdatesPreferences(t *testing.T) {
+	service := &fakeDisplaySettingsService{state: testDisplaySettingsState()}
 	server := &Server{masjidBoardService: service}
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"layout":"portrait","theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true}`))
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true}`))
 	req.Header.Set("Content-Type", "application/json")
 	server.masjidBoardLayout(rec, req)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
 	}
-	if service.state.Layout != selection.LayoutPortrait || service.state.Theme != selection.ThemeRuby || service.state.SlideDurationSeconds != 30 || !service.state.ShowEconomicIndicators {
+	if service.state.Theme != selection.ThemeRuby || service.state.SlideDurationSeconds != 30 || !service.state.ShowEconomicIndicators {
 		t.Fatalf("state=%+v", service.state)
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"layout":"portrait","theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true}` {
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true}` {
 		t.Fatalf("body=%s", got)
 	}
 }
 
-func TestMasjidBoardLayoutPUTRejectsInvalidSlideDuration(t *testing.T) {
-	server := &Server{masjidBoardService: &fakeLayoutService{state: testLayoutState()}}
+func TestMasjidBoardDisplaySettingsPUTRejectsInvalidSlideDuration(t *testing.T) {
+	server := &Server{masjidBoardService: &fakeDisplaySettingsService{state: testDisplaySettingsState()}}
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"slide_duration_seconds":61}`))
 	server.masjidBoardLayout(rec, req)
@@ -72,19 +71,9 @@ func TestMasjidBoardLayoutPUTRejectsInvalidSlideDuration(t *testing.T) {
 	}
 }
 
-func TestMasjidBoardLayoutPUTRejectsInvalidLayout(t *testing.T) {
-	server := &Server{masjidBoardService: &fakeLayoutService{state: testLayoutState()}}
-	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"layout":"wide"}`))
-	server.masjidBoardLayout(rec, req)
-	if rec.Code != http.StatusBadRequest {
-		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
-	}
-}
-
-func TestMasjidBoardLayoutPUTRejectsRetiredLayouts(t *testing.T) {
-	for _, layout := range []string{"standard", "detailed"} {
-		server := &Server{masjidBoardService: &fakeLayoutService{state: testLayoutState()}}
+func TestMasjidBoardDisplaySettingsPUTRejectsRemovedLayoutField(t *testing.T) {
+	server := &Server{masjidBoardService: &fakeDisplaySettingsService{state: testDisplaySettingsState()}}
+	for _, layout := range []string{"portrait", "landscape", "standard", "detailed"} {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"layout":"`+layout+`"}`))
 		server.masjidBoardLayout(rec, req)
@@ -94,8 +83,8 @@ func TestMasjidBoardLayoutPUTRejectsRetiredLayouts(t *testing.T) {
 	}
 }
 
-func TestMasjidBoardLayoutPUTRejectsInvalidTheme(t *testing.T) {
-	server := &Server{masjidBoardService: &fakeLayoutService{state: testLayoutState()}}
+func TestMasjidBoardDisplaySettingsPUTRejectsInvalidTheme(t *testing.T) {
+	server := &Server{masjidBoardService: &fakeDisplaySettingsService{state: testDisplaySettingsState()}}
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"theme":"neon"}`))
 	server.masjidBoardLayout(rec, req)

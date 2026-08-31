@@ -2,9 +2,19 @@ package player
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"sync"
+)
+
+const (
+	// MasjidPi plays live audio rather than seekable video. Keep enough forward
+	// cache for prolonged network jitter without retaining mpv's much larger
+	// generic media-player cache, and retain only a small non-seekable back
+	// buffer. These limits are understood by every supported mpv release.
+	demuxerForwardCacheBytes = 32 * 1024 * 1024
+	demuxerBackCacheBytes    = 4 * 1024 * 1024
 )
 
 type Process struct {
@@ -34,16 +44,7 @@ func (p *Process) Start() error {
 	// Remove any stale socket from a previous crash.
 	_ = os.Remove(p.socket)
 
-	cmd := exec.Command(
-		"mpv",
-		"--idle=yes",
-		"--no-video",
-		"--no-ytdl",
-		"--really-quiet",
-		"--terminal=no",
-		"--ao=alsa",
-		"--input-ipc-server="+p.socket,
-	)
+	cmd := exec.Command("mpv", mpvCommandArgs(p.socket)...)
 
 	// MPV runs as a background service. Do not forward its terminal/progress
 	// output to MasjidPi's stdout/stderr and therefore into journald.
@@ -66,6 +67,20 @@ func (p *Process) Start() error {
 	}()
 
 	return nil
+}
+
+func mpvCommandArgs(socket string) []string {
+	return []string{
+		"--idle=yes",
+		"--no-video",
+		"--no-ytdl",
+		"--really-quiet",
+		"--terminal=no",
+		"--ao=alsa",
+		"--demuxer-max-bytes=" + fmt.Sprint(demuxerForwardCacheBytes),
+		"--demuxer-max-back-bytes=" + fmt.Sprint(demuxerBackCacheBytes),
+		"--input-ipc-server=" + socket,
+	}
 }
 
 func (p *Process) Stop() error {

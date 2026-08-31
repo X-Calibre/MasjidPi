@@ -4,9 +4,26 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
+	"strconv"
 	"testing"
 	"time"
 )
+
+func TestMPVCommandArgsBoundLiveAudioCache(t *testing.T) {
+	args := mpvCommandArgs("/tmp/test.sock")
+	want := []string{
+		"--no-video",
+		"--demuxer-max-bytes=" + strconv.Itoa(demuxerForwardCacheBytes),
+		"--demuxer-max-back-bytes=" + strconv.Itoa(demuxerBackCacheBytes),
+		"--input-ipc-server=/tmp/test.sock",
+	}
+	for _, option := range want {
+		if !slices.Contains(args, option) {
+			t.Fatalf("mpv args %q do not contain %q", args, option)
+		}
+	}
+}
 
 func TestProcessRestartsAfterUnexpectedExit(t *testing.T) {
 	if runtime.GOOS != "linux" {

@@ -12,6 +12,8 @@ const controller = fs.readFileSync(path.join(root, "frontend/masjidboard-touch-c
 const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.js"), "utf8");
 
 assert.match(html, /id="applianceListenPanel"/);
+assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
+assert.match(html, /masjidboard-appliance\.css\?v=20260831-centred-close-control/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
@@ -51,6 +53,8 @@ assert.match(css, /var\(--appliance-panel\)/);
 assert.match(css, /\.appliance-listen-sheet\s*\{[^}]*height:724px/s);
 assert.match(css, /\.appliance-listen-content\s*\{[^}]*flex:1 1 auto;[^}]*min-height:0/s);
 assert.match(css, /\.appliance-listen-status\s*\{[^}]*height:76px;[^}]*flex:0 0 76px/s);
+assert.match(css, /\.appliance-listen-close::before,\.appliance-listen-close::after\s*\{[^}]*top:50%;[^}]*left:50%;[^}]*transform:translate\(-50%,-50%\) rotate\(45deg\)/s);
+assert.match(css, /\.appliance-listen-close::after\s*\{[^}]*rotate\(-45deg\)/s);
 assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:84px/s);
 assert.doesNotMatch(css, /portrait/);
 assert.match(themes, /--appliance-danger:var\(--danger\)/);

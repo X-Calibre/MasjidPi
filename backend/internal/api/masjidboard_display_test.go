@@ -96,6 +96,36 @@ func TestMasjidBoardDisplayReturnsUnconfiguredState(t *testing.T) {
 	}
 }
 
+func TestMasjidBoardDisplaySupportsConditionalRequests(t *testing.T) {
+	s := &Server{}
+	firstRequest := httptest.NewRequest(http.MethodGet, "/api/masjidboard/display", nil)
+	firstResponse := httptest.NewRecorder()
+	s.masjidBoardDisplay(firstResponse, firstRequest)
+
+	if firstResponse.Code != http.StatusOK {
+		t.Fatalf("first response status = %d, want 200", firstResponse.Code)
+	}
+	etag := firstResponse.Header().Get("ETag")
+	if etag == "" {
+		t.Fatal("first response did not include ETag")
+	}
+	if got := firstResponse.Header().Get("Cache-Control"); got != "no-cache" {
+		t.Fatalf("Cache-Control = %q, want no-cache", got)
+	}
+
+	secondRequest := httptest.NewRequest(http.MethodGet, "/api/masjidboard/display", nil)
+	secondRequest.Header.Set("If-None-Match", etag)
+	secondResponse := httptest.NewRecorder()
+	s.masjidBoardDisplay(secondResponse, secondRequest)
+
+	if secondResponse.Code != http.StatusNotModified {
+		t.Fatalf("conditional response status = %d, want 304", secondResponse.Code)
+	}
+	if secondResponse.Body.Len() != 0 {
+		t.Fatalf("conditional response body = %q, want empty", secondResponse.Body.String())
+	}
+}
+
 func TestMasjidBoardDisplayRejectsWrongMethod(t *testing.T) {
 	s := &Server{}
 	req := httptest.NewRequest(http.MethodPost, "/api/masjidboard/display", nil)

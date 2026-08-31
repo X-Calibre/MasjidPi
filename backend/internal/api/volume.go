@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/player"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 )
 
@@ -20,6 +21,21 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, err.Error())
 			return
+		}
+		state := s.audioDeviceState
+		if state == nil {
+			if paths, pathErr := config.RuntimePaths(); pathErr == nil {
+				state = storage.NewAudioDeviceState(paths.AudioDeviceState)
+			}
+		}
+		if state != nil {
+			if saved, ok, loadErr := state.Load(); loadErr == nil && ok && !containsAudioDevice(devices, saved) {
+				devices = append(devices, player.AudioDevice{
+					Name:        saved,
+					Description: player.AudioDeviceDescription(saved),
+					Unavailable: true,
+				})
+			}
 		}
 		writeJSON(w, http.StatusOK, devices)
 		return
@@ -75,4 +91,13 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, s.playback.Status())
+}
+
+func containsAudioDevice(devices []player.AudioDevice, name string) bool {
+	for _, device := range devices {
+		if device.Name == name {
+			return true
+		}
+	}
+	return false
 }

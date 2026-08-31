@@ -217,6 +217,8 @@ Choose the ALSA-compatible output device MasjidPi should use for Listen playback
 
 Available outputs depend on the hardware and operating system.
 
+Use **Refresh Devices** after connecting or disconnecting USB audio hardware. Newly connected outputs appear without restarting MasjidPi. A saved output that is temporarily disconnected remains identified as unavailable and is restored automatically when it returns.
+
 ### Master Volume
 
 Master Volume controls the selected audio device's hardware mixer where the device exposes a supported hardware volume control.

@@ -11,12 +11,14 @@ import (
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 )
 
 type apiTestPlayer struct {
 	volume      int
 	audioDevice string
+	devices     []player.AudioDevice
 }
 
 func (p *apiTestPlayer) Play(string) error { return nil }
@@ -26,7 +28,38 @@ func (p *apiTestPlayer) Volume(volume int) error {
 	return nil
 }
 func (p *apiTestPlayer) AudioDevices() ([]player.AudioDevice, error) {
-	return nil, nil
+	return p.devices, nil
+}
+
+func TestAudioDevicesIncludesSavedUnavailableDevice(t *testing.T) {
+	playerBackend := &apiTestPlayer{
+		volume:  100,
+		devices: []player.AudioDevice{{Name: "auto", Description: "Default audio output"}},
+	}
+	manager := playback.New(playerBackend, playback.Config{})
+	state := storage.NewAudioDeviceState(filepath.Join(t.TempDir(), "audio-device.json"))
+	if err := state.Save("alsa/plughw:CARD=UACDemoV10,DEV=0"); err != nil {
+		t.Fatal(err)
+	}
+	s := &Server{playback: manager, audioDeviceState: state}
+	req := httptest.NewRequest(http.MethodGet, "/api/player/volume?devices=1", nil)
+	res := httptest.NewRecorder()
+
+	s.volume(res, req)
+
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", res.Code)
+	}
+	var devices []player.AudioDevice
+	if err := json.NewDecoder(res.Body).Decode(&devices); err != nil {
+		t.Fatal(err)
+	}
+	if len(devices) != 2 || !devices[1].Unavailable {
+		t.Fatalf("devices = %#v, want saved unavailable device", devices)
+	}
+	if devices[1].Description != "USB Audio" {
+		t.Fatalf("description = %q, want USB Audio", devices[1].Description)
+	}
 }
 func (p *apiTestPlayer) AudioDevice(name string) error {
 	p.audioDevice = name

@@ -138,7 +138,9 @@ body.appliance-layout {
 .appliance-listen-heading { height:64px; flex:0 0 64px; display:flex; align-items:center; justify-content:space-between; }
 .appliance-listen-heading small { color:var(--appliance-heading-accent); font-size:13px; font-weight:800; letter-spacing:.12em; }
 .appliance-listen-heading h2 { margin:2px 0 0; font-size:28px; line-height:1; }
-.appliance-listen-close { width:48px; height:48px; padding:0; border:1px solid var(--appliance-line); border-radius:50%; color:var(--appliance-text); background:var(--appliance-panel); font-size:34px; line-height:1; }
+.appliance-listen-close { position:relative; width:48px; height:48px; flex:0 0 48px; padding:0; border:1px solid var(--appliance-line); border-radius:50%; color:var(--appliance-text); background:var(--appliance-panel); font-size:0; }
+.appliance-listen-close::before,.appliance-listen-close::after { content:""; position:absolute; top:50%; left:50%; width:18px; height:2px; border-radius:2px; background:currentColor; transform:translate(-50%,-50%) rotate(45deg); }
+.appliance-listen-close::after { transform:translate(-50%,-50%) rotate(-45deg); }
 .appliance-listen-connection { margin:4px 0 8px; padding:10px 14px; border-radius:10px; color:var(--appliance-danger-text); background:var(--appliance-danger-bg); font-size:15px; font-weight:700; }
 .appliance-listen-status { height:76px; flex:0 0 76px; padding:12px 14px; border:1px solid var(--appliance-line); border-radius:14px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:12px; background:var(--appliance-panel); }
 .appliance-listen-status strong,.appliance-listen-status span { display:block; }

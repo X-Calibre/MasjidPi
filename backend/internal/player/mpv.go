@@ -6,7 +6,10 @@ import (
 	"time"
 )
 
-const maxSoftwareVolume = 150
+const (
+	maxSoftwareVolume  = 150
+	mpvIPCReadyTimeout = 5 * time.Second
+)
 
 type MPV struct {
 	process        *Process
@@ -47,7 +50,7 @@ func (m *MPV) Restart() error {
 }
 
 func (m *MPV) connectIPC() error {
-	deadline := time.Now().Add(3 * time.Second)
+	deadline := time.Now().Add(mpvIPCReadyTimeout)
 	for {
 		if err := m.ipc.Connect(); err == nil {
 			return nil

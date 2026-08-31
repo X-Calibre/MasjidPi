@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const refreshIntervalMs = 10_000;
+    const refreshIntervalMs = 30_000;
 
     const displayState = document.getElementById("displayState");
     const unconfiguredState = document.getElementById("unconfiguredState");
@@ -15,6 +15,7 @@
     let latestView = null;
     let renderedViewSignature = "";
     let renderedPrayerMinute = "";
+    let displayETag = "";
 
     function displayDate() {
         const value = new URLSearchParams(window.location.search).get("date");
@@ -308,8 +309,15 @@
 
     async function refresh() {
         try {
-            const response = await fetch("/api/masjidboard/display", {cache: "no-store"});
+            const headers = displayETag ? {"If-None-Match": displayETag} : {};
+            const response = await fetch("/api/masjidboard/display", {cache: "no-cache", headers});
+            if (response.status === 304) {
+                connectionState.textContent = "";
+                connectionState.classList.remove("warning");
+                return;
+            }
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            displayETag = response.headers.get("ETag") || "";
             const view = await response.json();
             latestView = view;
             const signature = viewSignature(view);

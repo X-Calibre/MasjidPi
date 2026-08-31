@@ -234,6 +234,24 @@ button.app-tab {
     margin-top: 24px;
 }
 
+.audio-device-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.audio-device-heading label {
+    margin: 0;
+}
+
+.audio-device-heading .compact-action {
+    width: auto;
+    margin: 0;
+    padding: 7px 11px;
+    font-size: 13px;
+}
+
 @media (max-width: 600px) {
     .listen-subtabs {
         flex-direction: row;

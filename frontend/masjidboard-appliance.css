@@ -1,0 +1,388 @@
+.appliance-state { display:none; }
+
+body.appliance-layout {
+    --appliance-bg:#101512;
+    --appliance-panel:#19201c;
+    --appliance-raised:#222b26;
+    --appliance-line:#526058;
+    --appliance-text:#fff;
+    --appliance-muted:#c5cec8;
+    --appliance-accent:#55d69e;
+    --appliance-accent-bg:#123a2c;
+    --appliance-countdown:var(--accent);
+    --appliance-countdown-text:#211600;
+    --appliance-header-bg:#111814;
+    --appliance-strong-line:#738179;
+    --appliance-secondary-text:#e6ece8;
+    --appliance-heading-accent:#8ff0c3;
+    --appliance-table-head:#2a342f;
+    --appliance-upcoming-bg:#173d2f;
+    --appliance-upcoming-line:#63e4aa;
+    --appliance-dot:#5c6861;
+    --appliance-dot-line:#a6b0aa;
+    --appliance-danger:#ff918c;
+    --appliance-danger-bg:#4a2525;
+    --appliance-danger-text:#ffdede;
+    min-width:600px;
+    min-height:1024px;
+    background:var(--appliance-bg);
+}
+
+.appliance-layout .board-shell {
+    position:relative;
+    width:600px;
+    height:1024px;
+    min-height:1024px;
+    margin:0 auto;
+    padding:0;
+    gap:0;
+    overflow:hidden;
+    background:var(--appliance-bg);
+}
+.appliance-layout .board-topbar,
+.appliance-layout .display-state,
+.appliance-layout .additional-times,
+.appliance-layout .empty-state { display:none!important; }
+/* Font test history/revert points: Atkinson Hyperlegible Next replaced the
+   original Inter/system UI stack. Both remain available after Fira Sans. */
+.appliance-layout .appliance-state { position:absolute; inset:0; display:block; color:var(--appliance-text); background:var(--appliance-bg); touch-action:none; font-family:var(--board-font-family); }
+.appliance-header { height:300px; padding:14px 28px 12px; border-bottom:2px solid var(--appliance-strong-line); background:var(--appliance-header-bg); display:flex; flex-direction:column; }
+.appliance-header .board-source-toast {
+    flex:0 0 48px;
+    width:100%;
+    padding:6px 14px;
+    border-radius:12px;
+}
+.appliance-header .board-source-toast-label { font-size:11px; }
+.appliance-header .board-source-toast-message { font-size:16px; }
+.appliance-header:has(.board-source-toast:not(.hidden)) .appliance-clock-row { height:112px; }
+.appliance-header:has(.board-source-toast:not(.hidden)) .appliance-next { height:88px; margin-top:6px; }
+.appliance-clock-row { height:132px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:24px; }
+.appliance-clock { color:var(--appliance-text); font-size:100px; font-weight:700; line-height:.9; letter-spacing:-.025em; font-variant-numeric:tabular-nums; }
+.appliance-information { height:112px; min-width:0; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:8px; color:var(--appliance-secondary-text); font-size:17px; line-height:1.2; text-align:right; }
+.appliance-information strong { max-width:100%; overflow:hidden; color:var(--appliance-text); font-size:24px; text-overflow:ellipsis; white-space:nowrap; }
+.appliance-information div { color:var(--appliance-heading-accent); font-weight:800; }
+.appliance-next { height:104px; margin-top:10px; padding:11px 17px; border:2px solid var(--appliance-line); border-radius:18px; display:grid; grid-template-columns:145px minmax(0,1fr) 140px; align-items:center; column-gap:12px; background:var(--appliance-panel); }
+#applianceNextTime { color:var(--appliance-text); font-size:48px; font-weight:800; letter-spacing:-.015em; text-align:right; font-variant-numeric:tabular-nums; }
+.appliance-next-name { color:var(--appliance-text); font-size:23px; font-weight:700; line-height:1.18; text-align:left; white-space:pre-line; }
+.appliance-countdown { align-self:center; justify-self:start; color:var(--appliance-countdown); font-size:22px; font-weight:700; line-height:1.2; text-align:left; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.appliance-slides { position:absolute; top:300px; left:0; width:600px; height:724px; overflow:hidden; }
+.appliance-slide {
+    position:absolute;
+    inset:0;
+    z-index:0;
+    visibility:hidden;
+    opacity:0;
+    padding:22px 28px 50px;
+    transform:translateX(20px);
+    transition:opacity 300ms ease,transform 300ms ease;
+    pointer-events:none;
+    will-change:opacity,transform;
+}
+.appliance-slide.active {
+    z-index:2;
+    visibility:visible;
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+}
+.appliance-slide.active.enter-from-left { transform:translateX(-20px); }
+.appliance-slide.active.enter-from-right { transform:translateX(20px); }
+.appliance-slide.exit-to-left,
+.appliance-slide.exit-to-right {
+    z-index:1;
+    visibility:visible;
+    opacity:0;
+}
+.appliance-slide.exit-to-left { transform:translateX(-20px); }
+.appliance-slide.exit-to-right { transform:translateX(20px); }
+.appliance-slide-heading { height:82px; border-bottom:2px solid var(--appliance-line); }
+.appliance-slide-heading small { display:block; margin-bottom:5px; color:var(--appliance-heading-accent); font-size:16px; font-weight:800; letter-spacing:.12em; }
+.appliance-slide-heading h2 { max-width:100%; margin:0; overflow:hidden; color:var(--appliance-text); font-size:34px; line-height:1.1; letter-spacing:-.02em; text-overflow:ellipsis; white-space:nowrap; }
+.appliance-times { margin-top:14px; overflow:hidden; border:2px solid var(--appliance-line); border-radius:16px; background:var(--appliance-panel); }
+.appliance-time-row { height:100px; padding:0 20px; border-top:1px solid var(--appliance-line); display:grid; grid-template-columns:1.3fr 1fr 1fr; align-items:center; font-size:28px; }
+.appliance-time-row strong { color:var(--appliance-text); font-size:32px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; }
+.appliance-time-head { height:48px; border:0; color:var(--appliance-secondary-text); background:var(--appliance-table-head); font-size:16px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.appliance-time-head span:nth-child(n+2) { text-align:right; }
+.appliance-time-row.upcoming { outline:1px solid var(--appliance-upcoming-line); outline-offset:-1px; background:var(--appliance-upcoming-bg); box-shadow:inset 6px 0 var(--appliance-accent); }
+.appliance-daily-row { height:78px; grid-template-columns:1fr auto; }
+.appliance-daily-row strong { min-width:110px; }
+.appliance-footer { position:absolute; z-index:2; bottom:19px; left:28px; right:28px; display:flex; align-items:center; justify-content:space-between; color:var(--appliance-muted); font-size:11px; }
+.appliance-dots { display:flex; gap:8px; }
+.appliance-dots button { width:8px; height:8px; padding:0; border:1px solid var(--appliance-dot-line); border-radius:10px; background:var(--appliance-dot); cursor:pointer; }
+.appliance-dots button.active { width:24px; border-color:var(--appliance-heading-accent); background:var(--appliance-accent); }
+.appliance-listen-hint { color:var(--appliance-muted); font-size:12px; font-weight:700; letter-spacing:.02em; }
+.appliance-state.listen-panel-open { touch-action:pan-y; }
+
+.appliance-listen-panel { position:absolute; z-index:20; inset:0; }
+.appliance-listen-panel.hidden { display:none; }
+.appliance-listen-backdrop { position:absolute; inset:0; width:100%; border:0; background:transparent; }
+.appliance-listen-sheet {
+    position:absolute;
+    right:0;
+    bottom:0;
+    left:0;
+    height:724px;
+    padding:10px 24px 22px;
+    overflow:hidden;
+    border:2px solid var(--appliance-strong-line);
+    border-bottom:0;
+    border-radius:24px 24px 0 0;
+    background:var(--appliance-header-bg);
+    box-shadow:0 -14px 40px rgba(0,0,0,.5);
+    color:var(--appliance-text);
+    display:flex;
+    flex-direction:column;
+}
+.appliance-listen-handle { width:76px; height:6px; margin:0 auto 10px; border-radius:10px; background:var(--appliance-strong-line); }
+.appliance-listen-heading { height:64px; flex:0 0 64px; display:flex; align-items:center; justify-content:space-between; }
+.appliance-listen-heading small { color:var(--appliance-heading-accent); font-size:13px; font-weight:800; letter-spacing:.12em; }
+.appliance-listen-heading h2 { margin:2px 0 0; font-size:28px; line-height:1; }
+.appliance-listen-close { width:48px; height:48px; padding:0; border:1px solid var(--appliance-line); border-radius:50%; color:var(--appliance-text); background:var(--appliance-panel); font-size:34px; line-height:1; }
+.appliance-listen-connection { margin:4px 0 8px; padding:10px 14px; border-radius:10px; color:var(--appliance-danger-text); background:var(--appliance-danger-bg); font-size:15px; font-weight:700; }
+.appliance-listen-status { height:76px; flex:0 0 76px; padding:12px 14px; border:1px solid var(--appliance-line); border-radius:14px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:12px; background:var(--appliance-panel); }
+.appliance-listen-status strong,.appliance-listen-status span { display:block; }
+.appliance-listen-status strong { overflow:hidden; font-size:19px; text-overflow:ellipsis; white-space:nowrap; }
+.appliance-listen-status div span { margin-top:4px; color:var(--appliance-muted); font-size:14px; line-height:1.2; }
+.appliance-listen-badge { min-width:82px; padding:7px 10px; border-radius:999px; color:#d7ffe8; background:#1e5d43; font-size:14px; font-weight:800; text-align:center; }
+.appliance-listen-badge.waiting { color:var(--appliance-countdown-text); background:var(--appliance-countdown); }
+.appliance-listen-badge.stopped { color:var(--appliance-muted); background:var(--appliance-raised); }
+.appliance-listen-badge.error { color:var(--appliance-danger-text); background:var(--appliance-danger-bg); }
+.appliance-volume-control { margin-top:12px; }
+.appliance-master-volume { height:90px; flex:0 0 90px; padding:10px 14px 12px; border:1px solid var(--appliance-line); border-radius:14px; background:var(--appliance-panel); }
+.appliance-control-label { margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; font-size:16px; font-weight:750; }
+.appliance-control-label output { min-width:86px; color:var(--appliance-heading-accent); text-align:right; font-variant-numeric:tabular-nums; }
+.appliance-volume-row { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; align-items:center; gap:10px; }
+.appliance-volume-row button { width:48px; height:42px; padding:0; border:1px solid var(--appliance-line); border-radius:10px; color:var(--appliance-text); background:var(--appliance-raised); font-size:27px; }
+.appliance-volume-row input { width:100%; height:34px; accent-color:var(--appliance-accent); }
+.appliance-listen-tabs { height:54px; flex:0 0 54px; margin-top:12px; padding:4px; border:1px solid var(--appliance-line); border-radius:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:4px; background:var(--appliance-panel); }
+.appliance-listen-tabs button { border:0; border-radius:10px; color:var(--appliance-muted); background:transparent; font-size:18px; font-weight:800; }
+.appliance-listen-tabs button.active { color:var(--appliance-countdown-text); background:var(--appliance-accent); }
+.appliance-listen-content { flex:1 1 auto; min-height:0; overflow:hidden; }
+.appliance-listen-content section { height:100%; overflow-y:auto; overscroll-behavior:contain; padding:2px 2px 10px; }
+.appliance-listen-content section.hidden { display:none; }
+.appliance-source-heading { margin:14px 2px 7px; display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.appliance-source-heading strong { font-size:17px; }
+.appliance-source-heading span { overflow:hidden; color:var(--appliance-muted); font-size:13px; text-overflow:ellipsis; white-space:nowrap; }
+.appliance-source-list { max-height:176px; overflow-y:auto; border:1px solid var(--appliance-line); border-radius:14px; background:var(--appliance-panel); }
+.appliance-source-list button { width:100%; min-height:54px; padding:10px 14px; border:0; border-top:1px solid var(--appliance-line); display:block; color:var(--appliance-text); background:transparent; font-size:16px; font-weight:650; line-height:1.2; text-align:left; }
+.appliance-source-list button:first-child { border-top:0; }
+.appliance-source-list button.selected { color:var(--appliance-countdown-text); background:var(--appliance-accent); }
+.appliance-source-list button.selected:not(.playing)::after { content:"Selected"; float:right; margin-left:8px; font-size:12px; font-weight:850; text-transform:uppercase; }
+.appliance-source-list button.playing::after { content:"Playing"; float:right; margin-left:8px; font-size:12px; font-weight:850; text-transform:uppercase; }
+.appliance-source-empty { padding:18px 14px; color:var(--appliance-muted); font-size:15px; line-height:1.35; }
+.appliance-listen-actions { margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.appliance-listen-actions button,.appliance-radio-actions button { min-height:52px; padding:9px 12px; border:1px solid var(--appliance-line); border-radius:12px; color:var(--appliance-text); background:var(--appliance-raised); font-size:15px; font-weight:800; }
+.appliance-listen-actions button.primary,.appliance-radio-actions button.primary { border-color:var(--appliance-accent); color:var(--appliance-countdown-text); background:var(--appliance-accent); }
+.appliance-listen-actions button.danger,.appliance-radio-actions button.danger { border-color:var(--appliance-danger); color:var(--appliance-danger-text); background:var(--appliance-danger-bg); }
+.appliance-radio-actions { margin-top:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.appliance-radio-actions button.active:not(.danger) { border-color:var(--appliance-accent); color:var(--appliance-countdown-text); background:var(--appliance-accent); }
+.appliance-radio-actions button.danger.active { box-shadow:inset 0 0 0 2px var(--appliance-danger-text); }
+.appliance-radio-mode-detail { min-height:18px; margin-top:7px; color:var(--appliance-muted); font-size:13px; line-height:1.2; text-align:center; }
+.appliance-theme-intro { margin:12px 4px 10px; }
+.appliance-theme-intro strong,.appliance-theme-intro span { display:block; }
+.appliance-theme-intro strong { font-size:20px; }
+.appliance-theme-intro span { margin-top:4px; color:var(--appliance-muted); font-size:14px; line-height:1.25; }
+.appliance-theme-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 12px; }
+.appliance-theme-option { height:84px; padding:10px; border:2px solid var(--appliance-line); border-radius:14px; display:grid; grid-template-columns:46px minmax(0,1fr); align-items:center; gap:10px; color:var(--appliance-text); background:var(--appliance-panel); text-align:left; }
+.appliance-theme-option.active { border-color:var(--appliance-heading-accent); box-shadow:inset 0 0 0 2px var(--appliance-heading-accent); }
+.appliance-theme-option strong,.appliance-theme-option > span { display:block; }
+.appliance-theme-option strong { font-size:17px; }
+.appliance-theme-description { margin-top:4px; color:var(--appliance-muted); font-size:12px; }
+.appliance-theme-swatch { width:46px; height:46px; border:2px solid var(--appliance-line); border-radius:50%; background:linear-gradient(135deg,var(--swatch-bg) 0 50%,var(--swatch-accent) 50% 100%); }
+.appliance-theme-option[data-theme="emerald"] { --swatch-bg:#101512; --swatch-accent:#55d69e; }
+.appliance-theme-option[data-theme="midnight"] { --swatch-bg:#050b14; --swatch-accent:#70b7ff; }
+.appliance-theme-option[data-theme="slate"] { --swatch-bg:#0b0d0f; --swatch-accent:#d6b65e; }
+.appliance-theme-option[data-theme="ruby"] { --swatch-bg:#120608; --swatch-accent:#f09a9f; }
+.appliance-theme-option[data-theme="light"] { --swatch-bg:#f2efe7; --swatch-accent:#816b20; }
+.appliance-theme-option[data-theme="black-white"] { --swatch-bg:#000; --swatch-accent:#fff; }
+.appliance-listen-sheet button:disabled,.appliance-listen-sheet input:disabled { opacity:.42; }
+.appliance-listen-sheet button:focus-visible,.appliance-listen-sheet input:focus-visible { outline:3px solid var(--appliance-heading-accent); outline-offset:2px; }
+
+/* Appliance Daily Times mirrors the Landscape item set while fitting the
+   fixed lower slideshow panel. */
+.appliance-daily-times { margin-top:10px; }
+.appliance-daily-row {
+    height:51px;
+    padding:0 18px;
+    font-size:21px;
+}
+.appliance-daily-row strong {
+    min-width:150px;
+    font-size:24px;
+}
+
+/* Community information uses one full card per slide, except for genuinely
+   compact items, which may share the available height. */
+.appliance-community-slide {
+    padding:22px 28px 50px;
+    gap:14px;
+}
+.appliance-community-slide.active,
+.appliance-community-slide.exit-to-left,
+.appliance-community-slide.exit-to-right { display:grid; }
+.appliance-community-slide.single { grid-template-rows:minmax(0,1fr); }
+.appliance-community-slide.paired { grid-template-rows:repeat(2,minmax(0,1fr)); }
+.appliance-community-slide.compact-single {
+    grid-template-rows:minmax(0,260px);
+    align-content:center;
+}
+.appliance-community-card {
+    position:relative;
+    min-height:0;
+    overflow:hidden;
+    padding:30px 28px 24px;
+    border:2px solid var(--appliance-line);
+    border-radius:18px;
+    display:flex;
+    flex-direction:column;
+    background:linear-gradient(155deg,var(--appliance-raised),var(--appliance-panel));
+}
+.appliance-community-type {
+    color:var(--appliance-heading-accent);
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:.11em;
+    text-transform:uppercase;
+}
+.appliance-community-title {
+    margin:0;
+    color:var(--appliance-text);
+    font-size:38px;
+    font-weight:800;
+    letter-spacing:-.03em;
+    line-height:1.08;
+    text-wrap:balance;
+}
+.appliance-community-body {
+    margin:18px 0 0;
+    overflow:hidden;
+    color:var(--appliance-muted);
+    font-size:24px;
+    font-weight:600;
+    line-height:1.35;
+    white-space:pre-line;
+    overflow-wrap:anywhere;
+}
+.appliance-community-fields {
+    margin-top:22px;
+    padding-top:8px;
+    display:grid;
+    gap:10px;
+}
+.appliance-community-field {
+    padding-top:10px;
+    border-top:1px solid var(--appliance-line);
+    display:grid;
+    grid-template-columns:minmax(120px,.38fr) minmax(0,1fr);
+    gap:14px;
+    font-size:20px;
+    line-height:1.2;
+}
+.appliance-community-field-label { color:var(--appliance-muted); }
+.appliance-community-field-value {
+    color:var(--appliance-text);
+    font-weight:700;
+    overflow-wrap:anywhere;
+}
+.appliance-community-source {
+    margin-top:auto;
+    padding-top:16px;
+    color:var(--appliance-muted);
+    font-size:16px;
+    font-weight:600;
+}
+.appliance-community-card.compact {
+    padding:24px 24px 20px;
+}
+.appliance-community-card.compact .appliance-community-type { font-size:13px; }
+.appliance-community-card.compact .appliance-community-title {
+    margin-top:10px;
+    font-size:28px;
+}
+.appliance-community-card.compact .appliance-community-body {
+    margin-top:10px;
+    font-size:18px;
+    line-height:1.28;
+}
+.appliance-community-card.compact .appliance-community-fields {
+    margin-top:10px;
+    padding-top:2px;
+    gap:5px;
+}
+.appliance-community-card.compact .appliance-community-field {
+    padding-top:6px;
+    font-size:17px;
+}
+.appliance-community-card.compact .appliance-community-source {
+    padding-top:8px;
+    font-size:13px;
+}
+.appliance-community-card.compact.appliance-community-salaah_change .appliance-community-title {
+    margin-top:0;
+    text-align:center;
+}
+.appliance-community-card.appliance-community-salaah_change {
+    text-align:center;
+}
+.appliance-community-card.appliance-community-salaah_change .appliance-community-title {
+    text-align:center;
+}
+.appliance-community-card.appliance-community-salaah_change .appliance-community-source {
+    font-size:26px;
+    font-weight:750;
+    line-height:1.15;
+    text-align:center;
+}
+.appliance-community-salaah_change .appliance-salaah-change-main {
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-align:center;
+}
+.appliance-community-salaah_change .appliance-salaah-change-effective {
+    color:var(--appliance-muted);
+    font-size:21px;
+    font-weight:650;
+    line-height:1.35;
+    white-space:pre-line;
+}
+.appliance-community-salaah_change .appliance-salaah-change-time {
+    color:var(--appliance-heading-accent);
+    font-size:56px;
+    font-weight:850;
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+}
+
+.appliance-economic-slide .appliance-slide-heading {
+    height:auto;
+    border-bottom:0;
+}
+.appliance-economic-date {
+    margin:6px 0 14px;
+    color:var(--appliance-muted);
+    font-size:18px;
+    font-weight:600;
+}
+.appliance-economic-values { overflow:hidden; border:2px solid var(--appliance-line); border-radius:16px; background:var(--appliance-panel); }
+.appliance-economic-value { min-height:43px; padding:0 18px; border-top:1px solid var(--appliance-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:18px; }
+.appliance-economic-value:first-child { border-top:0; }
+.appliance-economic-value strong { color:var(--appliance-text); font-size:21px; font-variant-numeric:tabular-nums; }
+.appliance-economic-accounting { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:baseline; gap:12px; }
+.appliance-economic-currency { justify-self:start; }
+.appliance-economic-amount { justify-self:end; text-align:right; white-space:nowrap; }
+.appliance-economic-footer { margin-top:0; padding-top:14px; display:grid; gap:5px; color:var(--appliance-muted); font-size:16px; font-weight:650; line-height:1.2; }
+.appliance-economic-source { margin:0; padding:0; }
+
+@media (prefers-reduced-motion:reduce) {
+    .appliance-slide {
+        transform:none!important;
+        transition:none!important;
+        will-change:auto;
+    }
+}

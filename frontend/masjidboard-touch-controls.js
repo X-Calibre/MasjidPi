@@ -2,38 +2,38 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("layout") !== "portrait") return;
+    if (params.get("profile") !== "appliance") return;
 
-    const state = document.getElementById("portraitState");
-    const panel = document.getElementById("portraitListenPanel");
+    const state = document.getElementById("applianceState");
+    const panel = document.getElementById("applianceListenPanel");
     if (!state || !panel) return;
 
-    const connection = document.getElementById("portraitListenConnection");
-    const statusBadge = document.getElementById("portraitListenState");
-    const nowPlaying = document.getElementById("portraitListenNowPlaying");
-    const detail = document.getElementById("portraitListenDetail");
-    const favouriteHost = document.getElementById("portraitFavouriteMasjids");
-    const radioHost = document.getElementById("portraitRadioStations");
-    const masjidSelection = document.getElementById("portraitMasjidSelection");
-    const radioSelection = document.getElementById("portraitRadioSelection");
-    const masterVolume = document.getElementById("portraitMasterVolume");
-    const masjidVolume = document.getElementById("portraitMasjidVolume");
-    const radioVolume = document.getElementById("portraitRadioVolume");
+    const connection = document.getElementById("applianceListenConnection");
+    const statusBadge = document.getElementById("applianceListenState");
+    const nowPlaying = document.getElementById("applianceListenNowPlaying");
+    const detail = document.getElementById("applianceListenDetail");
+    const favouriteHost = document.getElementById("applianceFavouriteMasjids");
+    const radioHost = document.getElementById("applianceRadioStations");
+    const masjidSelection = document.getElementById("applianceMasjidSelection");
+    const radioSelection = document.getElementById("applianceRadioSelection");
+    const masterVolume = document.getElementById("applianceMasterVolume");
+    const masjidVolume = document.getElementById("applianceMasjidVolume");
+    const radioVolume = document.getElementById("applianceRadioVolume");
     const volumeControls = {master: masterVolume, masjid: masjidVolume, radio: radioVolume};
     const volumeOutputs = {
-        master: document.getElementById("portraitMasterVolumeValue"),
-        masjid: document.getElementById("portraitMasjidVolumeValue"),
-        radio: document.getElementById("portraitRadioVolumeValue")
+        master: document.getElementById("applianceMasterVolumeValue"),
+        masjid: document.getElementById("applianceMasjidVolumeValue"),
+        radio: document.getElementById("applianceRadioVolumeValue")
     };
-    const playMasjid = document.getElementById("portraitPlayMasjid");
-    const stopListening = document.getElementById("portraitStopListening");
+    const playMasjid = document.getElementById("appliancePlayMasjid");
+    const stopListening = document.getElementById("applianceStopListening");
     const radioModeButtons = {
-        schedule: document.getElementById("portraitRadioSchedule"),
-        play_now: document.getElementById("portraitRadioPlayNow"),
-        stopped: document.getElementById("portraitRadioStop")
+        schedule: document.getElementById("applianceRadioSchedule"),
+        play_now: document.getElementById("applianceRadioPlayNow"),
+        stopped: document.getElementById("applianceRadioStop")
     };
-    const radioModeDetail = document.getElementById("portraitRadioModeDetail");
-    const themeHost = document.getElementById("portraitThemeChoices");
+    const radioModeDetail = document.getElementById("applianceRadioModeDetail");
+    const themeHost = document.getElementById("applianceThemeChoices");
     const themes = [
         ["emerald", "Emerald", "MasjidPi green"],
         ["midnight", "Midnight", "Deep blue"],
@@ -106,13 +106,13 @@
         open = value;
         panel.classList.toggle("hidden", !open);
         panel.setAttribute("aria-hidden", open ? "false" : "true");
-        window.dispatchEvent(new CustomEvent("masjidpi:portrait-listen-panel", {detail:{open}}));
+        window.dispatchEvent(new CustomEvent("masjidpi:appliance-listen-panel", {detail:{open}}));
         window.clearTimeout(refreshTimer);
         window.clearTimeout(inactivityTimer);
         if (open) {
             resetInactivityTimer();
             loadPanel();
-            panel.querySelector(".portrait-listen-close")?.focus();
+            panel.querySelector(".appliance-listen-close")?.focus();
         }
     }
 
@@ -129,7 +129,7 @@
         favouriteHost.replaceChildren();
         if (favouriteMasjids.length === 0) {
             const empty = document.createElement("div");
-            empty.className = "portrait-source-empty";
+            empty.className = "appliance-source-empty";
             empty.textContent = "No favourite masjids. Add favourites through the full MasjidPi Web UI.";
             favouriteHost.append(empty);
         }
@@ -159,7 +159,7 @@
         }
         if (radios.length === 0) {
             const empty = document.createElement("div");
-            empty.className = "portrait-source-empty";
+            empty.className = "appliance-source-empty";
             empty.textContent = "No Radio stations are available.";
             radioHost.append(empty);
         }
@@ -172,20 +172,20 @@
         for (const [value, name, description] of themes) {
             const button = document.createElement("button");
             button.type = "button";
-            button.className = "portrait-theme-option";
+            button.className = "appliance-theme-option";
             button.dataset.theme = value;
             button.classList.toggle("active", value === currentTheme);
             button.setAttribute("role", "radio");
             button.setAttribute("aria-checked", value === currentTheme ? "true" : "false");
             button.disabled = busy;
             const swatch = document.createElement("span");
-            swatch.className = "portrait-theme-swatch";
+            swatch.className = "appliance-theme-swatch";
             swatch.setAttribute("aria-hidden", "true");
             const text = document.createElement("span");
             const strong = document.createElement("strong");
             strong.textContent = name;
             const small = document.createElement("span");
-            small.className = "portrait-theme-description";
+            small.className = "appliance-theme-description";
             small.textContent = description;
             text.append(strong, small);
             button.append(swatch, text);
@@ -196,29 +196,29 @@
     function renderStatus() {
         if (!status) {
             statusBadge.textContent = "Offline";
-            statusBadge.className = "portrait-listen-badge error";
+            statusBadge.className = "appliance-listen-badge error";
             nowPlaying.textContent = "Listen is unavailable";
             detail.textContent = "Check that the Listen component is installed and running.";
         } else if (!status.listening) {
             statusBadge.textContent = "Stopped";
-            statusBadge.className = "portrait-listen-badge stopped";
+            statusBadge.className = "appliance-listen-badge stopped";
             nowPlaying.textContent = "Listening is stopped";
             detail.textContent = "Choose a source and start playback.";
         } else if (status.active_source === "masjid") {
             statusBadge.textContent = "Masjid";
-            statusBadge.className = "portrait-listen-badge";
+            statusBadge.className = "appliance-listen-badge";
             nowPlaying.textContent = status.active_stream_name || status.masjid_name || "Selected Masjid";
             detail.textContent = status.radio_name
                 ? `${status.radio_name} is standing by.`
                 : "Radio will resume when the Masjid broadcast ends.";
         } else if (status.active_source === "radio") {
             statusBadge.textContent = "Radio";
-            statusBadge.className = "portrait-listen-badge";
+            statusBadge.className = "appliance-listen-badge";
             nowPlaying.textContent = status.active_stream_name || status.radio_name || "Selected Radio station";
             detail.textContent = "Radio will yield automatically when the Masjid comes online.";
         } else {
             statusBadge.textContent = "Waiting";
-            statusBadge.className = "portrait-listen-badge waiting";
+            statusBadge.className = "appliance-listen-badge waiting";
             nowPlaying.textContent = status.radio_resume_pending
                 ? `${status.radio_name || "Radio"} resumes in ${formatResumeCountdown(status.radio_resume_at)}`
                 : "No source currently playing";
@@ -418,7 +418,7 @@
         control.addEventListener("input", () => scheduleVolumeSave(name));
         control.addEventListener("change", () => saveVolume(name, Number(control.value)));
     }
-    const listenSheet = panel.querySelector(".portrait-listen-sheet");
+    const listenSheet = panel.querySelector(".appliance-listen-sheet");
     for (const eventName of ["pointerdown", "keydown", "input", "change"]) {
         listenSheet.addEventListener(eventName, resetInactivityTimer);
     }
@@ -461,7 +461,7 @@
     });
     panel.addEventListener("pointerdown", event => event.stopPropagation());
     panel.addEventListener("pointerup", event => event.stopPropagation());
-    for (const target of panel.querySelectorAll(".portrait-listen-handle,.portrait-listen-heading")) {
+    for (const target of panel.querySelectorAll(".appliance-listen-handle,.appliance-listen-heading")) {
         target.addEventListener("pointerdown", event => {
             gestureStart = {x:event.clientX, y:event.clientY};
             event.stopPropagation();

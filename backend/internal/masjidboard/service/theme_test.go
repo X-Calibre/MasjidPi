@@ -7,12 +7,11 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
 
-func TestSetThemePersistsWithoutChangingLayoutOrBoards(t *testing.T) {
+func TestSetThemePersistsWithoutChangingBoards(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "selection.json")
 	store := selection.NewStore(path)
 	state := selection.State{
 		Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}},
-		Layout: selection.LayoutLandscape,
 	}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)
@@ -22,7 +21,7 @@ func TestSetThemePersistsWithoutChangingLayoutOrBoards(t *testing.T) {
 		t.Fatalf("SetTheme() error=%v", err)
 	}
 	got := service.Selection()
-	if got.EffectiveTheme() != selection.ThemeRuby || got.EffectiveLayout() != selection.LayoutLandscape {
+	if got.EffectiveTheme() != selection.ThemeRuby {
 		t.Fatalf("state=%+v", got)
 	}
 	if len(got.Boards) != 1 || got.Boards[0].ExternalID != "test" {
@@ -32,7 +31,7 @@ func TestSetThemePersistsWithoutChangingLayoutOrBoards(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if persisted.EffectiveTheme() != selection.ThemeRuby || persisted.EffectiveLayout() != selection.LayoutLandscape {
+	if persisted.EffectiveTheme() != selection.ThemeRuby {
 		t.Fatalf("persisted=%+v", persisted)
 	}
 }

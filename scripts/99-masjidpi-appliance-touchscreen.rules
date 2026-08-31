@@ -1,0 +1,4 @@
+# Waveshare WS170120 touchscreen used by the MasjidPi 7-inch appliance profile.
+# The display is rotated 90 degrees counter-clockwise by Cog, so libinput must
+# apply the corresponding 90-degree clockwise coordinate transform.
+ACTION=="add|change", KERNEL=="event[0-9]*", ENV{ID_INPUT_TOUCHSCREEN}=="1", ENV{ID_VENDOR_ID}=="0eef", ENV{ID_MODEL_ID}=="0005", ENV{LIBINPUT_CALIBRATION_MATRIX}="0 -1 1 1 0 0"

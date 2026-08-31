@@ -30,7 +30,7 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 
 	s := &Server{masjidBoardService: fakeMasjidBoardStatusProvider{
 		configured: true,
-		selection:  selection.State{Layout: selection.LayoutPortrait, Theme: selection.ThemeRuby, SlideDurationSeconds: 30, Boards: []selection.Board{first, second}},
+		selection:  selection.State{Theme: selection.ThemeRuby, SlideDurationSeconds: 30, Boards: []selection.Board{first, second}},
 		results: []masjidboardruntime.Result{
 			{Selection: first, Board: &cached, Status: masjidboardruntime.StatusStale, LastSuccessfulUpdate: updated, UpdateError: errors.New("secret diagnostic")},
 			{Selection: second, Status: masjidboardruntime.StatusUnavailable, UpdateError: errors.New("another diagnostic")},
@@ -52,8 +52,11 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	if !got.Configured || len(got.Boards) != 2 {
 		t.Fatalf("view = %+v", got)
 	}
-	if got.Layout != selection.LayoutPortrait || got.Theme != selection.ThemeRuby || got.SlideDuration != 30 {
+	if got.Theme != selection.ThemeRuby || got.SlideDuration != 30 {
 		t.Fatalf("display preferences = %+v", got)
+	}
+	if strings.Contains(body, `"layout"`) {
+		t.Fatalf("display API still exposes removed layout preference: %s", body)
 	}
 	if got.Boards[0].CatalogueID != first.CatalogueID || got.Boards[1].CatalogueID != second.CatalogueID {
 		t.Fatalf("order changed: %+v", got.Boards)
@@ -90,6 +93,36 @@ func TestMasjidBoardDisplayReturnsUnconfiguredState(t *testing.T) {
 	}
 	if got.Configured || len(got.Boards) != 0 {
 		t.Fatalf("view = %+v", got)
+	}
+}
+
+func TestMasjidBoardDisplaySupportsConditionalRequests(t *testing.T) {
+	s := &Server{}
+	firstRequest := httptest.NewRequest(http.MethodGet, "/api/masjidboard/display", nil)
+	firstResponse := httptest.NewRecorder()
+	s.masjidBoardDisplay(firstResponse, firstRequest)
+
+	if firstResponse.Code != http.StatusOK {
+		t.Fatalf("first response status = %d, want 200", firstResponse.Code)
+	}
+	etag := firstResponse.Header().Get("ETag")
+	if etag == "" {
+		t.Fatal("first response did not include ETag")
+	}
+	if got := firstResponse.Header().Get("Cache-Control"); got != "no-cache" {
+		t.Fatalf("Cache-Control = %q, want no-cache", got)
+	}
+
+	secondRequest := httptest.NewRequest(http.MethodGet, "/api/masjidboard/display", nil)
+	secondRequest.Header.Set("If-None-Match", etag)
+	secondResponse := httptest.NewRecorder()
+	s.masjidBoardDisplay(secondResponse, secondRequest)
+
+	if secondResponse.Code != http.StatusNotModified {
+		t.Fatalf("conditional response status = %d, want 304", secondResponse.Code)
+	}
+	if secondResponse.Body.Len() != 0 {
+		t.Fatalf("conditional response body = %q, want empty", secondResponse.Body.String())
 	}
 }
 

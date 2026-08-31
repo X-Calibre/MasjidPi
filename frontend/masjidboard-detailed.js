@@ -2,7 +2,7 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("layout") === "portrait") return;
+    if (params.get("profile") === "appliance") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
@@ -19,6 +19,7 @@
     const communityPageIntervalMs = 15_000;
     let communityItems = [];
     let communityPages = [];
+    let communityPageNodes = [];
     let communitySignature = "";
     let communityPage = 0;
 
@@ -242,11 +243,16 @@
         communityEmpty.classList.toggle("hidden", hasItems);
         if (!hasItems) return;
 
-        const page = communityPages[communityPage % communityPages.length];
+        const pageIndex = communityPage % communityPages.length;
+        const page = communityPages[pageIndex];
         communityCards.className = `detailed-community-cards community-layout-${page.layout}`;
-        for (const entry of page.entries) {
-            communityCards.append(renderCommunityCard(entry.item, entry.span));
-        }
+        communityCards.replaceChildren(...communityPageNodes[pageIndex]);
+    }
+
+    function buildCommunityPageNodes() {
+        communityPageNodes = communityPages.map((page) =>
+            page.entries.map((entry) => renderCommunityCard(entry.item, entry.span))
+        );
     }
 
     function renderCommunityContent(boards) {
@@ -261,6 +267,7 @@
             communitySignature = signature;
             communityItems = items;
             communityPages = packCommunityPages(items);
+            buildCommunityPageNodes();
             communityPage = 0;
         }
         renderCommunityPage();
@@ -388,6 +395,7 @@
                     communitySignature = signature;
                     communityItems = items;
                     communityPages = packCommunityPages(items);
+                    buildCommunityPageNodes();
                     communityPage = 0;
                 }
                 renderCommunityPage();

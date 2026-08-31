@@ -27,6 +27,13 @@ install_component_services() {
         install -m 0644 "$PROJECT_ROOT/scripts/masjidpi-display.service" \
             /etc/systemd/system/masjidpi-display.service
 
+        if [[ -f "$PROJECT_ROOT/scripts/99-masjidpi-appliance-touchscreen.rules" ]]; then
+            install -m 0644 "$PROJECT_ROOT/scripts/99-masjidpi-appliance-touchscreen.rules" \
+                /etc/udev/rules.d/99-masjidpi-appliance-touchscreen.rules
+            udevadm control --reload-rules
+            udevadm trigger --subsystem-match=input || true
+        fi
+
         systemctl daemon-reload
         systemctl enable masjidpi-display.service
         success "MasjidBoard display service installed and enabled."
@@ -36,6 +43,8 @@ install_component_services() {
         fi
         rm -f /etc/systemd/system/masjidpi-display.service
         rm -f /opt/masjidpi/bin/masjidboard-display
+        rm -f /etc/udev/rules.d/99-masjidpi-appliance-touchscreen.rules
+        udevadm control --reload-rules 2>/dev/null || true
         systemctl daemon-reload
         systemctl reset-failed masjidpi-display.service 2>/dev/null || true
     fi

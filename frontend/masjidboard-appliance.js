@@ -2,24 +2,24 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("layout") !== "portrait") return;
+    if (params.get("profile") !== "appliance") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
 
-    document.body.classList.add("portrait-layout");
+    document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
     const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
-    const state = document.getElementById("portraitState");
-    const slidesHost = document.getElementById("portraitSlides");
-    const dotsHost = document.getElementById("portraitDots");
-    const primaryName = document.getElementById("portraitPrimaryName");
-    const clock = document.getElementById("portraitClock");
-    const gregorianDate = document.getElementById("portraitGregorianDate");
-    const islamicDate = document.getElementById("portraitIslamicDate");
-    const nextName = document.getElementById("portraitNextName");
-    const nextTime = document.getElementById("portraitNextTime");
-    const countdown = document.getElementById("portraitCountdown");
+    const state = document.getElementById("applianceState");
+    const slidesHost = document.getElementById("applianceSlides");
+    const dotsHost = document.getElementById("applianceDots");
+    const primaryName = document.getElementById("appliancePrimaryName");
+    const clock = document.getElementById("applianceClock");
+    const gregorianDate = document.getElementById("applianceGregorianDate");
+    const islamicDate = document.getElementById("applianceIslamicDate");
+    const nextName = document.getElementById("applianceNextName");
+    const nextTime = document.getElementById("applianceNextTime");
+    const countdown = document.getElementById("applianceCountdown");
     const prayerLabels = {fajr: "Fajr", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", esha: "Esha"};
     let latestView = null;
     let slides = [];
@@ -87,12 +87,12 @@
     }
 
     function salaahSlide(board) {
-        const slide = element("article", "portrait-slide");
-        const heading = element("header", "portrait-slide-heading");
+        const slide = element("article", "appliance-slide");
+        const heading = element("header", "appliance-slide-heading");
         heading.append(element("small", "", "SALAAH TIMES"), element("h2", "", board.name));
         slide.append(heading);
-        const table = element("div", "portrait-times");
-        const head = element("div", "portrait-time-row portrait-time-head");
+        const table = element("div", "appliance-times");
+        const head = element("div", "appliance-time-row appliance-time-head");
         head.append(element("span", "", "Salaah"), element("span", "", "Adhan"), element("span", "", "Jamaah"));
         table.append(head);
         const now = utils.displayNow();
@@ -106,7 +106,7 @@
                 // jumuahItems identifies an explicit Salaah/Jamaah as the
                 // salaah item, or uses Khutbah when no such time is supplied.
                 const jamaah = items.find((item) => item.kind === "salaah");
-                const row = element("div", "portrait-time-row");
+                const row = element("div", "appliance-time-row");
                 if (next && next.kind === "jumuah") row.classList.add("upcoming");
                 row.append(
                     element("span", "", "Jumu'ah"),
@@ -117,7 +117,7 @@
                 continue;
             }
             const prayer = utils.findPrayer(board, key);
-            const row = element("div", "portrait-time-row");
+            const row = element("div", "appliance-time-row");
             if (next && next.kind === "prayer" && next.key === key) row.classList.add("upcoming");
             row.append(
                 element("span", "", prayerLabels[key]),
@@ -131,13 +131,13 @@
     }
 
     function dailySlide(board) {
-        const slide = element("article", "portrait-slide");
-        const heading = element("header", "portrait-slide-heading");
+        const slide = element("article", "appliance-slide");
+        const heading = element("header", "appliance-slide-heading");
         heading.append(element("small", "", "DAILY TIMES"), element("h2", "", board.name));
         slide.append(heading);
-        const table = element("div", "portrait-times portrait-daily-times");
+        const table = element("div", "appliance-times appliance-daily-times");
         for (const item of dailyItems(board)) {
-            const row = element("div", "portrait-time-row portrait-daily-row");
+            const row = element("div", "appliance-time-row appliance-daily-row");
             row.append(element("span", "", item.label), element("strong", "", item.valueText));
             table.append(row);
         }
@@ -146,37 +146,37 @@
     }
 
     function communityCard(item, compact) {
-        const card = element("article", "portrait-community-card portrait-community-" + item.type + (compact ? " compact" : ""));
-        card.append(element("h2", "portrait-community-title", item.title));
+        const card = element("article", "appliance-community-card appliance-community-" + item.type + (compact ? " compact" : ""));
+        card.append(element("h2", "appliance-community-title", item.title));
         if (item.body) {
-            const body = element("p", "portrait-community-body", item.body);
+            const body = element("p", "appliance-community-body", item.body);
             body.dir = "auto";
             card.append(body);
         }
 
         if (item.type === "salaah_change") {
-            const main = element("div", "portrait-salaah-change-main");
+            const main = element("div", "appliance-salaah-change-main");
             main.append(
-                element("div", "portrait-salaah-change-effective", "Effective from\n" + formatNoticeDate(item.fields.effective_date)),
-                element("div", "portrait-salaah-change-time", plainText(item.fields.new_time))
+                element("div", "appliance-salaah-change-effective", "Effective from\n" + formatNoticeDate(item.fields.effective_date)),
+                element("div", "appliance-salaah-change-time", plainText(item.fields.new_time))
             );
             card.append(main);
         }
 
         const fields = item.type === "salaah_change" ? [] : orderedFields(item);
         if (fields.length > 0) {
-            const list = element("div", "portrait-community-fields");
+            const list = element("div", "appliance-community-fields");
             for (const field of fields) {
-                const row = element("div", "portrait-community-field");
-                row.append(element("span", "portrait-community-field-label", field.label));
-                const value = element("span", "portrait-community-field-value", field.value);
+                const row = element("div", "appliance-community-field");
+                row.append(element("span", "appliance-community-field-label", field.label));
+                const value = element("span", "appliance-community-field-value", field.value);
                 value.dir = "auto";
                 row.append(value);
                 list.append(row);
             }
             card.append(list);
         }
-        card.append(element("div", "portrait-community-source", "Source: " + item.source));
+        card.append(element("div", "appliance-community-source", "Source: " + item.source));
         return card;
     }
 
@@ -184,7 +184,7 @@
         const paired = entries.length === 2;
         const compactSingle = entries.length === 1 && isCompactCommunityItem(entries[0]);
         const layout = paired ? "paired" : compactSingle ? "single compact-single" : "single";
-        const slide = element("article", "portrait-slide portrait-community-slide " + layout);
+        const slide = element("article", "appliance-slide appliance-community-slide " + layout);
         for (const item of entries) slide.append(communityCard(item, isCompactCommunityItem(item)));
         return slide;
     }
@@ -217,13 +217,13 @@
 
     function economicSlide(indicators) {
         if (!indicators) return null;
-        const slide = element("article", "portrait-slide portrait-economic-slide");
-        const heading = element("header", "portrait-slide-heading");
+        const slide = element("article", "appliance-slide appliance-economic-slide");
+        const heading = element("header", "appliance-slide-heading");
         heading.append(element("h2", "", "Islamic Economic Indicators"));
         slide.append(heading);
         const effectiveDate = new Date(`${indicators.effective_date}T12:00:00`);
         const dateText = Number.isNaN(effectiveDate.getTime()) ? indicators.effective_date : effectiveDate.toLocaleDateString("en-ZA", {day: "numeric", month: "long", year: "numeric"});
-        slide.append(element("div", "portrait-economic-date", `Effective ${dateText}`));
+        slide.append(element("div", "appliance-economic-date", `Effective ${dateText}`));
         const values = [
             ["Rand/Dollar", formatRand(indicators.rand_dollar)],
             ["Nisaab", formatRand(indicators.nisaab)],
@@ -237,21 +237,21 @@
             ["Minimum Mahr", formatRand(indicators.minimum_mahr)],
             ["Mahr Faatimi", formatRand(indicators.mahr_faatimi)],
         ];
-        const grid = element("div", "portrait-economic-values");
+        const grid = element("div", "appliance-economic-values");
         for (const [label, value] of values) {
-            const row = element("div", "portrait-economic-value");
-            const accountingValue = element("strong", "portrait-economic-accounting");
+            const row = element("div", "appliance-economic-value");
+            const accountingValue = element("strong", "appliance-economic-accounting");
             accountingValue.append(
-                element("span", "portrait-economic-currency", "R"),
-                element("span", "portrait-economic-amount", value.slice(1))
+                element("span", "appliance-economic-currency", "R"),
+                element("span", "appliance-economic-amount", value.slice(1))
             );
             row.append(element("span", "", label), accountingValue);
             grid.append(row);
         }
-        const footer = element("footer", "portrait-economic-footer");
+        const footer = element("footer", "appliance-economic-footer");
         const retrievedAt = formatUpdatedAt(indicators.fetched_at);
-        if (retrievedAt) footer.append(element("div", "portrait-economic-retrieved", `Retrieved at ${retrievedAt}`));
-        footer.append(element("div", "portrait-economic-source", `From ${indicators.source}`));
+        if (retrievedAt) footer.append(element("div", "appliance-economic-retrieved", `Retrieved at ${retrievedAt}`));
+        footer.append(element("div", "appliance-economic-source", `From ${indicators.source}`));
         slide.append(grid, footer);
         return slide;
     }
@@ -361,7 +361,7 @@
     });
 
     window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
-    window.addEventListener("masjidpi:portrait-listen-panel", event => {
+    window.addEventListener("masjidpi:appliance-listen-panel", event => {
         state.classList.toggle("listen-panel-open", Boolean(event.detail && event.detail.open));
         if (state.classList.contains("listen-panel-open")) window.clearInterval(slideTimer);
         else startTimer();

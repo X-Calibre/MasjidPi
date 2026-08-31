@@ -96,6 +96,7 @@ func Run() error {
 	playbackConfig.Logger = log
 
 	playbackManager := playback.New(mpv, playbackConfig)
+	playbackManager.SetAudioDeviceProvider(player.NewALSAAudioDevices("/sys/class/sound", mpv))
 	volumeState := storage.NewVolume(paths.VolumeState)
 	playbackManager.SetVolumePersistence(volumeState)
 	if err := playbackManager.InitializeVolume(); err != nil {
@@ -280,7 +281,7 @@ func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *pla
 				timer.Reset(nextCheck)
 				continue
 			}
-			devices, err := mpv.AudioDevices()
+			devices, err := manager.AudioDevices()
 			if err != nil {
 				timer.Reset(nextCheck)
 				continue

@@ -20,26 +20,7 @@
         else delete document.documentElement.dataset.boardFont;
     }
 
-    function currentLayout() {
-        const layout = new URLSearchParams(window.location.search).get("layout");
-        return layout === "portrait" ? "portrait" : "landscape";
-    }
-
-    function applyLayout(layout) {
-        const wanted = layout === "portrait" ? "portrait" : "landscape";
-        if (wanted === currentLayout()) return false;
-
-        const url = new URL(window.location.href);
-        if (wanted === "portrait") url.searchParams.set("layout", wanted);
-        else url.searchParams.delete("layout");
-
-        // Preserve development/test parameters such as date, time and theme.
-        window.location.replace(url.toString());
-        return true;
-    }
-
     function refresh(state) {
-        if (applyLayout(state && state.layout)) return;
         if (hasThemeOverride) applyTheme(themeOverride);
         else applyTheme(state && state.theme);
     }

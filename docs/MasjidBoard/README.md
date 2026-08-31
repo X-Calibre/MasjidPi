@@ -6,7 +6,8 @@ The maintained description of the implemented subsystem is split across:
 - `MASJIDBOARD-IMPLEMENTATION-STATUS.md` — implemented capability status
 - `MASJIDBOARD-DISPLAY-BOUNDARY.md` — display/API ownership boundary
 - `MASJIDBOARD-DISPLAY-RUNTIME.md` — HDMI appliance runtime
-- `MASJIDBOARD-DISPLAY-LAYOUT.md` — current display layouts
+- `MASJIDBOARD-DISPLAY-PROFILES.md` — automatic standard/appliance profile selection and hardware contract
+- `MASJIDBOARD-DISPLAY-LAYOUT.md` — detailed presentation content and layout semantics
 - `MASJIDBOARD-LAST-KNOWN-GOOD-CACHE.md` — outage and cache behaviour
 - `MASJIDBOARD-LIVE.md` — Core timetable and optional Premium enrichment contract
 

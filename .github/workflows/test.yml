@@ -46,10 +46,11 @@ jobs:
           # unused when ShellCheck analyses each file independently.
           shellcheck -e SC1091,SC2034 scripts/*.sh tests/*.sh
 
-      - name: Test installer network configuration
+      - name: Test installer and display runtime
         run: |
           bash tests/installer_network_test.sh
           bash tests/installer_summary_test.sh
+          bash tests/masjidboard_display_profile_test.sh
 
       - name: Validate JavaScript syntax
         run: |

@@ -51,8 +51,7 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	server := New(Config{Address: ":0", Frontend: root, PreferencesPath: root + "/preferences.json", Installed: components.Installed{Listen: true, Board: true}}, Dependencies{Logger: logger})
 	server.SetMasjidBoardCataloguePath(path)
 	runtime := &fakeSelectionRuntime{state: selection.State{
-		Layout: selection.LayoutPortrait, Theme: selection.ThemeRuby,
-		SlideDurationSeconds: 30, ShowEconomicIndicators: true,
+		Theme: selection.ThemeRuby, SlideDurationSeconds: 30, ShowEconomicIndicators: true,
 	}}
 	server.SetMasjidBoardService(runtime)
 
@@ -67,8 +66,7 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	if len(runtime.state.Boards) != 1 || runtime.state.Boards[0].ExternalID != "brits-jamia" || runtime.state.Boards[0].TimeZoneOffsetMS != 7200000 {
 		t.Fatalf("selection=%+v", runtime.state)
 	}
-	if runtime.state.Layout != selection.LayoutPortrait || runtime.state.Theme != selection.ThemeRuby ||
-		runtime.state.SlideDurationSeconds != 30 || !runtime.state.ShowEconomicIndicators {
+	if runtime.state.Theme != selection.ThemeRuby || runtime.state.SlideDurationSeconds != 30 || !runtime.state.ShowEconomicIndicators {
 		t.Fatalf("display preferences were not preserved: %+v", runtime.state)
 	}
 }

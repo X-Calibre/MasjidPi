@@ -160,7 +160,10 @@
                 <h2>Audio</h2>
                 <p class="section-intro">Configure the appliance audio output and master hardware volume.</p>
 
-                <label for="audioDevice">Audio output</label>
+                <div class="audio-device-heading">
+                    <label for="audioDevice">Audio output</label>
+                    <button id="refreshAudioDevices" type="button" class="secondary compact-action">Refresh Devices</button>
+                </div>
                 <select id="audioDevice"></select>
                 <small class="volume-note">Select where MasjidPi plays audio.</small>
 
@@ -177,7 +180,7 @@
 
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
 <script src="components-ui.js"></script>
-<script src="app.js?v=20260829-live-resume-status"></script>
+<script src="app.js?v=20260830-audio-device-refresh"></script>
 <script src="volume-control.js"></script>
 <script src="source-volume-boost.js"></script>
 <script src="radio-resume-delay.js"></script>

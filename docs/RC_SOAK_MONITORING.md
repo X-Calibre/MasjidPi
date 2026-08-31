@@ -98,6 +98,26 @@ while true; do
             || true
 
         echo
+        echo "=== PROCESS MEMORY DETAILS ==="
+        for process_name in mpv WPEWebProcess; do
+            process_pid="$(pgrep -xo "$process_name" 2>/dev/null || true)"
+            if [ -z "$process_pid" ]; then
+                echo "$process_name: not running"
+                continue
+            fi
+
+            echo "$process_name PID=$process_pid"
+            if [ -r "/proc/$process_pid/smaps_rollup" ]; then
+                grep -E \
+                    '^(Rss|Pss|Pss_Anon|Pss_File|Private_Clean|Private_Dirty|Swap):' \
+                    "/proc/$process_pid/smaps_rollup" \
+                    || true
+            else
+                echo "smaps_rollup unavailable"
+            fi
+        done
+
+        echo
         echo "=== LISTEN STATUS ==="
         curl -fsS http://localhost:8080/api/listen/status 2>/dev/null \
             || echo "listen endpoint unavailable"

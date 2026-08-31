@@ -23,30 +23,30 @@ body[data-board-theme="black-white"] {
     --text:#fff; --muted:#bcbcbc; --accent:#fff; --warning:#d7d7d7; --danger:#fff;
 }
 
-/* Portrait uses the same saved theme preference, mapped onto its compact
-   appliance-specific surfaces while retaining strong text contrast. */
-body.portrait-layout[data-board-theme]:not([data-board-theme="emerald"]) {
-    --portrait-bg:var(--bg);
-    --portrait-panel:var(--panel);
-    --portrait-raised:var(--panel-soft);
-    --portrait-line:color-mix(in srgb,var(--text) 30%,transparent);
-    --portrait-text:var(--text);
-    --portrait-muted:var(--muted);
-    --portrait-accent:var(--accent);
-    --portrait-accent-bg:color-mix(in srgb,var(--accent) 16%,var(--panel));
-    --portrait-countdown:var(--accent);
-    --portrait-header-bg:color-mix(in srgb,var(--panel) 82%,var(--bg));
-    --portrait-strong-line:color-mix(in srgb,var(--text) 42%,transparent);
-    --portrait-secondary-text:color-mix(in srgb,var(--text) 88%,var(--muted));
-    --portrait-heading-accent:var(--accent);
-    --portrait-table-head:var(--panel-soft);
-    --portrait-upcoming-bg:color-mix(in srgb,var(--accent) 14%,var(--panel));
-    --portrait-upcoming-line:var(--accent);
-    --portrait-dot:color-mix(in srgb,var(--muted) 55%,var(--panel));
-    --portrait-dot-line:var(--muted);
-    --portrait-danger:var(--danger);
-    --portrait-danger-bg:color-mix(in srgb,var(--danger) 22%,var(--panel));
-    --portrait-danger-text:var(--text);
+/* The appliance profile uses the same saved theme preference, mapped onto its
+   compact surfaces while retaining strong text contrast. */
+body.appliance-layout[data-board-theme]:not([data-board-theme="emerald"]) {
+    --appliance-bg:var(--bg);
+    --appliance-panel:var(--panel);
+    --appliance-raised:var(--panel-soft);
+    --appliance-line:color-mix(in srgb,var(--text) 30%,transparent);
+    --appliance-text:var(--text);
+    --appliance-muted:var(--muted);
+    --appliance-accent:var(--accent);
+    --appliance-accent-bg:color-mix(in srgb,var(--accent) 16%,var(--panel));
+    --appliance-countdown:var(--accent);
+    --appliance-header-bg:color-mix(in srgb,var(--panel) 82%,var(--bg));
+    --appliance-strong-line:color-mix(in srgb,var(--text) 42%,transparent);
+    --appliance-secondary-text:color-mix(in srgb,var(--text) 88%,var(--muted));
+    --appliance-heading-accent:var(--accent);
+    --appliance-table-head:var(--panel-soft);
+    --appliance-upcoming-bg:color-mix(in srgb,var(--accent) 14%,var(--panel));
+    --appliance-upcoming-line:var(--accent);
+    --appliance-dot:color-mix(in srgb,var(--muted) 55%,var(--panel));
+    --appliance-dot-line:var(--muted);
+    --appliance-danger:var(--danger);
+    --appliance-danger-bg:color-mix(in srgb,var(--danger) 22%,var(--panel));
+    --appliance-danger-text:var(--text);
 }
 
 body[data-board-theme]:not([data-board-theme="emerald"]) .board-header { background:var(--panel); }

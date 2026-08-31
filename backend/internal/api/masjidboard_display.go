@@ -1,6 +1,9 @@
 package api
 
 import (
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/display"
@@ -17,7 +20,7 @@ func (s *Server) masjidBoardDisplay(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if s.masjidBoardService == nil {
-		writeJSON(w, http.StatusOK, display.Build(false, selection.State{}, nil))
+		writeMasjidBoardDisplay(w, r, display.Build(false, selection.State{}, nil))
 		return
 	}
 
@@ -29,5 +32,26 @@ func (s *Server) masjidBoardDisplay(w http.ResponseWriter, r *http.Request) {
 	if provider, ok := s.masjidBoardService.(masjidBoardEconomicProvider); ok {
 		view.EconomicIndicators = provider.EconomicIndicators()
 	}
-	writeJSON(w, http.StatusOK, view)
+	writeMasjidBoardDisplay(w, r, view)
+}
+
+func writeMasjidBoardDisplay(w http.ResponseWriter, r *http.Request, view display.View) {
+	body, err := json.Marshal(view)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "encode MasjidBoard display")
+		return
+	}
+
+	digest := sha256.Sum256(body)
+	etag := fmt.Sprintf(`"%x"`, digest)
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("ETag", etag)
+	if r.Header.Get("If-None-Match") == etag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(body)
 }

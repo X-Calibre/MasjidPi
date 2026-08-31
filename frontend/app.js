@@ -33,6 +33,7 @@ const volumeSlider = document.getElementById("volumeSlider");
 const volumeValue = document.getElementById("volumeValue");
 const volumeNote = document.getElementById("volumeNote");
 const audioDevice = document.getElementById("audioDevice");
+const refreshAudioDevicesButton = document.getElementById("refreshAudioDevices");
 const playButton = document.getElementById("play");
 const stopButton = document.getElementById("stop");
 const updateCatalogueButton = document.getElementById("updateCatalogueButton");
@@ -204,15 +205,20 @@ async function loadStreams() {
     renderRadios();
 }
 
-async function loadAudioDevices() {
+async function loadAudioDevices(options = {}) {
     try {
+        const previous = audioDevice.value;
         const devices = await getAudioDevices();
         audioDevice.innerHTML = "";
         for (const device of devices) {
             const option = document.createElement("option");
             option.value = device.name;
-            option.textContent = device.description || device.name;
+            option.textContent = (device.description || device.name) + (device.unavailable ? " — unavailable" : "");
+            option.disabled = Boolean(device.unavailable);
             audioDevice.appendChild(option);
+        }
+        if (previous && [...audioDevice.options].some(option => option.value === previous)) {
+            audioDevice.value = previous;
         }
         audioDevice.disabled = !backendOnline || devices.length === 0;
     } catch (err) {
@@ -222,6 +228,7 @@ async function loadAudioDevices() {
         option.textContent = "Unable to detect audio devices";
         audioDevice.appendChild(option);
         audioDevice.disabled = true;
+        if (options.throwOnError) throw err;
     }
 }
 
@@ -240,6 +247,7 @@ function setOffline(offline) {
     radioVolumeSlider.disabled = offline || !radioPowered;
     volumeSlider.disabled = offline || !listenStatus?.master_volume_supported;
     audioDevice.disabled = offline || audioDevice.options.length === 0;
+    refreshAudioDevicesButton.disabled = offline;
     playButton.disabled = offline || Boolean(listenStatus?.listening);
     stopButton.disabled = offline || !listenStatus?.listening;
     updateCatalogueButton.disabled = offline;
@@ -549,6 +557,19 @@ audioDevice.addEventListener("change", async () => {
         await refreshStatus();
     } finally {
         audioDevice.disabled = false;
+    }
+});
+
+refreshAudioDevicesButton.addEventListener("click", async () => {
+    setBusy(refreshAudioDevicesButton, true, "Refreshing...", "Refresh Devices");
+    try {
+        await loadAudioDevices({throwOnError: true});
+        await refreshStatus();
+        showToast("Audio devices refreshed.", "success");
+    } catch (err) {
+        showToast(err.message, "error");
+    } finally {
+        setBusy(refreshAudioDevicesButton, false, "Refreshing...", "Refresh Devices");
     }
 });
 

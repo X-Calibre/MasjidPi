@@ -14,4 +14,5 @@ type Status struct {
 type AudioDevice struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Unavailable bool   `json:"unavailable,omitempty"`
 }

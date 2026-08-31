@@ -67,6 +67,7 @@ type Manager struct {
 	mu                 sync.Mutex
 	startOnce          sync.Once
 	player             Player
+	audioDevices       player.AudioDeviceProvider
 	availability       Availability
 	persistence        Persistence
 	volumeStore        VolumePersistence
@@ -126,6 +127,7 @@ func New(player Player, cfg Config) *Manager {
 	}
 	return &Manager{
 		player:             player,
+		audioDevices:       player,
 		log:                cfg.Logger,
 		retryInterval:      cfg.RetryInterval,
 		startupGracePeriod: cfg.StartupGracePeriod,
@@ -136,6 +138,16 @@ func New(player Player, cfg Config) *Manager {
 		status:             Status{Version: version.Version, State: string(StateIdle), Volume: 100},
 		preferredEndpoints: make(map[string]preferredEndpoint),
 	}
+}
+
+func (m *Manager) SetAudioDeviceProvider(provider player.AudioDeviceProvider) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if provider == nil {
+		m.audioDevices = m.player
+		return
+	}
+	m.audioDevices = provider
 }
 
 func (m *Manager) SetAvailability(availability Availability) {
@@ -258,7 +270,12 @@ func (m *Manager) Volume(volume int) error {
 	return nil
 }
 
-func (m *Manager) AudioDevices() ([]player.AudioDevice, error) { return m.player.AudioDevices() }
+func (m *Manager) AudioDevices() ([]player.AudioDevice, error) {
+	m.mu.Lock()
+	provider := m.audioDevices
+	m.mu.Unlock()
+	return provider.AudioDevices()
+}
 
 func (m *Manager) AudioDevice(name string) error {
 	if err := m.player.AudioDevice(name); err != nil {

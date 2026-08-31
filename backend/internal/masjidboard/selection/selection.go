@@ -11,12 +11,6 @@ const (
 	MinBoards = 1
 	MaxBoards = 3
 
-	LayoutLandscape = "landscape"
-	LayoutPortrait  = "portrait"
-
-	legacyLayoutStandard = "standard"
-	legacyLayoutDetailed = "detailed"
-
 	DefaultSlideDurationSeconds = 15
 	MinSlideDurationSeconds     = 5
 	MaxSlideDurationSeconds     = 60
@@ -45,27 +39,16 @@ type Board struct {
 }
 
 // State is the ordered set of boards selected by the user. Order is
-// significant and is preserved for display/UI purposes. Layout and Theme
-// control the HDMI presentation. Empty and legacy Standard/Detailed values
-// resolve to the Landscape default so selections written by older versions
-// remain valid.
+// significant and is preserved for display/UI purposes. Display profile is a
+// runtime hardware decision and is intentionally not persisted here.
 type State struct {
 	Boards                 []Board `json:"boards"`
-	Layout                 string  `json:"layout,omitempty"`
 	Theme                  string  `json:"theme,omitempty"`
 	SlideDurationSeconds   int     `json:"slide_duration_seconds,omitempty"`
 	ShowEconomicIndicators bool    `json:"show_economic_indicators,omitempty"`
 }
 
 func (s State) Configured() bool { return len(s.Boards) > 0 }
-
-func (s State) EffectiveLayout() string {
-	switch strings.TrimSpace(s.Layout) {
-	case LayoutPortrait:
-		return LayoutPortrait
-	}
-	return LayoutLandscape
-}
 
 func (s State) EffectiveSlideDurationSeconds() int {
 	if s.SlideDurationSeconds >= MinSlideDurationSeconds && s.SlideDurationSeconds <= MaxSlideDurationSeconds {
@@ -97,10 +80,6 @@ func Validate(state State) error {
 		return fmt.Errorf("masjidboard selection: %d boards selected; maximum is %d", len(state.Boards), MaxBoards)
 	}
 
-	layout := strings.TrimSpace(state.Layout)
-	if layout != "" && layout != LayoutLandscape && layout != LayoutPortrait && layout != legacyLayoutStandard && layout != legacyLayoutDetailed {
-		return fmt.Errorf("masjidboard selection: unsupported display layout %q", state.Layout)
-	}
 	if state.SlideDurationSeconds != 0 &&
 		(state.SlideDurationSeconds < MinSlideDurationSeconds || state.SlideDurationSeconds > MaxSlideDurationSeconds) {
 		return fmt.Errorf("masjidboard selection: slide duration must be between %d and %d seconds", MinSlideDurationSeconds, MaxSlideDurationSeconds)

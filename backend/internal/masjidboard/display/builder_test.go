@@ -44,15 +44,15 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 		NewMoon: &model.NewMoon{Fields: map[string]string{"visibility_date": "12 September 2026"}},
 	}
 
-	view := Build(true, selection.State{Layout: selection.LayoutPortrait, Theme: selection.ThemeRuby, SlideDurationSeconds: 30, Boards: []selection.Board{one, two}}, []masjidboardruntime.Result{{
+	view := Build(true, selection.State{Theme: selection.ThemeRuby, SlideDurationSeconds: 30, Boards: []selection.Board{one, two}}, []masjidboardruntime.Result{{
 		Selection: two, Board: &board, Status: masjidboardruntime.StatusCurrent, LastSuccessfulUpdate: updated,
 	}})
 
 	if !view.Configured || len(view.Boards) != 2 {
 		t.Fatalf("view = %+v", view)
 	}
-	if view.Layout != selection.LayoutPortrait || view.Theme != selection.ThemeRuby || view.SlideDuration != 30 {
-		t.Fatalf("display preferences = layout %q theme %q duration %d", view.Layout, view.Theme, view.SlideDuration)
+	if view.Theme != selection.ThemeRuby || view.SlideDuration != 30 {
+		t.Fatalf("display preferences = theme %q duration %d", view.Theme, view.SlideDuration)
 	}
 	if view.Boards[0].CatalogueID != one.CatalogueID || view.Boards[0].Status != masjidboardruntime.StatusUnavailable {
 		t.Fatalf("first board = %+v", view.Boards[0])

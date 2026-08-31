@@ -2,7 +2,7 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("layout") === "portrait") return;
+    if (params.get("profile") === "appliance") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;

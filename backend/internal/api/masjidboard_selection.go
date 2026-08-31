@@ -82,18 +82,17 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 		byID[record.ID] = record
 	}
 
-	currentLayout, currentTheme := selection.LayoutLandscape, selection.ThemeEmerald
+	currentTheme := selection.ThemeEmerald
 	currentSlideDuration := selection.DefaultSlideDurationSeconds
 	showEconomicIndicators := false
 	if s.masjidBoardService != nil {
 		current := s.masjidBoardService.Selection()
-		currentLayout, currentTheme = current.EffectiveLayout(), current.EffectiveTheme()
+		currentTheme = current.EffectiveTheme()
 		currentSlideDuration = current.EffectiveSlideDurationSeconds()
 		showEconomicIndicators = current.ShowEconomicIndicators
 	}
 	selected := selection.State{
 		Boards:                 make([]selection.Board, 0, len(request.CatalogueIDs)),
-		Layout:                 currentLayout,
 		Theme:                  currentTheme,
 		SlideDurationSeconds:   currentSlideDuration,
 		ShowEconomicIndicators: showEconomicIndicators,

@@ -1,0 +1,37 @@
+# MasjidPi standard Raspberry Pi Board boot splash.
+# Standard HDMI displays keep their native landscape orientation.
+
+Window.SetBackgroundTopColor(0.02, 0.06, 0.05);
+Window.SetBackgroundBottomColor(0.01, 0.02, 0.02);
+
+brand.image = Image("masjidpi-splash-logo.png");
+
+max_width = Window.GetWidth() * 0.70;
+max_height = Window.GetHeight() * 0.70;
+scale = 1.0;
+
+if (brand.image.GetWidth() > max_width)
+    scale = max_width / brand.image.GetWidth();
+if (brand.image.GetHeight() * scale > max_height)
+    scale = max_height / brand.image.GetHeight();
+
+if (scale < 1.0)
+    brand.image = brand.image.Scale(brand.image.GetWidth() * scale, brand.image.GetHeight() * scale);
+
+brand.sprite = Sprite(brand.image);
+
+fun position_splash() {
+    center_x = Window.GetX() + Window.GetWidth() / 2;
+    center_y = Window.GetY() + Window.GetHeight() / 2;
+
+    brand.sprite.SetX(center_x - brand.image.GetWidth() / 2);
+    brand.sprite.SetY(center_y - brand.image.GetHeight() / 2);
+    brand.sprite.SetZ(1000);
+}
+
+fun refresh_callback() {
+    position_splash();
+}
+
+position_splash();
+Plymouth.SetRefreshFunction(refresh_callback);

@@ -86,6 +86,8 @@ jobs:
             test -f "$package_dir/frontend/index.html"
             test -f "$package_dir/frontend/app.js"
             test -f "$package_dir/frontend/masjidboard.html"
+            test -f "$package_dir/frontend/masjidboard-startup.html"
+            test -f "$package_dir/frontend/masjidpi-splash-logo.png"
             test -f "$package_dir/scripts/install.sh"
             test -f "$package_dir/scripts/masjidboard-display.sh"
             test -f "$package_dir/scripts/masjidboard-warmup.sh"
@@ -94,6 +96,7 @@ jobs:
             test -f "$package_dir/scripts/masjidpi-display-warmup.service"
             test -f "$package_dir/scripts/masjidpi-splash.plymouth"
             test -f "$package_dir/scripts/masjidpi-splash.script"
+            test -f "$package_dir/scripts/masjidpi-splash-standard.script"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \
               "${PACKAGE_NAME}-linux-${arch}"

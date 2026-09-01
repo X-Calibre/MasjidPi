@@ -3,6 +3,7 @@
 set -Eeuo pipefail
 
 MASJIDBOARD_BASE_URL="${MASJIDBOARD_BASE_URL:-http://127.0.0.1:8080/masjidboard.html}"
+MASJIDBOARD_STARTUP_URL="${MASJIDBOARD_STARTUP_URL:-http://127.0.0.1:8080/masjidboard-startup.html}"
 MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
 MASJIDPI_USB_SYSFS_ROOT="${MASJIDPI_USB_SYSFS_ROOT:-/sys/bus/usb/devices}"
 MASJIDPI_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
@@ -73,6 +74,18 @@ display_url() {
     printf '%s\n' "$MASJIDBOARD_BASE_URL"
 }
 
+launch_url() {
+    local profile="$1"
+
+    # Keep custom URL overrides exact and keep the standard profile unchanged.
+    if [[ -n "${MASJIDBOARD_URL:-}" || "$profile" != "appliance" ]]; then
+        display_url "$profile"
+        return
+    fi
+
+    printf '%s?profile=appliance\n' "$MASJIDBOARD_STARTUP_URL"
+}
+
 main() {
     if ! command -v cog >/dev/null 2>&1; then
         echo "MasjidBoard display: Cog is not installed." >&2
@@ -82,17 +95,25 @@ main() {
     wait_for_masjidpi
 
     local profile platform_params
+    local -a cog_args
     profile="$(display_profile)"
     platform_params="renderer=gles"
+    cog_args=(--platform=drm)
+
     if [[ "$profile" == "appliance" ]]; then
         platform_params+=",rotation=1"
+        # Match the appliance splash background while WPE creates its first
+        # frame, so DRM takeover does not expose Cog's default blank colour.
+        cog_args+=(--bg-color='#050f0d')
     fi
+
+    cog_args+=(--platform-params="$platform_params")
 
     echo "MasjidBoard display: detected profile=$profile" >&2
 
     # GLES is compatible with Raspberry Pi DRM/KMS devices whose preferred
     # framebuffer format cannot be used by Cog's direct modeset renderer.
-    exec cog --platform=drm --platform-params="$platform_params" "$(display_url "$profile")"
+    exec cog "${cog_args[@]}" "$(launch_url "$profile")"
 }
 
 if [[ "${MASJIDBOARD_DISPLAY_LIBRARY_ONLY:-0}" != "1" ]]; then

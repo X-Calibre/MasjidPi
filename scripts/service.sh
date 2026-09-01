@@ -25,9 +25,9 @@ install_component_services() {
         install -m 0644 "$PROJECT_ROOT/scripts/masjidpi-display.service" \
             /etc/systemd/system/masjidpi-display.service
 
-        if is_appliance_display_hardware; then
+        if is_raspberry_pi_board; then
             if [[ ! -f "$PROJECT_ROOT/scripts/masjidboard-warmup.sh" || ! -f "$PROJECT_ROOT/scripts/masjidpi-display-warmup.service" ]]; then
-                die "MasjidBoard appliance warm-up runtime files are missing."
+                die "MasjidBoard Raspberry Pi warm-up runtime files are missing."
             fi
 
             install -m 0755 "$PROJECT_ROOT/scripts/masjidboard-warmup.sh" \
@@ -49,9 +49,9 @@ install_component_services() {
 
         systemctl daemon-reload
         systemctl enable masjidpi-display.service
-        if is_appliance_display_hardware; then
+        if is_raspberry_pi_board; then
             systemctl enable masjidpi-display-warmup.service
-            success "MasjidBoard appliance WebKit warm-up service installed and enabled."
+            success "MasjidBoard Raspberry Pi WebKit warm-up service installed and enabled."
         fi
         success "MasjidBoard display service installed and enabled."
     else

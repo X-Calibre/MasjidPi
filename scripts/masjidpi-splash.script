@@ -1,24 +1,29 @@
 # MasjidPi appliance boot splash.
 # The validated 7-inch appliance panel is physically mounted in portrait while
-# KMS exposes its native 1024x600 landscape mode. Scale the supplied logo while
-# it is still in native orientation, then rotate it for the portrait panel.
+# KMS exposes its native 1024x600 landscape mode. Use a pre-rotated splash asset
+# so Plymouth never has to rotate a non-square image at runtime; that operation
+# cropped the left and right sides of the temporary wordmark on real hardware.
 
 Window.SetBackgroundTopColor(0.02, 0.06, 0.05);
 Window.SetBackgroundBottomColor(0.01, 0.02, 0.02);
 
-brand.image = Image("masjidpi-splash-logo.png");
+brand.image = Image("masjidpi-splash-logo-appliance.png");
 
-# On the 1024x600 KMS framebuffer, the physical portrait width corresponds to
-# the framebuffer height. Size the logo to 65% of that dimension before
-# rotating it. This avoids Plymouth's rotated-image sizing ambiguity and keeps
-# the full temporary wordmark comfortably inside the visible portrait area.
-target_width = Window.GetHeight() * 0.65;
-scale = target_width / brand.image.GetWidth();
+# The pre-rotated asset is 567x960. Fit it comfortably inside the native
+# 1024x600 framebuffer while preserving its aspect ratio. When the physical
+# panel is viewed in portrait, this corresponds to the intended upright logo.
+max_width = Window.GetWidth() * 0.70;
+max_height = Window.GetHeight() * 0.70;
+scale = 1.0;
+
+if (brand.image.GetWidth() > max_width)
+    scale = max_width / brand.image.GetWidth();
+if (brand.image.GetHeight() * scale > max_height)
+    scale = max_height / brand.image.GetHeight();
 
 if (scale < 1.0)
     brand.image = brand.image.Scale(brand.image.GetWidth() * scale, brand.image.GetHeight() * scale);
 
-brand.image = brand.image.Rotate(-Math.Pi / 2);
 brand.sprite = Sprite(brand.image);
 
 fun position_splash() {

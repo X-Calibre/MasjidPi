@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 install_service() {
 
     if [[ ! -f "$PROJECT_ROOT/scripts/masjidpi.service" ]]; then
@@ -27,6 +25,21 @@ install_component_services() {
         install -m 0644 "$PROJECT_ROOT/scripts/masjidpi-display.service" \
             /etc/systemd/system/masjidpi-display.service
 
+        if is_appliance_display_hardware; then
+            if [[ ! -f "$PROJECT_ROOT/scripts/masjidboard-warmup.sh" || ! -f "$PROJECT_ROOT/scripts/masjidpi-display-warmup.service" ]]; then
+                die "MasjidBoard appliance warm-up runtime files are missing."
+            fi
+
+            install -m 0755 "$PROJECT_ROOT/scripts/masjidboard-warmup.sh" \
+                /opt/masjidpi/bin/masjidboard-warmup
+            install -m 0644 "$PROJECT_ROOT/scripts/masjidpi-display-warmup.service" \
+                /etc/systemd/system/masjidpi-display-warmup.service
+        else
+            systemctl disable --now masjidpi-display-warmup.service >/dev/null 2>&1 || true
+            rm -f /etc/systemd/system/masjidpi-display-warmup.service
+            rm -f /opt/masjidpi/bin/masjidboard-warmup
+        fi
+
         if [[ -f "$PROJECT_ROOT/scripts/99-masjidpi-appliance-touchscreen.rules" ]]; then
             install -m 0644 "$PROJECT_ROOT/scripts/99-masjidpi-appliance-touchscreen.rules" \
                 /etc/udev/rules.d/99-masjidpi-appliance-touchscreen.rules
@@ -36,17 +49,25 @@ install_component_services() {
 
         systemctl daemon-reload
         systemctl enable masjidpi-display.service
+        if is_appliance_display_hardware; then
+            systemctl enable masjidpi-display-warmup.service
+            success "MasjidBoard appliance WebKit warm-up service installed and enabled."
+        fi
         success "MasjidBoard display service installed and enabled."
     else
         if systemctl list-unit-files masjidpi-display.service >/dev/null 2>&1; then
             systemctl disable --now masjidpi-display.service || true
         fi
+        systemctl disable --now masjidpi-display-warmup.service >/dev/null 2>&1 || true
         rm -f /etc/systemd/system/masjidpi-display.service
+        rm -f /etc/systemd/system/masjidpi-display-warmup.service
         rm -f /opt/masjidpi/bin/masjidboard-display
+        rm -f /opt/masjidpi/bin/masjidboard-warmup
         rm -f /etc/udev/rules.d/99-masjidpi-appliance-touchscreen.rules
         udevadm control --reload-rules 2>/dev/null || true
         systemctl daemon-reload
         systemctl reset-failed masjidpi-display.service 2>/dev/null || true
+        systemctl reset-failed masjidpi-display-warmup.service 2>/dev/null || true
     fi
 }
 

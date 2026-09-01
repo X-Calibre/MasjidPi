@@ -9,6 +9,7 @@ trap 'rm -rf "$TMP"' EXIT
 export MASJIDBOARD_DISPLAY_LIBRARY_ONLY=1
 export MASJIDPI_USB_SYSFS_ROOT="$TMP/usb"
 export MASJIDPI_DRM_SYSFS_ROOT="$TMP/drm"
+export MASJIDBOARD_STARTUP_FILE="$TMP/masjidboard-startup.html"
 mkdir -p "$MASJIDPI_USB_SYSFS_ROOT" "$MASJIDPI_DRM_SYSFS_ROOT"
 
 # shellcheck source=../scripts/masjidboard-display.sh
@@ -66,8 +67,8 @@ if [[ "$(launch_url standard)" != "$MASJIDBOARD_BASE_URL" ]]; then
     echo "standard launch URL must remain the board URL" >&2
     exit 1
 fi
-if [[ "$(launch_url appliance)" != "${MASJIDBOARD_STARTUP_URL}?profile=appliance" ]]; then
-    echo "appliance launch URL must use the startup screen" >&2
+if [[ "$(launch_url appliance)" != "file://${MASJIDBOARD_STARTUP_FILE}?profile=appliance" ]]; then
+    echo "appliance launch URL must use the installed local startup screen" >&2
     exit 1
 fi
 

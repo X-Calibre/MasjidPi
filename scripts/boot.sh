@@ -103,9 +103,11 @@ configure_boot_splash() {
     local theme_file="$PROJECT_ROOT/scripts/masjidpi-splash.plymouth"
     local script_file="$PROJECT_ROOT/scripts/masjidpi-splash-standard.script"
     local logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo.png"
+    local appliance_logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo-appliance.png"
 
     if is_appliance_display_hardware; then
         script_file="$PROJECT_ROOT/scripts/masjidpi-splash.script"
+        logo_file="$appliance_logo_file"
     fi
 
     if [[ ! -f "$theme_file" || ! -f "$script_file" || ! -f "$logo_file" ]]; then
@@ -123,7 +125,7 @@ configure_boot_splash() {
     install -d -m 0755 "$PLYMOUTH_THEME_DIR"
     install -m 0644 "$theme_file" "$PLYMOUTH_THEME_DIR/masjidpi.plymouth"
     install -m 0644 "$script_file" "$PLYMOUTH_THEME_DIR/masjidpi-splash.script"
-    install -m 0644 "$logo_file" "$PLYMOUTH_THEME_DIR/masjidpi-splash-logo.png"
+    install -m 0644 "$logo_file" "$PLYMOUTH_THEME_DIR/$(basename "$logo_file")"
 
     append_cmdline_parameter splash
     append_cmdline_parameter plymouth.ignore-serial-consoles

@@ -5,6 +5,7 @@ CMDLINE_FILE="${MASJIDPI_CMDLINE_FILE:-$BOOT_FIRMWARE_DIR/cmdline.txt}"
 CONFIG_FILE="${MASJIDPI_CONFIG_FILE:-$BOOT_FIRMWARE_DIR/config.txt}"
 RPI_MODEL_FILE="${MASJIDPI_RPI_MODEL_FILE:-/proc/device-tree/model}"
 PLYMOUTH_THEME_DIR="${MASJIDPI_PLYMOUTH_THEME_DIR:-/usr/share/plymouth/themes/masjidpi}"
+PLYMOUTH_QUIT_DROPIN_DIR="${MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR:-/etc/systemd/system/plymouth-quit.service.d}"
 
 is_raspberry_pi() {
     if [[ "${MASJIDPI_FORCE_RASPBERRY_PI:-0}" == "1" ]]; then
@@ -80,6 +81,17 @@ configure_boot_splash() {
     append_cmdline_parameter splash
     append_cmdline_parameter plymouth.ignore-serial-consoles
 
+    # Debian normally clears the Plymouth framebuffer when plymouth-quit runs.
+    # Keep the final splash frame on screen after Plymouth releases DRM so the
+    # quiet console cannot flash between Plymouth and Cog startup.
+    install -d -m 0755 "$PLYMOUTH_QUIT_DROPIN_DIR"
+    cat > "$PLYMOUTH_QUIT_DROPIN_DIR/masjidpi.conf" <<'EOF'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/plymouth quit --retain-splash
+EOF
+
+    systemctl daemon-reload
     plymouth-set-default-theme -R masjidpi
 
     success "MasjidPi boot splash installed."

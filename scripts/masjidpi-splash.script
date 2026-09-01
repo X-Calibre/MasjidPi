@@ -9,8 +9,10 @@ Window.SetBackgroundBottomColor(0.01, 0.02, 0.02);
 brand.image = Image.Text("MasjidPi", 0.88, 0.74, 0.30);
 status.image = Image.Text("Starting...", 0.72, 0.76, 0.73);
 
-brand.image = brand.image.Rotate(Math.Pi / 2);
-status.image = status.image.Rotate(Math.Pi / 2);
+# Physical Pi 3/Waveshare validation showed the first prototype was rotated
+# 180 degrees from the desired appliance orientation. Reverse the rotation.
+brand.image = brand.image.Rotate(-Math.Pi / 2);
+status.image = status.image.Rotate(-Math.Pi / 2);
 
 brand.sprite = Sprite(brand.image);
 status.sprite = Sprite(status.image);

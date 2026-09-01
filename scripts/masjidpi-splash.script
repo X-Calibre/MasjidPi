@@ -1,33 +1,37 @@
-# MasjidPi boot splash.
+# MasjidPi appliance boot splash.
 # The validated 7-inch appliance panel is physically mounted in portrait while
-# KMS exposes its native 1024x600 landscape mode. Rotate the branded content so
-# it appears upright until Cog takes over with its appliance rotation.
+# KMS exposes its native 1024x600 landscape mode. Rotate the supplied logo so it
+# appears upright until Cog takes over with its appliance rotation.
 
 Window.SetBackgroundTopColor(0.02, 0.06, 0.05);
 Window.SetBackgroundBottomColor(0.01, 0.02, 0.02);
 
-brand.image = Image.Text("MasjidPi", 0.88, 0.74, 0.30);
-status.image = Image.Text("Starting...", 0.72, 0.76, 0.73);
-
-# Physical Pi 3/Waveshare validation showed the first prototype was rotated
-# 180 degrees from the desired appliance orientation. Reverse the rotation.
+brand.image = Image("masjidpi-splash-logo.png");
 brand.image = brand.image.Rotate(-Math.Pi / 2);
-status.image = status.image.Rotate(-Math.Pi / 2);
-
 brand.sprite = Sprite(brand.image);
-status.sprite = Sprite(status.image);
 
 fun position_splash() {
     center_x = Window.GetX() + Window.GetWidth() / 2;
     center_y = Window.GetY() + Window.GetHeight() / 2;
 
-    brand.sprite.SetX(center_x - brand.image.GetWidth() / 2);
-    brand.sprite.SetY(center_y - brand.image.GetHeight() / 2 - 34);
-    brand.sprite.SetZ(1000);
+    # Keep generous margins around the temporary logo on the 600x1024 portrait
+    # presentation. The source PNG is already cropped and optimized for splash use.
+    max_width = Window.GetWidth() * 0.70;
+    max_height = Window.GetHeight() * 0.70;
+    scale = 1.0;
 
-    status.sprite.SetX(center_x - status.image.GetWidth() / 2);
-    status.sprite.SetY(center_y - status.image.GetHeight() / 2 + 84);
-    status.sprite.SetZ(1000);
+    if (brand.image.GetWidth() > max_width)
+        scale = max_width / brand.image.GetWidth();
+    if (brand.image.GetHeight() * scale > max_height)
+        scale = max_height / brand.image.GetHeight();
+
+    if (scale < 1.0)
+        brand.image = brand.image.Scale(brand.image.GetWidth() * scale, brand.image.GetHeight() * scale);
+
+    brand.sprite.SetImage(brand.image);
+    brand.sprite.SetX(center_x - brand.image.GetWidth() / 2);
+    brand.sprite.SetY(center_y - brand.image.GetHeight() / 2);
+    brand.sprite.SetZ(1000);
 }
 
 fun refresh_callback() {

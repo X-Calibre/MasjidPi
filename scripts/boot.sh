@@ -18,6 +18,11 @@ is_raspberry_pi() {
     grep -aqi 'Raspberry Pi' "$RPI_MODEL_FILE"
 }
 
+is_raspberry_pi_board() {
+    $INSTALL_BOARD || return 1
+    is_raspberry_pi
+}
+
 waveshare_appliance_touch_present() {
     local device
 
@@ -50,8 +55,7 @@ appliance_hdmi_mode_present() {
 }
 
 is_appliance_display_hardware() {
-    $INSTALL_BOARD || return 1
-    is_raspberry_pi || return 1
+    is_raspberry_pi_board || return 1
     waveshare_appliance_touch_present && appliance_hdmi_mode_present
 }
 
@@ -64,14 +68,14 @@ append_cmdline_parameter() {
 }
 
 configure_quiet_boot() {
-    is_appliance_display_hardware || return 0
+    is_raspberry_pi_board || return 0
 
     if [[ ! -f "$CMDLINE_FILE" || ! -f "$CONFIG_FILE" ]]; then
         warn "Raspberry Pi boot configuration not found; skipping quiet boot configuration."
         return 0
     fi
 
-    info "Configuring quiet Raspberry Pi appliance boot..."
+    info "Configuring quiet Raspberry Pi Board boot..."
 
     append_cmdline_parameter quiet
     append_cmdline_parameter loglevel=3
@@ -86,22 +90,26 @@ configure_quiet_boot() {
     fi
 
     # Keep console=tty1 in the kernel command line. Removing it caused unreliable
-    # KMS startup on validated Raspberry Pi appliance hardware. Disable only the
-    # login getty so the console remains available to the kernel without exposing
-    # a prompt during the appliance boot sequence.
+    # KMS startup during physical Raspberry Pi validation. Disable only the login
+    # getty so the kernel keeps its console without exposing a prompt at boot.
     systemctl disable getty@tty1.service >/dev/null 2>&1 || true
 
-    success "Quiet Raspberry Pi appliance boot configured."
+    success "Quiet Raspberry Pi Board boot configured."
 }
 
 configure_boot_splash() {
-    is_appliance_display_hardware || return 0
+    is_raspberry_pi_board || return 0
 
     local theme_file="$PROJECT_ROOT/scripts/masjidpi-splash.plymouth"
-    local script_file="$PROJECT_ROOT/scripts/masjidpi-splash.script"
+    local script_file="$PROJECT_ROOT/scripts/masjidpi-splash-standard.script"
+    local logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo.png"
 
-    if [[ ! -f "$theme_file" || ! -f "$script_file" ]]; then
-        warn "MasjidPi Plymouth theme files are missing; skipping branded boot splash."
+    if is_appliance_display_hardware; then
+        script_file="$PROJECT_ROOT/scripts/masjidpi-splash.script"
+    fi
+
+    if [[ ! -f "$theme_file" || ! -f "$script_file" || ! -f "$logo_file" ]]; then
+        warn "MasjidPi Plymouth splash assets are missing; skipping branded boot splash."
         return 0
     fi
 
@@ -110,11 +118,12 @@ configure_boot_splash() {
         return 0
     fi
 
-    info "Installing MasjidPi appliance boot splash..."
+    info "Installing MasjidPi Raspberry Pi Board boot splash..."
 
     install -d -m 0755 "$PLYMOUTH_THEME_DIR"
     install -m 0644 "$theme_file" "$PLYMOUTH_THEME_DIR/masjidpi.plymouth"
     install -m 0644 "$script_file" "$PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+    install -m 0644 "$logo_file" "$PLYMOUTH_THEME_DIR/masjidpi-splash-logo.png"
 
     append_cmdline_parameter splash
     append_cmdline_parameter plymouth.ignore-serial-consoles
@@ -132,5 +141,5 @@ EOF
     systemctl daemon-reload
     plymouth-set-default-theme -R masjidpi
 
-    success "MasjidPi appliance boot splash installed."
+    success "MasjidPi Raspberry Pi Board boot splash installed."
 }

@@ -29,8 +29,8 @@ install_packages() {
             cog \
             libwpewebkit-2.0-1
 
-        if is_raspberry_pi; then
-            info "Installing Raspberry Pi splash dependencies..."
+        if is_appliance_display_hardware; then
+            info "Installing Raspberry Pi appliance splash dependencies..."
             apt-get install -y \
                 plymouth \
                 plymouth-themes

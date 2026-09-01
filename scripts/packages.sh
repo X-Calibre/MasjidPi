@@ -28,6 +28,13 @@ install_packages() {
         apt-get install -y \
             cog \
             libwpewebkit-2.0-1
+
+        if is_raspberry_pi; then
+            info "Installing Raspberry Pi splash dependencies..."
+            apt-get install -y \
+                plymouth \
+                plymouth-themes
+        fi
     fi
 
     if [[ "$mode" == "source" ]]; then

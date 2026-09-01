@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>Starting MasjidBoard</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, #050f0d 0%, #030505 100%);
+            color: #e0bd4d;
+            font-family: "Fira Sans", system-ui, sans-serif;
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+        }
+
+        .startup {
+            text-align: center;
+            transform: translateY(-2vh);
+        }
+
+        .brand {
+            margin: 0;
+            font-size: clamp(2.7rem, 9vw, 6rem);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .status {
+            margin-top: 1rem;
+            color: #b8c7c2;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+    <main class="startup" aria-label="MasjidPi is starting">
+        <h1 class="brand">MasjidPi</h1>
+        <div class="status">Starting…</div>
+    </main>
+    <script>
+        (() => {
+            const params = new URLSearchParams(window.location.search);
+            const profile = params.get("profile") === "appliance" ? "appliance" : "standard";
+            const target = profile === "appliance"
+                ? "/masjidboard.html?profile=appliance"
+                : "/masjidboard.html";
+
+            // Paint at least one complete branded frame before navigating to the
+            // full board. WebKit keeps the current page visible while the target
+            // document begins loading, avoiding a blank transition where possible.
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    window.setTimeout(() => window.location.replace(target), 500);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

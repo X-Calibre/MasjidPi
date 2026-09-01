@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=MasjidPi
-Description=MasjidPi appliance boot splash
+Description=MasjidPi Raspberry Pi Board boot splash
 ModuleName=script
 
 [script]

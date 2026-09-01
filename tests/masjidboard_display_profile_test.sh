@@ -9,8 +9,10 @@ trap 'rm -rf "$TMP"' EXIT
 export MASJIDBOARD_DISPLAY_LIBRARY_ONLY=1
 export MASJIDPI_USB_SYSFS_ROOT="$TMP/usb"
 export MASJIDPI_DRM_SYSFS_ROOT="$TMP/drm"
+export MASJIDPI_RPI_MODEL_FILE="$TMP/model"
 export MASJIDBOARD_STARTUP_FILE="$TMP/masjidboard-startup.html"
 mkdir -p "$MASJIDPI_USB_SYSFS_ROOT" "$MASJIDPI_DRM_SYSFS_ROOT"
+printf 'generic linux\n' > "$MASJIDPI_RPI_MODEL_FILE"
 
 # shellcheck source=../scripts/masjidboard-display.sh
 source "$ROOT/scripts/masjidboard-display.sh"
@@ -25,6 +27,19 @@ assert_profile() {
 }
 
 assert_profile standard
+
+# Non-Raspberry Pi standard installs keep the established direct Board launch.
+if [[ "$(launch_url standard)" != "$MASJIDBOARD_BASE_URL" ]]; then
+    echo "non-Raspberry Pi standard launch URL must remain the Board URL" >&2
+    exit 1
+fi
+
+# Raspberry Pi standard installs use the local branded startup screen.
+export MASJIDPI_FORCE_RASPBERRY_PI=1
+if [[ "$(launch_url standard)" != "file://${MASJIDBOARD_STARTUP_FILE}?profile=standard" ]]; then
+    echo "Raspberry Pi standard launch URL must use the local startup screen" >&2
+    exit 1
+fi
 
 usb="$MASJIDPI_USB_SYSFS_ROOT/1-1.3"
 mkdir -p "$usb"
@@ -63,10 +78,6 @@ if [[ "$(display_url appliance)" != "${MASJIDBOARD_BASE_URL}?profile=appliance" 
     echo "appliance display URL is incorrect" >&2
     exit 1
 fi
-if [[ "$(launch_url standard)" != "$MASJIDBOARD_BASE_URL" ]]; then
-    echo "standard launch URL must remain the board URL" >&2
-    exit 1
-fi
 if [[ "$(launch_url appliance)" != "file://${MASJIDBOARD_STARTUP_FILE}?profile=appliance" ]]; then
     echo "appliance launch URL must use the installed local startup screen" >&2
     exit 1
@@ -81,6 +92,10 @@ fi
 MASJIDBOARD_URL='http://127.0.0.1:8080/custom-board.html'
 if [[ "$(launch_url appliance)" != "$MASJIDBOARD_URL" ]]; then
     echo "custom display URL override must bypass the appliance startup screen" >&2
+    exit 1
+fi
+if [[ "$(launch_url standard)" != "$MASJIDBOARD_URL" ]]; then
+    echo "custom display URL override must bypass the standard startup screen" >&2
     exit 1
 fi
 

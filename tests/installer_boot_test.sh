@@ -47,21 +47,34 @@ systemctl() {
 # shellcheck source=../scripts/boot.sh
 source "$ROOT/scripts/boot.sh"
 
-# A Raspberry Pi Board installation without the validated appliance hardware
-# must retain the ordinary boot configuration.
+# A Raspberry Pi Board installation with ordinary HDMI hardware gets the same
+# quiet branded boot, using the unrotated landscape Plymouth script.
 reset_boot_files
 configure_quiet_boot
+configure_quiet_boot
+configure_boot_splash
 configure_boot_splash
 
 standard_cmdline="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/cmdline.txt")"
 standard_config="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/config.txt")"
-[[ "$standard_cmdline" == "console=serial0,115200 console=tty1 root=PARTUUID=test-02 rootfstype=ext4 rootwait" ]]
-[[ "$standard_config" != *"disable_splash=1"* ]]
-[[ -z "$SYSTEMCTL_CALLS" ]]
-[[ ! -e "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi.plymouth" ]]
+
+[[ "$standard_cmdline" == *"console=tty1"* ]]
+[[ "$(grep -o '\bquiet\b' <<< "$standard_cmdline" | wc -l)" -eq 1 ]]
+[[ "$(grep -o 'loglevel=3' <<< "$standard_cmdline" | wc -l)" -eq 1 ]]
+[[ "$(grep -o 'systemd.show_status=false' <<< "$standard_cmdline" | wc -l)" -eq 1 ]]
+[[ "$(grep -o '\bsplash\b' <<< "$standard_cmdline" | wc -l)" -eq 1 ]]
+[[ "$(grep -o 'plymouth.ignore-serial-consoles' <<< "$standard_cmdline" | wc -l)" -eq 1 ]]
+[[ "$(grep -c '^disable_splash=1$' <<< "$standard_config")" -eq 1 ]]
+[[ "$SYSTEMCTL_CALLS" == *"disable getty@tty1.service"* ]]
+[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi.plymouth" ]]
+[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script" ]]
+[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash-logo.png" ]]
+[[ -f "$MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR/masjidpi.conf" ]]
+! grep -q 'Rotate' "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
 
 # Add the exact Waveshare USB identity plus connected 1024x600 HDMI mode used by
-# the appliance profile.
+# the appliance profile. Re-running configuration must switch Plymouth to the
+# validated portrait rotation without duplicating boot parameters.
 usb="$MASJIDPI_USB_SYSFS_ROOT/1-1.3"
 mkdir -p "$usb"
 printf '0eef\n' > "$usb/idVendor"
@@ -75,25 +88,18 @@ printf 'connected\n' > "$hdmi/status"
 printf '1024x600\n1920x1080\n' > "$hdmi/modes"
 
 configure_quiet_boot
-configure_quiet_boot
-configure_boot_splash
 configure_boot_splash
 
 cmdline="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/cmdline.txt")"
 config="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/config.txt")"
 
-[[ "$cmdline" == *"console=tty1"* ]]
 [[ "$(grep -o '\bquiet\b' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -o 'loglevel=3' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -o 'systemd.show_status=false' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -o '\bsplash\b' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -o 'plymouth.ignore-serial-consoles' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -c '^disable_splash=1$' <<< "$config")" -eq 1 ]]
-[[ "$SYSTEMCTL_CALLS" == *"disable getty@tty1.service"* ]]
-[[ "$SYSTEMCTL_CALLS" == *"daemon-reload"* ]]
-[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi.plymouth" ]]
-[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script" ]]
-[[ -f "$MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR/masjidpi.conf" ]]
-[[ "$(grep -c -- '^-R masjidpi$' "$TMP/plymouth-calls")" -eq 2 ]]
+grep -q 'Rotate(-Math.Pi / 2)' "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+[[ "$(grep -c -- '^-R masjidpi$' "$TMP/plymouth-calls")" -eq 3 ]]
 
-printf '[PASS] quiet boot and branded splash are scoped to validated appliance hardware\n'
+printf '[PASS] quiet boot and branded splash cover standard and appliance Raspberry Pi Board profiles\n'

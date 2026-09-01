@@ -62,10 +62,24 @@ if [[ "$(display_url appliance)" != "${MASJIDBOARD_BASE_URL}?profile=appliance" 
     echo "appliance display URL is incorrect" >&2
     exit 1
 fi
+if [[ "$(launch_url standard)" != "$MASJIDBOARD_BASE_URL" ]]; then
+    echo "standard launch URL must remain the board URL" >&2
+    exit 1
+fi
+if [[ "$(launch_url appliance)" != "${MASJIDBOARD_STARTUP_URL}?profile=appliance" ]]; then
+    echo "appliance launch URL must use the startup screen" >&2
+    exit 1
+fi
 
 MASJIDBOARD_BASE_URL='http://127.0.0.1:8080/masjidboard.html?date=2026-08-31'
 if [[ "$(display_url appliance)" != "${MASJIDBOARD_BASE_URL}&profile=appliance" ]]; then
     echo "appliance display URL did not preserve existing query parameters" >&2
+    exit 1
+fi
+
+MASJIDBOARD_URL='http://127.0.0.1:8080/custom-board.html'
+if [[ "$(launch_url appliance)" != "$MASJIDBOARD_URL" ]]; then
+    echo "custom display URL override must bypass the appliance startup screen" >&2
     exit 1
 fi
 

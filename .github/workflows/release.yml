@@ -88,8 +88,10 @@ jobs:
             test -f "$package_dir/frontend/masjidboard.html"
             test -f "$package_dir/scripts/install.sh"
             test -f "$package_dir/scripts/masjidboard-display.sh"
+            test -f "$package_dir/scripts/masjidboard-warmup.sh"
             test -f "$package_dir/scripts/masjidpi.service"
             test -f "$package_dir/scripts/masjidpi-display.service"
+            test -f "$package_dir/scripts/masjidpi-display-warmup.service"
             test -f "$package_dir/scripts/masjidpi-splash.plymouth"
             test -f "$package_dir/scripts/masjidpi-splash.script"
 

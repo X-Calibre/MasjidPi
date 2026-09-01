@@ -1,0 +1,36 @@
+# MasjidPi boot splash.
+# The validated 7-inch appliance panel is physically mounted in portrait while
+# KMS exposes its native 1024x600 landscape mode. Rotate the branded content so
+# it appears upright until Cog takes over with its appliance rotation.
+
+Window.SetBackgroundTopColor(0.02, 0.06, 0.05);
+Window.SetBackgroundBottomColor(0.01, 0.02, 0.02);
+
+brand.image = Image.Text("MasjidPi", 0.88, 0.74, 0.30);
+status.image = Image.Text("Starting...", 0.72, 0.76, 0.73);
+
+brand.image = brand.image.Rotate(Math.Pi / 2);
+status.image = status.image.Rotate(Math.Pi / 2);
+
+brand.sprite = Sprite(brand.image);
+status.sprite = Sprite(status.image);
+
+fun position_splash() {
+    center_x = Window.GetX() + Window.GetWidth() / 2;
+    center_y = Window.GetY() + Window.GetHeight() / 2;
+
+    brand.sprite.SetX(center_x - brand.image.GetWidth() / 2);
+    brand.sprite.SetY(center_y - brand.image.GetHeight() / 2 - 34);
+    brand.sprite.SetZ(1000);
+
+    status.sprite.SetX(center_x - status.image.GetWidth() / 2);
+    status.sprite.SetY(center_y - status.image.GetHeight() / 2 + 84);
+    status.sprite.SetZ(1000);
+}
+
+fun refresh_callback() {
+    position_splash();
+}
+
+position_splash();
+Plymouth.SetRefreshFunction(refresh_callback);

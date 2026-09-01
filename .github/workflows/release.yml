@@ -74,6 +74,8 @@ jobs:
             mkdir -p "$package_dir/scripts"
             cp scripts/*.sh "$package_dir/scripts/"
             cp scripts/*.service "$package_dir/scripts/"
+            cp scripts/*.plymouth "$package_dir/scripts/"
+            cp scripts/*.script "$package_dir/scripts/"
 
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
 
@@ -88,6 +90,8 @@ jobs:
             test -f "$package_dir/scripts/masjidboard-display.sh"
             test -f "$package_dir/scripts/masjidpi.service"
             test -f "$package_dir/scripts/masjidpi-display.service"
+            test -f "$package_dir/scripts/masjidpi-splash.plymouth"
+            test -f "$package_dir/scripts/masjidpi-splash.script"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \
               "${PACKAGE_NAME}-linux-${arch}"

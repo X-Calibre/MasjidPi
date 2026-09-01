@@ -4,7 +4,13 @@ set -u
 
 STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidpi/frontend/masjidboard-startup.html}"
 WARMUP_TIMEOUT="${MASJIDBOARD_WARMUP_TIMEOUT:-20}"
-WARMUP_URL="file://${STARTUP_FILE}?profile=appliance"
+WARMUP_PROFILE="${MASJIDBOARD_WARMUP_PROFILE:-standard}"
+
+if [[ "$WARMUP_PROFILE" != "appliance" ]]; then
+    WARMUP_PROFILE="standard"
+fi
+
+WARMUP_URL="file://${STARTUP_FILE}?profile=${WARMUP_PROFILE}"
 
 if ! command -v cog >/dev/null 2>&1; then
     echo "MasjidBoard warm-up: Cog is not installed; skipping." >&2
@@ -16,10 +22,10 @@ if [[ ! -f "$STARTUP_FILE" ]]; then
     exit 0
 fi
 
-# The headless Cog backend initializes WPE/WebKit without touching DRM. This
-# lets Plymouth remain visible while the expensive cold-start work is brought
-# into memory. Stop the warm-up as soon as WebKit reports the local page loaded;
-# a watchdog prevents a failed warm-up from delaying boot indefinitely.
+# The headless Cog backend initializes WPE/WebKit and decodes the shared splash
+# artwork without touching DRM. This lets Plymouth remain visible while the
+# expensive cold-start work is brought into memory. The page itself is profile-
+# aware, but either profile warms the same WebKit path and static assets.
 coproc COG_WARMUP { cog --platform=headless "$WARMUP_URL" 2>&1; }
 warmup_pid="$COG_WARMUP_PID"
 loaded=false

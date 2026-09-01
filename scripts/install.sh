@@ -103,6 +103,7 @@ main() {
 
     configure_raspberry_pi_wifi
     configure_quiet_boot
+    configure_boot_splash
 
     save_components
 

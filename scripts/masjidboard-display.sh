@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 MASJIDBOARD_BASE_URL="${MASJIDBOARD_BASE_URL:-http://127.0.0.1:8080/masjidboard.html}"
-MASJIDBOARD_STARTUP_URL="${MASJIDBOARD_STARTUP_URL:-http://127.0.0.1:8080/masjidboard-startup.html}"
+MASJIDBOARD_STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidpi/frontend/masjidboard-startup.html}"
 MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
 MASJIDPI_USB_SYSFS_ROOT="${MASJIDPI_USB_SYSFS_ROOT:-/sys/bus/usb/devices}"
 MASJIDPI_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
@@ -83,7 +83,9 @@ launch_url() {
         return
     fi
 
-    printf '%s?profile=appliance\n' "$MASJIDBOARD_STARTUP_URL"
+    # The appliance startup page is loaded directly from the installed runtime,
+    # so Cog can paint it before the MasjidPi HTTP server is available.
+    printf 'file://%s?profile=appliance\n' "$MASJIDBOARD_STARTUP_FILE"
 }
 
 main() {
@@ -92,11 +94,17 @@ main() {
         exit 1
     fi
 
-    wait_for_masjidpi
-
     local profile platform_params
     local -a cog_args
     profile="$(display_profile)"
+
+    # Standard displays retain the established behaviour and do not launch Cog
+    # until the MasjidPi backend is ready. Appliance displays instead launch a
+    # local startup page immediately; that page performs its own readiness poll.
+    if [[ "$profile" != "appliance" || -n "${MASJIDBOARD_URL:-}" ]]; then
+        wait_for_masjidpi
+    fi
+
     platform_params="renderer=gles"
     cog_args=(--platform=drm)
 

@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=MasjidPi
+Description=MasjidPi appliance boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/masjidpi
+ScriptFile=/usr/share/plymouth/themes/masjidpi/masjidpi-splash.script

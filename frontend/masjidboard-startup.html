@@ -51,17 +51,36 @@
         (() => {
             const params = new URLSearchParams(window.location.search);
             const profile = params.get("profile") === "appliance" ? "appliance" : "standard";
+            const readyUrl = "http://127.0.0.1:8080/api/version";
             const target = profile === "appliance"
-                ? "/masjidboard.html?profile=appliance"
-                : "/masjidboard.html";
+                ? "http://127.0.0.1:8080/masjidboard.html?profile=appliance"
+                : "http://127.0.0.1:8080/masjidboard.html";
+            let navigating = false;
 
-            // Paint at least one complete branded frame before navigating to the
-            // full board. WebKit keeps the current page visible while the target
-            // document begins loading, avoiding a blank transition where possible.
+            const tryBackend = async () => {
+                if (navigating) return;
+
+                try {
+                    // This page is loaded from file:// before the HTTP server is
+                    // ready. no-cors lets us use a successful local HTTP response
+                    // purely as a readiness signal without reading its contents.
+                    await fetch(readyUrl, {
+                        method: "GET",
+                        mode: "no-cors",
+                        cache: "no-store"
+                    });
+
+                    navigating = true;
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => window.location.replace(target));
+                    });
+                } catch (_) {
+                    window.setTimeout(tryBackend, 500);
+                }
+            };
+
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    window.setTimeout(() => window.location.replace(target), 500);
-                });
+                requestAnimationFrame(tryBackend);
             });
         })();
     </script>

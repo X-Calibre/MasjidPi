@@ -51,13 +51,52 @@ func TestClientFetchRejectsMissingRequiredColumn(t *testing.T) {
 	}
 }
 
-func TestParseEffectiveDateAcceptsJamiatSeptemberAbbreviation(t *testing.T) {
+func TestParseEffectiveDateAcceptsJamiatFormatsAndEveryMonth(t *testing.T) {
 	t.Parallel()
-	got, err := parseEffectiveDate("02 Sept", 2026)
-	if err != nil {
-		t.Fatalf("parseEffectiveDate() error = %v", err)
+	tests := []struct {
+		value    string
+		postYear int
+		want     string
+	}{
+		{"01 Jan", 2026, "2026-01-01"},
+		{"02 Feb", 2026, "2026-02-02"},
+		{"03 Mar", 2026, "2026-03-03"},
+		{"04 Apr", 2026, "2026-04-04"},
+		{"05 May", 2026, "2026-05-05"},
+		{"06 Jun", 2026, "2026-06-06"},
+		{"07 Jul", 2026, "2026-07-07"},
+		{"08 Aug", 2026, "2026-08-08"},
+		{"09 Sep", 2026, "2026-09-09"},
+		{"10 Oct", 2026, "2026-10-10"},
+		{"11 Nov", 2026, "2026-11-11"},
+		{"12 Dec", 2026, "2026-12-12"},
+		{"02 Sept", 2026, "2026-09-02"},
+		{"16-Jun", 2026, "2026-06-16"},
+		{"30–Apr", 2026, "2026-04-30"},
+		{"13 Jul 18", 2018, "2018-07-13"},
+		{"12 Mar '21", 2021, "2021-03-12"},
+		{"2 September 2026", 2026, "2026-09-02"},
 	}
-	if want := "2026-09-02"; got.Format("2006-01-02") != want {
-		t.Fatalf("parseEffectiveDate() = %s, want %s", got.Format("2006-01-02"), want)
+	for _, test := range tests {
+		test := test
+		t.Run(test.value, func(t *testing.T) {
+			t.Parallel()
+			got, err := parseEffectiveDate(test.value, test.postYear)
+			if err != nil {
+				t.Fatalf("parseEffectiveDate() error = %v", err)
+			}
+			if formatted := got.Format("2006-01-02"); formatted != test.want {
+				t.Fatalf("parseEffectiveDate() = %s, want %s", formatted, test.want)
+			}
+		})
+	}
+}
+
+func TestParseEffectiveDateRejectsInvalidValues(t *testing.T) {
+	t.Parallel()
+	for _, value := range []string{"", "Sept", "31 Feb", "2 Smarch", "2 Sep 2", "2 Sep twenty"} {
+		if _, err := parseEffectiveDate(value, 2026); err == nil {
+			t.Errorf("parseEffectiveDate(%q) expected error", value)
+		}
 	}
 }

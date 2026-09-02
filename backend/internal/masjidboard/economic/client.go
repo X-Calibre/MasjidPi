@@ -160,13 +160,68 @@ func parsePost(post wordpressPost, fetchedAt time.Time) (Indicators, error) {
 }
 
 func parseEffectiveDate(value string, year int) (time.Time, error) {
-	parts := strings.Fields(strings.TrimSpace(value))
-	if len(parts) == 2 && strings.EqualFold(parts[1], "Sept") {
-		// Go's reference-time parser recognises the conventional three-letter
-		// abbreviation "Sep"; Jamiat publishes September dates as "Sept".
-		parts[1] = "Sep"
+	normalized := strings.NewReplacer(
+		"-", " ",
+		"‐", " ",
+		"‑", " ",
+		"–", " ",
+		"—", " ",
+	).Replace(strings.TrimSpace(value))
+	parts := strings.Fields(normalized)
+	if len(parts) < 2 || len(parts) > 3 {
+		return time.Time{}, fmt.Errorf("expected day, month and optional year")
 	}
-	return time.Parse("2 Jan 2006", strings.Join(parts, " ")+" "+strconv.Itoa(year))
+
+	day, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid day %q", parts[0])
+	}
+	month, ok := economicMonth(parts[1])
+	if !ok {
+		return time.Time{}, fmt.Errorf("invalid month %q", parts[1])
+	}
+	if len(parts) == 3 {
+		yearText := strings.TrimLeft(parts[2], "'’")
+		parsedYear, parseErr := strconv.Atoi(yearText)
+		if parseErr != nil || (len(yearText) != 2 && len(yearText) != 4) {
+			return time.Time{}, fmt.Errorf("invalid year %q", parts[2])
+		}
+		if len(yearText) == 2 {
+			century := year / 100 * 100
+			parsedYear += century
+			if parsedYear > year+50 {
+				parsedYear -= 100
+			} else if parsedYear < year-50 {
+				parsedYear += 100
+			}
+		}
+		year = parsedYear
+	}
+
+	parsed := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	if parsed.Year() != year || parsed.Month() != month || parsed.Day() != day {
+		return time.Time{}, fmt.Errorf("invalid calendar date %q", value)
+	}
+	return parsed, nil
+}
+
+func economicMonth(value string) (time.Month, bool) {
+	months := map[string]time.Month{
+		"jan": time.January, "january": time.January,
+		"feb": time.February, "february": time.February,
+		"mar": time.March, "march": time.March,
+		"apr": time.April, "april": time.April,
+		"may": time.May,
+		"jun": time.June, "june": time.June,
+		"jul": time.July, "july": time.July,
+		"aug": time.August, "august": time.August,
+		"sep": time.September, "sept": time.September, "september": time.September,
+		"oct": time.October, "october": time.October,
+		"nov": time.November, "november": time.November,
+		"dec": time.December, "december": time.December,
+	}
+	month, ok := months[strings.ToLower(strings.TrimSpace(value))]
+	return month, ok
 }
 
 func normalizeHeading(value string) string {

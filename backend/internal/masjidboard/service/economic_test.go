@@ -14,6 +14,14 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
 
+type recordingLogger struct {
+	warnings atomic.Int32
+}
+
+func (l *recordingLogger) Warn(string, ...any) {
+	l.warnings.Add(1)
+}
+
 func economicResponse(effectiveDate string) string {
 	return fmt.Sprintf(`[{"date":"2026-08-14T09:02:11","link":"https://www.jamiatsa.org/source/","title":{"rendered":"Rabi al-Awwal 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>14 Carat</th><th>9 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>%s</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R1391.75</td><td>R894.69</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr></tbody></table>"}}]`, effectiveDate)
 }
@@ -212,5 +220,33 @@ func TestEconomicIndicatorsHiddenWhenDisabled(t *testing.T) {
 	service := &Service{indicators: &economic.Indicators{Source: economic.SourceName, SourceURL: "https://example.test", EffectiveDate: "2026-08-24", Nisaab: 1, Krugerrand: 2}}
 	if got := service.EconomicIndicators(); got != nil {
 		t.Fatalf("EconomicIndicators() = %+v, want nil", got)
+	}
+}
+
+func TestRefreshEconomicIndicatorsLogsFailureAndKeepsCurrentData(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadGateway)
+	}))
+	defer server.Close()
+
+	current := completeIndicators("2026-08-31")
+	log := &recordingLogger{}
+	now := time.Date(2026, 9, 2, 8, 0, 0, 0, time.UTC)
+	service := &Service{
+		selection:      selection.State{ShowEconomicIndicators: true},
+		indicators:     current,
+		economicClient: economic.Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return now }},
+		log:            log,
+	}
+
+	if err := service.RefreshEconomicIndicators(context.Background()); err == nil {
+		t.Fatal("RefreshEconomicIndicators() expected error")
+	}
+	if got := log.warnings.Load(); got != 1 {
+		t.Fatalf("warning count = %d, want 1", got)
+	}
+	if got := service.EconomicIndicators(); got == nil || got.EffectiveDate != "2026-08-31" {
+		t.Fatalf("EconomicIndicators() = %+v, want last-known-good data", got)
 	}
 }

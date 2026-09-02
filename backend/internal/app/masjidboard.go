@@ -24,6 +24,7 @@ func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 	service, err := masjidboardservice.New(masjidboardservice.Config{
 		SelectionPath: paths.MasjidBoardSelection,
 		CacheDir:      paths.MasjidBoardCache,
+		Log:           log,
 	})
 	if err != nil {
 		// MasjidBoard is intentionally independent from audio playback. Invalid

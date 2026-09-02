@@ -125,7 +125,7 @@ func parsePost(post wordpressPost, fetchedAt time.Time) (Indicators, error) {
 		return Indicators{}, fmt.Errorf("economic indicators: invalid post date: %w", err)
 	}
 	dateText, _ := value("date")
-	effective, err := time.Parse("2 Jan 2006", dateText+" "+strconv.Itoa(postDate.Year()))
+	effective, err := parseEffectiveDate(dateText, postDate.Year())
 	if err != nil {
 		return Indicators{}, fmt.Errorf("economic indicators: invalid effective date %q: %w", dateText, err)
 	}
@@ -157,6 +157,16 @@ func parsePost(post wordpressPost, fetchedAt time.Time) (Indicators, error) {
 		*field.target = parsed
 	}
 	return result, nil
+}
+
+func parseEffectiveDate(value string, year int) (time.Time, error) {
+	parts := strings.Fields(strings.TrimSpace(value))
+	if len(parts) == 2 && strings.EqualFold(parts[1], "Sept") {
+		// Go's reference-time parser recognises the conventional three-letter
+		// abbreviation "Sep"; Jamiat publishes September dates as "Sept".
+		parts[1] = "Sep"
+	}
+	return time.Parse("2 Jan 2006", strings.Join(parts, " ")+" "+strconv.Itoa(year))
 }
 
 func normalizeHeading(value string) string {

@@ -21,6 +21,9 @@ type Config struct {
 	SelectionPath string
 	CacheDir      string
 	HTTPClient    *http.Client
+	Log           interface {
+		Warn(msg string, args ...any)
+	}
 }
 
 type Service struct {
@@ -34,6 +37,9 @@ type Service struct {
 	economicClient economic.Client
 	economicStore  economic.Store
 	indicators     *economic.Indicators
+	log            interface {
+		Warn(msg string, args ...any)
+	}
 }
 
 func New(config Config) (*Service, error) {
@@ -71,6 +77,7 @@ func New(config Config) (*Service, error) {
 	service.economicClient = economic.Client{HTTPClient: config.HTTPClient}
 	service.economicStore = economicStore
 	service.indicators = indicators
+	service.log = config.Log
 	return service, nil
 }
 
@@ -249,7 +256,18 @@ func economicRefreshDue(current *economic.Indicators, now time.Time) bool {
 	return effectiveDate.Year() != localNow.Year() || effectiveDate.YearDay() != localNow.YearDay()
 }
 
-func (s *Service) RefreshEconomicIndicators(ctx context.Context) error {
+func (s *Service) RefreshEconomicIndicators(ctx context.Context) (refreshErr error) {
+	defer func() {
+		if refreshErr == nil {
+			return
+		}
+		s.mu.RLock()
+		log := s.log
+		s.mu.RUnlock()
+		if log != nil {
+			log.Warn("Islamic economic indicators refresh failed; using last-known-good data", "error", refreshErr)
+		}
+	}()
 	s.mu.RLock()
 	enabled := s.selection.ShowEconomicIndicators
 	current := s.indicators

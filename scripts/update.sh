@@ -52,6 +52,11 @@ rollback_update() {
         return 1
     fi
 
+    if ! install_service; then
+        error "Unable to restore the MasjidPi systemd service during rollback."
+        return 1
+    fi
+
     if ! install_component_services; then
         error "Unable to restore component services during rollback."
         return 1
@@ -103,7 +108,11 @@ activate_update() {
         die "Update cancelled and previous MasjidPi runtime failed validation."
     fi
 
-    if install_component_services && start_service && run_selftest "$expected_version"; then
+    # Updates may change service-level runtime requirements such as
+    # RuntimeDirectory. Install the main unit before starting the new runtime;
+    # otherwise a migrated configuration can depend on a directory that the
+    # previous unit does not create.
+    if install_service && install_component_services && start_service && run_selftest "$expected_version"; then
         rm -rf "$UPDATE_BACKUP"
         rm -f "$UPDATE_MARKER"
         success "MasjidPi ${expected_version} installed and validated."

@@ -50,3 +50,14 @@ func TestClientFetchRejectsMissingRequiredColumn(t *testing.T) {
 		t.Fatal("Fetch() expected missing-column error")
 	}
 }
+
+func TestParseEffectiveDateAcceptsJamiatSeptemberAbbreviation(t *testing.T) {
+	t.Parallel()
+	got, err := parseEffectiveDate("02 Sept", 2026)
+	if err != nil {
+		t.Fatalf("parseEffectiveDate() error = %v", err)
+	}
+	if want := "2026-09-02"; got.Format("2006-01-02") != want {
+		t.Fatalf("parseEffectiveDate() = %s, want %s", got.Format("2006-01-02"), want)
+	}
+}

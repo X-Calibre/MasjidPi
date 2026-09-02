@@ -2,6 +2,7 @@ package atomicfile
 
 import (
 	"encoding/json"
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -45,5 +46,36 @@ func Write(path string, data []byte, mode fs.FileMode) error {
 	if err := tmp.Close(); err != nil {
 		return err
 	}
-	return os.Rename(tmpName, path)
+	if err := os.Rename(tmpName, path); err != nil {
+		return err
+	}
+	return syncDirectory(dir)
+}
+
+// Remove deletes path and durably records the directory change. It reports
+// whether a file was removed.
+func Remove(path string) (bool, error) {
+	err := os.Remove(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	if err := syncDirectory(filepath.Dir(path)); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func syncDirectory(path string) error {
+	dir, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	if err := dir.Sync(); err != nil {
+		_ = dir.Close()
+		return err
+	}
+	return dir.Close()
 }

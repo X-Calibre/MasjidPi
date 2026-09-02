@@ -88,5 +88,22 @@ run_selftest() {
         fi
     fi
 
+    if is_raspberry_pi && mountpoint -q "$BOOT_FIRMWARE_DIR"; then
+        info "Checking Raspberry Pi boot firmware protection..."
+
+        if ! findmnt -n -o OPTIONS --target "$BOOT_FIRMWARE_DIR" | \
+            tr ',' '\n' | grep -qx 'ro'; then
+            error "Raspberry Pi boot firmware filesystem is not read-only."
+            return 1
+        fi
+
+        if ! systemctl is-enabled --quiet masjidpi-boot-readonly.service; then
+            error "Raspberry Pi boot firmware protection service is not enabled."
+            return 1
+        fi
+
+        success "Raspberry Pi boot firmware is protected read-only."
+    fi
+
     success "Self test passed."
 }

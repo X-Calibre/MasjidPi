@@ -30,6 +30,22 @@ migrate_catalogue_refresh_interval() {
     fi
 }
 
+migrate_runtime_socket_path() {
+    local config_path="${1:-/etc/masjidpi/config.yaml}"
+
+    if [[ ! -f "$config_path" ]]; then
+        return
+    fi
+
+    # The mpv IPC socket is disposable runtime state. Move only MasjidPi's
+    # previous packaged default to tmpfs-backed /run; preserve custom paths.
+    if grep -qx '  socket: "/tmp/masjidpi.sock"' "$config_path"; then
+        sed -i 's|^  socket: "/tmp/masjidpi.sock"$|  socket: "/run/masjidpi/mpv.sock"|' \
+            "$config_path"
+        info "Moved the mpv runtime socket from /tmp to /run."
+    fi
+}
+
 install_runtime() {
 
     local target_dir="${RUNTIME_TARGET:-$INSTALL_DIR}"

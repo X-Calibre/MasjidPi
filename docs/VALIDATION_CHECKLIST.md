@@ -29,6 +29,14 @@ This document tracks physical and deferred validation work that should be revisi
 
 ## Required before a future release
 
+- [ ] **Power-interruption resilience**
+  - Confirm `/boot/firmware` is mounted read-only during normal operation.
+  - Run a source update and confirm the installer temporarily remounts it read-write, updates Plymouth/initramfs, and restores read-only mode.
+  - Run a package operation that updates boot firmware and confirm the APT/DPKG hooks restore read-only mode.
+  - Confirm the mpv IPC socket is created under `/run/masjidpi` and playback works normally.
+  - Change and clear persisted settings, then confirm all state files remain valid after restart.
+  - Perform one controlled abrupt power-loss test, then review filesystem recovery, state integrity, service startup, playback and Board operation.
+
 - [ ] **USB audio hot-plug restoration**
   - Baseline physical audio-device discovery has already passed.
   - Connect a supported USB audio device after boot and refresh devices.

@@ -54,6 +54,12 @@ parse_args() {
 cleanup_failed_install() {
     local status=$?
 
+    if [[ "$status" -ne 0 ]]; then
+        # An existing installation's DPKG pre-hook may already have opened the
+        # boot filesystem before a package or installer failure.
+        protect_boot_firmware || true
+    fi
+
     if [[ "$status" -ne 0 && "${INSTALL_MODE:-}" == "install" && "$INSTALL_SUCCEEDED" != true ]]; then
         warn "Installation did not complete. Cleaning up the application runtime..."
 
@@ -81,6 +87,7 @@ main() {
     select_components
     migrate_legacy_preferences
     migrate_catalogue_refresh_interval
+    migrate_runtime_socket_path
 
     if [ "$INSTALL_MODE" = "install" ]; then
         info "Fresh installation detected."
@@ -102,8 +109,10 @@ main() {
     fi
 
     configure_raspberry_pi_wifi
+    prepare_boot_firmware_update
     configure_quiet_boot
     configure_boot_splash
+    configure_boot_firmware_protection
 
     save_components
 

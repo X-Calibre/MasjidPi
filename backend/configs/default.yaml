@@ -2,7 +2,7 @@ http:
   address: ":8080"
 
 player:
-  socket: "/tmp/masjidpi.sock"
+  socket: "/run/masjidpi/mpv.sock"
   volume: 100
 
 streams:

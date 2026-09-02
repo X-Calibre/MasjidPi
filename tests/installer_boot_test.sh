@@ -9,6 +9,8 @@ trap 'rm -rf "$TMP"' EXIT
 export MASJIDPI_BOOT_FIRMWARE_DIR="$TMP/boot"
 export MASJIDPI_PLYMOUTH_THEME_DIR="$TMP/plymouth-theme"
 export MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR="$TMP/plymouth-dropin"
+export MASJIDPI_BOOT_READONLY_SERVICE_FILE="$TMP/systemd/masjidpi-boot-readonly.service"
+export MASJIDPI_BOOT_APT_HOOK_FILE="$TMP/apt/99-masjidpi-boot-firmware"
 export MASJIDPI_USB_SYSFS_ROOT="$TMP/usb"
 export MASJIDPI_DRM_SYSFS_ROOT="$TMP/drm"
 export MASJIDPI_FORCE_RASPBERRY_PI=1
@@ -35,6 +37,7 @@ export PATH="$TMP/bin:$PATH"
 
 INSTALL_BOARD=true
 SYSTEMCTL_CALLS=""
+MOUNT_CALLS=""
 
 info() { :; }
 warn() { :; }
@@ -43,6 +46,15 @@ systemctl() {
     SYSTEMCTL_CALLS+="$*\n"
     return 0
 }
+mountpoint() {
+    [[ "$1" == "-q" && "$2" == "$MASJIDPI_BOOT_FIRMWARE_DIR" ]]
+}
+mount() {
+    MOUNT_CALLS+="$*\n"
+}
+sync() {
+    MOUNT_CALLS+="sync $*\n"
+}
 
 # shellcheck source=../scripts/boot.sh
 source "$ROOT/scripts/boot.sh"
@@ -50,10 +62,12 @@ source "$ROOT/scripts/boot.sh"
 # A Raspberry Pi Board installation with ordinary HDMI hardware gets the same
 # quiet branded boot, using the unrotated landscape Plymouth script.
 reset_boot_files
+prepare_boot_firmware_update
 configure_quiet_boot
 configure_quiet_boot
 configure_boot_splash
 configure_boot_splash
+configure_boot_firmware_protection
 
 standard_cmdline="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/cmdline.txt")"
 standard_config="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/config.txt")"
@@ -70,6 +84,12 @@ standard_config="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/config.txt")"
 [[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script" ]]
 [[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash-logo.png" ]]
 [[ -f "$MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR/masjidpi.conf" ]]
+[[ -f "$MASJIDPI_BOOT_READONLY_SERVICE_FILE" ]]
+[[ -f "$MASJIDPI_BOOT_APT_HOOK_FILE" ]]
+[[ "$SYSTEMCTL_CALLS" == *"enable masjidpi-boot-readonly.service"* ]]
+[[ "$MOUNT_CALLS" == *"-o remount,rw $MASJIDPI_BOOT_FIRMWARE_DIR"* ]]
+[[ "$MOUNT_CALLS" == *"sync -f $MASJIDPI_BOOT_FIRMWARE_DIR"* ]]
+[[ "$MOUNT_CALLS" == *"-o remount,ro $MASJIDPI_BOOT_FIRMWARE_DIR"* ]]
 ! grep -q 'Rotate' "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
 
 # Add the exact Waveshare USB identity plus connected 1024x600 HDMI mode used by
@@ -99,7 +119,9 @@ config="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/config.txt")"
 [[ "$(grep -o '\bsplash\b' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -o 'plymouth.ignore-serial-consoles' <<< "$cmdline" | wc -l)" -eq 1 ]]
 [[ "$(grep -c '^disable_splash=1$' <<< "$config")" -eq 1 ]]
-grep -q 'Rotate(-Math.Pi / 2)' "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+cmp -s "$ROOT/scripts/masjidpi-splash.script" \
+    "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash-logo-appliance.png" ]]
 [[ "$(grep -c -- '^-R masjidpi$' "$TMP/plymouth-calls")" -eq 3 ]]
 
 printf '[PASS] quiet boot and branded splash cover standard and appliance Raspberry Pi Board profiles\n'

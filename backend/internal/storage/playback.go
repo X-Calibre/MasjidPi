@@ -105,7 +105,7 @@ func (p *Playback) Clear() error {
 		return nil
 	}
 
-	if err := os.Remove(p.path); err != nil && !errors.Is(err, os.ErrNotExist) {
+	if _, err := atomicfile.Remove(p.path); err != nil {
 		return err
 	}
 

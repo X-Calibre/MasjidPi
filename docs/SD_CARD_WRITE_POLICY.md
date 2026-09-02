@@ -23,7 +23,7 @@ Persisted volume state is loaded once and cached in memory, eliminating repeated
 
 Preferences, selected audio device, last playback stream, and favourites are loaded once and cached in memory. Unchanged state updates are discarded in memory without rereading or replacing the state file.
 
-Changed persistent state is written using temporary files and atomic replacement where applicable.
+Changed persistent state is written using temporary files and atomic replacement. File contents are flushed before replacement, and the containing directory is flushed after rename or deletion so the metadata change survives sudden power loss.
 
 The playback clear operation treats an already-empty state as a no-op.
 
@@ -45,6 +45,16 @@ Individual MQTT events are logged at `DEBUG` rather than `INFO`. Connection and 
 
 The MasjidPi service applies systemd journal rate limiting so a persistent failure cannot generate an uncontrolled burst of journal writes.
 
+### Read-only boot firmware
+
+On Raspberry Pi installations, `/boot/firmware` is remounted read-only before normal MasjidPi operation. Board installations explicitly open and close a controlled writable window for splash and initramfs changes. APT/DPKG hooks do the same around package operations that may update the kernel or initramfs, then flush and restore the read-only mount.
+
+This protects the FAT boot filesystem, which cannot provide the same power-loss guarantees as the journalled EXT4 root filesystem.
+
+### Volatile runtime files
+
+The mpv IPC socket now lives in `/run/masjidpi`, backed by volatile runtime storage. systemd creates the directory for the service on every boot. Existing installations using MasjidPi's previous `/tmp/masjidpi.sock` default are migrated automatically, while custom socket paths are preserved.
+
 ## Application-level audit status
 
 The application-level filesystem audit is complete. Production runtime code no longer contains direct `os.WriteFile()` state writes or unnecessary persistent download files. Remaining temporary-file and rename operations correspond to intentional atomic persistence of changed state.
@@ -55,7 +65,7 @@ Normal steady-state operation should not generate meaningful application data wr
 
 OS-level behaviour will be assessed separately after application-level optimisation. This includes:
 
-- systemd/journald persistent-vs-volatile storage policy for a dedicated appliance installation;
+- measurement-led systemd/journald retention policy for a dedicated appliance installation;
 - swap behaviour;
 - OS services and timers that may write frequently to the SD card;
 - measurement of real filesystem writes during long-running Raspberry Pi tests.

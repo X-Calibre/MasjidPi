@@ -8,6 +8,8 @@ Type=simple
 
 User=root
 WorkingDirectory=/opt/masjidpi
+RuntimeDirectory=masjidpi
+RuntimeDirectoryMode=0755
 
 Environment=MASJIDPI_HOME=/opt/masjidpi
 EnvironmentFile=-/etc/masjidpi/components.env

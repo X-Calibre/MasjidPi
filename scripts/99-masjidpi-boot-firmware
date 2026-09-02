@@ -1,0 +1,4 @@
+// Keep the FAT boot firmware filesystem read-only during normal appliance use.
+// Package operations temporarily make it writable for kernel/initramfs updates.
+DPkg::Pre-Invoke { "mountpoint -q /boot/firmware && mount -o remount,rw /boot/firmware || true"; };
+DPkg::Post-Invoke { "mountpoint -q /boot/firmware && sync -f /boot/firmware && mount -o remount,ro /boot/firmware || true"; };

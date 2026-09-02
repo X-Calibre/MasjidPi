@@ -1,0 +1,13 @@
+[Unit]
+Description=Protect Raspberry Pi boot firmware from runtime writes
+After=local-fs.target
+Before=masjidpi.service masjidpi-display-warmup.service masjidpi-display.service
+ConditionPathIsMountPoint=/boot/firmware
+
+[Service]
+Type=oneshot
+ExecStart=/bin/mount -o remount,ro /boot/firmware
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

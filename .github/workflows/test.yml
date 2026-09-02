@@ -51,6 +51,7 @@ jobs:
           bash tests/installer_network_test.sh
           bash tests/installer_summary_test.sh
           bash tests/installer_boot_test.sh
+          bash tests/installer_runtime_test.sh
           bash tests/masjidboard_display_profile_test.sh
 
       - name: Validate JavaScript syntax

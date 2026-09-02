@@ -6,8 +6,11 @@ CONFIG_FILE="${MASJIDPI_CONFIG_FILE:-$BOOT_FIRMWARE_DIR/config.txt}"
 RPI_MODEL_FILE="${MASJIDPI_RPI_MODEL_FILE:-/proc/device-tree/model}"
 PLYMOUTH_THEME_DIR="${MASJIDPI_PLYMOUTH_THEME_DIR:-/usr/share/plymouth/themes/masjidpi}"
 PLYMOUTH_QUIT_DROPIN_DIR="${MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR:-/etc/systemd/system/plymouth-quit.service.d}"
+BOOT_READONLY_SERVICE_FILE="${MASJIDPI_BOOT_READONLY_SERVICE_FILE:-/etc/systemd/system/masjidpi-boot-readonly.service}"
+BOOT_APT_HOOK_FILE="${MASJIDPI_BOOT_APT_HOOK_FILE:-/etc/apt/apt.conf.d/99-masjidpi-boot-firmware}"
 APPLIANCE_USB_SYSFS_ROOT="${MASJIDPI_USB_SYSFS_ROOT:-/sys/bus/usb/devices}"
 APPLIANCE_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
+BOOT_FIRMWARE_UPDATE_ACTIVE=false
 
 is_raspberry_pi() {
     if [[ "${MASJIDPI_FORCE_RASPBERRY_PI:-0}" == "1" ]]; then
@@ -57,6 +60,51 @@ appliance_hdmi_mode_present() {
 is_appliance_display_hardware() {
     is_raspberry_pi_board || return 1
     waveshare_appliance_touch_present && appliance_hdmi_mode_present
+}
+
+prepare_boot_firmware_update() {
+    is_raspberry_pi_board || return 0
+    mountpoint -q "$BOOT_FIRMWARE_DIR" || return 0
+
+    info "Temporarily enabling Raspberry Pi boot firmware writes..."
+    mount -o remount,rw "$BOOT_FIRMWARE_DIR"
+    BOOT_FIRMWARE_UPDATE_ACTIVE=true
+}
+
+finish_boot_firmware_update() {
+    $BOOT_FIRMWARE_UPDATE_ACTIVE || return 0
+
+    protect_boot_firmware
+}
+
+protect_boot_firmware() {
+    is_raspberry_pi || return 0
+    mountpoint -q "$BOOT_FIRMWARE_DIR" || return 0
+
+    sync -f "$BOOT_FIRMWARE_DIR"
+    mount -o remount,ro "$BOOT_FIRMWARE_DIR"
+    BOOT_FIRMWARE_UPDATE_ACTIVE=false
+    success "Raspberry Pi boot firmware protected read-only."
+}
+
+configure_boot_firmware_protection() {
+    is_raspberry_pi || return 0
+
+    local service_file="$PROJECT_ROOT/scripts/masjidpi-boot-readonly.service"
+    local apt_hook_file="$PROJECT_ROOT/scripts/99-masjidpi-boot-firmware"
+
+    if [[ ! -f "$service_file" || ! -f "$apt_hook_file" ]]; then
+        warn "Raspberry Pi boot firmware protection assets are missing; persistent protection was not installed."
+        finish_boot_firmware_update
+        return 0
+    fi
+
+    install -D -m 0644 "$service_file" "$BOOT_READONLY_SERVICE_FILE"
+    install -D -m 0644 "$apt_hook_file" "$BOOT_APT_HOOK_FILE"
+    systemctl daemon-reload
+    systemctl enable masjidpi-boot-readonly.service >/dev/null
+
+    protect_boot_firmware
 }
 
 append_cmdline_parameter() {

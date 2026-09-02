@@ -17,7 +17,7 @@ This document tracks physical and deferred validation work that should be revisi
   - Three consecutive cold boots completed successfully without DRM `Cannot set mode` / `Permission denied` failures.
   - Temporary JEDI TECH SOLUTIONS logo is fully visible and correctly sized in both splash stages.
 
-- [ ] **Standard/landscape Raspberry Pi boot splash**
+- [x] **Standard/landscape Raspberry Pi boot splash**
   - Test on a Raspberry Pi connected to a normal HDMI landscape display.
   - Confirm Plymouth logo is upright, centred, fully visible, and correctly sized.
   - Confirm headless Cog/WPE warm-up completes successfully.

@@ -29,21 +29,21 @@ This document tracks physical and deferred validation work that should be revisi
 
 ## Required before a future release
 
-- [ ] **Power-interruption resilience**
-  - Confirm `/boot/firmware` is mounted read-only during normal operation.
-  - Run a source update and confirm the installer temporarily remounts it read-write, updates Plymouth/initramfs, and restores read-only mode.
-  - Run a package operation that updates boot firmware and confirm the APT/DPKG hooks restore read-only mode.
-  - Confirm the mpv IPC socket is created under `/run/masjidpi` and playback works normally.
-  - Change and clear persisted settings, then confirm all state files remain valid after restart.
-  - Perform one controlled abrupt power-loss test, then review filesystem recovery, state integrity, service startup, playback and Board operation.
+- [x] **Power-interruption resilience**
+  - `/boot/firmware` remains mounted read-only during normal operation and after reboot.
+  - A source update temporarily enabled boot-firmware writes, regenerated Plymouth/initramfs assets, and restored the read-only mount.
+  - A controlled `raspi-firmware` reinstall copied firmware, kernel and initramfs files successfully; the APT/DPKG hooks restored `/boot/firmware` read-only afterward.
+  - The mpv IPC socket is created by systemd under `/run/masjidpi/mpv.sock`, and playback works normally.
+  - Board theme and slide duration, Radio volume and Radio operating mode were changed, restarted, restored and restarted again; every persisted JSON file remained valid.
+  - A controlled abrupt power loss recovered through normal ext4 orphan cleanup with no FAT repair, filesystem errors or I/O errors.
+  - Both portrait splash stages, Emerald Board startup and Radio playback operated normally after abrupt-power recovery; all services were healthy with zero restarts and no failed units.
 
-- [ ] **USB audio hot-plug restoration**
-  - Baseline physical audio-device discovery has already passed.
-  - Connect a supported USB audio device after boot and refresh devices.
-  - Select and save the USB audio output.
-  - Disconnect the device and verify MasjidPi handles its disappearance safely.
-  - Reconnect it and verify the saved device can be rediscovered/restored as intended.
-  - Verify playback after restoration.
+- [x] **USB audio hot-plug restoration**
+  - A Logitech H390 USB headset connected after boot was discovered as `alsa/plughw:CARD=Headset,DEV=0` without restarting MasjidPi.
+  - The new USB output was selected and saved, exposed hardware-volume support, and played Radio audio normally.
+  - Disconnecting it during playback left the saved preference intact, marked the device unavailable, and safely fell back to automatic output while playback continued.
+  - Reconnecting it caused MasjidPi to rediscover and automatically restore the saved device and working audio.
+  - The service remained healthy with zero restarts throughout; the original `alsa/plughw:CARD=Headphones,DEV=0` output and scheduled Radio mode were restored after testing.
 
 - [ ] **Raspberry Pi Zero Listen-only validation**
   - Install the current release/branch in Listen-only mode on the intended Raspberry Pi Zero hardware.

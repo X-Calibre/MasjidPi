@@ -2,7 +2,7 @@
 
 This document tracks physical and deferred validation work that should be revisited before future releases. Update the checkboxes as tests are completed.
 
-## Required before merging `enhancement/boot-splash`
+## Completed v1.5.2 boot validation
 
 - [x] **7-inch appliance boot splash — portrait profile**
   - Quiet boot enabled without removing `console=tty1`.
@@ -61,6 +61,13 @@ This document tracks physical and deferred validation work that should be revisi
   - Exercise scheduled radio start/stop and masjid interruption/resume behaviour.
   - Confirm the display service remains stable where Board is installed.
   - Review persistent journal logs before release sign-off.
+
+- [ ] **Published v1.5.2 release-candidate package**
+  - Install the published ARM64 archive on the Raspberry Pi 4 test appliance rather than relying only on a source installation.
+  - Confirm the archive checksum and reported version are `v1.5.2-rc.1`.
+  - Confirm the existing Listen + Board profile, settings, selected audio output and cached data survive the upgrade.
+  - Confirm both splash stages, application services, Board display and Listen playback operate normally after reboot.
+  - Confirm `/boot/firmware` returns to read-only after installation.
 
 ## Deferred hardware / feature investigation
 

@@ -277,7 +277,13 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guid
 
 ## Project Status
 
-**Current stable release: v1.5.0**
+**Current stable release: v1.5.1**
+
+**Current release candidate: v1.5.2-rc.1**
+
+v1.5.2-rc.1 improves appliance startup and resilience without changing the established Listen or Board workflows. It adds a quiet two-stage branded boot, protects the Raspberry Pi boot filesystem during normal operation, reduces the risk of corrupted persisted state after interrupted writes, makes source updates and rollback recovery safer, hardens Jamiat economic-date parsing, and validates automatic USB audio fallback and restoration.
+
+The candidate has passed automated validation and focused Raspberry Pi 4 testing. Stable promotion remains subject to installation of the published ARM64 artifact and review of the post-change Raspberry Pi 3 soak test. See [docs/RELEASE_CANDIDATE_v1.5.2.md](docs/RELEASE_CANDIDATE_v1.5.2.md).
 
 v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
 

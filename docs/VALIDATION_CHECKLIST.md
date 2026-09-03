@@ -64,7 +64,7 @@ This document tracks physical and deferred validation work that should be revisi
 
 - [ ] **Published v1.5.2 release-candidate package**
   - Install the published ARM64 archive on the Raspberry Pi 4 test appliance rather than relying only on a source installation.
-  - Confirm the archive checksum and reported version are `v1.5.2-rc.1`.
+  - Confirm the archive checksum and reported version are `v1.5.2-rc.2`.
   - Confirm the existing Listen + Board profile, settings, selected audio output and cached data survive the upgrade.
   - Confirm both splash stages, application services, Board display and Listen playback operate normally after reboot.
   - Confirm `/boot/firmware` returns to read-only after installation.

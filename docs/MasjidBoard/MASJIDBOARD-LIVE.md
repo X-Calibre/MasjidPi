@@ -345,7 +345,11 @@ This confirms that Jumu'ah is not limited to one service or one simple time valu
 | 8 | `hadithTrueFalse` | Hadith enable flag |
 | 9 | `sunnahTrueFalse`, `sunnahRefCheck` | Sunnah enable/reference settings |
 
-The source shown here does not assign the actual Ayah/Hadith/Sunnah text in `handleResults()`. This indicates that some content may be obtained or generated elsewhere in the frontend and requires further investigation.
+The Premium row values configure MasjidBoard Live's own presentation but do
+not carry the actual Ayah/Hadith/Sunnah text. The text source has since been
+resolved as the separate shared `mblfileapi` translations feed. MasjidPi does
+not apply these masjid-specific enable flags to the shared feed; its own three
+local display preferences control whether each category is shown.
 
 #### Row 10 — Taleem
 
@@ -508,6 +512,7 @@ The existing captures contain the following information:
 
 | Content | Existing upstream location | Current MasjidPi state |
 |---|---|---|
+| Daily Ayah, Hadith and Sunnah | Shared `mblfileapi` JavaScript translations object; independent of the selected masjid and its Premium enable flags | Parsed, cached, exposed and displayed; three default-enabled user controls select the visible categories |
 | Upcoming Salaah changes | Premium row 0, with a public Core HTML fallback using the six named Fajr/Asr/Esha date and time elements | Parsed as active/future `salaah_change` cards; blank/dash values and unpopulated `00:00` Core placeholders are ignored |
 | Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Parsed, exposed and displayed when active |
 | Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Parsed, exposed and displayed when active |
@@ -537,7 +542,7 @@ The provider parser normalises the verified core rows and the text-based communi
 - rows 11–14 and 17: announcements and structured notices; and
 - row 21: well-wishes.
 
-The display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah, astronomical information, announcements, programmes, notices, banking/contributions and new-moon fields. Poster media remains outside the display contract.
+The display view and `/api/masjidboard/display` response expose identity, dates, prayers, Jumu'ah, astronomical information, announcements, programmes, notices, banking/contributions, new-moon fields and shared daily Islamic content. Poster media remains outside the display contract.
 
 ### Core versus Premium payloads
 
@@ -772,9 +777,14 @@ The 29-row response is an upstream transport/configuration format. It should not
 
 The provider should parse the upstream response into a normalised model containing semantically verified fields. Unknown or insufficiently understood upstream fields should remain outside the domain model until their meaning is established.
 
-### Ayah/Hadith/Sunnah are deferred from the initial implementation
+### Ayah/Hadith/Sunnah — implemented after the initial board
 
-Ayah, Hadith and Sunnah are not critical to the initial implementation. Their provider mappings can remain under investigation while the core board is implemented.
+Ayah, Hadith and Sunnah were deliberately deferred while the core board was
+implemented. They are now sourced from the shared public `mblfileapi` feed,
+not from a selected masjid's Premium rows. The implementation uses a separate
+semantic model and atomic last-known-good cache, exposes the content through
+the display API, and provides three default-enabled local display controls.
+The slides always identify `MasjidBoard Live` as their source.
 
 ### Local prayer-time representation
 

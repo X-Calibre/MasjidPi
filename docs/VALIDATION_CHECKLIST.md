@@ -29,6 +29,16 @@ This document tracks physical and deferred validation work that should be revisi
 
 ## Required before a future release
 
+- [x] **MasjidBoard Live daily Islamic content on Raspberry Pi 4**
+  - The shared MasjidBoard Live feed returned a current Ayah, Hadith and Sunnah with source attribution.
+  - All three display switches defaulted to enabled, independently hid and restored their category, and persisted across a service restart.
+  - Appliance and landscape layouts rendered each enabled category correctly; the appliance uses dedicated slides.
+  - Daily Ayah presents its Ayah number directly below the Surah heading, and daily cards omit redundant category labels.
+  - Salaah-change notice timestamps use the same `Weekday, DD Month` presentation as human-readable source dates.
+  - The atomic cache survived a service restart with identical content, fetch time and SHA-256 hash.
+  - A controlled upstream failure left all three categories available from the last-known-good cache, logged the expected warning, did not overwrite the cache and left `masjidpi.service` active.
+  - The test restored the original cache byte-for-byte and returned the service to normal operation.
+
 - [x] **Power-interruption resilience**
   - `/boot/firmware` remains mounted read-only during normal operation and after reboot.
   - A source update temporarily enabled boot-firmware writes, regenerated Plymouth/initramfs assets, and restored the read-only mount.

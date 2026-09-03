@@ -294,21 +294,18 @@ NewMoon
 
 The model should allow the upstream source's New Moon information to be represented without assuming that every board has populated it.
 
-### Deferred religious content — optional and deferred
+### Shared daily Islamic content — optional and implemented
 
-Ayah, Hadith and Sunnah are **not required for the initial implementation**.
+Ayah, Hadith and Sunnah were not required for the initial implementation and
+remain optional enrichment. They are now obtained from MasjidBoard Live's
+shared public translations feed through a dedicated client, semantic model
+and cache outside the per-board provider path.
 
-The architecture should nevertheless leave room for them later, for example:
-
-```text
-ReligiousContent[]
-├── Type
-├── Content
-├── Language
-└── Display metadata
-```
-
-No further upstream investigation of these content types is required before beginning the initial implementation.
+The service loads last-known-good content at startup and refreshes it at most
+once per Africa/Johannesburg calendar day. The display API applies the user's
+independent Ayah, Hadith and Sunnah preferences. This boundary preserves the
+important rule that generic content is available regardless of which masjids
+are selected or which Premium features those masjids enable.
 
 ## Data Model Principles
 
@@ -426,7 +423,7 @@ rather than coupling the display directly to MasjidBoard Live.
 - The MasjidBoard application can evolve independently while remaining part of the MasjidPi project.
 - The internal data model remains independent of MasjidBoard Live's positional schema.
 - Prayer times remain available as the core purpose of the board even when optional enrichment is absent.
-- Deferred content such as Ayah/Hadith/Sunnah can be added later without redesigning the provider/display architecture.
+- Shared Ayah/Hadith/Sunnah content was added without redesigning the per-board provider/display architecture.
 
 ### Trade-offs
 

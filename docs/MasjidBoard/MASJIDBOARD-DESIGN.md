@@ -226,10 +226,12 @@ Board
 ├── ContributionInformation  OPTIONAL
 ├── NewMoon                  OPTIONAL
 ├── DisplayConfiguration     OPTIONAL
-└── DeferredContent          OPTIONAL / FUTURE
+└── Shared daily content     OPTIONAL / SERVICE-LEVEL
 ```
 
-Ayah, Hadith and Sunnah are deliberately deferred from the initial implementation.
+Ayah, Hadith and Sunnah were deliberately deferred from the initial board
+implementation. They are now represented by a separate shared-content model
+rather than being attached to an individual `Board`.
 
 ## Provider Interface
 

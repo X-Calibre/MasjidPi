@@ -45,6 +45,8 @@ Board
 ├── ContributionInformation   OPTIONAL
 ├── NewMoon                   OPTIONAL
 └── DisplayConfiguration      OPTIONAL
+
+SharedDailyIslamicContent     OPTIONAL / SERVICE-LEVEL
 ```
 
 ## Board
@@ -310,21 +312,36 @@ Examples include:
 
 The normalised model may preserve source display configuration, but the scheduler/renderer remains responsible for interpreting it.
 
-## Deferred Religious Content
+## Shared Daily Islamic Content — Optional
 
-Ayah, Hadith and Sunnah are intentionally excluded from the required initial model.
-
-The architecture should leave room for a future semantic collection such as:
+Ayah, Hadith and Sunnah were excluded from the required initial board model.
+Their upstream source and behaviour are now verified and implemented as
+service-level enrichment rather than fields on `Board`:
 
 ```text
-ReligiousContent
-├── Type
-├── Content
+DailyIslamicContent
+├── Ayah
+│   ├── Surah
+│   ├── AyahNumber
+│   └── Text
+├── Hadith
+│   ├── Heading
+│   ├── Text
+│   └── Reference
+├── Sunnah
+│   ├── Heading
+│   ├── Text
+│   └── Reference
 ├── Language
-└── Presentation metadata
+├── Source
+├── SourceURL
+├── ContentDate
+└── FetchedAt
 ```
 
-No additional fields should be designed until their actual upstream source and behaviour are understood.
+This content is shared by MasjidBoard Live and is not attributed to, enabled
+by or cached inside any selected masjid. The display layer independently
+filters its three categories using local user preferences.
 
 ## Source Metadata
 

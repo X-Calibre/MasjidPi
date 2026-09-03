@@ -30,7 +30,7 @@ Direct Core/Premium same-board timetable comparisons have now been performed for
 - `brits-jamia`
 - `erasmia-aaisha`
 
-## Three Distinct Public Data Paths
+## Four Distinct Public Data Paths
 
 ```text
 FindMasjid endpoint
@@ -45,9 +45,16 @@ https://premium.masjidboardlive.com/v2/?mid=<web_url>
     -> Premium board data when available
     -> embedded `boardId` and `theInfo`
     -> richer board/community/display content
+
+https://api.masjidboardlive.com/mblfileapi
+    -> shared daily Islamic content
+    -> JavaScript translations data for Ayah, Hadith and Sunnah
+    -> independent of the selected masjid
 ```
 
-These are distinct responsibilities. A board does not need Premium capability to provide a useful full timetable to MasjidPi.
+These are distinct responsibilities. A board does not need Premium capability
+to provide a useful full timetable to MasjidPi, and the shared daily content
+does not indicate any capability or setting of an individual board.
 
 ## FindMasjid Discovery Data
 
@@ -338,6 +345,49 @@ HTTP status alone is not sufficient; the generated Premium page structure must a
 | Premium opaque `boardId` | No | No | Yes |
 | Embedded `theInfo` | No | No | Yes |
 
+### Shared daily Islamic content — implemented
+
+Daily Ayah, Hadith and Sunnah do not belong to any of the three
+masjid-specific data paths above. MasjidBoard Live publishes one shared public
+JavaScript translations object at `https://api.masjidboardlive.com/mblfileapi`.
+MasjidPi therefore treats this as optional service-level enrichment rather
+than a capability of the selected masjid. A user may display it even when none
+of the selected masjids has enabled the corresponding MasjidBoard Live slides.
+
+| MasjidBoard Live field | MasjidPi field | Implemented | Presentation |
+|---|---|---|---|
+| `ayahSurah` | `ayah.surah` | Yes | Primary Ayah heading |
+| `AyahNo` | `ayah.ayah_number` | Yes | Directly below the Surah heading |
+| `ayah` | `ayah.text` | Yes | Ayah translation body |
+| `hadithHeading` | `hadith.heading` | Yes | Primary Hadith heading |
+| `hadith` | `hadith.text` | Yes | Hadith body |
+| `hadithRef` | `hadith.reference` | Yes | Reference footer field |
+| `sunnahHeading` | `sunnah.heading` | Yes | Primary Sunnah heading |
+| `sunnah` | `sunnah.text` | Yes | Sunnah body |
+| `sunnahRef` | `sunnah.reference` | Yes | Reference footer field |
+
+The response is parsed as data from the expected `let translations = {...}`
+envelope; it is never executed as JavaScript. MasjidPi also records the
+language, source name, source URL, upstream content date and local fetch time.
+
+The three independent display preferences are `show_daily_ayah`,
+`show_daily_hadith` and `show_daily_sunnah`. Each defaults to enabled,
+including for installations whose older persisted selection file has no value
+for the setting. An explicit `false` is persisted and respected.
+
+Content refreshes at most once per Africa/Johannesburg calendar day while at
+least one category is enabled. A successful response is atomically stored at
+`/var/lib/masjidpi/masjidboard_cache/daily_islamic_content.json`. Startup loads
+that last-known-good cache before attempting a refresh; a transport, HTTP,
+size, envelope, decoding or validation failure cannot overwrite it.
+
+`/api/masjidboard/display` exposes the enabled subset as
+`daily_islamic_content`. The appliance layout gives each enabled category a
+dedicated slide. The landscape layout adds them to its rotating community-card
+pages. Both layouts attribute the content to `MasjidBoard Live`, not to the
+currently selected masjid. The redundant card-type labels are omitted because
+the Surah, Hadith and Sunnah headings identify the content.
+
 ## Same-board Core/Premium Validation
 
 ### Brits Jamia — `brits-jamia`
@@ -503,17 +553,23 @@ MasjidBoard Live
         |       +--> optional live-stream metadata
         |
         +-- Premium board
-                +--> OPTIONAL enrichment provider
-                +--> richer Jumu'ah content
-                +--> alternate-language values
-                +--> announcements
-                +--> posters
-                +--> programmes
-                +--> Nikah/funeral/community content
-                +--> richer display/configuration data
+        |       +--> OPTIONAL enrichment provider
+        |       +--> richer Jumu'ah content
+        |       +--> alternate-language values
+        |       +--> announcements
+        |       +--> posters
+        |       +--> programmes
+        |       +--> Nikah/funeral/community content
+        |       +--> richer display/configuration data
+        |
+        +-- Shared daily-content feed
+                +--> OPTIONAL service-level enrichment
+                +--> Ayah, Hadith and Sunnah translations
+                +--> independent of selected boards
 ```
 
-Discovery, Core retrieval and Premium enrichment should remain separate responsibilities.
+Discovery, Core retrieval, Premium enrichment and shared daily content remain
+separate responsibilities.
 
 ## Working Source-precedence Decision
 

@@ -2,8 +2,8 @@
 
 detect_install_mode() {
 
-    local update_backup="/opt/.masjidpi-backup"
-    local update_marker="/opt/.masjidpi-update-in-progress"
+    local update_backup="${UPDATE_BACKUP:-/opt/.masjidpi-backup}"
+    local update_marker="${UPDATE_MARKER:-/opt/.masjidpi-update-in-progress}"
 
     # Recover an interrupted update before deciding whether this is a fresh
     # installation. The marker means the previous runtime swap did not finish.

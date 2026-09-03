@@ -14,7 +14,7 @@
     const dateUtils = window.MasjidBoardDate;
     let latestView = null;
     let renderedViewSignature = "";
-    let renderedPrayerMinute = "";
+    let renderedPrayerState = "";
     let displayETag = "";
 
     function displayDate() {
@@ -76,10 +76,24 @@
         return JSON.stringify(view);
     }
 
-    function prayerMinuteKey(boards, now) {
-        const dateKey = [now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes()].join("-");
+    function prayerRenderKey(boards, now) {
+        const dateKey = [now.getFullYear(), now.getMonth(), now.getDate()].join("-");
         const friday = boards.length > 0 && dateUtils.isIslamicFriday(boards[0], now);
-        return `${dateKey}-${friday ? "jumuah" : "dhuhr"}`;
+        const upcoming = boards.map((board) => {
+            const event = nextEventForBoard(board, now, friday);
+            if (!event) return `${board.catalogue_id}:none`;
+            const time = event.time ? `${event.time.hour}:${event.time.minute}` : "";
+            return [
+                board.catalogue_id,
+                event.kind,
+                event.key || "",
+                event.event || "",
+                event.label || "",
+                time,
+                event.dayOffset || 0,
+            ].join(":");
+        });
+        return `${dateKey}-${friday ? "jumuah" : "dhuhr"}-${upcoming.join("|")}`;
     }
 
     function findPrayer(board, key) {
@@ -155,7 +169,7 @@
         formatClock,
         jumuahItems,
         nextEventForBoard,
-        prayerMinuteKey,
+        prayerRenderKey,
         viewSignature,
     };
 
@@ -167,8 +181,8 @@
         if (!latestView) return;
 
         const boards = (latestView.boards || []).slice(0, 3);
-        const minute = prayerMinuteKey(boards, now);
-        if (minute !== renderedPrayerMinute) renderPrayers(boards, now);
+        const prayerState = prayerRenderKey(boards, now);
+        if (prayerState !== renderedPrayerState) renderPrayers(boards, now);
         updateCountdowns(now);
     }
 
@@ -285,7 +299,7 @@
         appendPrayerRow(boards, "asr", "Asr", nextByBoard, now);
         appendPrayerRow(boards, "maghrib", "Maghrib", nextByBoard, now);
         appendPrayerRow(boards, "esha", "Esha", nextByBoard, now);
-        renderedPrayerMinute = prayerMinuteKey(boards, now);
+        renderedPrayerState = prayerRenderKey(boards, now);
     }
 
     function updateCountdowns(now) {

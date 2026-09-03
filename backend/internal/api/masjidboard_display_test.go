@@ -79,6 +79,36 @@ func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	if strings.Contains(body, "secret diagnostic") || strings.Contains(body, "another diagnostic") || strings.Contains(body, "\"provider\"") || strings.Contains(body, "external_id") {
 		t.Fatalf("display API leaked administrative/provider detail: %s", body)
 	}
+	if strings.Contains(body, "last_successful_update") {
+		t.Fatalf("display API leaked refresh metadata that destabilises its ETag: %s", body)
+	}
+}
+
+func TestMasjidBoardDisplayETagIgnoresSuccessfulRefreshTimestamp(t *testing.T) {
+	selectedBoard := selection.Board{CatalogueID: "masjidboardlive:one", Name: "One"}
+	board := model.Board{Identity: model.BoardIdentity{ID: "one", Name: "One Masjid"}}
+	selectionState := selection.State{Boards: []selection.Board{selectedBoard}}
+	response := func(updated time.Time) *httptest.ResponseRecorder {
+		s := &Server{masjidBoardService: fakeMasjidBoardStatusProvider{
+			configured: true,
+			selection:  selectionState,
+			results: []masjidboardruntime.Result{{
+				Selection: selectedBoard, Board: &board, Status: masjidboardruntime.StatusCurrent, LastSuccessfulUpdate: updated,
+			}},
+		}}
+		res := httptest.NewRecorder()
+		s.masjidBoardDisplay(res, httptest.NewRequest(http.MethodGet, "/api/masjidboard/display", nil))
+		return res
+	}
+
+	first := response(time.Date(2026, 9, 3, 8, 0, 0, 0, time.UTC))
+	second := response(time.Date(2026, 9, 3, 8, 30, 0, 0, time.UTC))
+	if first.Header().Get("ETag") != second.Header().Get("ETag") {
+		t.Fatalf("unchanged display content received different ETags: %q and %q", first.Header().Get("ETag"), second.Header().Get("ETag"))
+	}
+	if first.Body.String() != second.Body.String() {
+		t.Fatal("unchanged display content changed when only refresh metadata advanced")
+	}
 }
 
 func TestMasjidBoardDisplayReturnsUnconfiguredState(t *testing.T) {

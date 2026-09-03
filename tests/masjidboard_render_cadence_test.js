@@ -28,18 +28,34 @@ global.window = {
 
 require("../frontend/masjidboard-display.js");
 
-const {prayerMinuteKey, viewSignature} = window.MasjidBoardDisplayUtils;
-const boards = [{catalogue_id: "test"}];
+const {prayerRenderKey, viewSignature} = window.MasjidBoardDisplayUtils;
+const boards = [{
+    catalogue_id: "test",
+    prayers: [
+        {key: "fajr", adhan: {hour: 5, minute: 30}, jamaah: {hour: 6, minute: 0}},
+        {key: "dhuhr", adhan: {hour: 12, minute: 30}, jamaah: {hour: 13, minute: 0}},
+    ],
+}];
 
 assert.equal(
-    prayerMinuteKey(boards, new Date(2026, 7, 29, 7, 15, 1)),
-    prayerMinuteKey(boards, new Date(2026, 7, 29, 7, 15, 59)),
+    prayerRenderKey(boards, new Date(2026, 7, 29, 7, 15, 1)),
+    prayerRenderKey(boards, new Date(2026, 7, 29, 7, 59, 59)),
     "second ticks must not trigger a prayer-grid rebuild",
 );
+assert.equal(
+    prayerRenderKey(boards, new Date(2026, 7, 29, 7, 59, 59)),
+    prayerRenderKey(boards, new Date(2026, 7, 29, 8, 0, 0)),
+    "ordinary minute and hour boundaries must not rebuild an unchanged prayer grid",
+);
 assert.notEqual(
-    prayerMinuteKey(boards, new Date(2026, 7, 29, 7, 15, 59)),
-    prayerMinuteKey(boards, new Date(2026, 7, 29, 7, 16, 0)),
-    "a new minute must refresh countdown placement and the upcoming event",
+    prayerRenderKey(boards, new Date(2026, 7, 29, 5, 59, 59)),
+    prayerRenderKey(boards, new Date(2026, 7, 29, 6, 1, 0)),
+    "the grid must rebuild when the upcoming prayer event changes",
+);
+assert.notEqual(
+    prayerRenderKey(boards, new Date(2026, 7, 29, 23, 59, 59)),
+    prayerRenderKey(boards, new Date(2026, 7, 30, 0, 0, 0)),
+    "the grid must rebuild when the local display date changes",
 );
 
 const view = {configured: true, boards: [{catalogue_id: "test"}]};

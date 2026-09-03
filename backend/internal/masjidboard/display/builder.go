@@ -47,10 +47,6 @@ func BuildAt(configured bool, selected selection.State, results []masjidboardrun
 
 		item.Status = result.Status
 		item.Stale = result.Status == masjidboardruntime.StatusStale
-		if !result.LastSuccessfulUpdate.IsZero() {
-			updated := result.LastSuccessfulUpdate
-			item.LastSuccessfulUpdate = &updated
-		}
 		if result.Board != nil {
 			populateBoard(&item, *result.Board, now)
 		}

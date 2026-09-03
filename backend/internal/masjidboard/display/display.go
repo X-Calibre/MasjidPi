@@ -1,8 +1,6 @@
 package display
 
 import (
-	"time"
-
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 )
@@ -25,7 +23,6 @@ type Board struct {
 	TimeZone             string                    `json:"time_zone,omitempty"`
 	Status               masjidboardruntime.Status `json:"status"`
 	Stale                bool                      `json:"stale"`
-	LastSuccessfulUpdate *time.Time                `json:"last_successful_update,omitempty"`
 	Date                 Date                      `json:"date"`
 	Prayers              []Prayer                  `json:"prayers,omitempty"`
 	Jumuah               []JumuahService           `json:"jumuah,omitempty"`

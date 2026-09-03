@@ -124,7 +124,4 @@ func TestBuildMarksCachedBoardStaleWithoutDiagnostics(t *testing.T) {
 	if got.Status != masjidboardruntime.StatusStale || !got.Stale {
 		t.Fatalf("board = %+v", got)
 	}
-	if got.LastSuccessfulUpdate == nil || !got.LastSuccessfulUpdate.Equal(updated) {
-		t.Fatalf("last successful update = %v", got.LastSuccessfulUpdate)
-	}
 }

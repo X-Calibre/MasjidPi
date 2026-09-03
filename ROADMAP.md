@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.5.0 is the current stable release.**
+**v1.5.1 is the current stable release. v1.5.2-rc.1 is the current release candidate.**
 
 The current product provides:
 
@@ -132,7 +132,7 @@ The published RC4 ARM64 artifact passed installation and self-test on the Raspbe
 
 ## Remaining Work
 
-There are no known release-blocking items for v1.5.0.
+The remaining v1.5.2 release gates are installation and validation of the published ARM64 release-candidate artifact, plus review of the post-change Raspberry Pi 3 soak results. Raspberry Pi Zero Listen-only validation must either be completed or explicitly deferred from the v1.5.2 support evidence before stable promotion.
 
 Ongoing reliability work:
 

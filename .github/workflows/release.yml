@@ -76,6 +76,7 @@ jobs:
             cp scripts/*.service "$package_dir/scripts/"
             cp scripts/*.plymouth "$package_dir/scripts/"
             cp scripts/*.script "$package_dir/scripts/"
+            cp scripts/99-masjidpi-boot-firmware "$package_dir/scripts/"
 
             printf '%s\n' "$VERSION" > "$package_dir/VERSION"
 
@@ -94,6 +95,8 @@ jobs:
             test -f "$package_dir/scripts/masjidpi.service"
             test -f "$package_dir/scripts/masjidpi-display.service"
             test -f "$package_dir/scripts/masjidpi-display-warmup.service"
+            test -f "$package_dir/scripts/masjidpi-boot-readonly.service"
+            test -f "$package_dir/scripts/99-masjidpi-boot-firmware"
             test -f "$package_dir/scripts/masjidpi-splash.plymouth"
             test -f "$package_dir/scripts/masjidpi-splash.script"
             test -f "$package_dir/scripts/masjidpi-splash-standard.script"

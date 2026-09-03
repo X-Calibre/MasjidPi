@@ -47,6 +47,12 @@ rollback_update() {
         return 1
     fi
 
+    # The transaction is resolved once the backup has replaced the failed
+    # runtime. Clear the marker before broader service validation so a
+    # non-runtime self-test failure cannot leave an unrecoverable marker with
+    # no backup directory.
+    rm -f "$UPDATE_MARKER"
+
     if ! restore_previous_components; then
         error "Unable to restore the previous MasjidPi component profile."
         return 1
@@ -63,7 +69,6 @@ rollback_update() {
     fi
 
     if start_service && run_selftest; then
-        rm -f "$UPDATE_MARKER"
         success "Previous MasjidPi version and component profile restored successfully."
         return 0
     fi

@@ -508,7 +508,7 @@ The existing captures contain the following information:
 
 | Content | Existing upstream location | Current MasjidPi state |
 |---|---|---|
-| Upcoming Salaah changes | Row 0; effective date, replacement time and timestamp for Fajr, Asr and Esha | Parsed as active/future `salaah_change` cards |
+| Upcoming Salaah changes | Premium row 0, with a public Core HTML fallback using the six named Fajr/Asr/Esha date and time elements | Parsed as active/future `salaah_change` cards; blank/dash values and unpopulated `00:00` Core placeholders are ignored |
 | Announcements | Rows 11–12; heading, HTML content and display flag for slots 2–10 | Parsed, exposed and displayed when active |
 | Nikah notice | Row 13; names/relations, bride, date, time, popup value and visibility flags | Parsed, exposed and displayed when active |
 | Funeral notice | Row 14; deceased name/relation, address, pickup, cemetery, salaah venue/time and visibility flag | Parsed, exposed and displayed when active |

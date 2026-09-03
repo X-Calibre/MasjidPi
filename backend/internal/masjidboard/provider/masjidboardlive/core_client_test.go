@@ -15,12 +15,13 @@ var _ provider.Provider = CoreClient{}
 
 func TestCoreClientFetchAt(t *testing.T) {
 	fixture := string(loadCoreFixture(t))
+	upcoming := `<h3 id="fajrNextDate">15 Sep</h3><h3 id="fajrNextTime">05:15</h3>`
 	var gotQuery string
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotQuery = r.URL.RawQuery
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_, _ = w.Write([]byte("<html><script>let data = " + fixture + "</script></html>"))
+		_, _ = w.Write([]byte("<html><script>let data = " + fixture + "</script>" + upcoming + "</html>"))
 	}))
 	defer server.Close()
 
@@ -43,6 +44,9 @@ func TestCoreClientFetchAt(t *testing.T) {
 		t.Fatalf("MBLNumber = %q", result.Metadata.MBLNumber)
 	}
 	assertCoreClock(t, "Fajr Jamaah", result.Board.PrayerTimes.Fajr.Jamaah, 6, 0)
+	if len(result.Board.Notices) != 1 || result.Board.Notices[0].Fields["new_time"] != "05:15" {
+		t.Fatalf("upcoming Salaah changes = %+v", result.Board.Notices)
+	}
 }
 
 func TestCoreClientFetchReturnsNormalisedBoard(t *testing.T) {

@@ -22,8 +22,12 @@ detect_install_mode() {
                 return 1
             fi
 
+            # The previous runtime is now unambiguously active and the backup
+            # has been consumed. Remove the transaction marker before service
+            # validation so a separate self-test failure cannot block retries.
+            rm -f "$update_marker"
+
             if start_service && run_selftest; then
-                rm -f "$update_marker"
                 success "Previous MasjidPi runtime restored and validated."
             else
                 error "Previous MasjidPi runtime was restored but failed validation."

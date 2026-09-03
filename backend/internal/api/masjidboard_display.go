@@ -32,6 +32,9 @@ func (s *Server) masjidBoardDisplay(w http.ResponseWriter, r *http.Request) {
 	if provider, ok := s.masjidBoardService.(masjidBoardEconomicProvider); ok {
 		view.EconomicIndicators = provider.EconomicIndicators()
 	}
+	if provider, ok := s.masjidBoardService.(masjidBoardDailyContentProvider); ok {
+		view.DailyIslamicContent = display.PresentDailyIslamicContent(provider.DailyIslamicContent(), s.masjidBoardService.Selection())
+	}
 	writeMasjidBoardDisplay(w, r, view)
 }
 

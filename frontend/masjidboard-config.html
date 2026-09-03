@@ -55,6 +55,11 @@
             <label>Local display profile</label><div><strong>Automatic</strong><small class="config-meta">The 7-inch Waveshare appliance display is detected at startup; other displays use the standard landscape profile.</small></div>
             <label for="slideDuration">Slide duration</label><div><input id="slideDuration" type="range" min="5" max="60" step="1" value="15"><output id="slideDurationValue" for="slideDuration">15 seconds</output></div>
             <label for="showEconomicIndicators">Additional information</label><label class="display-option-toggle"><input id="showEconomicIndicators" type="checkbox"><span><strong>Islamic Economic Indicators</strong><small>Show current Nisaab, Krugerrand, gold, silver and Mahr values from Jamiatul Ulama South Africa.</small></span></label>
+            <label>Daily Islamic content</label><div>
+                <label class="display-option-toggle"><input id="showDailyAyah" type="checkbox" checked><span><strong>Daily Ayah</strong><small>Show the daily Qur'an translation supplied by MasjidBoard Live.</small></span></label>
+                <label class="display-option-toggle"><input id="showDailyHadith" type="checkbox" checked><span><strong>Daily Hadith</strong><small>Show the daily Hadith and its reference.</small></span></label>
+                <label class="display-option-toggle"><input id="showDailySunnah" type="checkbox" checked><span><strong>Daily Sunnah</strong><small>Show the daily Sunnah and its reference.</small></span></label>
+            </div>
             <div id="displayLayoutMeta" class="config-meta">Loading current display settings…</div>
             <div><a class="nav-button preview-button" href="masjidboard.html?profile=appliance" target="_blank" rel="noopener">Open Appliance Preview</a></div>
         </div>
@@ -82,6 +87,6 @@
     <footer class="footer"><span id="version">MasjidPi</span></footer>
 </div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
-<script src="components-ui.js"></script><script src="masjidboard-config.js?v=20260829-autosave"></script><script src="masjidboard-layout-config.js?v=20260831-appliance-profile"></script><script src="masjidboard-tabs.js"></script>
+<script src="components-ui.js"></script><script src="masjidboard-config.js?v=20260829-autosave"></script><script src="masjidboard-layout-config.js?v=20260903-daily-content"></script><script src="masjidboard-tabs.js"></script>
 </body>
 </html>

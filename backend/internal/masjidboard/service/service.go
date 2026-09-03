@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider/masjidboardlive"
@@ -27,17 +28,20 @@ type Config struct {
 }
 
 type Service struct {
-	mu             sync.RWMutex
-	selection      selection.State
-	runtime        *runtime.Coordinator
-	results        []runtime.Result
-	selectionStore *selection.Store
-	cacheStore     runtime.CacheStore
-	factory        providerFactory
-	economicClient economic.Client
-	economicStore  economic.Store
-	indicators     *economic.Indicators
-	log            interface {
+	mu                 sync.RWMutex
+	selection          selection.State
+	runtime            *runtime.Coordinator
+	results            []runtime.Result
+	selectionStore     *selection.Store
+	cacheStore         runtime.CacheStore
+	factory            providerFactory
+	economicClient     economic.Client
+	economicStore      economic.Store
+	indicators         *economic.Indicators
+	dailyContentClient dailycontent.Client
+	dailyContentStore  dailycontent.Store
+	dailyContent       *dailycontent.Content
+	log                interface {
 		Warn(msg string, args ...any)
 	}
 }
@@ -55,6 +59,13 @@ func New(config Config) (*Service, error) {
 		// A corrupt optional cache must not prevent MasjidBoard or Listen from
 		// starting. The next successful fetch will replace it atomically.
 		indicators = nil
+	}
+	dailyContentStore := dailycontent.Store{Path: filepath.Join(config.CacheDir, "daily_islamic_content.json")}
+	dailyIslamicContent, err := dailyContentStore.Load()
+	if err != nil {
+		// Daily content is optional. A corrupt cache must not prevent the
+		// timetable or Listen service from starting.
+		dailyIslamicContent = nil
 	}
 	factory := func(board selection.Board) (provider.Provider, error) {
 		core, err := masjidboardlive.NewCoreClientFromSelectionWithHTTPClient(board, config.HTTPClient)
@@ -77,6 +88,9 @@ func New(config Config) (*Service, error) {
 	service.economicClient = economic.Client{HTTPClient: config.HTTPClient}
 	service.economicStore = economicStore
 	service.indicators = indicators
+	service.dailyContentClient = dailycontent.Client{HTTPClient: config.HTTPClient}
+	service.dailyContentStore = dailyContentStore
+	service.dailyContent = dailyIslamicContent
 	service.log = config.Log
 	return service, nil
 }
@@ -164,6 +178,14 @@ func (s *Service) SetShowEconomicIndicators(show bool) error {
 	return s.updateDisplayPreference(func(state *selection.State) { state.ShowEconomicIndicators = show }, "economic indicators")
 }
 
+func (s *Service) SetDailyIslamicContentPreferences(showAyah, showHadith, showSunnah bool) error {
+	return s.updateDisplayPreference(func(state *selection.State) {
+		state.ShowDailyAyah = boolPointer(showAyah)
+		state.ShowDailyHadith = boolPointer(showHadith)
+		state.ShowDailySunnah = boolPointer(showSunnah)
+	}, "daily Islamic content")
+}
+
 func (s *Service) updateDisplayPreference(update func(*selection.State), label string) error {
 	if s == nil {
 		return fmt.Errorf("masjidboard service: service is unavailable")
@@ -220,12 +242,76 @@ func (s *Service) Refresh(ctx context.Context) []runtime.Result {
 	}
 	results := coordinator.FetchAll(ctx)
 	_ = s.RefreshEconomicIndicators(ctx)
+	_ = s.RefreshDailyIslamicContent(ctx)
 	s.mu.Lock()
 	if s.runtime == coordinator {
 		s.results = append([]runtime.Result(nil), results...)
 	}
 	s.mu.Unlock()
 	return append([]runtime.Result(nil), results...)
+}
+
+var dailyContentRefreshLocation = time.FixedZone("Africa/Johannesburg", 2*60*60)
+
+func dailyContentRefreshDue(current *dailycontent.Content, now time.Time) bool {
+	if current == nil || !current.Valid() {
+		return true
+	}
+	fetched := current.FetchedAt.In(dailyContentRefreshLocation)
+	localNow := now.In(dailyContentRefreshLocation)
+	return fetched.Year() != localNow.Year() || fetched.YearDay() != localNow.YearDay()
+}
+
+func (s *Service) RefreshDailyIslamicContent(ctx context.Context) (refreshErr error) {
+	defer func() {
+		if refreshErr == nil {
+			return
+		}
+		s.mu.RLock()
+		log := s.log
+		s.mu.RUnlock()
+		if log != nil {
+			log.Warn("Daily Islamic content refresh failed; using last-known-good data", "error", refreshErr)
+		}
+	}()
+	s.mu.RLock()
+	enabled := s.selection.ShowAnyDailyIslamicContent()
+	current := s.dailyContent
+	client, store := s.dailyContentClient, s.dailyContentStore
+	s.mu.RUnlock()
+	now := time.Now
+	if client.Now != nil {
+		now = client.Now
+	}
+	if !enabled || !dailyContentRefreshDue(current, now()) {
+		return nil
+	}
+	content, err := client.Fetch(ctx)
+	if err != nil {
+		return err
+	}
+	if err := store.Save(content); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	s.dailyContent = &content
+	s.mu.Unlock()
+	return nil
+}
+
+// DailyIslamicContent returns a defensive copy of the shared last-known-good
+// content. Per-category display preferences are applied by the display layer.
+func (s *Service) DailyIslamicContent() *dailycontent.Content {
+	if s == nil {
+		return nil
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if !s.selection.ShowAnyDailyIslamicContent() || s.dailyContent == nil {
+		return nil
+	}
+	copy := *s.dailyContent
+	return &copy
 }
 
 const economicRefreshHour = 9
@@ -325,5 +411,18 @@ func (s *Service) Results() []runtime.Result {
 func cloneSelection(state selection.State) selection.State {
 	copy := state
 	copy.Boards = append([]selection.Board(nil), state.Boards...)
+	copy.ShowDailyAyah = cloneBool(state.ShowDailyAyah)
+	copy.ShowDailyHadith = cloneBool(state.ShowDailyHadith)
+	copy.ShowDailySunnah = cloneBool(state.ShowDailySunnah)
 	return copy
 }
+
+func cloneBool(value *bool) *bool {
+	if value == nil {
+		return nil
+	}
+	copy := *value
+	return &copy
+}
+
+func boolPointer(value bool) *bool { return &value }

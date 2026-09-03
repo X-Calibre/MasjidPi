@@ -52,6 +52,7 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	server.SetMasjidBoardCataloguePath(path)
 	runtime := &fakeSelectionRuntime{state: selection.State{
 		Theme: selection.ThemeRuby, SlideDurationSeconds: 30, ShowEconomicIndicators: true,
+		ShowDailyAyah: selectionBoolPointer(false), ShowDailyHadith: selectionBoolPointer(true), ShowDailySunnah: selectionBoolPointer(false),
 	}}
 	server.SetMasjidBoardService(runtime)
 
@@ -68,6 +69,9 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	}
 	if runtime.state.Theme != selection.ThemeRuby || runtime.state.SlideDurationSeconds != 30 || !runtime.state.ShowEconomicIndicators {
 		t.Fatalf("display preferences were not preserved: %+v", runtime.state)
+	}
+	if runtime.state.ShowDailyAyahValue() || !runtime.state.ShowDailyHadithValue() || runtime.state.ShowDailySunnahValue() {
+		t.Fatalf("daily content preferences were not preserved: %+v", runtime.state)
 	}
 }
 

@@ -1,19 +1,58 @@
 package display
 
 import (
+	"time"
+
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
 
 // View is the read-only presentation model consumed by a MasjidBoard display.
 // It deliberately excludes discovery, configuration, provider metadata and
 // diagnostic error strings. Boards remain in the user's selected order.
 type View struct {
-	Configured         bool                 `json:"configured"`
-	Theme              string               `json:"theme"`
-	SlideDuration      int                  `json:"slide_duration_seconds"`
-	Boards             []Board              `json:"boards"`
-	EconomicIndicators *economic.Indicators `json:"economic_indicators,omitempty"`
+	Configured          bool                 `json:"configured"`
+	Theme               string               `json:"theme"`
+	SlideDuration       int                  `json:"slide_duration_seconds"`
+	Boards              []Board              `json:"boards"`
+	EconomicIndicators  *economic.Indicators `json:"economic_indicators,omitempty"`
+	DailyIslamicContent *DailyIslamicContent `json:"daily_islamic_content,omitempty"`
+}
+
+type DailyIslamicContent struct {
+	Ayah        *dailycontent.Ayah   `json:"ayah,omitempty"`
+	Hadith      *dailycontent.Hadith `json:"hadith,omitempty"`
+	Sunnah      *dailycontent.Sunnah `json:"sunnah,omitempty"`
+	Language    string               `json:"language"`
+	Source      string               `json:"source"`
+	SourceURL   string               `json:"source_url"`
+	ContentDate string               `json:"content_date,omitempty"`
+	FetchedAt   time.Time            `json:"fetched_at"`
+}
+
+func PresentDailyIslamicContent(content *dailycontent.Content, selected selection.State) *DailyIslamicContent {
+	if content == nil || !content.Valid() || !selected.ShowAnyDailyIslamicContent() {
+		return nil
+	}
+	presented := &DailyIslamicContent{
+		Language: content.Language, Source: content.Source, SourceURL: content.SourceURL,
+		ContentDate: content.ContentDate, FetchedAt: content.FetchedAt,
+	}
+	if selected.ShowDailyAyahValue() {
+		copy := content.Ayah
+		presented.Ayah = &copy
+	}
+	if selected.ShowDailyHadithValue() {
+		copy := content.Hadith
+		presented.Hadith = &copy
+	}
+	if selected.ShowDailySunnahValue() {
+		copy := content.Sunnah
+		presented.Sunnah = &copy
+	}
+	return presented
 }
 
 type Board struct {

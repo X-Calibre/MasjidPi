@@ -85,17 +85,24 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 	currentTheme := selection.ThemeEmerald
 	currentSlideDuration := selection.DefaultSlideDurationSeconds
 	showEconomicIndicators := false
+	showDailyAyah, showDailyHadith, showDailySunnah := true, true, true
 	if s.masjidBoardService != nil {
 		current := s.masjidBoardService.Selection()
 		currentTheme = current.EffectiveTheme()
 		currentSlideDuration = current.EffectiveSlideDurationSeconds()
 		showEconomicIndicators = current.ShowEconomicIndicators
+		showDailyAyah = current.ShowDailyAyahValue()
+		showDailyHadith = current.ShowDailyHadithValue()
+		showDailySunnah = current.ShowDailySunnahValue()
 	}
 	selected := selection.State{
 		Boards:                 make([]selection.Board, 0, len(request.CatalogueIDs)),
 		Theme:                  currentTheme,
 		SlideDurationSeconds:   currentSlideDuration,
 		ShowEconomicIndicators: showEconomicIndicators,
+		ShowDailyAyah:          selectionBoolPointer(showDailyAyah),
+		ShowDailyHadith:        selectionBoolPointer(showDailyHadith),
+		ShowDailySunnah:        selectionBoolPointer(showDailySunnah),
 	}
 	seen := make(map[string]struct{}, len(request.CatalogueIDs))
 	for _, rawID := range request.CatalogueIDs {
@@ -134,3 +141,5 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 	}
 	writeJSON(w, http.StatusOK, masjidBoardSelectionResponse{Configured: true, Boards: boards})
 }
+
+func selectionBoolPointer(value bool) *bool { return &value }

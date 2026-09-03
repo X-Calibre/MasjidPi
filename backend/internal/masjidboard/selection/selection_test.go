@@ -68,6 +68,20 @@ func TestDisplayPreferences(t *testing.T) {
 	}
 }
 
+func TestDailyIslamicContentDefaultsEnabled(t *testing.T) {
+	state := State{}
+	if !state.ShowDailyAyahValue() || !state.ShowDailyHadithValue() || !state.ShowDailySunnahValue() || !state.ShowAnyDailyIslamicContent() {
+		t.Fatalf("daily content defaults = ayah:%v hadith:%v sunnah:%v", state.ShowDailyAyahValue(), state.ShowDailyHadithValue(), state.ShowDailySunnahValue())
+	}
+	disabled := false
+	state.ShowDailyAyah = &disabled
+	state.ShowDailyHadith = &disabled
+	state.ShowDailySunnah = &disabled
+	if state.ShowAnyDailyIslamicContent() {
+		t.Fatal("daily content should be disabled when all three explicit settings are false")
+	}
+}
+
 func TestValidateRejectsFourthBoard(t *testing.T) {
 	state := State{Boards: []Board{
 		selected("a", "A", 0),

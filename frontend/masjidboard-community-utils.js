@@ -65,7 +65,7 @@
             rand_dollar: "Rand/Dollar", gold_22: "Gold 22 ct / g", gold_18: "Gold 18 ct / g",
             gold_14: "Gold 14 ct / g", gold_9: "Gold 9 ct / g", silver: "Silver / g",
             minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
-            retrieved_at: "Retrieved at",
+            retrieved_at: "Retrieved at", ayah_number: "Ayah", reference: "Reference",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -82,6 +82,7 @@
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
             economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "retrieved_at"],
+			daily_ayah: ["ayah_number"], daily_hadith: ["reference"], daily_sunnah: ["reference"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
             : item.type === "nikah" ? ["name_one", "name_two", "bride"]
@@ -166,6 +167,43 @@
                     source: board.name,
                 });
             }
+        }
+        return items;
+    }
+
+    function dailyIslamicItems(content) {
+        if (!content || typeof content !== "object") return [];
+        const source = plainText(content.source) || "MasjidBoard Live";
+        const items = [];
+        if (content.ayah && plainText(content.ayah.text)) {
+            items.push({
+                type: "daily_ayah",
+                typeLabel: "Daily Ayah",
+                title: plainText(content.ayah.surah) || "Daily Ayah",
+                body: plainText(content.ayah.text),
+                fields: {ayah_number: plainText(content.ayah.ayah_number)},
+                source,
+            });
+        }
+        if (content.hadith && plainText(content.hadith.text)) {
+            items.push({
+                type: "daily_hadith",
+                typeLabel: "Daily Hadith",
+                title: plainText(content.hadith.heading) || "Hadith",
+                body: plainText(content.hadith.text),
+                fields: {reference: plainText(content.hadith.reference)},
+                source,
+            });
+        }
+        if (content.sunnah && plainText(content.sunnah.text)) {
+            items.push({
+                type: "daily_sunnah",
+                typeLabel: "Daily Sunnah",
+                title: plainText(content.sunnah.heading) || "Sunnah",
+                body: plainText(content.sunnah.text),
+                fields: {reference: plainText(content.sunnah.reference)},
+                source,
+            });
         }
         return items;
     }
@@ -293,6 +331,7 @@
 
     window.MasjidBoardCommunityUtils = {
         collectCommunityItems,
+		dailyIslamicItems,
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,

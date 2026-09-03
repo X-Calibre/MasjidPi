@@ -38,3 +38,28 @@ func TestSetSlideDurationPersists(t *testing.T) {
 		t.Fatal("SetSlideDurationSeconds() expected range error")
 	}
 }
+
+func TestSetDailyIslamicContentPreferencesPersistsExplicitValues(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "selection.json")
+	store := selection.NewStore(path)
+	state := selection.State{Boards: []selection.Board{{
+		CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid",
+	}}}
+	if err := store.Save(state); err != nil {
+		t.Fatal(err)
+	}
+	service := &Service{selection: state, selectionStore: store}
+	if err := service.SetDailyIslamicContentPreferences(false, true, false); err != nil {
+		t.Fatalf("SetDailyIslamicContentPreferences() error = %v", err)
+	}
+	persisted, err := selection.NewStore(path).Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if persisted.ShowDailyAyah == nil || persisted.ShowDailyHadith == nil || persisted.ShowDailySunnah == nil {
+		t.Fatalf("preferences were not persisted explicitly: %+v", persisted)
+	}
+	if persisted.ShowDailyAyahValue() || !persisted.ShowDailyHadithValue() || persisted.ShowDailySunnahValue() {
+		t.Fatalf("persisted preferences = %+v", persisted)
+	}
+}

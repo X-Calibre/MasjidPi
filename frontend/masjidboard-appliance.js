@@ -9,7 +9,7 @@
     document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("applianceState");
     const slidesHost = document.getElementById("applianceSlides");
     const dotsHost = document.getElementById("applianceDots");
@@ -147,7 +147,13 @@
 
     function communityCard(item, compact) {
         const card = element("article", "appliance-community-card appliance-community-" + item.type + (compact ? " compact" : ""));
-        card.append(element("h2", "appliance-community-title", item.title));
+		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
+		if (contentLength > 300) card.classList.add("content-long");
+		if (contentLength > 600) card.classList.add("content-very-long");
+		if (item.typeLabel) card.append(element("div", "appliance-community-type", item.typeLabel));
+		const title = element("h2", "appliance-community-title", item.title);
+		title.dir = "auto";
+		card.append(title);
         if (item.body) {
             const body = element("p", "appliance-community-body", item.body);
             body.dir = "auto";
@@ -295,11 +301,12 @@
         slideTimer = window.setInterval(() => showSlide(activeSlide + 1, false), slideDurationSeconds * 1000);
     }
 
-    function renderSlides(boards, indicators) {
+    function renderSlides(boards, indicators, dailyContent) {
         slidesHost.replaceChildren();
         dotsHost.replaceChildren();
         slides = boards.map(salaahSlide);
         if (boards[0] && dailyItems(boards[0]).length > 0) slides.push(dailySlide(boards[0]));
+		for (const item of dailyIslamicItems(dailyContent)) slides.push(communitySlide([item]));
         const communityItems = useCommunityFixtures
             ? fixtureCommunityItems(communityFixtureMode)
             : collectCommunityItems(boards);
@@ -339,7 +346,7 @@
         const boards = view && Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (!view || !view.configured || boards.length === 0) return;
         primaryName.textContent = boards[0].name;
-        renderSlides(boards, view.economic_indicators);
+        renderSlides(boards, view.economic_indicators, view.daily_islamic_content);
         updateHeader();
         state.classList.remove("hidden");
     }

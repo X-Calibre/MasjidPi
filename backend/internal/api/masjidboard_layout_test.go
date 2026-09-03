@@ -24,6 +24,12 @@ func (f *fakeDisplaySettingsService) SetShowEconomicIndicators(show bool) error 
 	f.state.ShowEconomicIndicators = show
 	return nil
 }
+func (f *fakeDisplaySettingsService) SetDailyIslamicContentPreferences(ayah, hadith, sunnah bool) error {
+	f.state.ShowDailyAyah = selectionBoolPointer(ayah)
+	f.state.ShowDailyHadith = selectionBoolPointer(hadith)
+	f.state.ShowDailySunnah = selectionBoolPointer(sunnah)
+	return nil
+}
 
 func testDisplaySettingsState() selection.State {
 	return selection.State{Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}}}
@@ -38,7 +44,7 @@ func TestMasjidBoardDisplaySettingsDefaults(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"emerald","slide_duration_seconds":15,"show_economic_indicators":false}` {
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"emerald","slide_duration_seconds":15,"show_economic_indicators":false,"show_daily_ayah":true,"show_daily_hadith":true,"show_daily_sunnah":true}` {
 		t.Fatalf("body=%s", got)
 	}
 }
@@ -47,7 +53,7 @@ func TestMasjidBoardDisplaySettingsPUTUpdatesPreferences(t *testing.T) {
 	service := &fakeDisplaySettingsService{state: testDisplaySettingsState()}
 	server := &Server{masjidBoardService: service}
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true}`))
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true,"show_daily_ayah":false,"show_daily_hadith":true,"show_daily_sunnah":false}`))
 	req.Header.Set("Content-Type", "application/json")
 	server.masjidBoardLayout(rec, req)
 	if rec.Code != http.StatusOK {
@@ -56,8 +62,27 @@ func TestMasjidBoardDisplaySettingsPUTUpdatesPreferences(t *testing.T) {
 	if service.state.Theme != selection.ThemeRuby || service.state.SlideDurationSeconds != 30 || !service.state.ShowEconomicIndicators {
 		t.Fatalf("state=%+v", service.state)
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true}` {
+	if service.state.ShowDailyAyahValue() || !service.state.ShowDailyHadithValue() || service.state.ShowDailySunnahValue() {
+		t.Fatalf("daily content state=%+v", service.state)
+	}
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true,"show_daily_ayah":false,"show_daily_hadith":true,"show_daily_sunnah":false}` {
 		t.Fatalf("body=%s", got)
+	}
+}
+
+func TestMasjidBoardDisplaySettingsPUTPreservesUnspecifiedDailyPreferences(t *testing.T) {
+	falseValue := false
+	service := &fakeDisplaySettingsService{state: testDisplaySettingsState()}
+	service.state.ShowDailyAyah = &falseValue
+	server := &Server{masjidBoardService: service}
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"show_daily_hadith":false}`))
+	server.masjidBoardLayout(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	if service.state.ShowDailyAyahValue() || service.state.ShowDailyHadithValue() || !service.state.ShowDailySunnahValue() {
+		t.Fatalf("state=%+v", service.state)
 	}
 }
 

@@ -9,11 +9,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/display"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
 )
+
+type fakeDailyContentStatusProvider struct {
+	fakeMasjidBoardStatusProvider
+	content *dailycontent.Content
+}
+
+func (f fakeDailyContentStatusProvider) DailyIslamicContent() *dailycontent.Content { return f.content }
 
 func TestMasjidBoardDisplayReturnsPresentationOnlyView(t *testing.T) {
 	first := selection.Board{CatalogueID: "masjidboardlive:one", Provider: "masjidboardlive", ExternalID: "one", Name: "One", TimeZoneOffsetMS: 7200000}
@@ -108,6 +116,34 @@ func TestMasjidBoardDisplayETagIgnoresSuccessfulRefreshTimestamp(t *testing.T) {
 	}
 	if first.Body.String() != second.Body.String() {
 		t.Fatal("unchanged display content changed when only refresh metadata advanced")
+	}
+}
+
+func TestMasjidBoardDisplayIncludesEnabledSharedDailyContent(t *testing.T) {
+	falseValue := false
+	selected := selection.State{
+		Boards:          []selection.Board{{CatalogueID: "masjidboardlive:one", Name: "One"}},
+		ShowDailyHadith: &falseValue,
+	}
+	content := &dailycontent.Content{
+		Ayah:     dailycontent.Ayah{Surah: "Surah 1", AyahNumber: "Ayah 1", Text: "Ayah text"},
+		Hadith:   dailycontent.Hadith{Heading: "Hadith", Text: "Hadith text"},
+		Sunnah:   dailycontent.Sunnah{Heading: "Sunnah", Text: "Sunnah text", Reference: "Muslim"},
+		Language: "en", Source: dailycontent.SourceName, SourceURL: dailycontent.SourceURL,
+		ContentDate: "2026-09-03", FetchedAt: time.Date(2026, 9, 3, 12, 0, 0, 0, time.UTC),
+	}
+	server := &Server{masjidBoardService: fakeDailyContentStatusProvider{
+		fakeMasjidBoardStatusProvider: fakeMasjidBoardStatusProvider{configured: true, selection: selected},
+		content:                       content,
+	}}
+	res := httptest.NewRecorder()
+	server.masjidBoardDisplay(res, httptest.NewRequest(http.MethodGet, "/api/masjidboard/display", nil))
+	var got display.View
+	if err := json.NewDecoder(res.Body).Decode(&got); err != nil {
+		t.Fatal(err)
+	}
+	if got.DailyIslamicContent == nil || got.DailyIslamicContent.Ayah == nil || got.DailyIslamicContent.Hadith != nil || got.DailyIslamicContent.Sunnah == nil {
+		t.Fatalf("daily content=%+v", got.DailyIslamicContent)
 	}
 }
 

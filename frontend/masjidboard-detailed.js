@@ -5,7 +5,7 @@
     if (params.get("profile") === "appliance") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
@@ -181,7 +181,13 @@
 
     function renderCommunityCard(item, span) {
         const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
-        card.append(makeElement("h2", "detailed-community-title", item.title));
+		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
+		if (contentLength > 300) card.classList.add("content-long");
+		if (contentLength > 600) card.classList.add("content-very-long");
+		if (item.typeLabel) card.append(makeElement("div", "detailed-community-type", item.typeLabel));
+		const title = makeElement("h2", "detailed-community-title", item.title);
+		title.dir = "auto";
+		card.append(title);
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);
             body.dir = "auto";
@@ -255,13 +261,16 @@
         );
     }
 
-    function renderCommunityContent(boards) {
+    function renderCommunityContent(boards, dailyContent, indicators) {
         if (!communityPanel) return;
         if (boards.length === 0) {
             communityPanel.classList.add("hidden");
             return;
         }
-        const items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
+		const items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
+		items.push(...dailyIslamicItems(dailyContent));
+		const economicItem = economicCommunityItem(indicators);
+		if (economicItem) items.push(economicItem);
         const signature = JSON.stringify(items);
         if (signature !== communitySignature) {
             communitySignature = signature;
@@ -385,23 +394,7 @@
             const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
             document.body.dataset.boardCount = String(Math.max(1, boards.length));
             render(boards[0] || null);
-            const economicItem = economicCommunityItem(view.economic_indicators);
-            if (economicItem) {
-                const originalFixtureMode = useCommunityFixtures;
-                const baseItems = originalFixtureMode ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
-                const items = [...baseItems, economicItem];
-                const signature = JSON.stringify(items);
-                if (signature !== communitySignature) {
-                    communitySignature = signature;
-                    communityItems = items;
-                    communityPages = packCommunityPages(items);
-                    buildCommunityPageNodes();
-                    communityPage = 0;
-                }
-                renderCommunityPage();
-            } else {
-                renderCommunityContent(boards);
-            }
+			renderCommunityContent(boards, view.daily_islamic_content, view.economic_indicators);
             addSharedPrayerLabels();
     }
 

@@ -15,9 +15,14 @@ assert.match(html, /id="saveLocationsButton"/, "location scope retains its delib
 assert.match(html, /id="displaySaveStatus"[^>]*aria-live="polite"/, "display autosave status must be announced");
 assert.match(html, /id="boardSaveStatus"[^>]*aria-live="polite"/, "masjid autosave status must be announced");
 assert.match(html, /id="locationSaveStatus"[^>]*aria-live="polite"/, "unsaved location status must be announced");
+for (const id of ["showDailyAyah", "showDailyHadith", "showDailySunnah"]) {
+    assert.match(html, new RegExp(`id="${id}"[^>]*checked`), `${id} must be enabled by default`);
+}
 
 assert.match(display, /slideDuration\.addEventListener\("change", saveAutomatically\)/, "slide duration saves only when adjustment is committed");
 assert.match(display, /showEconomicIndicators\.addEventListener\("change", saveAutomatically\)/, "indicator visibility saves immediately");
+assert.match(display, /Object\.values\(dailyContentInputs\).*addEventListener\("change", saveAutomatically\)/, "daily content visibility saves immediately");
+assert.match(display, /show_daily_ayah:\s*!state \|\| state\.show_daily_ayah !== false/, "missing Ayah preference must default to enabled");
 assert.match(display, /while \(savePending\)/, "display saves must be serialized");
 
 assert.match(boards, /window\.setTimeout\(\(\) => \{ void drainBoardSaves\(\); \}, 450\)/, "reordering saves must be debounced");

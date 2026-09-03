@@ -46,6 +46,9 @@ type State struct {
 	Theme                  string  `json:"theme,omitempty"`
 	SlideDurationSeconds   int     `json:"slide_duration_seconds,omitempty"`
 	ShowEconomicIndicators bool    `json:"show_economic_indicators,omitempty"`
+	ShowDailyAyah          *bool   `json:"show_daily_ayah,omitempty"`
+	ShowDailyHadith        *bool   `json:"show_daily_hadith,omitempty"`
+	ShowDailySunnah        *bool   `json:"show_daily_sunnah,omitempty"`
 }
 
 func (s State) Configured() bool { return len(s.Boards) > 0 }
@@ -63,6 +66,18 @@ func (s State) EffectiveTheme() string {
 		return theme
 	}
 	return ThemeEmerald
+}
+
+func enabledByDefault(value *bool) bool {
+	return value == nil || *value
+}
+
+func (s State) ShowDailyAyahValue() bool   { return enabledByDefault(s.ShowDailyAyah) }
+func (s State) ShowDailyHadithValue() bool { return enabledByDefault(s.ShowDailyHadith) }
+func (s State) ShowDailySunnahValue() bool { return enabledByDefault(s.ShowDailySunnah) }
+
+func (s State) ShowAnyDailyIslamicContent() bool {
+	return s.ShowDailyAyahValue() || s.ShowDailyHadithValue() || s.ShowDailySunnahValue()
 }
 
 func ThemeSupported(theme string) bool {
@@ -134,5 +149,16 @@ func cloneState(state State) State {
 	if state.Boards != nil {
 		copy.Boards = append([]Board(nil), state.Boards...)
 	}
+	copy.ShowDailyAyah = cloneBool(state.ShowDailyAyah)
+	copy.ShowDailyHadith = cloneBool(state.ShowDailyHadith)
+	copy.ShowDailySunnah = cloneBool(state.ShowDailySunnah)
 	return copy
+}
+
+func cloneBool(value *bool) *bool {
+	if value == nil {
+		return nil
+	}
+	copy := *value
+	return &copy
 }

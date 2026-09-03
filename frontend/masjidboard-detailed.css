@@ -162,6 +162,24 @@ html.landscape-layout {
     font-size:clamp(.68rem,.72vw,.82rem);
 }
 
+.detailed-community-daily_ayah .detailed-community-title,
+.detailed-community-daily_hadith .detailed-community-title,
+.detailed-community-daily_sunnah .detailed-community-title { margin-top:clamp(5px,.5vh,8px); }
+.detailed-community-daily_ayah .detailed-community-body,
+.detailed-community-daily_hadith .detailed-community-body,
+.detailed-community-daily_sunnah .detailed-community-body { flex:1 1 auto; }
+.detailed-community-card.content-long .detailed-community-body {
+	font-size:clamp(.88rem,.96vw,1.08rem);
+	line-height:1.3;
+}
+.detailed-community-card.content-very-long .detailed-community-body {
+	font-size:clamp(.76rem,.84vw,.94rem);
+	line-height:1.24;
+}
+.detailed-community-daily_ayah .detailed-community-source,
+.detailed-community-daily_hadith .detailed-community-source,
+.detailed-community-daily_sunnah .detailed-community-source { margin-top:auto; font-weight:700; }
+
 /* Salaah changes contain only two short values, so use the available card
    space for prominent text and a clearly separated label/value grid. */
 .detailed-community-salaah_change {

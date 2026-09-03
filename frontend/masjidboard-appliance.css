@@ -324,6 +324,32 @@ body.appliance-layout {
     margin-top:0;
     text-align:center;
 }
+
+.appliance-community-daily_ayah,
+.appliance-community-daily_hadith,
+.appliance-community-daily_sunnah {
+	padding:34px 30px 26px;
+}
+.appliance-community-daily_ayah .appliance-community-title,
+.appliance-community-daily_hadith .appliance-community-title,
+.appliance-community-daily_sunnah .appliance-community-title { margin-top:10px; }
+.appliance-community-daily_ayah .appliance-community-body,
+.appliance-community-daily_hadith .appliance-community-body,
+.appliance-community-daily_sunnah .appliance-community-body {
+	flex:1 1 auto;
+	display:flex;
+	align-items:center;
+	font-size:27px;
+	line-height:1.45;
+}
+.appliance-community-card.content-long .appliance-community-body { font-size:22px; line-height:1.38; }
+.appliance-community-card.content-very-long .appliance-community-body { font-size:18px; line-height:1.3; }
+.appliance-community-daily_ayah .appliance-community-source,
+.appliance-community-daily_hadith .appliance-community-source,
+.appliance-community-daily_sunnah .appliance-community-source {
+	font-size:18px;
+	font-weight:700;
+}
 .appliance-community-card.appliance-community-salaah_change {
     text-align:center;
 }

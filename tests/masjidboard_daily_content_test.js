@@ -20,7 +20,10 @@ class TestDOMParser {
 
 const context = {window: {}, DOMParser: TestDOMParser};
 vm.runInNewContext(utilitySource, context);
-const {dailyIslamicItems} = context.window.MasjidBoardCommunityUtils;
+const {dailyIslamicItems, formatNoticeDate} = context.window.MasjidBoardCommunityUtils;
+
+assert.equal(formatNoticeDate("06 Oct 2026 00:00"), "Tuesday, 06 October");
+assert.equal(formatNoticeDate("2026-10-06T00:00:00"), "Tuesday, 06 October");
 
 const items = dailyIslamicItems({
     source: "MasjidBoard Live",

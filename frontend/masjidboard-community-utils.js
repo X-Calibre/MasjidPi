@@ -22,20 +22,25 @@
 
     function formatNoticeDate(value) {
         const raw = plainText(value);
-        const match = raw.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?$/);
-        if (!match) return raw;
         const months = {
             jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
             jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
         };
-        const month = months[match[2].slice(0, 3).toLowerCase()];
-        if (month === undefined) return raw;
+        const textMatch = raw.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?$/);
+        const isoMatch = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/);
+        if (!textMatch && !isoMatch) return raw;
+
         const now = new Date();
-        let year = match[3] ? Number(match[3]) : now.getFullYear();
-        let date = new Date(year, month, Number(match[1]), 12);
-        if (!match[3] && date.getTime() < now.getTime() - 180 * 24 * 60 * 60 * 1000) {
-            date = new Date(year + 1, month, Number(match[1]), 12);
+        const hasYear = Boolean(isoMatch || textMatch[3]);
+        let year = isoMatch ? Number(isoMatch[1]) : textMatch[3] ? Number(textMatch[3]) : now.getFullYear();
+        const month = isoMatch ? Number(isoMatch[2]) - 1 : months[textMatch[2].slice(0, 3).toLowerCase()];
+        const day = Number(isoMatch ? isoMatch[3] : textMatch[1]);
+        if (month === undefined || month < 0 || month > 11) return raw;
+        let date = new Date(year, month, day, 12);
+        if (!hasYear && date.getTime() < now.getTime() - 180 * 24 * 60 * 60 * 1000) {
+            date = new Date(year + 1, month, day, 12);
         }
+        if (Number.isNaN(date.getTime()) || date.getDate() !== day || date.getMonth() !== month) return raw;
         return date.toLocaleDateString("en-ZA", {
             weekday: "long", day: "numeric", month: "long",
         });

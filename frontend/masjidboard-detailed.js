@@ -188,6 +188,9 @@
 		const title = makeElement("h2", "detailed-community-title", item.title);
 		title.dir = "auto";
 		card.append(title);
+		if (item.type === "daily_ayah" && plainText(item.fields.ayah_number)) {
+			card.append(makeElement("div", "detailed-daily-ayah-number", plainText(item.fields.ayah_number)));
+		}
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);
             body.dir = "auto";
@@ -204,7 +207,8 @@
         }
 
         const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
-            item.type !== "economic" || field.label !== "Retrieved at"
+            (item.type !== "economic" || field.label !== "Retrieved at") &&
+            (item.type !== "daily_ayah" || field.label !== "Ayah")
         );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");

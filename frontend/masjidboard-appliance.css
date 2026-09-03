@@ -333,6 +333,12 @@ body.appliance-layout {
 .appliance-community-daily_ayah .appliance-community-title,
 .appliance-community-daily_hadith .appliance-community-title,
 .appliance-community-daily_sunnah .appliance-community-title { margin-top:10px; }
+.appliance-daily-ayah-number {
+	margin-top:4px;
+	font-size:19px;
+	font-weight:700;
+	color:var(--muted);
+}
 .appliance-community-daily_ayah .appliance-community-body,
 .appliance-community-daily_hadith .appliance-community-body,
 .appliance-community-daily_sunnah .appliance-community-body {

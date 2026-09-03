@@ -165,6 +165,12 @@ html.landscape-layout {
 .detailed-community-daily_ayah .detailed-community-title,
 .detailed-community-daily_hadith .detailed-community-title,
 .detailed-community-daily_sunnah .detailed-community-title { margin-top:clamp(5px,.5vh,8px); }
+.detailed-daily-ayah-number {
+	margin-top:clamp(2px,.25vh,4px);
+	font-size:clamp(.78rem,.86vw,.98rem);
+	font-weight:700;
+	color:var(--muted);
+}
 .detailed-community-daily_ayah .detailed-community-body,
 .detailed-community-daily_hadith .detailed-community-body,
 .detailed-community-daily_sunnah .detailed-community-body { flex:1 1 auto; }

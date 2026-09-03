@@ -42,11 +42,17 @@ assert.match(landscape, /items\.push\(\.\.\.dailyIslamicItems\(dailyContent\)\)/
 assert.match(landscape, /view\.daily_islamic_content/);
 assert.match(appliance, /"Source: " \+ item\.source/);
 assert.match(landscape, /`Source: \$\{item\.source\}`/);
+assert.match(appliance, /"appliance-daily-ayah-number"/);
+assert.match(appliance, /item\.type !== "daily_ayah" \|\| field\.label !== "Ayah"/);
+assert.match(landscape, /"detailed-daily-ayah-number"/);
+assert.match(landscape, /item\.type !== "daily_ayah" \|\| field\.label !== "Ayah"/);
 assert.match(appliance, /title\.dir = "auto"/);
 assert.match(landscape, /title\.dir = "auto"/);
 assert.match(applianceCSS, /\.appliance-community-daily_ayah/);
+assert.match(applianceCSS, /\.appliance-daily-ayah-number/);
 assert.match(applianceCSS, /\.content-very-long/);
 assert.match(landscapeCSS, /\.detailed-community-daily_ayah/);
+assert.match(landscapeCSS, /\.detailed-daily-ayah-number/);
 assert.match(landscapeCSS, /\.content-very-long/);
 
 console.log("MasjidBoard daily Islamic content tests passed");

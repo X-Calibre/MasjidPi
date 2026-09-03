@@ -154,6 +154,9 @@
 		const title = element("h2", "appliance-community-title", item.title);
 		title.dir = "auto";
 		card.append(title);
+		if (item.type === "daily_ayah" && plainText(item.fields.ayah_number)) {
+			card.append(element("div", "appliance-daily-ayah-number", plainText(item.fields.ayah_number)));
+		}
         if (item.body) {
             const body = element("p", "appliance-community-body", item.body);
             body.dir = "auto";
@@ -169,7 +172,9 @@
             card.append(main);
         }
 
-        const fields = item.type === "salaah_change" ? [] : orderedFields(item);
+        const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
+            item.type !== "daily_ayah" || field.label !== "Ayah"
+        );
         if (fields.length > 0) {
             const list = element("div", "appliance-community-fields");
             for (const field of fields) {

@@ -1,6 +1,6 @@
 # MasjidPi v1.5.2 Release-Candidate Acceptance Record
 
-This document tracks the checks required to promote `v1.5.2-rc.2` to the v1.5.2 maintenance release. RC2 supersedes RC1 after the Pi 3 soak exposed excessive WebKit allocation churn between garbage-collection cycles.
+This document tracks the checks required to promote `v1.5.2-rc.3` to the v1.5.2 maintenance release. RC3 supersedes RC2 after physical installation exposed an incomplete release package; RC2 superseded RC1 after the Pi 3 soak exposed excessive WebKit allocation churn between garbage-collection cycles.
 
 ## Scope
 
@@ -27,14 +27,14 @@ v1.5.2 improves existing appliance behaviour rather than introducing a new user 
 - Jamiat economic dates accept standard and observed month spellings, spacing and dash variants while rejecting impossible dates.
 - RC1 soak analysis traced repeated WPE memory growth to minute-based replacement of the complete prayer grid and display ETag changes caused only by successful-refresh timestamps.
 - RC2 rebuilds the prayer grid only when the upcoming event, Friday state, date or actual display data changes; countdown text continues updating in place every second.
-- RC2 keeps refresh timestamps in the administrative status API but removes them from the presentation response, preserving its ETag when timetable content is unchanged.
+- RC2 keeps refresh timestamps in the administrative status API but removes them from the presentation response, preserving its ETag when timetable content is unchanged.\n- RC3 includes both Raspberry Pi boot-protection assets in release archives, validates their presence while packaging, and prevents a completed runtime rollback from leaving a blocking transaction marker.
 
 Detailed physical checks are recorded in [VALIDATION_CHECKLIST.md](VALIDATION_CHECKLIST.md).
 
 ## Required before stable promotion
 
-- [ ] The release workflow publishes ARM64 and AMD64 `v1.5.2-rc.2` archives and `SHA256SUMS` as a GitHub prerelease.
-- [ ] The published ARM64 artifact upgrades the Raspberry Pi 4 test appliance successfully and reports `v1.5.2-rc.2`.
+- [ ] The release workflow publishes ARM64 and AMD64 `v1.5.2-rc.3` archives and `SHA256SUMS` as a GitHub prerelease.
+- [ ] The published ARM64 artifact upgrades the Raspberry Pi 4 test appliance successfully and reports `v1.5.2-rc.3`.
 - [ ] Existing component selection, user settings, audio output and cached state remain intact after the packaged upgrade.
 - [ ] Both boot splash stages, Board display, Listen playback and read-only boot mount remain correct after reboot.
 - [ ] The post-change Raspberry Pi 3 soak data is reviewed with no release-blocking memory growth, restarts, throttling, storage or network failures.
@@ -67,8 +67,8 @@ After the release-preparation commit is merged into `main` and CI passes:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.2-rc.2 -m "MasjidPi v1.5.2-rc.2"
-git push origin v1.5.2-rc.2
+git tag -a v1.5.2-rc.3 -m "MasjidPi v1.5.2-rc.3"
+git push origin v1.5.2-rc.3
 ```
 
 The release workflow must publish ARM64 and AMD64 archives plus `SHA256SUMS`, and mark the GitHub release as a prerelease.

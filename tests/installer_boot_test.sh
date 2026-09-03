@@ -90,7 +90,10 @@ standard_config="$(cat "$MASJIDPI_BOOT_FIRMWARE_DIR/config.txt")"
 [[ "$MOUNT_CALLS" == *"-o remount,rw $MASJIDPI_BOOT_FIRMWARE_DIR"* ]]
 [[ "$MOUNT_CALLS" == *"sync -f $MASJIDPI_BOOT_FIRMWARE_DIR"* ]]
 [[ "$MOUNT_CALLS" == *"-o remount,ro $MASJIDPI_BOOT_FIRMWARE_DIR"* ]]
-! grep -q 'Rotate' "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+if grep -q 'Rotate' "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"; then
+    echo "[FAIL] standard Plymouth theme unexpectedly rotates the splash" >&2
+    exit 1
+fi
 
 # Add the exact Waveshare USB identity plus connected 1024x600 HDMI mode used by
 # the appliance profile. Re-running configuration must switch Plymouth to the

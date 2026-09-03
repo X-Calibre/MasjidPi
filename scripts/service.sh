@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 install_service() {
 
     if [[ ! -f "$PROJECT_ROOT/scripts/masjidpi.service" ]]; then

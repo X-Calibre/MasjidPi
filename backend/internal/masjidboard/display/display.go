@@ -17,21 +17,21 @@ type View struct {
 }
 
 type Board struct {
-	CatalogueID          string                    `json:"catalogue_id"`
-	Name                 string                    `json:"name"`
-	AlternateName        string                    `json:"alternate_name,omitempty"`
-	TimeZone             string                    `json:"time_zone,omitempty"`
-	Status               masjidboardruntime.Status `json:"status"`
-	Stale                bool                      `json:"stale"`
-	Date                 Date                      `json:"date"`
-	Prayers              []Prayer                  `json:"prayers,omitempty"`
-	Jumuah               []JumuahService           `json:"jumuah,omitempty"`
-	Astronomical         *Astronomical             `json:"astronomical,omitempty"`
-	Announcements        []Announcement            `json:"announcements,omitempty"`
-	Programmes           []Programme               `json:"programmes,omitempty"`
-	Notices              []Notice                  `json:"notices,omitempty"`
-	Banking              *Banking                  `json:"banking,omitempty"`
-	NewMoon              *NewMoon                  `json:"new_moon,omitempty"`
+	CatalogueID   string                    `json:"catalogue_id"`
+	Name          string                    `json:"name"`
+	AlternateName string                    `json:"alternate_name,omitempty"`
+	TimeZone      string                    `json:"time_zone,omitempty"`
+	Status        masjidboardruntime.Status `json:"status"`
+	Stale         bool                      `json:"stale"`
+	Date          Date                      `json:"date"`
+	Prayers       []Prayer                  `json:"prayers,omitempty"`
+	Jumuah        []JumuahService           `json:"jumuah,omitempty"`
+	Astronomical  *Astronomical             `json:"astronomical,omitempty"`
+	Announcements []Announcement            `json:"announcements,omitempty"`
+	Programmes    []Programme               `json:"programmes,omitempty"`
+	Notices       []Notice                  `json:"notices,omitempty"`
+	Banking       *Banking                  `json:"banking,omitempty"`
+	NewMoon       *NewMoon                  `json:"new_moon,omitempty"`
 }
 
 type Date struct {

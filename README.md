@@ -279,9 +279,9 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guid
 
 **Current stable release: v1.5.1**
 
-**Current release candidate: v1.5.2-rc.2**
+**Current release candidate: v1.5.2-rc.3**
 
-v1.5.2-rc.2 improves appliance startup and resilience without changing the established Listen or Board workflows. It adds a quiet two-stage branded boot, protects the Raspberry Pi boot filesystem during normal operation, reduces the risk of corrupted persisted state after interrupted writes, makes source updates and rollback recovery safer, hardens Jamiat economic-date parsing, validates automatic USB audio fallback and restoration, and reduces long-running WebKit render churn identified during the RC1 Pi 3 soak.
+v1.5.2-rc.3 improves appliance startup and resilience without changing the established Listen or Board workflows. It adds a quiet two-stage branded boot, protects the Raspberry Pi boot filesystem during normal operation, reduces the risk of corrupted persisted state after interrupted writes, makes source updates and rollback recovery safer, hardens Jamiat economic-date parsing, validates automatic USB audio fallback and restoration, and reduces long-running WebKit render churn identified during the RC1 Pi 3 soak.
 
 The candidate has passed automated validation and focused Raspberry Pi 4 testing. Stable promotion remains subject to installation of the published ARM64 artifact and review of the post-change Raspberry Pi 3 soak test. See [docs/RELEASE_CANDIDATE_v1.5.2.md](docs/RELEASE_CANDIDATE_v1.5.2.md).
 

@@ -53,6 +53,8 @@ jobs:
           bash tests/installer_boot_test.sh
           bash tests/installer_runtime_test.sh
           bash tests/installer_update_test.sh
+          bash tests/installer_recovery_test.sh
+          bash tests/release_package_test.sh
           bash tests/masjidboard_display_profile_test.sh
 
       - name: Validate JavaScript syntax

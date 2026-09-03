@@ -31,6 +31,7 @@ const items = dailyIslamicItems({
 assert.equal(items.length, 3);
 assert.deepEqual(Array.from(items, (item) => item.type), ["daily_ayah", "daily_hadith", "daily_sunnah"]);
 assert.ok(items.every((item) => item.source === "MasjidBoard Live"));
+assert.ok(items.every((item) => item.typeLabel === undefined), "daily cards must not repeat their inferred content type");
 assert.equal(items[0].fields.ayah_number, "Ayah 7");
 assert.equal(items[1].fields.reference, "Bukhari");
 assert.equal(dailyIslamicItems({source: "MasjidBoard Live", ayah: {text: "Only Ayah"}}).length, 1);

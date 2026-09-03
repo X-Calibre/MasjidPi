@@ -178,7 +178,6 @@
         if (content.ayah && plainText(content.ayah.text)) {
             items.push({
                 type: "daily_ayah",
-                typeLabel: "Daily Ayah",
                 title: plainText(content.ayah.surah) || "Daily Ayah",
                 body: plainText(content.ayah.text),
                 fields: {ayah_number: plainText(content.ayah.ayah_number)},
@@ -188,7 +187,6 @@
         if (content.hadith && plainText(content.hadith.text)) {
             items.push({
                 type: "daily_hadith",
-                typeLabel: "Daily Hadith",
                 title: plainText(content.hadith.heading) || "Hadith",
                 body: plainText(content.hadith.text),
                 fields: {reference: plainText(content.hadith.reference)},
@@ -198,7 +196,6 @@
         if (content.sunnah && plainText(content.sunnah.text)) {
             items.push({
                 type: "daily_sunnah",
-                typeLabel: "Daily Sunnah",
                 title: plainText(content.sunnah.heading) || "Sunnah",
                 body: plainText(content.sunnah.text),
                 fields: {reference: plainText(content.sunnah.reference)},

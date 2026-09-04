@@ -87,7 +87,7 @@ func TestMasjidBoardSelectionPUTPersistsDetailedJumuahPreference(t *testing.T) {
 		DiscoveredAt: now, LastSeenAt: now, Status: masjidboardcatalogue.StatusActive,
 	}
 	if err := masjidboardcatalogue.NewStore(path).Save(masjidboardcatalogue.State{Partitions: []masjidboardcatalogue.Partition{{
-		Location: masjidboardcatalogue.Location{Country: "South Africa", Region: "Gauteng", City: "Pretoria"},
+		Location:    masjidboardcatalogue.Location{Country: "South Africa", Region: "Gauteng", City: "Pretoria"},
 		RetrievedAt: now, ValidatedAt: now, Records: []masjidboardcatalogue.Record{record},
 	}}}); err != nil {
 		t.Fatal(err)

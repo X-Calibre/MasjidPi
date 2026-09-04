@@ -31,12 +31,12 @@ var supportedThemes = map[string]struct{}{
 // Board is the minimal last-known identity required to keep a selected
 // MasjidBoard usable without loading or refreshing the full catalogue.
 type Board struct {
-	CatalogueID      string `json:"catalogue_id"`
-	Provider         string `json:"provider"`
-	ExternalID       string `json:"external_id"`
-	Name             string `json:"name"`
-	TimeZoneOffsetMS int64  `json:"time_zone_offset_ms"`
-	ShowDetailedJumuah *bool `json:"show_detailed_jumuah,omitempty"`
+	CatalogueID        string `json:"catalogue_id"`
+	Provider           string `json:"provider"`
+	ExternalID         string `json:"external_id"`
+	Name               string `json:"name"`
+	TimeZoneOffsetMS   int64  `json:"time_zone_offset_ms"`
+	ShowDetailedJumuah *bool  `json:"show_detailed_jumuah,omitempty"`
 }
 
 func (b Board) ShowDetailedJumuahValue() bool { return enabledByDefault(b.ShowDetailedJumuah) }

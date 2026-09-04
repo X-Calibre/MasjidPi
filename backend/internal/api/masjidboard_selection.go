@@ -18,7 +18,7 @@ type masjidBoardSelectionManager interface {
 }
 
 type masjidBoardSelectionRequest struct {
-	CatalogueIDs  []string        `json:"catalogue_ids"`
+	CatalogueIDs   []string        `json:"catalogue_ids"`
 	DetailedJumuah map[string]bool `json:"detailed_jumuah,omitempty"`
 }
 type masjidBoardSelectionResponse struct {

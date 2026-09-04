@@ -34,9 +34,9 @@ func BuildAt(configured bool, selected selection.State, results []masjidboardrun
 	}
 	for _, selectedBoard := range selected.Boards {
 		item := Board{
-			CatalogueID: selectedBoard.CatalogueID,
-			Name:        selectedBoard.Name,
-			Status:      masjidboardruntime.StatusUnavailable,
+			CatalogueID:        selectedBoard.CatalogueID,
+			Name:               selectedBoard.Name,
+			Status:             masjidboardruntime.StatusUnavailable,
 			ShowDetailedJumuah: selectedBoard.ShowDetailedJumuahValue(),
 		}
 

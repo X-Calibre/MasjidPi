@@ -18,7 +18,8 @@ type masjidBoardSelectionManager interface {
 }
 
 type masjidBoardSelectionRequest struct {
-	CatalogueIDs []string `json:"catalogue_ids"`
+	CatalogueIDs  []string        `json:"catalogue_ids"`
+	DetailedJumuah map[string]bool `json:"detailed_jumuah,omitempty"`
 }
 type masjidBoardSelectionResponse struct {
 	Configured bool              `json:"configured"`
@@ -86,6 +87,7 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 	currentSlideDuration := selection.DefaultSlideDurationSeconds
 	showEconomicIndicators := false
 	showDailyAyah, showDailyHadith, showDailySunnah := true, true, true
+	currentDetailedJumuah := make(map[string]bool)
 	if s.masjidBoardService != nil {
 		current := s.masjidBoardService.Selection()
 		currentTheme = current.EffectiveTheme()
@@ -94,6 +96,9 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 		showDailyAyah = current.ShowDailyAyahValue()
 		showDailyHadith = current.ShowDailyHadithValue()
 		showDailySunnah = current.ShowDailySunnahValue()
+		for _, board := range current.Boards {
+			currentDetailedJumuah[board.CatalogueID] = board.ShowDetailedJumuahValue()
+		}
 	}
 	selected := selection.State{
 		Boards:                 make([]selection.Board, 0, len(request.CatalogueIDs)),
@@ -126,6 +131,13 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		showDetailed := true
+		if value, supplied := request.DetailedJumuah[id]; supplied {
+			showDetailed = value
+		} else if value, existed := currentDetailedJumuah[id]; existed {
+			showDetailed = value
+		}
+		board.ShowDetailedJumuah = selectionBoolPointer(showDetailed)
 		selected.Boards = append(selected.Boards, board)
 	}
 	if err := s.masjidBoardSelectionManager.Reconfigure(selected); err != nil {

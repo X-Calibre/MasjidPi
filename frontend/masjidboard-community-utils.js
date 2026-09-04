@@ -55,6 +55,55 @@
         });
     }
 
+    function formatClock(time) {
+        if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute)) return "";
+        return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
+    }
+
+    function detailedJumuahItems(boards, now, isFriday) {
+        const items = [];
+        for (const board of Array.isArray(boards) ? boards : []) {
+            if (!board || board.show_detailed_jumuah === false || !isFriday(board, now)) continue;
+            const service = Array.isArray(board.jumuah) ? board.jumuah[0] : null;
+            if (!service) continue;
+
+            const schedule = [];
+            const semanticName = (value) => plainText(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            const semantic = new Set();
+            const representedTimes = new Set();
+            for (const event of Array.isArray(service.events) ? service.events : []) {
+                const heading = plainText(event && event.heading);
+                const time = formatClock(event && event.time);
+                if (!heading || !time) continue;
+                schedule.push({heading, time});
+                semantic.add(String(event.code || "").trim() === "0" ? "adhan" : semanticName(heading));
+                representedTimes.add(time);
+            }
+            const addFallback = (semanticName, heading, time) => {
+                const formatted = formatClock(time);
+                if (formatted && !semantic.has(semanticName) && !representedTimes.has(formatted)) {
+                    schedule.push({heading, time: formatted});
+                    representedTimes.add(formatted);
+                }
+            };
+            addFallback("adhan", "Adhan", service.adhan);
+            if (!semantic.has("jamaah") && !semantic.has("salaah")) {
+                addFallback("jamaah", "Salaah", service.jamaah || service.effective_salaah);
+            }
+            if (schedule.length === 0) continue;
+
+            items.push({
+                type: "jumuah_schedule",
+                title: "Jumu’ah Schedule",
+                body: plainText(service.khateeb),
+                fields: {},
+                schedule,
+                source: plainText(board.name),
+            });
+        }
+        return items;
+    }
+
     function fieldLabel(name) {
         const labels = {
             address: "Address", bride: "Bride", cemetery: "Cemetery", date: "Date",
@@ -334,6 +383,7 @@
     window.MasjidBoardCommunityUtils = {
         collectCommunityItems,
 		dailyIslamicItems,
+        detailedJumuahItems,
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,

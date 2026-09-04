@@ -27,6 +27,9 @@ assert.match(display, /while \(savePending\)/, "display saves must be serialized
 
 assert.match(boards, /window\.setTimeout\(\(\) => \{ void drainBoardSaves\(\); \}, 450\)/, "reordering saves must be debounced");
 assert.match(boards, /selectedBoards = lastSavedBoards\.map/, "failed masjid saves must roll back");
+assert.match(boards, /show_detailed_jumuah:\s*true/, "newly selected masjids must enable the detailed Jumu'ah slide by default");
+assert.match(boards, /board\.show_detailed_jumuah !== false/, "missing detailed Jumu'ah preference must default to enabled");
+assert.match(boards, /detailed_jumuah:\s*Object\.fromEntries/, "per-masjid Jumu'ah preferences must be saved");
 assert.match(boards, /markLocationsUnsaved\(\)/, "location edits must expose their unsaved state");
 
 console.log("MasjidBoard autosave tests passed");

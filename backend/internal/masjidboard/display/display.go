@@ -62,6 +62,7 @@ type Board struct {
 	TimeZone      string                    `json:"time_zone,omitempty"`
 	Status        masjidboardruntime.Status `json:"status"`
 	Stale         bool                      `json:"stale"`
+	ShowDetailedJumuah bool                 `json:"show_detailed_jumuah"`
 	Date          Date                      `json:"date"`
 	Prayers       []Prayer                  `json:"prayers,omitempty"`
 	Jumuah        []JumuahService           `json:"jumuah,omitempty"`

@@ -433,7 +433,18 @@
             role.textContent = index === 0
                 ? "Primary · supplies additional daily times"
                 : "Secondary";
-            details.append(name, role, meta);
+            const jumuahOption = document.createElement("label");
+            jumuahOption.className = "selected-board-option";
+            const jumuahToggle = document.createElement("input");
+            jumuahToggle.type = "checkbox";
+            jumuahToggle.checked = board.show_detailed_jumuah !== false;
+            jumuahToggle.setAttribute("aria-label", `Show detailed Jumu'ah schedule for ${board.name || "masjid"}`);
+            jumuahToggle.addEventListener("change", () => {
+                board.show_detailed_jumuah = jumuahToggle.checked;
+                scheduleBoardSave();
+            });
+            jumuahOption.append(jumuahToggle, document.createTextNode(" Detailed Jumu’ah schedule"));
+            details.append(name, role, meta, jumuahOption);
 
             const actions = document.createElement("div");
             actions.className = "selected-board-actions";
@@ -499,6 +510,7 @@
             external_id: record.external_id,
             name: record.name,
             time_zone_offset_ms: record.time_zone_offset_ms,
+            show_detailed_jumuah: true,
         });
         renderBoardConfiguration();
         scheduleBoardSave();
@@ -510,7 +522,10 @@
             jsonRequest(selectionEndpoint),
         ]);
         catalogueRecords = Array.isArray(catalogue.records) ? catalogue.records : [];
-        selectedBoards = Array.isArray(selection.boards) ? selection.boards.slice(0, maxBoards) : [];
+        selectedBoards = Array.isArray(selection.boards) ? selection.boards.slice(0, maxBoards).map(board => ({
+            ...board,
+            show_detailed_jumuah: board.show_detailed_jumuah !== false,
+        })) : [];
         lastSavedBoards = selectedBoards.map(board => ({...board}));
         renderBoardConfiguration();
         setSaveStatus(boardSaveStatus, "Changes are saved automatically.");
@@ -538,7 +553,10 @@
             const response = await jsonRequest(selectionEndpoint, {
                 method: "PUT",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({catalogue_ids: candidate.map(board => board.catalogue_id)}),
+                body: JSON.stringify({
+                    catalogue_ids: candidate.map(board => board.catalogue_id),
+                    detailed_jumuah: Object.fromEntries(candidate.map(board => [board.catalogue_id, board.show_detailed_jumuah !== false])),
+                }),
             });
             lastSavedBoards = Array.isArray(response.boards) ? response.boards.map(board => ({...board})) : candidate;
             if (!boardSavePending) {

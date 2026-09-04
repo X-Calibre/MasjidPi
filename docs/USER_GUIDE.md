@@ -298,6 +298,8 @@ In **Masjids**:
 
 Selected-Masjid additions, removals and ordering are saved automatically. Location-scope changes require the explicit **Save Locations** action because they rebuild the available catalogue.
 
+Each selected masjid has a **Detailed Jumu’ah schedule** option. It is enabled by default and can be disabled independently for a masjid. When enabled and valid details are supplied upstream, an attributed schedule card joins the notice rotation only during the Islamic Friday interval.
+
 In TV / Monitor mode, the first selected masjid supplies the shared Daily Times information. In the 7-inch Appliance Display, each selected masjid receives its own rotating Salaah Times slide, while shared Daily Times come from the first selected masjid.
 
 ![Board Masjids tab showing locations and selected MasjidBoards](images/user-guide/board-masjids-tab.png)
@@ -368,6 +370,7 @@ Depending on available upstream data, Board can show:
 - Gregorian and Islamic dates;
 - next-event countdowns;
 - community announcements and notices; and
+- detailed Friday-only Jumu’ah schedule cards; and
 - optional Islamic Economic Indicators sourced from Jamiatul Ulama South Africa.
 
 Not every masjid supplies every type of content.

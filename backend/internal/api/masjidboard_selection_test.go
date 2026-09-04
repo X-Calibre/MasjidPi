@@ -73,6 +73,42 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	if runtime.state.ShowDailyAyahValue() || !runtime.state.ShowDailyHadithValue() || runtime.state.ShowDailySunnahValue() {
 		t.Fatalf("daily content preferences were not preserved: %+v", runtime.state)
 	}
+	if !runtime.state.Boards[0].ShowDetailedJumuahValue() {
+		t.Fatalf("new board detailed Jumuah preference must default to enabled: %+v", runtime.state.Boards[0])
+	}
+}
+
+func TestMasjidBoardSelectionPUTPersistsDetailedJumuahPreference(t *testing.T) {
+	path := t.TempDir() + "/catalogue.json"
+	now := time.Date(2026, 9, 4, 8, 0, 0, 0, time.UTC)
+	record := masjidboardcatalogue.Record{
+		ID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid",
+		City: "Pretoria", Region: "Gauteng", Country: "South Africa", TimeZoneOffsetMS: 7200000,
+		DiscoveredAt: now, LastSeenAt: now, Status: masjidboardcatalogue.StatusActive,
+	}
+	if err := masjidboardcatalogue.NewStore(path).Save(masjidboardcatalogue.State{Partitions: []masjidboardcatalogue.Partition{{
+		Location: masjidboardcatalogue.Location{Country: "South Africa", Region: "Gauteng", City: "Pretoria"},
+		RetrievedAt: now, ValidatedAt: now, Records: []masjidboardcatalogue.Record{record},
+	}}}); err != nil {
+		t.Fatal(err)
+	}
+
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	root := t.TempDir()
+	server := New(Config{Address: ":0", Frontend: root, PreferencesPath: root + "/preferences.json", Installed: components.Installed{Listen: true, Board: true}}, Dependencies{Logger: logger})
+	server.SetMasjidBoardCataloguePath(path)
+	runtime := &fakeSelectionRuntime{}
+	server.SetMasjidBoardService(runtime)
+
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/selection", strings.NewReader(`{"catalogue_ids":["masjidboardlive:test"],"detailed_jumuah":{"masjidboardlive:test":false}}`))
+	rec := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
+	}
+	if len(runtime.state.Boards) != 1 || runtime.state.Boards[0].ShowDetailedJumuahValue() {
+		t.Fatalf("detailed Jumuah preference was not persisted: %+v", runtime.state.Boards)
+	}
 }
 
 func TestMasjidBoardSelectionPUTRejectsUnknownBoard(t *testing.T) {

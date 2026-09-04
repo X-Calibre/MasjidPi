@@ -368,6 +368,52 @@ body.appliance-layout {
     line-height:1.15;
     text-align:center;
 }
+.appliance-community-jumuah_schedule {
+    text-align:center;
+}
+.appliance-community-jumuah_schedule .appliance-community-title {
+    text-align:center;
+}
+.appliance-jumuah-schedule {
+    flex:1 1 auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+    align-items:center;
+    gap:12px;
+    margin:18px 0 0;
+}
+.appliance-jumuah-event {
+    display:flex;
+    min-width:0;
+    flex-direction:column;
+    gap:8px;
+    padding:16px 8px;
+    border:1px solid var(--appliance-line);
+    border-radius:12px;
+}
+.appliance-jumuah-event span {
+    color:var(--appliance-heading-accent);
+    font-size:20px;
+    font-weight:750;
+}
+.appliance-jumuah-event strong {
+    color:var(--appliance-text);
+    font-size:38px;
+    line-height:1;
+}
+.appliance-community-jumuah_schedule .appliance-community-body {
+    margin-top:14px;
+    text-align:center;
+}
+.appliance-community-jumuah_schedule .appliance-community-source {
+    font-size:20px;
+    font-weight:750;
+    text-align:center;
+}
+.appliance-community-card.compact .appliance-jumuah-schedule { margin-top:10px; gap:8px; }
+.appliance-community-card.compact .appliance-jumuah-event { padding:8px 5px; gap:4px; }
+.appliance-community-card.compact .appliance-jumuah-event span { font-size:15px; }
+.appliance-community-card.compact .appliance-jumuah-event strong { font-size:26px; }
 .appliance-community-salaah_change .appliance-salaah-change-main {
     flex:1 1 auto;
     min-height:0;

@@ -61,6 +61,9 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	if got.Name != "Two Live" || got.Status != masjidboardruntime.StatusCurrent || got.Stale {
 		t.Fatalf("second board = %+v", got)
 	}
+	if !got.ShowDetailedJumuah {
+		t.Fatal("missing detailed Jumuah preference must default to enabled")
+	}
 	if len(got.Prayers) != 5 || got.Prayers[0].Key != "fajr" || got.Prayers[2].Key != "asr" {
 		t.Fatalf("prayers = %+v", got.Prayers)
 	}

@@ -36,7 +36,10 @@ type Board struct {
 	ExternalID       string `json:"external_id"`
 	Name             string `json:"name"`
 	TimeZoneOffsetMS int64  `json:"time_zone_offset_ms"`
+	ShowDetailedJumuah *bool `json:"show_detailed_jumuah,omitempty"`
 }
+
+func (b Board) ShowDetailedJumuahValue() bool { return enabledByDefault(b.ShowDetailedJumuah) }
 
 // State is the ordered set of boards selected by the user. Order is
 // significant and is preserved for display/UI purposes. Display profile is a
@@ -148,6 +151,9 @@ func cloneState(state State) State {
 	copy := state
 	if state.Boards != nil {
 		copy.Boards = append([]Board(nil), state.Boards...)
+		for index := range copy.Boards {
+			copy.Boards[index].ShowDetailedJumuah = cloneBool(state.Boards[index].ShowDetailedJumuah)
+		}
 	}
 	copy.ShowDailyAyah = cloneBool(state.ShowDailyAyah)
 	copy.ShowDailyHadith = cloneBool(state.ShowDailyHadith)

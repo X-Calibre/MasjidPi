@@ -5,7 +5,7 @@
     if (params.get("profile") === "appliance") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
-    const {collectCommunityItems, dailyIslamicItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
@@ -128,7 +128,7 @@
     }
 
     function isDetailedCommunityItem(item) {
-        return plainText(item.body).length > 180 || orderedFields(item).length > 5;
+        return item.type === "jumuah_schedule" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
     }
 
     function packCommunityPages(items) {
@@ -188,6 +188,15 @@
 		const title = makeElement("h2", "detailed-community-title", item.title);
 		title.dir = "auto";
 		card.append(title);
+		if (item.type === "jumuah_schedule") {
+			const schedule = makeElement("div", "detailed-jumuah-schedule");
+			for (const event of item.schedule || []) {
+				const column = makeElement("div", "detailed-jumuah-event");
+				column.append(makeElement("span", "", event.heading), makeElement("strong", "", event.time));
+				schedule.append(column);
+			}
+			card.append(schedule);
+		}
 		if (item.type === "daily_ayah" && plainText(item.fields.ayah_number)) {
 			card.append(makeElement("div", "detailed-daily-ayah-number", plainText(item.fields.ayah_number)));
 		}
@@ -272,6 +281,7 @@
             return;
         }
 		const items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
+		items.unshift(...detailedJumuahItems(boards, displayNow(), dateUtils.isIslamicFriday));
 		items.push(...dailyIslamicItems(dailyContent));
 		const economicItem = economicCommunityItem(indicators);
 		if (economicItem) items.push(economicItem);

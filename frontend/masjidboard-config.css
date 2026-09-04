@@ -116,6 +116,15 @@
 }
 .selected-board-details small { color: var(--subtle); }
 .selected-board-details small.board-outside-scope { color: var(--warning); }
+.selected-board-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    color: var(--text);
+    font-size: 13px;
+}
+.selected-board-option input { margin: 0; }
 .selected-board-actions {
     display: flex;
     align-items: center;

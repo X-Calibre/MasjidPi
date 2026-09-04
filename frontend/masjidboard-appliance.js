@@ -9,7 +9,7 @@
     document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, dailyIslamicItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("applianceState");
     const slidesHost = document.getElementById("applianceSlides");
     const dotsHost = document.getElementById("applianceDots");
@@ -154,6 +154,15 @@
 		const title = element("h2", "appliance-community-title", item.title);
 		title.dir = "auto";
 		card.append(title);
+		if (item.type === "jumuah_schedule") {
+			const schedule = element("div", "appliance-jumuah-schedule");
+			for (const event of item.schedule || []) {
+				const column = element("div", "appliance-jumuah-event");
+				column.append(element("span", "", event.heading), element("strong", "", event.time));
+				schedule.append(column);
+			}
+			card.append(schedule);
+		}
 		if (item.type === "daily_ayah" && plainText(item.fields.ayah_number)) {
 			card.append(element("div", "appliance-daily-ayah-number", plainText(item.fields.ayah_number)));
 		}
@@ -315,6 +324,7 @@
         const communityItems = useCommunityFixtures
             ? fixtureCommunityItems(communityFixtureMode)
             : collectCommunityItems(boards);
+        communityItems.unshift(...detailedJumuahItems(boards, utils.displayNow(), dateUtils.isIslamicFriday));
         slides.push(...communitySlides(communityItems));
         const indicatorsSlide = economicSlide(indicators);
         if (indicatorsSlide) slides.push(indicatorsSlide);

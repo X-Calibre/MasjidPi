@@ -228,6 +228,47 @@ html.landscape-layout {
     line-height:1.15;
     text-align:center;
 }
+.detailed-community-jumuah_schedule {
+    text-align:center;
+}
+.detailed-community-jumuah_schedule .detailed-community-title {
+    text-align:center;
+}
+.detailed-jumuah-schedule {
+    flex:1 1 auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    align-items:center;
+    gap:clamp(10px,1vw,16px);
+    margin-top:clamp(14px,1.4vh,20px);
+}
+.detailed-jumuah-event {
+    display:flex;
+    min-width:0;
+    flex-direction:column;
+    gap:clamp(5px,.55vh,8px);
+    padding:clamp(12px,1.2vw,18px) 8px;
+    border:1px solid var(--line);
+    border-radius:calc(var(--radius) * .7);
+}
+.detailed-jumuah-event span {
+    color:var(--accent);
+    font-size:clamp(1rem,1.15vw,1.35rem);
+    font-weight:740;
+}
+.detailed-jumuah-event strong {
+    color:var(--text);
+    font-size:clamp(2rem,2.8vw,3.2rem);
+    line-height:1;
+}
+.detailed-community-jumuah_schedule .detailed-community-body,
+.detailed-community-jumuah_schedule .detailed-community-source {
+    text-align:center;
+}
+.detailed-community-jumuah_schedule .detailed-community-source {
+    margin-top:auto;
+    font-weight:750;
+}
 .detailed-community-salaah_change .salaah-change-main {
     flex:1 1 auto;
     min-height:0;

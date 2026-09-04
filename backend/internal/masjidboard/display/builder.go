@@ -37,6 +37,7 @@ func BuildAt(configured bool, selected selection.State, results []masjidboardrun
 			CatalogueID: selectedBoard.CatalogueID,
 			Name:        selectedBoard.Name,
 			Status:      masjidboardruntime.StatusUnavailable,
+			ShowDetailedJumuah: selectedBoard.ShowDetailedJumuahValue(),
 		}
 
 		result, ok := byID[selectedBoard.CatalogueID]

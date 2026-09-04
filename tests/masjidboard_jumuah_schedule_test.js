@@ -9,6 +9,8 @@ const root = path.resolve(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "frontend/masjidboard-community-utils.js"), "utf8");
 const applianceCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.css"), "utf8");
 const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.css"), "utf8");
+const applianceJS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.js"), "utf8");
+const landscapeJS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.js"), "utf8");
 
 class TestDOMParser {
     parseFromString(value) {
@@ -56,5 +58,9 @@ assert.deepEqual(Array.from(fallback[0].schedule, event => `${event.heading}:${e
 
 assert.match(applianceCSS, /compact\.appliance-community-jumuah_schedule \.appliance-community-source\s*\{[^}]*font-size:26px/s);
 assert.match(landscapeCSS, /\.detailed-community-jumuah_schedule \.detailed-community-source\s*\{[^}]*font-size:clamp\(1\.35rem,1\.55vw,1\.7rem\)/s);
+for (const renderer of [applianceJS, landscapeJS]) {
+    assert.match(renderer, /params\.get\("jumuah-fixture"\) === "khateeb"/);
+    assert.match(renderer, /item\.body = "Khateeb: To be announced"/);
+}
 
 console.log("MasjidBoard detailed Jumu'ah schedule tests passed");

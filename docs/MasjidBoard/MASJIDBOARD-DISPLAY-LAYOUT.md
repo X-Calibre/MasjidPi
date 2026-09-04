@@ -75,6 +75,8 @@ Duplicate events resolving to the same visible Adhan or Salaah time are suppress
 
 Each selected masjid also contributes a detailed Jumu'ah notice card during this interval when its default-enabled per-masjid option is active. The card preserves the provider's configured event headings and times, includes optional Khateeb or explanatory text, and uses dedicated Jumu'ah Adhan/Salaah values only when they add information not already represented by the detailed events. Outside the Islamic Friday interval, the card is omitted from both display profiles.
 
+For visual validation only, `jumuah-fixture=khateeb` adds representative Khateeb text to the generated card in a browser preview. It does not modify the provider response, cache or saved selection.
+
 ## Standard profile presentation
 
 The standard profile is the normal responsive TV/monitor presentation. It supports one to three selected masjids and scales from smaller landscape displays through Full HD and 4K while preserving the same information hierarchy.

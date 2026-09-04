@@ -5,6 +5,7 @@
     if (params.get("profile") !== "appliance") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
+    const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
 
     document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
@@ -324,7 +325,11 @@
         const communityItems = useCommunityFixtures
             ? fixtureCommunityItems(communityFixtureMode)
             : collectCommunityItems(boards);
-        communityItems.unshift(...detailedJumuahItems(boards, utils.displayNow(), dateUtils.isIslamicFriday));
+        const jumuahItems = detailedJumuahItems(boards, utils.displayNow(), dateUtils.isIslamicFriday);
+        if (useJumuahKhateebFixture) {
+            for (const item of jumuahItems) item.body = "Khateeb: To be announced";
+        }
+        communityItems.unshift(...jumuahItems);
         slides.push(...communitySlides(communityItems));
         const indicatorsSlide = economicSlide(indicators);
         if (indicatorsSlide) slides.push(indicatorsSlide);

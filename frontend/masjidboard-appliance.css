@@ -375,7 +375,7 @@ body.appliance-layout {
     text-align:center;
 }
 .appliance-jumuah-schedule {
-    flex:1 1 auto;
+    flex:0 0 auto;
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
     align-items:center;
@@ -402,7 +402,9 @@ body.appliance-layout {
     line-height:1;
 }
 .appliance-community-jumuah_schedule .appliance-community-body {
-    margin-top:14px;
+    margin-top:12px;
+    font-size:24px;
+    line-height:1.25;
     text-align:center;
 }
 .appliance-community-jumuah_schedule .appliance-community-source {
@@ -411,10 +413,15 @@ body.appliance-layout {
     line-height:1.15;
     text-align:center;
 }
-.appliance-community-card.compact .appliance-jumuah-schedule { margin-top:10px; gap:8px; }
+.appliance-community-card.compact .appliance-jumuah-schedule { margin-top:48px; gap:8px; }
 .appliance-community-card.compact .appliance-jumuah-event { padding:8px 5px; gap:4px; }
 .appliance-community-card.compact .appliance-jumuah-event span { font-size:15px; }
 .appliance-community-card.compact .appliance-jumuah-event strong { font-size:26px; }
+.appliance-community-card.compact.appliance-community-jumuah_schedule .appliance-community-body {
+    margin-top:12px;
+    font-size:22px;
+    line-height:1.2;
+}
 .appliance-community-card.compact.appliance-community-jumuah_schedule .appliance-community-source {
     font-size:26px;
     line-height:1.15;

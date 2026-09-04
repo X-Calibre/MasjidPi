@@ -57,6 +57,8 @@ const fallback = detailedJumuahItems([{
 assert.deepEqual(Array.from(fallback[0].schedule, event => `${event.heading}:${event.time}`), ["Adhan:12:30", "Salaah:13:00"]);
 
 assert.match(applianceCSS, /compact\.appliance-community-jumuah_schedule \.appliance-community-source\s*\{[^}]*font-size:26px/s);
+assert.match(applianceCSS, /compact\.appliance-community-jumuah_schedule \.appliance-community-body\s*\{[^}]*font-size:22px/s);
+assert.match(applianceCSS, /compact \.appliance-jumuah-schedule\s*\{[^}]*margin-top:48px/s);
 assert.match(landscapeCSS, /\.detailed-community-jumuah_schedule \.detailed-community-source\s*\{[^}]*font-size:clamp\(1\.35rem,1\.55vw,1\.7rem\)/s);
 for (const renderer of [applianceJS, landscapeJS]) {
     assert.match(renderer, /params\.get\("jumuah-fixture"\) === "khateeb"/);

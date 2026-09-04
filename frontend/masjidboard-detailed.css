@@ -235,7 +235,7 @@ html.landscape-layout {
     text-align:center;
 }
 .detailed-jumuah-schedule {
-    flex:1 1 auto;
+    flex:0 0 auto;
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
     align-items:center;
@@ -264,6 +264,11 @@ html.landscape-layout {
 .detailed-community-jumuah_schedule .detailed-community-body,
 .detailed-community-jumuah_schedule .detailed-community-source {
     text-align:center;
+}
+.detailed-community-jumuah_schedule .detailed-community-body {
+    margin-top:clamp(10px,1vh,14px);
+    font-size:clamp(1.15rem,1.3vw,1.5rem);
+    line-height:1.25;
 }
 .detailed-community-jumuah_schedule .detailed-community-source {
     margin-top:auto;

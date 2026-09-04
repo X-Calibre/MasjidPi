@@ -6,6 +6,8 @@
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
+    const displayUtils = window.MasjidBoardDisplayUtils;
+    const dateUtils = window.MasjidBoardDate;
     const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
@@ -282,7 +284,7 @@
             return;
         }
 		const items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
-		const jumuahItems = detailedJumuahItems(boards, displayNow(), dateUtils.isIslamicFriday);
+		const jumuahItems = detailedJumuahItems(boards, displayUtils.displayNow(), dateUtils.isIslamicFriday);
 		if (useJumuahKhateebFixture) {
 			for (const item of jumuahItems) item.body = "Khateeb: To be announced";
 		}

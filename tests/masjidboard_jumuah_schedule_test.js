@@ -64,5 +64,9 @@ for (const renderer of [applianceJS, landscapeJS]) {
     assert.match(renderer, /params\.get\("jumuah-fixture"\) === "khateeb"/);
     assert.match(renderer, /item\.body = "Khateeb: To be announced"/);
 }
+assert.match(landscapeJS, /const displayUtils = window\.MasjidBoardDisplayUtils/);
+assert.match(landscapeJS, /const dateUtils = window\.MasjidBoardDate/);
+assert.match(landscapeJS, /detailedJumuahItems\(boards, displayUtils\.displayNow\(\), dateUtils\.isIslamicFriday\)/);
+assert.doesNotMatch(landscapeJS, /detailedJumuahItems\(boards, displayNow\(\)/);
 
 console.log("MasjidBoard detailed Jumu'ah schedule tests passed");

@@ -406,14 +406,19 @@ body.appliance-layout {
     text-align:center;
 }
 .appliance-community-jumuah_schedule .appliance-community-source {
-    font-size:20px;
+    font-size:26px;
     font-weight:750;
+    line-height:1.15;
     text-align:center;
 }
 .appliance-community-card.compact .appliance-jumuah-schedule { margin-top:10px; gap:8px; }
 .appliance-community-card.compact .appliance-jumuah-event { padding:8px 5px; gap:4px; }
 .appliance-community-card.compact .appliance-jumuah-event span { font-size:15px; }
 .appliance-community-card.compact .appliance-jumuah-event strong { font-size:26px; }
+.appliance-community-card.compact.appliance-community-jumuah_schedule .appliance-community-source {
+    font-size:26px;
+    line-height:1.15;
+}
 .appliance-community-salaah_change .appliance-salaah-change-main {
     flex:1 1 auto;
     min-height:0;

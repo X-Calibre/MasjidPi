@@ -7,6 +7,8 @@ const vm = require("node:vm");
 
 const root = path.resolve(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "frontend/masjidboard-community-utils.js"), "utf8");
+const applianceCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.css"), "utf8");
+const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.css"), "utf8");
 
 class TestDOMParser {
     parseFromString(value) {
@@ -51,5 +53,8 @@ const fallback = detailedJumuahItems([{
     jumuah: [{adhan: {hour: 12, minute: 30}, jamaah: {hour: 13, minute: 0}}],
 }], new Date(), () => true);
 assert.deepEqual(Array.from(fallback[0].schedule, event => `${event.heading}:${event.time}`), ["Adhan:12:30", "Salaah:13:00"]);
+
+assert.match(applianceCSS, /compact\.appliance-community-jumuah_schedule \.appliance-community-source\s*\{[^}]*font-size:26px/s);
+assert.match(landscapeCSS, /\.detailed-community-jumuah_schedule \.detailed-community-source\s*\{[^}]*font-size:clamp\(1\.35rem,1\.55vw,1\.7rem\)/s);
 
 console.log("MasjidBoard detailed Jumu'ah schedule tests passed");

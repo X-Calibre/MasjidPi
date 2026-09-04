@@ -267,7 +267,9 @@ html.landscape-layout {
 }
 .detailed-community-jumuah_schedule .detailed-community-source {
     margin-top:auto;
+    font-size:clamp(1.35rem,1.55vw,1.7rem);
     font-weight:750;
+    line-height:1.15;
 }
 .detailed-community-salaah_change .salaah-change-main {
     flex:1 1 auto;

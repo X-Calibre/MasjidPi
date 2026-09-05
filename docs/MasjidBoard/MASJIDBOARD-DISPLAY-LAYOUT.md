@@ -125,7 +125,7 @@ These controls deliberately do not expose full catalogue search, board/location 
 
 Theme, slide duration, Islamic Economic Indicators visibility and the optional Dua-after-Adhan card are shared saved display preferences. They are independent of the automatically selected display profile.
 
-The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for ten minutes after a listed timetable Adhan in the board's timezone, is attributed to MasjidPi and disappears at the end of the window without requiring a new provider refresh.
+The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for five minutes from a listed timetable Adhan in the board's timezone and disappears at the end of the window without requiring a new provider refresh. It is built-in content and therefore omits the source attribution used by masjid notices. It is priority content: Appliance suspends its normal slideshow on the full-screen card, while Landscape gives it the complete notice column and suppresses other cards for the five-minute window.
 
 Changing a theme therefore affects both standard and Appliance presentations. Selecting an Appliance profile is never a saved user preference.
 

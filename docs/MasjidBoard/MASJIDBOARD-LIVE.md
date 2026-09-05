@@ -526,7 +526,7 @@ The existing captures contain the following information:
 | Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Parsed, exposed and displayed when active |
 | New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Parsed and displayed only when the upstream moon-information flag is active; never labelled as a confirmed sighting |
 
-The public Premium webpage also contains static presentation blocks for a cellphone reminder and the Arabic/translated Dua after Adhan. They are webpage chrome, not per-masjid payload fields. MasjidPi does not import the cellphone reminder. It provides its own optional, bilingual and MasjidPi-attributed Dua card for ten minutes after each listed timetable Adhan instead.
+The public Premium webpage also contains static presentation blocks for a cellphone reminder and the Arabic/translated Dua after Adhan. They are webpage chrome, not per-masjid payload fields. MasjidPi does not import the cellphone reminder. It provides its own optional bilingual priority card for five minutes from each listed timetable Adhan instead; as built-in content, the card has no visible source attribution.
 
 ### What is already implemented
 

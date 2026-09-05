@@ -62,6 +62,7 @@
 
     const duaAfterAdhanArabic = "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ";
     const duaAfterAdhanTranslation = "O Allah, Lord of this perfect call and established prayer, grant Muhammad the Wasilah and virtue, and raise him to the praised position You have promised him.";
+    const duaAfterAdhanWindowMinutes = 5;
 
     function boardLocalMinutes(board, now) {
         const timezone = String(board && board.time_zone || "").trim();
@@ -95,7 +96,7 @@
         };
     }
 
-    function duaAfterAdhanItem(boards, now, enabled, windowMinutes = 10, force = false) {
+    function duaAfterAdhanItem(boards, now, enabled, windowMinutes = duaAfterAdhanWindowMinutes, force = false) {
         if (!enabled || !now || typeof now.getTime !== "function" || Number.isNaN(now.getTime())) return null;
         if (force) return duaAfterAdhanContent();
         for (const board of Array.isArray(boards) ? boards : []) {
@@ -446,6 +447,7 @@
 		dailyIslamicItems,
         detailedJumuahItems,
 		duaAfterAdhanItem,
+        duaAfterAdhanWindowMinutes,
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,

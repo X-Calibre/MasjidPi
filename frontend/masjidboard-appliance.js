@@ -11,7 +11,7 @@
     document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, duaAfterAdhanItem, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("applianceState");
     const slidesHost = document.getElementById("applianceSlides");
     const dotsHost = document.getElementById("applianceDots");
@@ -203,9 +203,11 @@
             }
             card.append(list);
         }
-        const source = element("div", "appliance-community-source", "Source: " + item.source);
-        source.dir = "auto";
-        card.append(source);
+        if (item.type !== "dua_after_adhan") {
+            const source = element("div", "appliance-community-source", "Source: " + item.source);
+            source.dir = "auto";
+            card.append(source);
+        }
         return card;
     }
 
@@ -327,23 +329,26 @@
     function renderSlides(boards, indicators, dailyContent, showDuaAfterAdhan) {
         slidesHost.replaceChildren();
         dotsHost.replaceChildren();
-        slides = boards.map(salaahSlide);
-        if (boards[0] && dailyItems(boards[0]).length > 0) slides.push(dailySlide(boards[0]));
-		for (const item of dailyIslamicItems(dailyContent)) slides.push(communitySlide([item]));
-        const communityItems = useCommunityFixtures
-            ? fixtureCommunityItems(communityFixtureMode)
-            : collectCommunityItems(boards);
-        const jumuahItems = detailedJumuahItems(boards, utils.displayNow(), dateUtils.isIslamicFriday);
-        if (useJumuahKhateebFixture) {
-            for (const item of jumuahItems) item.body = "Khateeb: To be announced";
-        }
-        communityItems.unshift(...jumuahItems);
-        const duaItem = duaAfterAdhanItem(boards, utils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, 10, useDuaAfterAdhanFixture);
+        const duaItem = duaAfterAdhanItem(boards, utils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
         duaAfterAdhanVisible = Boolean(duaItem);
-        if (duaItem) communityItems.unshift(duaItem);
-        slides.push(...communitySlides(communityItems));
-        const indicatorsSlide = economicSlide(indicators);
-        if (indicatorsSlide) slides.push(indicatorsSlide);
+        if (duaItem) {
+            slides = [communitySlide([duaItem])];
+        } else {
+            slides = boards.map(salaahSlide);
+            if (boards[0] && dailyItems(boards[0]).length > 0) slides.push(dailySlide(boards[0]));
+			for (const item of dailyIslamicItems(dailyContent)) slides.push(communitySlide([item]));
+            const communityItems = useCommunityFixtures
+                ? fixtureCommunityItems(communityFixtureMode)
+                : collectCommunityItems(boards);
+            const jumuahItems = detailedJumuahItems(boards, utils.displayNow(), dateUtils.isIslamicFriday);
+            if (useJumuahKhateebFixture) {
+                for (const item of jumuahItems) item.body = "Khateeb: To be announced";
+            }
+            communityItems.unshift(...jumuahItems);
+            slides.push(...communitySlides(communityItems));
+            const indicatorsSlide = economicSlide(indicators);
+            if (indicatorsSlide) slides.push(indicatorsSlide);
+        }
         slides.forEach((slide, index) => {
             slidesHost.append(slide);
             const dot = element("button", "", "");
@@ -376,7 +381,7 @@
             boards,
             now,
             latestView.show_dua_after_adhan || useDuaAfterAdhanFixture,
-            10,
+            duaAfterAdhanWindowMinutes,
             useDuaAfterAdhanFixture,
         ));
         if (duaVisibleNow !== duaAfterAdhanVisible) {

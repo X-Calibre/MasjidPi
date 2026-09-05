@@ -379,7 +379,7 @@ Not every masjid supplies every type of content.
 
 Notice cards identify their upstream masjid with **Source:**. Islamic Economic Indicators retain their own Jamiat attribution and update information.
 
-The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidPi shows its own Arabic-and-English card for ten minutes after any listed Adhan time, using the selected masjid's timezone. The card is attributed to MasjidPi because it is not supplied by the selected masjid.
+The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidPi shows its own Arabic-and-English card for five minutes from any listed Adhan time, using the selected masjid's timezone. During this priority window, the Appliance card remains continuously visible and the Landscape card occupies the complete notice column; ordinary slides or notice cards resume automatically afterward. The card does not show a source attribution because it is built-in MasjidPi content rather than a selected masjid notice.
 
 Arabic and mixed-language notices use automatic text direction. MasjidPi treats upstream notice headings conservatively: only recognised Salaah-change, class-time, weekly-programme and Ramadan/Taraweeh headings receive a specialised label; other text remains a general announcement.
 

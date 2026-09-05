@@ -22,7 +22,7 @@ class TestDOMParser {
 
 const context = {window: {}, DOMParser: TestDOMParser};
 vm.runInNewContext(utilitySource, context);
-const {collectCommunityItems, duaAfterAdhanItem, orderedFields} = context.window.MasjidBoardCommunityUtils;
+const {collectCommunityItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, orderedFields} = context.window.MasjidBoardCommunityUtils;
 
 const announcements = collectCommunityItems([{
     name: "Test Masjid",
@@ -45,23 +45,24 @@ const board = {
     prayers: [{key: "fajr", adhan: {hour: 5, minute: 30}}],
 };
 assert.equal(duaAfterAdhanItem([board], new Date("2026-09-05T03:35:00Z"), false), null);
-const dua = duaAfterAdhanItem([board], new Date("2026-09-05T03:35:00Z"), true);
+assert.equal(duaAfterAdhanWindowMinutes, 5);
+const dua = duaAfterAdhanItem([board], new Date("2026-09-05T03:34:00Z"), true);
 assert.equal(dua.type, "dua_after_adhan");
 assert.equal(dua.source, "MasjidPi");
 assert.match(dua.fields.arabic, /اللَّهُمَّ/);
 assert.match(dua.fields.translation, /^O Allah/);
 assert.deepEqual(Array.from(orderedFields(dua), field => field.label), ["Arabic", "Translation", "Note"]);
-assert.equal(duaAfterAdhanItem([board], new Date("2026-09-05T03:40:00Z"), true), null, "ten-minute display window must be exclusive at its end");
+assert.equal(duaAfterAdhanItem([board], new Date("2026-09-05T03:35:00Z"), true), null, "five-minute display window must be exclusive at its end");
 const midnightBoard = {
     time_zone: "UTC",
     prayers: [{key: "esha", adhan: {hour: 23, minute: 58}}],
 };
-assert.equal(duaAfterAdhanItem([midnightBoard], new Date("2026-09-06T00:04:00Z"), true).type, "dua_after_adhan", "the window must continue through local midnight");
+assert.equal(duaAfterAdhanItem([midnightBoard], new Date("2026-09-06T00:02:00Z"), true).type, "dua_after_adhan", "the window must continue through local midnight");
 const fixedOffsetBoard = {
     time_zone: "GMT+10:00",
     prayers: [{key: "fajr", adhan: {hour: 5, minute: 30}}],
 };
-assert.equal(duaAfterAdhanItem([fixedOffsetBoard], new Date("2026-09-05T19:35:00Z"), true).type, "dua_after_adhan", "provider GMT offsets must not fall back to the browser timezone");
+assert.equal(duaAfterAdhanItem([fixedOffsetBoard], new Date("2026-09-05T19:34:00Z"), true).type, "dua_after_adhan", "provider GMT offsets must not fall back to the browser timezone");
 assert.equal(duaAfterAdhanItem([], new Date("2026-09-05T03:40:00Z"), true, 10, true).type, "dua_after_adhan");
 
 for (const renderer of [applianceJS, landscapeJS]) {
@@ -74,8 +75,12 @@ for (const renderer of [applianceJS, landscapeJS]) {
 assert.match(applianceCSS, /\[dir="rtl"\]/);
 assert.match(landscapeCSS, /\[dir="rtl"\]/);
 assert.match(landscapeJS, /item\.type === "dua_after_adhan"/, "the Landscape Dua card must reserve a detailed-content slot");
+assert.match(landscapeJS, /items = \[duaItem\]/, "the Landscape Dua card must override all other cards");
+assert.match(applianceJS, /slides = \[communitySlide\(\[duaItem\]\)\]/, "the Appliance Dua card must suspend all other slides");
+assert.match(landscapeJS, /item\.type !== "dua_after_adhan"/, "Landscape must omit Dua source attribution");
+assert.match(applianceJS, /item\.type !== "dua_after_adhan"/, "Appliance must omit Dua source attribution");
 assert.match(displayJS, /window\.MasjidBoardCurrentView = view/, "the base renderer must retain the latest view for late layout modules");
 assert.match(landscapeJS, /if \(window\.MasjidBoardCurrentView\) refresh\(window\.MasjidBoardCurrentView\)/, "Landscape must replay an already-fetched view");
-assert.match(html, /masjidboard-community-utils\.js\?v=20260905-section10/, "Section 10 assets must use a new cache key");
+assert.match(html, /masjidboard-community-utils\.js\?v=20260905-dua-priority/, "Dua priority assets must use a new cache key");
 
 console.log("MasjidBoard Section 10 community-content tests passed");

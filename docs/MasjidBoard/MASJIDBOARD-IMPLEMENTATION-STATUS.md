@@ -142,7 +142,7 @@ The Section 10 community-content review is implemented with these decisions:
 | Salaah-time and class-time changes | Structured future Salaah changes retain their dedicated model; recognised announcement headings receive conservative Salaah-change or class-time labels. |
 | Weekly and Ramadan/Taraweeh programmes | Recognised headings receive weekly-programme or Ramadan-programme labels without attempting to infer categories from body prose. |
 | Arabic-language notice | Unicode content is preserved, sanitised and rendered with automatic RTL/mixed-direction handling. |
-| Dua after Adhan | Optional MasjidPi-owned bilingual card, disabled by default and shown for ten minutes after a listed Adhan in the masjid timezone. |
+| Dua after Adhan | Optional MasjidPi-owned bilingual priority card, disabled by default and shown for five minutes from a listed Adhan in the masjid timezone. It temporarily supersedes ordinary Appliance slides or Landscape notice cards. |
 | Requests for dua / names 1–10 | Row 21 names are the upstream sickness/well-wishes module and render through the existing dedicated well-wishes card; no duplicate named-person model is created. |
 | Funeral, Nikah and structured Eid | Parsed and displayed as dedicated structured categories. |
 | Taleem and Jamaat programmes | Parsed and displayed as Taleem, Dawah/Gasht and three-day Jamaat categories. |

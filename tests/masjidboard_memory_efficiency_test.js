@@ -24,6 +24,6 @@ assert.equal(
 );
 
 assert.match(html, /masjidboard-display\.js\?v=20260905-view-replay/);
-assert.match(html, /masjidboard-detailed\.js\?v=20260905-view-replay/);
+assert.match(html, /masjidboard-detailed\.js\?v=20260905-dua-priority/);
 
 console.log("MasjidBoard memory efficiency tests passed");

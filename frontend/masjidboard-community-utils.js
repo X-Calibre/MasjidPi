@@ -86,35 +86,11 @@
         }
     }
 
-    function boardLocalWeekday(board, now) {
-        const timezone = String(board && board.time_zone || "").trim();
-        const fixedOffset = timezone.match(/^(?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?$/i);
-        if (fixedOffset) {
-            const sign = fixedOffset[1] === "-" ? -1 : 1;
-            const offset = fixedOffset[1]
-                ? sign * (Number(fixedOffset[2]) * 60 + Number(fixedOffset[3] || 0))
-                : 0;
-            return new Date(now.getTime() + offset * 60_000).getUTCDay();
-        }
-        try {
-            const weekday = new Intl.DateTimeFormat("en-US", {
-                timeZone: timezone || undefined, weekday: "short",
-            }).format(now);
-            return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(weekday);
-        } catch (_) {
-            return now.getDay();
-        }
-    }
-
-    function specialDhuhrItem(board, now) {
+    function specialDhuhrItem(board) {
         const special = board && board.special_dhuhr;
         const time = special && special.time;
         const label = plainText(special && special.label);
         if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute) || !label) return null;
-        const semantic = label.toLowerCase();
-        const everyday = /\bevery\s*day\b|\beveryday\b|\bdaily\b/.test(semantic);
-        const sunday = /\bsundays?\b/.test(semantic);
-        if (!everyday && !(sunday && boardLocalWeekday(board, now) === 0)) return null;
         return {label: `Dhuhr ${label}`, time};
     }
 

@@ -78,7 +78,7 @@
             add("Zawaal / Istiwa", zawaalStart, range);
         }
 
-        const specialDhuhr = specialDhuhrItem(board, utils.displayNow());
+        const specialDhuhr = specialDhuhrItem(board);
         if (specialDhuhr) add(specialDhuhr.label, specialDhuhr.time);
 
         add("Asr Shafi‘i", astronomical.asr_shafii);

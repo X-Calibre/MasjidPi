@@ -8,13 +8,14 @@
     const slideDuration = document.getElementById("slideDuration");
     const slideDurationValue = document.getElementById("slideDurationValue");
     const showEconomicIndicators = document.getElementById("showEconomicIndicators");
+    const showDuaAfterAdhan = document.getElementById("showDuaAfterAdhan");
     const dailyContentInputs = {
         show_daily_ayah: document.getElementById("showDailyAyah"),
         show_daily_hadith: document.getElementById("showDailyHadith"),
         show_daily_sunnah: document.getElementById("showDailySunnah"),
     };
 
-    if (!saveStatus || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators ||
+    if (!saveStatus || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators || !showDuaAfterAdhan ||
         Object.values(dailyContentInputs).some((input) => !input) || themeInputs.length === 0) return;
 
     let lastSavedState = null;
@@ -64,6 +65,7 @@
             show_daily_ayah: !state || state.show_daily_ayah !== false,
             show_daily_hadith: !state || state.show_daily_hadith !== false,
             show_daily_sunnah: !state || state.show_daily_sunnah !== false,
+            show_dua_after_adhan: Boolean(state && state.show_dua_after_adhan),
         };
     }
 
@@ -75,6 +77,7 @@
             show_daily_ayah: dailyContentInputs.show_daily_ayah.checked,
             show_daily_hadith: dailyContentInputs.show_daily_hadith.checked,
             show_daily_sunnah: dailyContentInputs.show_daily_sunnah.checked,
+            show_dua_after_adhan: showDuaAfterAdhan.checked,
         });
     }
 
@@ -82,6 +85,7 @@
         setTheme(state.theme);
         slideDuration.value = String(state.slide_duration_seconds);
         showEconomicIndicators.checked = state.show_economic_indicators;
+        showDuaAfterAdhan.checked = state.show_dua_after_adhan;
         for (const [key, input] of Object.entries(dailyContentInputs)) input.checked = state[key];
         updateDurationLabel();
         meta.textContent = describe(state.theme);
@@ -95,6 +99,7 @@
     async function load() {
         slideDuration.disabled = true;
         showEconomicIndicators.disabled = true;
+        showDuaAfterAdhan.disabled = true;
         for (const input of Object.values(dailyContentInputs)) input.disabled = true;
         for (const input of themeInputs) input.disabled = true;
         try {
@@ -107,6 +112,7 @@
         } finally {
             slideDuration.disabled = false;
             showEconomicIndicators.disabled = false;
+            showDuaAfterAdhan.disabled = false;
             for (const input of Object.values(dailyContentInputs)) input.disabled = false;
             for (const input of themeInputs) input.disabled = false;
         }
@@ -145,6 +151,7 @@
     slideDuration.addEventListener("input", updateDurationLabel);
     slideDuration.addEventListener("change", saveAutomatically);
     showEconomicIndicators.addEventListener("change", saveAutomatically);
+    showDuaAfterAdhan.addEventListener("change", saveAutomatically);
     for (const input of Object.values(dailyContentInputs)) input.addEventListener("change", saveAutomatically);
     for (const input of themeInputs) input.addEventListener("change", () => { meta.textContent = describe(selectedTheme()); saveAutomatically(); });
     load();

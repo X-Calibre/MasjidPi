@@ -27,10 +27,11 @@ func BuildAt(configured bool, selected selection.State, results []masjidboardrun
 	}
 
 	view := View{
-		Configured:    configured,
-		Theme:         selected.EffectiveTheme(),
-		SlideDuration: selected.EffectiveSlideDurationSeconds(),
-		Boards:        make([]Board, 0, len(selected.Boards)),
+		Configured:        configured,
+		Theme:             selected.EffectiveTheme(),
+		SlideDuration:     selected.EffectiveSlideDurationSeconds(),
+		ShowDuaAfterAdhan: selected.ShowDuaAfterAdhanValue(),
+		Boards:            make([]Board, 0, len(selected.Boards)),
 	}
 	for _, selectedBoard := range selected.Boards {
 		item := Board{
@@ -130,7 +131,7 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 		out.Announcements = make([]Announcement, 0, len(board.Announcements))
 		for _, announcement := range board.Announcements {
 			out.Announcements = append(out.Announcements, Announcement{
-				Title: announcement.Title, Content: announcement.Content,
+				Category: announcement.Category, Title: announcement.Title, Content: announcement.Content,
 			})
 		}
 	}

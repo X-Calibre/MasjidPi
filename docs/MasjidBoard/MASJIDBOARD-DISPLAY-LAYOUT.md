@@ -96,7 +96,7 @@ Sunset
 Esha start
 ```
 
-When Premium enrichment is available, the standard presentation also shows rotating community information such as announcements, Nikah, funerals, Salaah changes, new-moon information and Islamic Economic Indicators.
+When Premium enrichment is available, the standard presentation also shows rotating community information such as announcements, class-time changes, weekly and Ramadan programmes, Nikah, funerals, Eid, Taleem/Jamaat programmes, contributions, well-wishes, Salaah changes, new-moon information and Islamic Economic Indicators. Recognised announcement headings receive a semantic card label; unknown headings remain ordinary announcements instead of being classified from free-form prose. Arabic and mixed-language fields use automatic text direction.
 
 The standard profile contains no appliance Listen controls.
 
@@ -123,7 +123,9 @@ These controls deliberately do not expose full catalogue search, board/location 
 
 ## Themes and optional information
 
-Theme, slide duration and Islamic Economic Indicators visibility are shared saved display preferences. They are independent of the automatically selected display profile.
+Theme, slide duration, Islamic Economic Indicators visibility and the optional Dua-after-Adhan card are shared saved display preferences. They are independent of the automatically selected display profile.
+
+The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for five minutes from a listed timetable Adhan in the board's timezone and disappears at the end of the window without requiring a new provider refresh. It is built-in content and therefore omits the source attribution used by masjid notices. It is priority content: Appliance suspends its normal slideshow on the full-screen card, while Landscape gives it the complete notice column and suppresses other cards for the five-minute window.
 
 Changing a theme therefore affects both standard and Appliance presentations. Selecting an Appliance profile is never a saved user preference.
 

@@ -60,6 +60,60 @@
         return `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
     }
 
+    const duaAfterAdhanArabic = "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ";
+    const duaAfterAdhanTranslation = "O Allah, Lord of this perfect call and established prayer, grant Muhammad the Wasilah and virtue, and raise him to the praised position You have promised him.";
+    const duaAfterAdhanWindowMinutes = 5;
+
+    function boardLocalMinutes(board, now) {
+        const timezone = String(board && board.time_zone || "").trim();
+        const fixedOffset = timezone.match(/^(?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?$/i);
+        if (fixedOffset) {
+            const sign = fixedOffset[1] === "-" ? -1 : 1;
+            const offset = fixedOffset[1]
+                ? sign * (Number(fixedOffset[2]) * 60 + Number(fixedOffset[3] || 0))
+                : 0;
+            return (now.getUTCHours() * 60 + now.getUTCMinutes() + offset + 24 * 60) % (24 * 60);
+        }
+        try {
+            const parts = new Intl.DateTimeFormat("en-GB", {
+                timeZone: timezone || undefined,
+                hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+            }).formatToParts(now);
+            const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+            return Number(values.hour) * 60 + Number(values.minute);
+        } catch (_) {
+            return now.getHours() * 60 + now.getMinutes();
+        }
+    }
+
+    function duaAfterAdhanContent() {
+        return {
+            type: "dua_after_adhan",
+            title: "Dua after Adhan",
+            body: "",
+            fields: {arabic: duaAfterAdhanArabic, translation: duaAfterAdhanTranslation, note: "Wasilah is a rank in Jannah."},
+            source: "MasjidPi",
+        };
+    }
+
+    function duaAfterAdhanItem(boards, now, enabled, windowMinutes = duaAfterAdhanWindowMinutes, force = false) {
+        if (!enabled || !now || typeof now.getTime !== "function" || Number.isNaN(now.getTime())) return null;
+        if (force) return duaAfterAdhanContent();
+        for (const board of Array.isArray(boards) ? boards : []) {
+            const currentMinutes = boardLocalMinutes(board, now);
+            for (const prayer of Array.isArray(board && board.prayers) ? board.prayers : []) {
+                const adhan = prayer && prayer.adhan;
+                if (!adhan || !Number.isInteger(adhan.hour) || !Number.isInteger(adhan.minute)) continue;
+                let elapsed = currentMinutes - (adhan.hour * 60 + adhan.minute);
+                if (elapsed < 0) elapsed += 24 * 60;
+                if (elapsed >= 0 && elapsed < windowMinutes) {
+                    return duaAfterAdhanContent();
+                }
+            }
+        }
+        return null;
+    }
+
     function detailedJumuahItems(boards, now, isFriday) {
         const items = [];
         for (const board of Array.isArray(boards) ? boards : []) {
@@ -120,6 +174,7 @@
             gold_14: "Gold 14 ct / g", gold_9: "Gold 9 ct / g", silver: "Silver / g",
             minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
             retrieved_at: "Retrieved at", ayah_number: "Ayah", reference: "Reference",
+            arabic: "Arabic", translation: "Translation", note: "Note",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
     }
@@ -136,6 +191,7 @@
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
             economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "retrieved_at"],
+			dua_after_adhan: ["arabic", "translation", "note"],
 			daily_ayah: ["ayah_number"], daily_hadith: ["reference"], daily_sunnah: ["reference"],
         }[item.type] || [];
         const titleFields = new Set(item.type === "funeral" ? ["name"]
@@ -165,6 +221,9 @@
             programme: "Programme", new_moon: "New Moon", dawah: "Dawah / Gasht",
             three_day_jamaat: "Three-Day Jamaat", contribution: "Contributions",
             economic: "Islamic Economic Indicators",
+            salaah_change_announcement: "Salaah Time Change", class_time_change: "Class Time Change",
+            weekly_programme: "Weekly Programme", ramadan_programme: "Ramadan Programme",
+            dua_after_adhan: "Dua after Adhan",
         };
         return labels[type] || fieldLabel(type || "general") + " Notice";
     }
@@ -192,8 +251,11 @@
                 });
             }
             for (const announcement of Array.isArray(board.announcements) ? board.announcements : []) {
+                const categories = new Set(["announcement", "salaah_change_announcement", "class_time_change", "weekly_programme", "ramadan_programme"]);
+                const category = plainText(announcement.category).toLowerCase();
                 add({
-                    type: "announcement",
+                    type: categories.has(category) ? category : "announcement",
+                    typeLabel: categories.has(category) && category !== "announcement" ? communityTypeLabel(category) : "",
                     title: plainText(announcement.title) || "Masjid Announcement",
                     body: plainText(announcement.content),
                     fields: {},
@@ -384,6 +446,8 @@
         collectCommunityItems,
 		dailyIslamicItems,
         detailedJumuahItems,
+		duaAfterAdhanItem,
+        duaAfterAdhanWindowMinutes,
         communityTypeLabel,
         fieldLabel,
         fixtureCommunityItems,

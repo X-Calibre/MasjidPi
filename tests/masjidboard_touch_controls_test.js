@@ -13,7 +13,7 @@ const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-applianc
 
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
-assert.match(html, /masjidboard-appliance\.css\?v=20260903-daily-content/);
+assert.match(html, /masjidboard-appliance\.css\?v=20260905-section10/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);

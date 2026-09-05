@@ -17,6 +17,7 @@ type masjidBoardLayoutResponse struct {
 	ShowDailyAyah          bool   `json:"show_daily_ayah"`
 	ShowDailyHadith        bool   `json:"show_daily_hadith"`
 	ShowDailySunnah        bool   `json:"show_daily_sunnah"`
+	ShowDuaAfterAdhan      bool   `json:"show_dua_after_adhan"`
 }
 
 type masjidBoardLayoutRequest struct {
@@ -26,6 +27,7 @@ type masjidBoardLayoutRequest struct {
 	ShowDailyAyah          *bool  `json:"show_daily_ayah"`
 	ShowDailyHadith        *bool  `json:"show_daily_hadith"`
 	ShowDailySunnah        *bool  `json:"show_daily_sunnah"`
+	ShowDuaAfterAdhan      *bool  `json:"show_dua_after_adhan"`
 }
 
 type masjidBoardThemeSetter interface{ SetTheme(string) error }
@@ -36,6 +38,7 @@ type masjidBoardDailyContentSetter interface {
 	SetDailyIslamicContentPreferences(bool, bool, bool) error
 }
 type masjidBoardDailyContentRefresher interface{ RefreshDailyIslamicContent(context.Context) error }
+type masjidBoardDuaAfterAdhanSetter interface{ SetShowDuaAfterAdhan(bool) error }
 
 func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 	current := func() masjidBoardLayoutResponse {
@@ -51,6 +54,7 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 			response.ShowDailyAyah = state.ShowDailyAyahValue()
 			response.ShowDailyHadith = state.ShowDailyHadithValue()
 			response.ShowDailySunnah = state.ShowDailySunnahValue()
+			response.ShowDuaAfterAdhan = state.ShowDuaAfterAdhanValue()
 		}
 		return response
 	}
@@ -69,7 +73,7 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 
 		theme := strings.TrimSpace(strings.ToLower(request.Theme))
 		if theme == "" && request.SlideDurationSeconds == 0 && request.ShowEconomicIndicators == nil &&
-			request.ShowDailyAyah == nil && request.ShowDailyHadith == nil && request.ShowDailySunnah == nil {
+			request.ShowDailyAyah == nil && request.ShowDailyHadith == nil && request.ShowDailySunnah == nil && request.ShowDuaAfterAdhan == nil {
 			writeError(w, http.StatusBadRequest, "theme, slide duration or additional information setting is required")
 			return
 		}
@@ -154,6 +158,17 @@ func (s *Server) masjidBoardLayout(w http.ResponseWriter, r *http.Request) {
 						_ = refresher.RefreshDailyIslamicContent(ctx)
 					}()
 				}
+			}
+		}
+		if request.ShowDuaAfterAdhan != nil {
+			setter, ok := s.masjidBoardService.(masjidBoardDuaAfterAdhanSetter)
+			if !ok || setter == nil {
+				writeError(w, http.StatusServiceUnavailable, "MasjidBoard Dua after Adhan service is unavailable")
+				return
+			}
+			if err := setter.SetShowDuaAfterAdhan(*request.ShowDuaAfterAdhan); err != nil {
+				writeError(w, http.StatusConflict, err.Error())
+				return
 			}
 		}
 		writeJSON(w, http.StatusOK, current())

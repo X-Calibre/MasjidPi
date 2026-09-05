@@ -186,6 +186,12 @@ func (s *Service) SetDailyIslamicContentPreferences(showAyah, showHadith, showSu
 	}, "daily Islamic content")
 }
 
+func (s *Service) SetShowDuaAfterAdhan(show bool) error {
+	return s.updateDisplayPreference(func(state *selection.State) {
+		state.ShowDuaAfterAdhan = boolPointer(show)
+	}, "Dua after Adhan")
+}
+
 func (s *Service) updateDisplayPreference(update func(*selection.State), label string) error {
 	if s == nil {
 		return fmt.Errorf("masjidboard service: service is unavailable")
@@ -414,6 +420,7 @@ func cloneSelection(state selection.State) selection.State {
 	copy.ShowDailyAyah = cloneBool(state.ShowDailyAyah)
 	copy.ShowDailyHadith = cloneBool(state.ShowDailyHadith)
 	copy.ShowDailySunnah = cloneBool(state.ShowDailySunnah)
+	copy.ShowDuaAfterAdhan = cloneBool(state.ShowDuaAfterAdhan)
 	return copy
 }
 

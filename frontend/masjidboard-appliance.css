@@ -294,6 +294,18 @@ body.appliance-layout {
     font-size:16px;
     font-weight:600;
 }
+.appliance-community-card [dir="rtl"] {
+    direction:rtl;
+    text-align:right;
+    font-family:"Noto Naskh Arabic","Noto Sans Arabic",Fira Sans,sans-serif;
+}
+.appliance-community-dua_after_adhan .appliance-community-field {
+    grid-template-columns:110px minmax(0,1fr);
+}
+.appliance-community-dua_after_adhan .appliance-community-field:first-child .appliance-community-field-value {
+    font-size:28px;
+    line-height:1.65;
+}
 .appliance-community-card.compact {
     padding:24px 24px 20px;
 }

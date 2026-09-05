@@ -6,9 +6,10 @@
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
+    const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
     const displayUtils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
@@ -25,6 +26,8 @@
     let communityPageNodes = [];
     let communitySignature = "";
     let communityPage = 0;
+    let latestCommunityView = null;
+    let duaAfterAdhanVisible = false;
 
     function validTime(time) {
         return time && Number.isInteger(time.hour) && Number.isInteger(time.minute);
@@ -131,7 +134,7 @@
     }
 
     function isDetailedCommunityItem(item) {
-        return item.type === "jumuah_schedule" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
+        return item.type === "jumuah_schedule" || item.type === "dua_after_adhan" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
     }
 
     function packCommunityPages(items) {
@@ -187,7 +190,11 @@
 		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
 		if (contentLength > 300) card.classList.add("content-long");
 		if (contentLength > 600) card.classList.add("content-very-long");
-		if (item.typeLabel) card.append(makeElement("div", "detailed-community-type", item.typeLabel));
+		if (item.typeLabel) {
+			const typeLabel = makeElement("div", "detailed-community-type", item.typeLabel);
+			typeLabel.dir = "auto";
+			card.append(typeLabel);
+		}
 		const title = makeElement("h2", "detailed-community-title", item.title);
 		title.dir = "auto";
 		card.append(title);
@@ -250,8 +257,10 @@
             }
             footer.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
             card.append(footer);
-        } else {
-            card.append(makeElement("div", "detailed-community-source", `Source: ${item.source}`));
+        } else if (item.type !== "dua_after_adhan") {
+            const source = makeElement("div", "detailed-community-source", `Source: ${item.source}`);
+            source.dir = "auto";
+            card.append(source);
         }
         return card;
     }
@@ -277,21 +286,27 @@
         );
     }
 
-    function renderCommunityContent(boards, dailyContent, indicators) {
+    function renderCommunityContent(boards, dailyContent, indicators, showDuaAfterAdhan) {
         if (!communityPanel) return;
         if (boards.length === 0) {
             communityPanel.classList.add("hidden");
             return;
         }
-		const items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
+		let items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
 		const jumuahItems = detailedJumuahItems(boards, displayUtils.displayNow(), dateUtils.isIslamicFriday);
 		if (useJumuahKhateebFixture) {
 			for (const item of jumuahItems) item.body = "Khateeb: To be announced";
 		}
 		items.unshift(...jumuahItems);
-		items.push(...dailyIslamicItems(dailyContent));
-		const economicItem = economicCommunityItem(indicators);
-		if (economicItem) items.push(economicItem);
+		const duaItem = duaAfterAdhanItem(boards, displayUtils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
+		duaAfterAdhanVisible = Boolean(duaItem);
+		if (duaItem) {
+			items = [duaItem];
+		} else {
+			items.push(...dailyIslamicItems(dailyContent));
+			const economicItem = economicCommunityItem(indicators);
+			if (economicItem) items.push(economicItem);
+		}
         const signature = JSON.stringify(items);
         if (signature !== communitySignature) {
             communitySignature = signature;
@@ -412,14 +427,30 @@
     if (prayerGrid) observer.observe(prayerGrid, {childList: true, subtree: true});
 
     function refresh(view) {
+            latestCommunityView = view;
             const boards = Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
             document.body.dataset.boardCount = String(Math.max(1, boards.length));
             render(boards[0] || null);
-			renderCommunityContent(boards, view.daily_islamic_content, view.economic_indicators);
+			renderCommunityContent(boards, view.daily_islamic_content, view.economic_indicators, view.show_dua_after_adhan);
             addSharedPrayerLabels();
     }
 
     window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    if (window.MasjidBoardCurrentView) refresh(window.MasjidBoardCurrentView);
+    window.setInterval(() => {
+        if (!latestCommunityView) return;
+        const boards = Array.isArray(latestCommunityView.boards) ? latestCommunityView.boards.slice(0, 3) : [];
+        const duaVisibleNow = Boolean(duaAfterAdhanItem(
+            boards,
+            displayUtils.displayNow(),
+            latestCommunityView.show_dua_after_adhan || useDuaAfterAdhanFixture,
+            duaAfterAdhanWindowMinutes,
+            useDuaAfterAdhanFixture,
+        ));
+        if (duaVisibleNow !== duaAfterAdhanVisible) {
+            renderCommunityContent(boards, latestCommunityView.daily_islamic_content, latestCommunityView.economic_indicators, latestCommunityView.show_dua_after_adhan);
+        }
+    }, 1000);
     window.setInterval(() => {
         if (communityPages.length <= 1) return;
         communityPage = (communityPage + 1) % communityPages.length;

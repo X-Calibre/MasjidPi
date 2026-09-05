@@ -82,6 +82,18 @@ func TestDailyIslamicContentDefaultsEnabled(t *testing.T) {
 	}
 }
 
+func TestDuaAfterAdhanDefaultsDisabled(t *testing.T) {
+	state := State{}
+	if state.ShowDuaAfterAdhanValue() {
+		t.Fatal("Dua after Adhan must default to disabled")
+	}
+	enabled := true
+	state.ShowDuaAfterAdhan = &enabled
+	if !state.ShowDuaAfterAdhanValue() {
+		t.Fatal("explicit Dua after Adhan preference should be enabled")
+	}
+}
+
 func TestValidateRejectsFourthBoard(t *testing.T) {
 	state := State{Boards: []Board{
 		selected("a", "A", 0),

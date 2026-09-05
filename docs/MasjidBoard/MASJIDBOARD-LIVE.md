@@ -526,6 +526,8 @@ The existing captures contain the following information:
 | Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Parsed, exposed and displayed when active |
 | New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Parsed and displayed only when the upstream moon-information flag is active; never labelled as a confirmed sighting |
 
+The public Premium webpage also contains static presentation blocks for a cellphone reminder and the Arabic/translated Dua after Adhan. They are webpage chrome, not per-masjid payload fields. MasjidPi does not import the cellphone reminder. It provides its own optional bilingual priority card for five minutes from each listed timetable Adhan instead; as built-in content, the card has no visible source attribution.
+
 ### What is already implemented
 
 The normalised `model.Board` reserves collections or objects for `Announcements`, `Programmes`, `Notices`, `Media`, `Banking` and `NewMoon`. Implemented notice types include general, Nikah, funeral, well-wishes, Eid and Salaah-time changes.
@@ -574,7 +576,7 @@ Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
 Core therefore remains authoritative for identity, dates, prayer times, Jumu'ah and astronomical times. Premium cannot replace or contradict the operational timetable.
 
-The read-only `/api/masjidboard/display` contract exposes active normalised announcements, notices, programmes, contribution details and new-moon information when enrichment is available. Structured card categories now include Nikah, funeral, Eid, upcoming Fajr/Asr/Esha time changes, well-wishes/Du'a requests, Taleem programmes, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. The moon category must not be described as a confirmed sighting because the captured payload only establishes calculation and visibility information.
+The read-only `/api/masjidboard/display` contract exposes active normalised announcements, notices, programmes, contribution details and new-moon information when enrichment is available. Structured card categories now include Nikah, funeral, Eid, upcoming Fajr/Asr/Esha time changes, well-wishes/Du'a requests, Taleem programmes, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. Announcement headings use a deliberately narrow semantic mapping for Salaah-time changes, class-time changes, weekly programmes and Ramadan/Taraweeh programmes; unknown headings remain general announcements. The moon category must not be described as a confirmed sighting because the captured payload only establishes calculation and visibility information.
 
 The default Landscape layout renders this content in an adaptive three-slot, theme-aware panel occupying the right quarter of a 1920 × 1080 screen, with the timetable using the remaining three quarters. Three compact cards can appear together; dense content can span two slots; one item uses the full panel; and two remaining items use equal halves. Additional pages rotate automatically, duplicate active items are suppressed, and upstream HTML is converted to plain text rather than inserted into the DOM.
 

@@ -30,6 +30,10 @@ func (f *fakeDisplaySettingsService) SetDailyIslamicContentPreferences(ayah, had
 	f.state.ShowDailySunnah = selectionBoolPointer(sunnah)
 	return nil
 }
+func (f *fakeDisplaySettingsService) SetShowDuaAfterAdhan(show bool) error {
+	f.state.ShowDuaAfterAdhan = selectionBoolPointer(show)
+	return nil
+}
 
 func testDisplaySettingsState() selection.State {
 	return selection.State{Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}}}
@@ -44,7 +48,7 @@ func TestMasjidBoardDisplaySettingsDefaults(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", rec.Code, rec.Body.String())
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"emerald","slide_duration_seconds":15,"show_economic_indicators":false,"show_daily_ayah":true,"show_daily_hadith":true,"show_daily_sunnah":true}` {
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"emerald","slide_duration_seconds":15,"show_economic_indicators":false,"show_daily_ayah":true,"show_daily_hadith":true,"show_daily_sunnah":true,"show_dua_after_adhan":false}` {
 		t.Fatalf("body=%s", got)
 	}
 }
@@ -53,7 +57,7 @@ func TestMasjidBoardDisplaySettingsPUTUpdatesPreferences(t *testing.T) {
 	service := &fakeDisplaySettingsService{state: testDisplaySettingsState()}
 	server := &Server{masjidBoardService: service}
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true,"show_daily_ayah":false,"show_daily_hadith":true,"show_daily_sunnah":false}`))
+	req := httptest.NewRequest(http.MethodPut, "/api/masjidboard/layout", strings.NewReader(`{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true,"show_daily_ayah":false,"show_daily_hadith":true,"show_daily_sunnah":false,"show_dua_after_adhan":true}`))
 	req.Header.Set("Content-Type", "application/json")
 	server.masjidBoardLayout(rec, req)
 	if rec.Code != http.StatusOK {
@@ -65,7 +69,10 @@ func TestMasjidBoardDisplaySettingsPUTUpdatesPreferences(t *testing.T) {
 	if service.state.ShowDailyAyahValue() || !service.state.ShowDailyHadithValue() || service.state.ShowDailySunnahValue() {
 		t.Fatalf("daily content state=%+v", service.state)
 	}
-	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true,"show_daily_ayah":false,"show_daily_hadith":true,"show_daily_sunnah":false}` {
+	if !service.state.ShowDuaAfterAdhanValue() {
+		t.Fatal("Dua after Adhan preference was not enabled")
+	}
+	if got := strings.TrimSpace(rec.Body.String()); got != `{"theme":"ruby","slide_duration_seconds":30,"show_economic_indicators":true,"show_daily_ayah":false,"show_daily_hadith":true,"show_daily_sunnah":false,"show_dua_after_adhan":true}` {
 		t.Fatalf("body=%s", got)
 	}
 }

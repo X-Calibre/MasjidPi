@@ -117,6 +117,15 @@ html.landscape-layout {
     font-size:clamp(.78rem,.88vw,.98rem);
     font-weight:610;
 }
+.detailed-community-card [dir="rtl"] {
+    direction:rtl;
+    text-align:right;
+    font-family:"Noto Naskh Arabic","Noto Sans Arabic",Fira Sans,sans-serif;
+}
+.detailed-community-dua_after_adhan .detailed-community-field:first-child .detailed-community-field-value {
+    font-size:clamp(1.3rem,1.55vw,1.75rem);
+    line-height:1.65;
+}
 .detailed-community-empty {
     height:100%;
     display:flex;

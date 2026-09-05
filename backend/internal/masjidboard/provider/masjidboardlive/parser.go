@@ -263,10 +263,28 @@ func parseAnnouncementRows(rawRows ...json.RawMessage) []model.Announcement {
 			if !isDisplayed(stringValue(values, i+2)) || (title == "" && content == "") {
 				continue
 			}
-			announcements = append(announcements, model.Announcement{Title: title, Content: content})
+			announcements = append(announcements, model.Announcement{
+				Category: announcementCategory(title), Title: title, Content: content,
+			})
 		}
 	}
 	return announcements
+}
+
+func announcementCategory(title string) string {
+	normalized := strings.ToLower(strings.Join(strings.Fields(strings.TrimSpace(title)), " "))
+	switch {
+	case strings.Contains(normalized, "salah times change"), strings.Contains(normalized, "salaah times change"):
+		return "salaah_change_announcement"
+	case strings.Contains(normalized, "class time change"):
+		return "class_time_change"
+	case strings.Contains(normalized, "taraweeh"), strings.Contains(normalized, "tarawih"), strings.Contains(normalized, "ramadan"), strings.Contains(normalized, "ramadaan"):
+		return "ramadan_programme"
+	case strings.Contains(normalized, "weekly program"), strings.Contains(normalized, "weekly programme"):
+		return "weekly_programme"
+	default:
+		return "announcement"
+	}
 }
 
 func parseNoticeRows(nikahRaw, funeralRaw, eidRaw json.RawMessage) []model.Notice {

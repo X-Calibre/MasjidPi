@@ -87,6 +87,7 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 	currentSlideDuration := selection.DefaultSlideDurationSeconds
 	showEconomicIndicators := false
 	showDailyAyah, showDailyHadith, showDailySunnah := true, true, true
+	showDuaAfterAdhan := false
 	currentDetailedJumuah := make(map[string]bool)
 	if s.masjidBoardService != nil {
 		current := s.masjidBoardService.Selection()
@@ -96,6 +97,7 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 		showDailyAyah = current.ShowDailyAyahValue()
 		showDailyHadith = current.ShowDailyHadithValue()
 		showDailySunnah = current.ShowDailySunnahValue()
+		showDuaAfterAdhan = current.ShowDuaAfterAdhanValue()
 		for _, board := range current.Boards {
 			currentDetailedJumuah[board.CatalogueID] = board.ShowDetailedJumuahValue()
 		}
@@ -108,6 +110,7 @@ func (s *Server) updateMasjidBoardSelection(w http.ResponseWriter, r *http.Reque
 		ShowDailyAyah:          selectionBoolPointer(showDailyAyah),
 		ShowDailyHadith:        selectionBoolPointer(showDailyHadith),
 		ShowDailySunnah:        selectionBoolPointer(showDailySunnah),
+		ShowDuaAfterAdhan:      selectionBoolPointer(showDuaAfterAdhan),
 	}
 	seen := make(map[string]struct{}, len(request.CatalogueIDs))
 	for _, rawID := range request.CatalogueIDs {

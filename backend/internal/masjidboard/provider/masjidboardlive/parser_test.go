@@ -304,6 +304,26 @@ func TestParseAdditionalCommunityCardContentHonoursVisibility(t *testing.T) {
 	}
 }
 
+func TestParseAnnouncementCategoriesAreConservative(t *testing.T) {
+	raw := json.RawMessage(`[
+		"Salah Times Change","New times from Monday","Display",
+		"Class Time Changes","Morning class at 08:00","Display",
+		"Weekly Programs","Tafseer after Esha","Display",
+		"Taraweeh 2026","One juz nightly","Display",
+		"Urgent access notice","Use the side entrance","Display"
+	]`)
+	announcements := parseAnnouncementRows(raw)
+	want := []string{"salaah_change_announcement", "class_time_change", "weekly_programme", "ramadan_programme", "announcement"}
+	if len(announcements) != len(want) {
+		t.Fatalf("announcements = %+v", announcements)
+	}
+	for index, category := range want {
+		if announcements[index].Category != category {
+			t.Fatalf("announcement %d category=%q want %q", index, announcements[index].Category, category)
+		}
+	}
+}
+
 func TestParseDawahAndContributionCards(t *testing.T) {
 	rows := loadCapturedRows(t)
 	rows[rowDawah] = json.RawMessage(`["Daily after Esha","Thursday","Monday","After Asr","After Maghrib","Display","Three-Day Jamaat","Hartbeespoort","4–6 September","Pretoria West","11–13 September","Display"]`)

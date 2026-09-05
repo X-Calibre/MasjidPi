@@ -63,3 +63,23 @@ func TestSetDailyIslamicContentPreferencesPersistsExplicitValues(t *testing.T) {
 		t.Fatalf("persisted preferences = %+v", persisted)
 	}
 }
+
+func TestSetShowDuaAfterAdhanPersists(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "selection.json")
+	store := selection.NewStore(path)
+	state := selection.State{Boards: []selection.Board{{CatalogueID: "masjidboardlive:test", Provider: "masjidboardlive", ExternalID: "test", Name: "Test Masjid"}}}
+	if err := store.Save(state); err != nil {
+		t.Fatal(err)
+	}
+	service := &Service{selection: state, selectionStore: store}
+	if err := service.SetShowDuaAfterAdhan(true); err != nil {
+		t.Fatalf("SetShowDuaAfterAdhan() error = %v", err)
+	}
+	persisted, err := selection.NewStore(path).Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !persisted.ShowDuaAfterAdhanValue() {
+		t.Fatal("Dua after Adhan preference was not persisted")
+	}
+}

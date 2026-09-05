@@ -1,0 +1,70 @@
+"use strict";
+
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+
+const root = path.resolve(__dirname, "..");
+const utilitySource = fs.readFileSync(path.join(root, "frontend/masjidboard-community-utils.js"), "utf8");
+const applianceJS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.js"), "utf8");
+const landscapeJS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.js"), "utf8");
+const applianceCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.css"), "utf8");
+const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.css"), "utf8");
+
+class TestDOMParser {
+    parseFromString(value) {
+        return {body: {textContent: String(value).replace(/<[^>]*>/g, "")}};
+    }
+}
+
+const context = {window: {}, DOMParser: TestDOMParser};
+vm.runInNewContext(utilitySource, context);
+const {collectCommunityItems, duaAfterAdhanItem, orderedFields} = context.window.MasjidBoardCommunityUtils;
+
+const announcements = collectCommunityItems([{
+    name: "Test Masjid",
+    announcements: [
+        {category: "weekly_programme", title: "Weekly Programs", content: "Tafseer after Esha"},
+        {category: "ramadan_programme", title: "Taraweeh 2026", content: "One juz nightly"},
+        {category: "unknown", title: "Custom notice", content: "Keep this generic"},
+        {category: "announcement", title: "تهنئة", content: "نبارك للإمام الجديد"},
+    ],
+}]);
+assert.deepEqual(Array.from(announcements, item => item.type), [
+    "weekly_programme", "ramadan_programme", "announcement", "announcement",
+]);
+assert.equal(announcements[0].typeLabel, "Weekly Programme");
+assert.equal(announcements[2].typeLabel, "");
+assert.equal(announcements[3].body, "نبارك للإمام الجديد");
+
+const board = {
+    time_zone: "Africa/Johannesburg",
+    prayers: [{key: "fajr", adhan: {hour: 5, minute: 30}}],
+};
+assert.equal(duaAfterAdhanItem([board], new Date("2026-09-05T03:35:00Z"), false), null);
+const dua = duaAfterAdhanItem([board], new Date("2026-09-05T03:35:00Z"), true);
+assert.equal(dua.type, "dua_after_adhan");
+assert.equal(dua.source, "MasjidPi");
+assert.match(dua.fields.arabic, /اللَّهُمَّ/);
+assert.match(dua.fields.translation, /^O Allah/);
+assert.deepEqual(Array.from(orderedFields(dua), field => field.label), ["Arabic", "Translation", "Note"]);
+assert.equal(duaAfterAdhanItem([board], new Date("2026-09-05T03:40:00Z"), true), null, "ten-minute display window must be exclusive at its end");
+const midnightBoard = {
+    time_zone: "UTC",
+    prayers: [{key: "esha", adhan: {hour: 23, minute: 58}}],
+};
+assert.equal(duaAfterAdhanItem([midnightBoard], new Date("2026-09-06T00:04:00Z"), true).type, "dua_after_adhan", "the window must continue through local midnight");
+assert.equal(duaAfterAdhanItem([], new Date("2026-09-05T03:40:00Z"), true, 10, true).type, "dua_after_adhan");
+
+for (const renderer of [applianceJS, landscapeJS]) {
+    assert.match(renderer, /duaAfterAdhanItem/);
+    assert.match(renderer, /show_dua_after_adhan/);
+    assert.match(renderer, /params\.get\("dua-fixture"\) === "1"/);
+    assert.match(renderer, /duaVisibleNow !== duaAfterAdhanVisible/, "the card must react to the display clock without waiting for new API data");
+    assert.match(renderer, /\.dir = "auto"/);
+}
+assert.match(applianceCSS, /\[dir="rtl"\]/);
+assert.match(landscapeCSS, /\[dir="rtl"\]/);
+
+console.log("MasjidBoard Section 10 community-content tests passed");

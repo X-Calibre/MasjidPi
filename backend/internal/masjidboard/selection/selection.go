@@ -52,6 +52,7 @@ type State struct {
 	ShowDailyAyah          *bool   `json:"show_daily_ayah,omitempty"`
 	ShowDailyHadith        *bool   `json:"show_daily_hadith,omitempty"`
 	ShowDailySunnah        *bool   `json:"show_daily_sunnah,omitempty"`
+	ShowDuaAfterAdhan      *bool   `json:"show_dua_after_adhan,omitempty"`
 }
 
 func (s State) Configured() bool { return len(s.Boards) > 0 }
@@ -78,6 +79,9 @@ func enabledByDefault(value *bool) bool {
 func (s State) ShowDailyAyahValue() bool   { return enabledByDefault(s.ShowDailyAyah) }
 func (s State) ShowDailyHadithValue() bool { return enabledByDefault(s.ShowDailyHadith) }
 func (s State) ShowDailySunnahValue() bool { return enabledByDefault(s.ShowDailySunnah) }
+func (s State) ShowDuaAfterAdhanValue() bool {
+	return s.ShowDuaAfterAdhan != nil && *s.ShowDuaAfterAdhan
+}
 
 func (s State) ShowAnyDailyIslamicContent() bool {
 	return s.ShowDailyAyahValue() || s.ShowDailyHadithValue() || s.ShowDailySunnahValue()
@@ -158,6 +162,7 @@ func cloneState(state State) State {
 	copy.ShowDailyAyah = cloneBool(state.ShowDailyAyah)
 	copy.ShowDailyHadith = cloneBool(state.ShowDailyHadith)
 	copy.ShowDailySunnah = cloneBool(state.ShowDailySunnah)
+	copy.ShowDuaAfterAdhan = cloneBool(state.ShowDuaAfterAdhan)
 	return copy
 }
 

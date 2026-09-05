@@ -34,7 +34,7 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 			Jumuah: []model.JumuahService{{Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
 		},
 		Astronomical:  &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
-		Announcements: []model.Announcement{{Title: "Community update", Content: "<b>Tonight</b>"}},
+		Announcements: []model.Announcement{{Category: "weekly_programme", Title: "Community update", Content: "<b>Tonight</b>"}},
 		Programmes:    []model.Programme{{Title: "Taleem Programme", Content: "After Esha"}},
 		Notices: []model.Notice{{
 			Type: model.NoticeTypeFuneral, Title: "Funeral Notice",
@@ -44,7 +44,8 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 		NewMoon: &model.NewMoon{Fields: map[string]string{"visibility_date": "12 September 2026"}},
 	}
 
-	view := Build(true, selection.State{Theme: selection.ThemeRuby, SlideDurationSeconds: 30, Boards: []selection.Board{one, two}}, []masjidboardruntime.Result{{
+	showDuaAfterAdhan := true
+	view := Build(true, selection.State{Theme: selection.ThemeRuby, SlideDurationSeconds: 30, ShowDuaAfterAdhan: &showDuaAfterAdhan, Boards: []selection.Board{one, two}}, []masjidboardruntime.Result{{
 		Selection: two, Board: &board, Status: masjidboardruntime.StatusCurrent, LastSuccessfulUpdate: updated,
 	}})
 
@@ -53,6 +54,9 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	}
 	if view.Theme != selection.ThemeRuby || view.SlideDuration != 30 {
 		t.Fatalf("display preferences = theme %q duration %d", view.Theme, view.SlideDuration)
+	}
+	if !view.ShowDuaAfterAdhan {
+		t.Fatal("Dua after Adhan display preference was not presented")
 	}
 	if view.Boards[0].CatalogueID != one.CatalogueID || view.Boards[0].Status != masjidboardruntime.StatusUnavailable {
 		t.Fatalf("first board = %+v", view.Boards[0])
@@ -82,7 +86,7 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	if got.Date.Gregorian != "2026-08-19" {
 		t.Fatalf("gregorian = %q", got.Date.Gregorian)
 	}
-	if len(got.Announcements) != 1 || got.Announcements[0].Content != "<b>Tonight</b>" {
+	if len(got.Announcements) != 1 || got.Announcements[0].Category != "weekly_programme" || got.Announcements[0].Content != "<b>Tonight</b>" {
 		t.Fatalf("announcements = %+v", got.Announcements)
 	}
 	if len(got.Programmes) != 1 || got.Programmes[0].Content != "After Esha" {

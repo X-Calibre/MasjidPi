@@ -134,6 +134,22 @@ Jumu'ah replaces Dhuhr on Friday. Timed Jumu'ah events are displayed chronologic
 
 When a selected board exposes public Premium content, it can enrich the successful Core timetable with active announcements and structured cards. Supported categories include Nikah, funeral, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. Core remains authoritative for the timetable, and missing or failed Premium enrichment does not make a successful Core board stale. Landscape rotates additional card pages, suppresses duplicates, converts upstream HTML to plain text and labels each card with its source.
 
+The Section 10 community-content review is implemented with these decisions:
+
+| Inventory item | Current handling |
+|---|---|
+| General notice and masjid announcement | Active upstream slots render as sanitised, attributed announcement cards. |
+| Salaah-time and class-time changes | Structured future Salaah changes retain their dedicated model; recognised announcement headings receive conservative Salaah-change or class-time labels. |
+| Weekly and Ramadan/Taraweeh programmes | Recognised headings receive weekly-programme or Ramadan-programme labels without attempting to infer categories from body prose. |
+| Arabic-language notice | Unicode content is preserved, sanitised and rendered with automatic RTL/mixed-direction handling. |
+| Dua after Adhan | Optional MasjidPi-owned bilingual card, disabled by default and shown for ten minutes after a listed Adhan in the masjid timezone. |
+| Requests for dua / names 1–10 | Row 21 names are the upstream sickness/well-wishes module and render through the existing dedicated well-wishes card; no duplicate named-person model is created. |
+| Funeral, Nikah and structured Eid | Parsed and displayed as dedicated structured categories. |
+| Taleem and Jamaat programmes | Parsed and displayed as Taleem, Dawah/Gasht and three-day Jamaat categories. |
+| Contribution appeal | Parsed and displayed as a structured contribution category. |
+| Cellphone reminder | Deliberately excluded: this is static public-board chrome rather than masjid event content and is inappropriate as a rotating home-appliance notice. |
+| Poster-based Ramadan/community content | Kept outside this text-card change. Poster transport, caching, duration and media safety require the separate media feature already identified in the inventory. |
+
 ## Validation Completed
 
 Automated Go coverage includes API endpoints, hierarchy/discovery, scoped catalogue and reconciliation, selection persistence, provider parsing/normalization, Jumu'ah handling, cache persistence/write suppression, display presentation, runtime behaviour and stale-cache recovery.

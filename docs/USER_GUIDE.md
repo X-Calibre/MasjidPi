@@ -369,13 +369,19 @@ Depending on available upstream data, Board can show:
 - Daily Times;
 - Gregorian and Islamic dates;
 - next-event countdowns;
-- community announcements and notices; and
-- detailed Friday-only Jumu’ah schedule cards; and
+- community announcements, weekly programmes, class-time changes and Ramadan/Taraweeh programmes;
+- structured Nikah, funeral, Eid, Taleem, Jamaat, contribution and well-wishes cards;
+- detailed Friday-only Jumu’ah schedule cards;
+- an optional bilingual Dua after Adhan card; and
 - optional Islamic Economic Indicators sourced from Jamiatul Ulama South Africa.
 
 Not every masjid supplies every type of content.
 
 Notice cards identify their upstream masjid with **Source:**. Islamic Economic Indicators retain their own Jamiat attribution and update information.
+
+The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidPi shows its own Arabic-and-English card for ten minutes after any listed Adhan time, using the selected masjid's timezone. The card is attributed to MasjidPi because it is not supplied by the selected masjid.
+
+Arabic and mixed-language notices use automatic text direction. MasjidPi treats upstream notice headings conservatively: only recognised Salaah-change, class-time, weekly-programme and Ramadan/Taraweeh headings receive a specialised label; other text remains a general announcement.
 
 ### Board status
 

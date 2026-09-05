@@ -6,11 +6,12 @@
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
+    const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
 
     document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, duaAfterAdhanItem, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("applianceState");
     const slidesHost = document.getElementById("applianceSlides");
     const dotsHost = document.getElementById("applianceDots");
@@ -29,6 +30,7 @@
     let slideTimer = 0;
     let transitionTimer = 0;
     let gestureStart = null;
+    let duaAfterAdhanVisible = false;
 
     function element(tag, className, text) {
         const node = document.createElement(tag);
@@ -151,7 +153,11 @@
 		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
 		if (contentLength > 300) card.classList.add("content-long");
 		if (contentLength > 600) card.classList.add("content-very-long");
-		if (item.typeLabel) card.append(element("div", "appliance-community-type", item.typeLabel));
+		if (item.typeLabel) {
+			const typeLabel = element("div", "appliance-community-type", item.typeLabel);
+			typeLabel.dir = "auto";
+			card.append(typeLabel);
+		}
 		const title = element("h2", "appliance-community-title", item.title);
 		title.dir = "auto";
 		card.append(title);
@@ -197,7 +203,9 @@
             }
             card.append(list);
         }
-        card.append(element("div", "appliance-community-source", "Source: " + item.source));
+        const source = element("div", "appliance-community-source", "Source: " + item.source);
+        source.dir = "auto";
+        card.append(source);
         return card;
     }
 
@@ -316,7 +324,7 @@
         slideTimer = window.setInterval(() => showSlide(activeSlide + 1, false), slideDurationSeconds * 1000);
     }
 
-    function renderSlides(boards, indicators, dailyContent) {
+    function renderSlides(boards, indicators, dailyContent, showDuaAfterAdhan) {
         slidesHost.replaceChildren();
         dotsHost.replaceChildren();
         slides = boards.map(salaahSlide);
@@ -330,6 +338,9 @@
             for (const item of jumuahItems) item.body = "Khateeb: To be announced";
         }
         communityItems.unshift(...jumuahItems);
+        const duaItem = duaAfterAdhanItem(boards, utils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, 10, useDuaAfterAdhanFixture);
+        duaAfterAdhanVisible = Boolean(duaItem);
+        if (duaItem) communityItems.unshift(duaItem);
         slides.push(...communitySlides(communityItems));
         const indicatorsSlide = economicSlide(indicators);
         if (indicatorsSlide) slides.push(indicatorsSlide);
@@ -359,6 +370,18 @@
         nextName.textContent = formatted.name;
         nextTime.textContent = formatted.time ? utils.formatClock(formatted.time) : "--:--";
         countdown.textContent = formatted.time ? utils.countdownText(formatted.time, now, event.dayOffset || 0) : "";
+
+        const boards = latestView.boards.slice(0, 3);
+        const duaVisibleNow = Boolean(duaAfterAdhanItem(
+            boards,
+            now,
+            latestView.show_dua_after_adhan || useDuaAfterAdhanFixture,
+            10,
+            useDuaAfterAdhanFixture,
+        ));
+        if (duaVisibleNow !== duaAfterAdhanVisible) {
+            renderSlides(boards, latestView.economic_indicators, latestView.daily_islamic_content, latestView.show_dua_after_adhan);
+        }
     }
 
     function render(view) {
@@ -366,7 +389,7 @@
         const boards = view && Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (!view || !view.configured || boards.length === 0) return;
         primaryName.textContent = boards[0].name;
-        renderSlides(boards, view.economic_indicators, view.daily_islamic_content);
+        renderSlides(boards, view.economic_indicators, view.daily_islamic_content, view.show_dua_after_adhan);
         updateHeader();
         state.classList.remove("hidden");
     }

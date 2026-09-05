@@ -53,6 +53,7 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	runtime := &fakeSelectionRuntime{state: selection.State{
 		Theme: selection.ThemeRuby, SlideDurationSeconds: 30, ShowEconomicIndicators: true,
 		ShowDailyAyah: selectionBoolPointer(false), ShowDailyHadith: selectionBoolPointer(true), ShowDailySunnah: selectionBoolPointer(false),
+		ShowDuaAfterAdhan: selectionBoolPointer(true),
 	}}
 	server.SetMasjidBoardService(runtime)
 
@@ -72,6 +73,9 @@ func TestMasjidBoardSelectionPUTResolvesCatalogueIDs(t *testing.T) {
 	}
 	if runtime.state.ShowDailyAyahValue() || !runtime.state.ShowDailyHadithValue() || runtime.state.ShowDailySunnahValue() {
 		t.Fatalf("daily content preferences were not preserved: %+v", runtime.state)
+	}
+	if !runtime.state.ShowDuaAfterAdhanValue() {
+		t.Fatalf("Dua after Adhan preference was not preserved: %+v", runtime.state)
 	}
 	if !runtime.state.Boards[0].ShowDetailedJumuahValue() {
 		t.Fatalf("new board detailed Jumuah preference must default to enabled: %+v", runtime.state.Boards[0])

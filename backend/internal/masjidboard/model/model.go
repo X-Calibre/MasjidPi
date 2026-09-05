@@ -110,6 +110,7 @@ type AstronomicalTimes struct {
 }
 
 type Announcement struct {
+	Category    string
 	Title       string
 	Content     string
 	VisibleFrom *time.Time

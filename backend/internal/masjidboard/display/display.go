@@ -16,6 +16,7 @@ type View struct {
 	Configured          bool                 `json:"configured"`
 	Theme               string               `json:"theme"`
 	SlideDuration       int                  `json:"slide_duration_seconds"`
+	ShowDuaAfterAdhan   bool                 `json:"show_dua_after_adhan"`
 	Boards              []Board              `json:"boards"`
 	EconomicIndicators  *economic.Indicators `json:"economic_indicators,omitempty"`
 	DailyIslamicContent *DailyIslamicContent `json:"daily_islamic_content,omitempty"`
@@ -114,8 +115,9 @@ type JumuahEvent struct {
 // it as data only; presentation code must not inject it into the DOM as trusted
 // markup.
 type Announcement struct {
-	Title   string `json:"title,omitempty"`
-	Content string `json:"content,omitempty"`
+	Category string `json:"category,omitempty"`
+	Title    string `json:"title,omitempty"`
+	Content  string `json:"content,omitempty"`
 }
 
 type Programme struct {

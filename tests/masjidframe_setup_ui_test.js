@@ -20,6 +20,8 @@ assert.match(css, /\.key\s*\{[^}]*height: 54px/s);
 assert.match(js, /\/api\/setup\/wifi\/networks/);
 assert.match(js, /\/api\/setup\/wifi\/connect/);
 assert.match(js, /const symbolRows/);
+assert.match(js, /const letterRows = \[\s*\["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"\]/s);
+assert.match(js, /symbols: "#\+="/);
 assert.match(js, /password\.value = Array\.from\(password\.value\)\.slice\(0, -1\)/);
 assert.doesNotMatch(js, /innerHTML\s*=.*network\.ssid/);
 

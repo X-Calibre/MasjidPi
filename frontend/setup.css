@@ -182,7 +182,7 @@ input {
 .key-space { flex-grow: 4; }
 .key-accent { background: var(--green-dark); }
 
-body.keyboard-open .setup-shell { padding-bottom: 300px; }
+body.keyboard-open .setup-shell { padding-bottom: 365px; }
 
 @media (orientation: landscape) {
     .setup-shell { width: min(100%, 920px); padding-top: 22px; }
@@ -192,7 +192,7 @@ body.keyboard-open .setup-shell { padding-bottom: 300px; }
     h2 { font-size: 31px; }
     .keyboard { padding-top: 6px; }
     .keyboard-rows { gap: 4px; width: min(100%, 940px); }
-    .key { height: 43px; font-size: 18px; }
+    .key { height: 38px; font-size: 17px; }
     body.keyboard-open .setup-shell { padding-bottom: 225px; }
     body.keyboard-open .setup-header { display: none; }
     body.keyboard-open .setup-shell { padding-top: 10px; }

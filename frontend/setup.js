@@ -17,20 +17,21 @@
     let symbols = false;
 
     const letterRows = [
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
         ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
         ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
         ["shift", "z", "x", "c", "v", "b", "n", "m", "backspace"],
         ["symbols", "-", "_", "space", ".", "@", "done"]
     ];
     const symbolRows = [
-        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-        ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")"],
-        ["letters", "+", "=", "[", "]", "{", "}", "?", "backspace"],
-        ["\\", "|", ";", "space", ":", "'", "\"", "/", "done"]
+        ["~", "`", "!", "@", "#", "$", "%", "^", "&", "*"],
+        ["(", ")", "-", "+", "=", "[", "]", "{", "}"],
+        ["<", ">", "_", ":", ";", "'", "\"", "?", "backspace"],
+        ["letters", "\\", "|", ",", "space", ".", "/", "done"]
     ];
 
     function keyLabel(key) {
-        const labels = {shift: "⇧", backspace: "⌫", symbols: "123", letters: "ABC", space: "Space", done: "Done"};
+        const labels = {shift: "⇧", backspace: "⌫", symbols: "#+=", letters: "ABC", space: "Space", done: "Done"};
         if (labels[key]) return labels[key];
         return shifted && /^[a-z]$/.test(key) ? key.toUpperCase() : key;
     }

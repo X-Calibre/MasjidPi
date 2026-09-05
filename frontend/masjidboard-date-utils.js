@@ -18,7 +18,7 @@
     }
 
     function formatGregorianDate(board) {
-        return boardGregorianDate(board).toLocaleDateString([], {
+        return boardGregorianDate(board).toLocaleDateString("en-ZA", {
             weekday: "long", day: "numeric", month: "long", year: "numeric",
         });
     }

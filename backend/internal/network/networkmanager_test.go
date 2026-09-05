@@ -49,6 +49,23 @@ func TestScanDeduplicatesAndSortsNetworks(t *testing.T) {
 	}
 }
 
+func TestStatusUsesActiveSSIDRatherThanConnectionProfileName(t *testing.T) {
+	runner := &fakeRunner{responses: []runnerResponse{
+		{out: []byte("802-11-wireless\nloopback\n")},
+		{out: []byte("*:It Hertz When IP\n:The Elder WAN\n")},
+	}}
+	manager := newNetworkManager(runner)
+
+	got, err := manager.Status(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := WiFiStatus{Supported: true, Configured: true, Connected: true, SSID: "It Hertz When IP"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("status = %#v, want %#v", got, want)
+	}
+}
+
 func TestConnectPassesPasswordOnlyOnStandardInput(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{{}}}
 	manager := newNetworkManager(runner)

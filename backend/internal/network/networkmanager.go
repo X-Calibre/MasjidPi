@@ -66,14 +66,14 @@ func (m *NetworkManager) Status(ctx context.Context) (WiFiStatus, error) {
 		}
 	}
 
-	active, err := m.runner.Run(ctx, []string{"-t", "--escape", "yes", "-f", "TYPE,NAME", "connection", "show", "--active"}, "")
+	active, err := m.runner.Run(ctx, []string{"-t", "--escape", "yes", "-f", "IN-USE,SSID", "device", "wifi", "list", "--rescan", "no"}, "")
 	if err != nil {
-		return WiFiStatus{Supported: true, Configured: configured}, fmt.Errorf("list active NetworkManager profiles: %w", err)
+		return WiFiStatus{Supported: true, Configured: configured}, fmt.Errorf("read active Wi-Fi network: %w", err)
 	}
 	status := WiFiStatus{Supported: true, Configured: configured}
 	for _, line := range lines(active) {
 		fields := splitEscaped(line, ':')
-		if len(fields) == 2 && (fields[0] == "802-11-wireless" || fields[0] == "wifi") {
+		if len(fields) == 2 && (fields[0] == "*" || strings.EqualFold(fields[0], "yes")) {
 			status.Connected = true
 			status.SSID = fields[1]
 			break

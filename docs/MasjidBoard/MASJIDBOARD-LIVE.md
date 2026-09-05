@@ -1,7 +1,6 @@
 # MasjidBoard Live Research
 
-**Status:** Research / discovery  
-**Branch:** `research/masjidboard-live`
+**Status:** Provider research and implemented integration reference; reviewed for v1.5.2
 
 ## Purpose
 
@@ -803,9 +802,11 @@ type PrayerTime struct {
 
 This is appropriate because a prayer time is fundamentally a local mosque clock time; the calendar date and timezone are contextual.
 
-## Research Plan
+## Historical Implementation Plan
 
-MasjidBoard remains a **research/development effort** and is not ready to be merged into `main` or included in the next MasjidPi release. The work should proceed through the following four research stages before production integration is considered.
+The following staged plan guided the original MasjidBoard Live investigation and
+implementation. It is retained as design history; all four stages have since
+been completed for the fields used by MasjidPi v1.5.2.
 
 ### Stage 1 — Complete the upstream schema
 
@@ -895,26 +896,34 @@ Implementation should then proceed through:
 6. Validation of the provider independently from the display layer.
 7. Only after the provider is stable, implementation of the HDMI display scheduler/rendering layer.
 
-Completion of Stage 4 does **not** automatically mean MasjidBoard is ready for release. Release integration should only be considered after the provider, cache, display behaviour, and real-board validation are sufficiently mature for production use.
+Stage 4 was completed before MasjidBoard entered the release path. Provider,
+cache, display and representative real-board validation are now covered by the
+maintained implementation and validation documentation.
 
 ## Current Status
 
-The upstream investigation has established the main 29-row schema and the public-`mid`/opaque-`boardId` relationship. The domain model now explicitly distinguishes the standard five-prayer timetable from the detailed Friday Jumu'ah information.
+The upstream investigation established the main 29-row schema and the
+public-`mid`/opaque-`boardId` relationship. MasjidPi uses MasjidBoard Live Core
+for the primary timetable and can use Premium as optional enrichment.
 
-On Friday, Jumu'ah supplies the Adhan and Salaah/Jamaah values displayed in the Dhuhr slot of the standard timetable, with Khutbah as the Salaah fallback when no Salaah time is supplied. A separate Friday element will display the richer Jumu'ah information.
+The provider, normalised domain model, last-known-good caches and both display
+profiles are implemented. This includes detailed Friday Jumu'ah schedules,
+structured community content, shared Ayah/Hadith/Sunnah content, the optional
+Dua after Adhan, Zawaal warning behaviour and distinct special-day Dhuhr data.
+On Islamic Friday, Jumu'ah replaces the Dhuhr row and may also appear as a
+detailed attributed card.
 
 Iftar versus Maghrib remains an open upstream-semantics question. The current source maps both names to one value, but MasjidPi will not assume they are semantically identical until Ramadhaan observations establish how MasjidBoard Live represents boards that distinguish the two times.
 
-The MasjidBoard implementation remains isolated on `research/masjidboard-live` and is **not part of the current MasjidPi release path**.
+## Remaining Upstream Research
 
-## Immediate Next Step
+Further work is deliberately limited to fields whose semantics or operational
+value are not yet reliable enough for production use:
 
-Begin **Stage 1 — Complete the upstream schema** by tracing the remaining `functions_uo_latest.js` assignments and DOM/display usage, with particular focus on:
+1. Iftar versus Maghrib behaviour across Ramadhaan boards.
+2. Poster and media retrieval, caching and expiry semantics.
+3. Newly introduced or still-unlabelled Premium fields.
+4. Cross-board validation whenever MasjidBoard Live changes its public schema.
 
-1. Jumu'ah heading-code semantics.
-2. Rows 22–28 and fields whose assignments are incomplete or commented out.
-3. Media/image identifiers and their retrieval contract.
-4. Fields whose values are derived rather than directly supplied.
-5. Any upstream fields required to reproduce the full range of MasjidBoard Live content.
-
-No further production-facing MasjidPi integration should be undertaken until the Stage 1 and Stage 2 research has established a sufficiently reliable upstream data contract.
+Unknown values remain outside the normalised model until their meaning and
+privacy implications are established.

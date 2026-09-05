@@ -1,7 +1,6 @@
 # MasjidBoard Hierarchy Refresh
 
-**Status:** Stage 4 implementation  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented
 
 ## Purpose
 

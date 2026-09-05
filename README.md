@@ -1,271 +1,91 @@
 # MasjidPi
 
-MasjidPi is a lightweight home appliance for staying connected to your masjid.
+MasjidPi is a lightweight home appliance for live masjid audio and prayer-time information.
 
-It can be installed with one or both of two independent capabilities:
+It can run either capability independently or install both together:
 
-- **Listen** — priority live masjid audio with optional secondary Islamic radio, favourites, playback recovery, independent source volume control and audio-device selection.
-- **Board** — prayer and Jumu'ah times displayed as a dedicated HDMI MasjidBoard appliance.
+- **Listen** prioritises a selected LiveMasjid stream and can play Islamic Radio while the masjid is offline.
+- **Board** displays prayer times, Jumu'ah schedules and supported community content from MasjidBoard Live on an attached HDMI display.
 
-The two capabilities share the same MasjidPi core but remain independently operable.
-
-> **New to MasjidPi?** See the [User Guide](docs/USER_GUIDE.md) for day-to-day operation of Listen, Radio, Board, scheduling, volume controls and troubleshooting.
+> New to MasjidPi? Start with the [User Guide](docs/USER_GUIDE.md).
 
 ## Features
 
 ### Listen
 
-- Browse and search LiveMasjid streams
-- Save favourite masājid
-- Select a primary masjid whose live stream always has playback priority
-- Select a secondary South African Islamic radio station for continuous audio while the masjid is offline
-- Immediate Radio-to-Masjid interruption when the selected masjid comes online
-- Configurable 1–30 minute Radio resume delay after a masjid broadcast ends
-- Optional daily Radio playback window for quiet hours
-- Explicit **Play on Schedule**, **Play Now** and **Stop Radio** operating modes
-- Persistent Masjid and Radio module power controls with Masjid as the required priority module
-- Independent Masjid and Radio software volumes from 0–150%, including visible boost indication above 100%
-- Separate hardware Master Volume where the selected ALSA device exposes a controllable mixer
-- Play and stop Listen operation
-- Select the audio output device
-- Automatic stream/network reconnection
-- Automatic recovery from audio-device interruptions
-- Persistent settings and favourites
-- Resume playback after reboot
+- Search LiveMasjid streams and save favourites
+- Give the selected masjid immediate priority over Radio
+- Resume Radio after a configurable delay or within a daily schedule
+- Use scheduled, immediate or stopped Radio modes
+- Set independent Masjid and Radio volumes
+- Select an ALSA audio output and recover from device interruptions
+- Restore saved settings and unattended playback after reboot
 
 ### Board
 
-- Masjid search and selection through MasjidBoard Live
-- Prayer and Jumu'ah timetable display
-- Up to three selected masjids
-- Responsive one-, two- and three-board HDMI layouts
-- **TV / Monitor** responsive landscape mode and a dedicated **7-inch Appliance Display (600 × 1024)** mode
-- Theme-aware 7-inch touch controls for favourite Masjids, Radio stations, playback modes and Master/Masjid/Radio volume
-- Landscape timetable with shared Adhan/Jamaah headings and a full-width Daily Times footer
-- Rotating, source-labelled community cards for announcements, Nikah, funerals, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information when supplied by MasjidBoard Live
-- Gregorian date plus masjid-adjusted Islamic date with Islamic weekday transliteration
-- Islamic-date rollover aligned to MasjidBoard Live sunset/date-adjustment behaviour
-- Six curated colour themes: **Emerald, Midnight, Slate, Ruby, Light, and Black & White**
-- Live theme and orientation changes from the Web UI without restarting the display service
-- Next-event countdowns
-- Automatic timetable refresh
-- Last-known-good cache fallback during upstream outages
-- Dedicated Raspberry Pi OS Lite display runtime using Cog/WPE directly on DRM/KMS
-- Automatic display startup and recovery through systemd
-- Raspberry Pi 3B and Pi 4 appliance validation, including 1080p HDMI operation
+- Select and order up to three MasjidBoard Live masjids
+- Use a responsive TV/Monitor layout or the portrait 7-inch Appliance Display
+- Show prayer times, next-event countdowns, Daily Times and detailed Friday Jumu'ah schedules
+- Show supported announcements, programmes, funeral, Nikah, Eid, contribution and other community cards
+- Show optional Daily Ayah, Hadith, Sunnah, Islamic Economic Indicators and Dua after Adhan
+- Highlight the published Zawaal/Istiwaa interval
+- Continue with last-known-good timetable data during temporary upstream outages
+- Use six colour themes and integrated touch controls on the Appliance Display
 
-### Appliance profiles
-
-The installer offers three profiles:
-
-1. Listen
-2. Board
-3. Listen + Board
-
-Only the dependencies, backend subsystems, APIs, configuration pages and appliance services required by the selected profile are enabled.
+Content availability depends on what each upstream masjid publishes.
 
 ## Screenshots
 
-### MasjidBoard HDMI display
-
-The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select the responsive TV / Monitor presentation or the purpose-built 7-inch Appliance Display used by the physical MasjidPi appliance. TV / Monitor mode combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, primary-masjid Daily Times and rotating community cards when supplied upstream. Community cards complete one selected masjid at a time in priority order; shared daily Islamic content and economic indicators appear once at the end. Board colour themes are also user-selectable from the Web UI.
-
-![MasjidBoard Landscape HDMI display with Funeral and Nikaah notice fixtures](docs/images/masjidboard-display-v1.3.0.png)
-
-### MasjidBoard configuration
-
-The configuration interface lets you choose up to three locations and MasjidBoards, order them for the HDMI display, select the HDMI layout and colour theme, refresh timetable data and see the current cache/update status.
+| Listen | Board |
+|---|---|
+| ![MasjidPi Listen interface](docs/images/masjidpi-listen-v1.3.0.png) | ![MasjidBoard HDMI display](docs/images/masjidboard-display-v1.3.0.png) |
 
 ![MasjidBoard configuration interface](docs/images/masjidboard-configuration-v1.3.0.png)
 
-### Listen
+## Install
 
-Listen provides primary masjid audio with optional secondary Islamic radio, favourites, catalogue search, source-priority controls, independent source volumes, scheduling and audio-output selection.
+MasjidPi supports 64-bit ARM Linux and 64-bit x86 Linux. Raspberry Pi 3B and Raspberry Pi 4 are the production-validated appliance platforms.
 
-![MasjidPi Listen interface](docs/images/masjidpi-listen-v1.3.0.png)
-
-## Installation
-
-### Recommended — Raspberry Pi / Linux
-
-Install the latest official release with:
+Install the latest stable release:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
-On an interactive terminal, the installer prompts you to choose **Listen**, **Board**, or **Listen + Board**. It detects the supported CPU architecture, verifies the downloaded release, installs the selected appliance profile and validates the running installation before reporting success.
+The installer prompts for one of three profiles:
 
-**No Git checkout or Go installation is required.**
+1. Listen
+2. Board
+3. Listen + Board
 
-For detailed installation information, see the [Installation Guide](docs/INSTALL.md). For operating instructions after installation, see the [User Guide](docs/USER_GUIDE.md).
-
-### Configuration Web UI
-
-Once installed, open MasjidPi from another device on the same network:
+After installation, open the configuration interface from another device on the same network:
 
 ```text
-http://<raspberry-pi-ip>:8080
+http://<masjidpi-ip-address>:8080
 ```
 
-For example:
+See the [Installation Guide](docs/INSTALL.md) for supported systems, installer behavior, updates and troubleshooting. Hardware compatibility and measured Raspberry Pi performance are documented in the [Hardware Guide](docs/HARDWARE.md).
 
-```text
-http://192.168.1.50:8080
-```
+## Documentation
 
-The configuration UI only exposes pages relevant to the installed component profile. The browser does not need to remain open for Listen playback or the Board HDMI display to continue operating.
-
-## Supported Hardware
-
-Official pre-built releases currently support:
-
-- **Linux ARM64 (`aarch64`)**
-- **Linux AMD64 (`x86_64`)**
-
-### Raspberry Pi
-
-The Raspberry Pi 3B and Raspberry Pi 4 are production-validated Raspberry Pi platforms. Other models in the table below are performance expectations based on their CPU architecture, memory and the measured appliance workloads; they should not be treated as production-validated until tested on real hardware.
-
-| Raspberry Pi product | Listen | Listen + Board | Status / expectation |
-|---|---|---|---|
-| Raspberry Pi Zero W | ❌ | ❌ | Not supported. ARMv6 platform; runtime compatibility problems have been confirmed during testing. |
-| Raspberry Pi 1 family | ❌ | ❌ | Not supported. ARMv6 platform in the same compatibility class as the Zero W. |
-| Raspberry Pi 2 Model B v1.1 | 🟡 | 🟡 | Likely capable, but older 32-bit Cortex-A7 hardware and not a priority support target. |
-| Raspberry Pi 2 Model B v1.2 | 🟢 expected | 🟡/🟢 expected | Pi 3-class Cortex-A53 architecture at a lower clock speed; expected to be usable but not validated. |
-| Raspberry Pi Zero 2 W | 🟢 expected | 🟡/🟢 expected | Strong Listen candidate. Quad-core Cortex-A53 CPU should be sufficient; 512 MB RAM is the main constraint for the full Board display stack. |
-| Raspberry Pi 3A+ | 🟢 expected | 🟡/🟢 expected | Faster Cortex-A53 CPU than the validated Pi 3B, but only 512 MB RAM. Full appliance use should be validated for memory headroom. |
-| **Raspberry Pi 3B** | **✅ validated** | **✅ validated** | Current reference platform. Comfortable CPU, RAM and thermal headroom on 64-bit Raspberry Pi OS Lite. |
-| Raspberry Pi 3B+ | 🟢 expected | 🟢 expected | Same 1 GB memory class as the Pi 3B with a faster Cortex-A53 CPU; expected to perform at least as well as the reference platform. |
-| **Raspberry Pi 4 family** | **✅ validated** | **✅ validated** | Validated on a 4 GB Pi 4 with 64-bit Raspberry Pi OS Lite, native 1080p HDMI, simultaneous audio playback and the GLES-backed Board runtime. |
-| Raspberry Pi 5 family | 🟢 expected | 🟢 expected | Far more CPU performance than MasjidPi currently requires. |
-| Compute Module 3 / 3+ | 🟢 expected | 🟢 expected | Pi 3-class platform; suitability depends on the carrier, RAM variant and required audio/display hardware. |
-| Compute Module 4 | 🟢 expected | 🟢 expected | Pi 4-class performance with ample headroom; suitable for embedded appliance designs. |
-| Compute Module 5 | 🟢 expected | 🟢 expected | Pi 5-class performance; substantially more performance than currently required. |
-
-**Legend:** ✅ production validated · 🟢 expected to run well · 🟡 expected to be usable but with limitations or additional validation required · ❌ not supported.
-
-#### Raspberry Pi 3B performance baseline
-
-A production-style **Listen + Board** installation was measured on a Raspberry Pi 3B running 64-bit Debian 13 / Raspberry Pi OS Lite-class software with four Cortex-A53 cores at up to 1.2 GHz and approximately 905 MiB usable RAM.
-
-With Listen actively running alongside the Cog/WPE MasjidBoard display:
-
-- approximately **337 MiB RAM used** and **567 MiB available**
-- **no swap usage** after a fresh boot
-- MasjidPi backend approximately **15 MiB RSS** and about **2% CPU**
-- `mpv` approximately **75–80 MiB RSS** and about **7% CPU**
-- WPE web renderer approximately **190–195 MiB RSS** and about **31% CPU** during the sample
-- CPU temperature approximately **58–60 °C**
-- `vcgencmd get_throttled` remained **`0x0`**, with no thermal or undervoltage throttling recorded
-
-With the Board display service stopped and Listen left running, system memory use fell to approximately **195 MiB**, with about **709 MiB available** and no swap use. The measured system-level overhead of enabling the Board display stack was therefore roughly **140–150 MiB** in this test.
-
-These results indicate that the Pi 3B has substantial headroom for the complete MasjidPi appliance. They also suggest that 512 MB Cortex-A53 devices such as the Pi Zero 2 W and Pi 3A+ are strong candidates: Listen should fit comfortably, while Listen + Board appears viable but still requires real-device and long-duration validation because of the reduced memory headroom.
-
-Long-duration soak testing and validation across additional Raspberry Pi models are still planned. Performance expectations above may be revised as hardware testing expands.
-
-MasjidPi requires `systemd`. Listen requires an ALSA-compatible audio device. Board requires a supported DRM/KMS display environment and the Cog/WPE packages installed by the production installer.
-
-## How It Works
-
-MasjidPi runs as an appliance service on the host device.
-
-Shared application files are installed under:
-
-```text
-/opt/masjidpi
-```
-
-Persistent configuration is stored under:
-
-```text
-/etc/masjidpi/config.yaml
-```
-
-Installed component profile state is stored under:
-
-```text
-/etc/masjidpi/components.env
-```
-
-Persistent runtime data is stored under:
-
-```text
-/var/lib/masjidpi
-```
-
-The Web UI runs on port `8080`.
-
-When Board is installed, `masjidpi-display.service` launches Cog directly on DRM/KMS with its GLES renderer and displays the local MasjidBoard page over HDMI. When Board is not installed, that service is absent. Saved Board layout/theme preferences are read by the display page itself so user changes can appear on HDMI without shell access or a service restart.
-
-## Useful Commands
-
-Check the main service:
-
-```bash
-sudo systemctl status masjidpi --no-pager
-```
-
-Check the Board display service when Board is installed:
-
-```bash
-sudo systemctl status masjidpi-display --no-pager
-```
-
-View logs:
-
-```bash
-sudo journalctl -u masjidpi -f
-```
-
-Restart MasjidPi:
-
-```bash
-sudo systemctl restart masjidpi
-```
-
-Check installed components:
-
-```bash
-curl -s http://127.0.0.1:8080/api/components
-```
-
-Listen installations can check playback status with:
-
-```bash
-curl -s http://127.0.0.1:8080/api/player/status
-```
-
-Listen installations can check the combined Masjid/Radio controller status with:
-
-```bash
-curl -s http://127.0.0.1:8080/api/listen/status
-```
-
-Board installations can check Board status with:
-
-```bash
-curl -s http://127.0.0.1:8080/api/masjidboard/status
-```
-
-Board installations can check the saved HDMI presentation settings with:
-
-```bash
-curl -s http://127.0.0.1:8080/api/masjidboard/layout
-```
+- [User Guide](docs/USER_GUIDE.md) — Listen, Radio, Board and troubleshooting
+- [Installation Guide](docs/INSTALL.md) — installation, updates and component profiles
+- [Hardware Guide](docs/HARDWARE.md) — supported platforms and measured performance
+- [Roadmap](ROADMAP.md) — current priorities and future work
+- [MasjidBoard technical documentation](docs/MasjidBoard/README.md)
+- [SD-card write policy](docs/SD_CARD_WRITE_POLICY.md)
 
 ## Development
 
-MasjidPi is written in Go with a web-based configuration frontend.
+MasjidPi uses a Go backend and a browser-based frontend.
 
-Run tests:
+Run the automated tests:
 
 ```bash
 make test
 ```
 
-Source installation is intended for development and testing:
+For source-based development installation:
 
 ```bash
 git clone https://github.com/X-Calibre/MasjidPi.git
@@ -273,48 +93,22 @@ cd MasjidPi
 sudo ./scripts/install.sh --source
 ```
 
-See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guide](docs/USER_GUIDE.md) for appliance operation, and `docs/MasjidBoard/` for detailed MasjidBoard design and implementation notes.
+Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Project Status
+## Release
 
 **Current stable release: v1.5.2**
 
-v1.5.2 improves appliance startup and resilience, protects persistent state and the Raspberry Pi boot filesystem, hardens source updates and rollback recovery, and reduces long-running WebKit render churn. It also expands MasjidBoard with detailed Jumu'ah schedules, structured community content, daily Ayah/Hadith/Sunnah cards, a five-minute Dua-after-Adhan takeover, ordered notice rotation, Zawaal/Istiwaa warning highlighting, and non-duplicate special-day Dhuhr times.
+v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 
-The release passed the full automated suite and focused Raspberry Pi 4 source-install validation in portrait and landscape layouts. See [docs/RELEASE_CANDIDATE_v1.5.2.md](docs/RELEASE_CANDIDATE_v1.5.2.md) for the acceptance record.
+## Data sources and acknowledgements
 
-v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
+MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal).
 
-The Listen Web UI separates Masjid, Radio and Audio functions, adds persistent module power switches and clearly identifies the selected masjid even while offline. Turning Masjid off also powers Radio off and stops the Listen controller; turning Radio on while Masjid is off automatically enables Masjid first. Radio timing controls are grouped with Radio, while the Audio tab contains output and master-volume settings. The Radio schedule, operation mode, power state, source volumes and selections are persisted as appropriate across restart. `Play Now` remains intentionally temporary.
+MasjidPi uses [LiveMasjid](https://www.livemasjid.com/) for live masjid streams, [MasjidBoard Live](https://masjidboardlive.com/) for timetable and community data, and [Jamiatul Ulama South Africa](https://www.jamiatsa.org/category/islamic-economic-indicators/) for optional Islamic Economic Indicators.
 
-RC2 reduces duplicate Web UI polling, replaces the playback manager's high-frequency idle loop with event-driven timers, makes audio-device recovery checks adaptive, shares Board display retrieval across renderers, prevents concurrent preference updates from overwriting unrelated settings and refreshes selected boards concurrently while preserving display order.
+MasjidPi is independent and is not affiliated with or endorsed by those projects or services.
 
-RC3 preserves and reflects the selected audio output across upgrades, disables NetworkManager Wi-Fi power saving on Raspberry Pi appliances, reports reachable Web UI addresses after installation, aligns Jumu'ah presentation with the Islamic-date rollover, reduces Cog/WPE display render churn and introduces safe automatic saving for Board display and masjid-selection settings.
+## Licence
 
-RC4 adds responsive TV / Monitor rendering from 1366 × 768 through 4K, a dedicated touch control panel for the 7-inch Appliance Display, named Board notifications for Listen source transitions, and further configuration-interface refinements. The touch panel provides favourite Masjid selection, Radio selection and operating modes, source and master volume controls, playback actions, theme selection, and automatic closure after 60 seconds without activity.
-
-The v1.5.0 release was accepted against the checklist in [docs/RELEASE_CANDIDATE_v1.5.0.md](docs/RELEASE_CANDIDATE_v1.5.0.md), including installation of the published ARM64 RC4 artifact on Raspberry Pi hardware before stable promotion.
-
-v1.4.1 improves Listen resilience by caching both LiveMasjid relay and Icecast URLs, waiting briefly for newly announced MQTT mounts to become ready and automatically failing over to Icecast when relay playback cannot start. Successful endpoints are preferred temporarily, playback status and logs identify the active endpoint, and the automatic Listen catalogue refresh moves from seven to 28 days while retaining manual refresh.
-
-MasjidBoard refinements in v1.4.1 include adaptive landscape proportions, a bundled Fira Sans typeface with lighter large-time weights, more legible announcement and Daily Times content, dedicated centred Salaah-time-change cards with complete dates, and improved standalone Maghrib Adhan presentation.
-
-Islamic Economic Indicators include the complete published value set, consistent South African Rand formatting, accounting-aligned amounts, effective and retrieval dates, and a full-height presentation in both display orientations. Retrieval follows a 09:00 South African effective-date policy with bounded weekend attempts, avoiding unnecessary cache writes when Jamiat has not published a newer row.
-
-The published v1.4.0 release was installed and validated on both the Raspberry Pi 4 test unit and Raspberry Pi 3B production unit. Listen, Board and the optional Islamic Economic Indicators display operated successfully, and the new content rendered correctly on the target hardware.
-
-## Acknowledgements
-
-MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal). We gratefully acknowledge the eBilal contributors and the work they did to make a Raspberry Pi-based masjid audio receiver available as an open-source project.
-
-MasjidPi relies on [LiveMasjid](https://www.livemasjid.com/) for live masjid streams and stream-status data, and on [MasjidBoard Live](https://masjidboardlive.com/) for MasjidBoard timetable data. We gratefully acknowledge the teams maintaining these services.
-
-Optional Islamic Economic Indicators are sourced from [Jamiatul Ulama South Africa](https://www.jamiatsa.org/category/islamic-economic-indicators/). Values retain their effective date and source attribution in the MasjidBoard display.
-
-MasjidPi is an independent project and is not affiliated with or endorsed by eBilal, LiveMasjid, MasjidBoard Live or Jamiatul Ulama South Africa.
-
-## License
-
-MasjidPi is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
-
-See [LICENSE](LICENSE) for details.
+MasjidPi is licensed under the [GNU Affero General Public License v3.0](LICENSE).

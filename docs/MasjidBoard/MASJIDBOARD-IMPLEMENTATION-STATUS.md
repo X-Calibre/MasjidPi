@@ -1,186 +1,127 @@
 # MasjidBoard Implementation Status
 
-**Status:** v1.3.0 integration candidate
-**Branch:** `docs/masjidboard-live-data-inventory` / PR #38
+**Status:** Implemented in MasjidPi v1.5.2
 
-## Purpose
+This document summarises the current production implementation. Provider research and superseded design proposals are retained separately as historical records.
 
-Record the current implemented and validated state of MasjidBoard on the research branch. Older research documents may describe approaches that have since been replaced; this document records the current working behaviour.
+## Architecture
 
-## Current Architecture
+MasjidPi supports three component profiles:
 
-MasjidPi now supports three installation profiles:
+- Listen
+- Board
+- Listen + Board
 
-```text
-Listen
-Board
-Listen + Board
-```
+The profile is stored in `/etc/masjidpi/components.env` and controls backend startup, API registration, dependencies, systemd services and installer self-tests. Listen and Board remain independently operable within one application.
 
-The selected profile is persisted in `/etc/masjidpi/components.env` and is used by the backend, API registration, installer, runtime dependencies, systemd services and installer self-test.
+Current Board packages cover:
 
-Listen and Board remain independent capabilities built on the common MasjidPi application runtime. A Board provider/cache/display failure must not prevent Listen from operating, and a Board-only appliance does not start MPV.
+- MasjidBoard Live hierarchy and scoped discovery;
+- selected-board persistence and ordering;
+- Core timetable retrieval and optional Premium enrichment;
+- normalized models;
+- per-board last-known-good caches;
+- shared daily Islamic content and economic data;
+- runtime refresh/status handling; and
+- a stable display API consumed by browser renderers.
 
-Current MasjidBoard components include:
+## Installation and display runtime
 
-- MasjidBoard Live discovery and hierarchy retrieval;
-- persisted location scope;
-- scoped Masjid catalogue;
-- persisted selection and ordering of up to three Masjids;
-- MasjidBoard Live Core timetable provider;
-- normalized board/prayer model;
-- per-board last-known-good cache;
-- per-board runtime status and recovery;
-- display presentation API;
-- dedicated MasjidBoard configuration WebUI;
-- read-only MasjidBoard display page;
-- Cog/WPE DRM appliance display runtime on Raspberry Pi OS Lite;
-- responsive TV / Monitor and dedicated 7-inch Appliance Display modes;
-- Core timetable retrieval with optional Premium community-content enrichment; and
-- adaptive rotating community-content cards in Landscape mode.
+Board installations use Cog/WPE directly on DRM/KMS. The systemd-managed runtime includes display warm-up, Plymouth-to-Cog handoff, display restart behavior and Raspberry Pi boot-firmware write protection.
 
-## Component-Aware Appliance Installation
+The launcher selects:
 
-The installer prompts for Listen, Board or Listen + Board on fresh installation and reinstall/update flows. Existing installations show the current profile as the default while still allowing the profile to be changed.
+- the standard responsive landscape profile for ordinary displays; or
+- the portrait Appliance profile for the validated Waveshare display/touchscreen combination.
 
-Runtime dependencies are profile-aware:
+Display profile is detected from hardware and is not a saved Board preference.
 
-- Listen installs MPV/FFmpeg/ALSA dependencies;
-- Board installs Cog/WPE display dependencies;
-- combined installs receive both sets.
+## Discovery and selection
 
-Backend subsystem startup and API registration are also profile-aware. A disabled component does not expose its API endpoints.
+The Web UI can:
 
-Validated runtime behaviour is:
+- refresh the global location hierarchy;
+- select and persist one to three locations;
+- build and refresh a scoped masjid catalogue;
+- select and order up to three masjids;
+- enable or disable detailed Jumu'ah cards per masjid; and
+- refresh selected timetables.
 
-```text
-Listen only
-    -> masjidpi + mpv
-    -> no Cog
-    -> player API available
-    -> Board API returns 404
+Hierarchy, catalogue, selection and timetable refresh remain separate operations so one upstream failure does not erase other usable state.
 
-Board only
-    -> masjidpi + Cog/WPE
-    -> no mpv
-    -> Board API available
-    -> player API returns 404
+## Timetables and recovery
 
-Listen + Board
-    -> masjidpi + mpv + Cog/WPE
-    -> both APIs available
-```
+Selected boards refresh independently. Each board is reported as:
 
-The configuration WebUI also hides configuration/navigation for components that are not installed.
+- `current` when fresh data is available;
+- `stale` when its last-known-good cache is being used; or
+- `unavailable` when neither current nor cached data can be displayed.
 
-Component-profile changes participate in the safe update workflow. Profile state is transactional and can be restored with the previous runtime during rollback. Installer self-tests validate only the components selected for the candidate installation.
+Identical successful data is not rewritten unnecessarily. Core remains authoritative for the timetable; failed optional enrichment does not make a successful Core timetable stale.
 
-Profile transitions between Listen-only, Board-only and Listen + Board have been exercised on Raspberry Pi hardware, including adding and removing each component. Removing Board stops/disables the display runtime, removes the display unit/launcher and clears stale systemd failed-unit state.
+## Presentation
 
-## Display Runtime
+Both profiles support:
 
-The production Raspberry Pi display direction is now Cog with WPE WebKit rendering directly through DRM/KMS:
+- one to three ordered masjids;
+- five daily prayers with Jumu'ah replacing Dhuhr during the Islamic-Friday interval;
+- chronological Jumu'ah events and optional detailed schedule cards;
+- next-event countdowns with overnight Fajr rollover;
+- Gregorian and masjid-adjusted Islamic dates;
+- primary-masjid Daily Times;
+- provider-supplied special Dhuhr when distinct from normal Dhuhr;
+- Zawaal/Istiwaa clock/date warning;
+- stale/unavailable state; and
+- six colour themes.
 
-```text
-cog --platform=drm --platform-params=renderer=gles http://127.0.0.1:8080/masjidboard.html
-```
+The Appliance profile uses one timetable slide per masjid and includes a touch-control sheet for selected Listen and theme actions.
 
-This has been validated on Raspberry Pi OS Lite 64-bit with an HDMI display. It does not require Chromium, a desktop environment, X11, a Wayland compositor or graphical login session.
+## Community and shared content
 
-`masjidpi-display.service` starts the display automatically when Board is installed and restarts it after unexpected Cog termination. Crash/restart behaviour has been tested successfully.
+Supported content includes:
 
-See `MASJIDBOARD-DISPLAY-RUNTIME.md` for the current runtime design and validation details.
+- general and urgent announcements;
+- Salaah and class-time changes;
+- weekly and Ramadan programmes;
+- funeral, Nikah and Eid notices;
+- well-wishes;
+- Taleem, Dawah/Gasht and three-day Jamaat information;
+- contribution appeals;
+- new-moon information;
+- Daily Ayah, Hadith and Sunnah; and
+- Islamic Economic Indicators.
 
-## Discovery and Selection
+Community cards complete one selected masjid at a time in priority groups. Shared daily Islamic content and economic data are shown once after masjid-specific content.
 
-The configuration UI supports refreshing the location hierarchy, selecting/persisting locations, building and refreshing the scoped Masjid catalogue, selecting up to three Masjids, and preserving/reordering the selected display order.
+Arabic and mixed-direction text is sanitized and rendered with automatic direction. Static cellphone-reminder chrome and poster/media content are deliberately excluded.
 
-Refresh actions remain intentionally distinct:
+The optional built-in Dua after Adhan is disabled by default. When enabled, it takes over the Appliance slide or complete landscape notice column for five minutes beginning at a primary-masjid Adhan time.
 
-- **Refresh Location List** — refresh the upstream hierarchy;
-- **Refresh Masjid List** — refresh Masjids available within the selected locations;
-- **Refresh Timetables** — refresh live timetable data for selected Masjids.
+## Saved preferences
 
-## Timetable Retrieval, Cache and Recovery
+Saved Board preferences include:
 
-The MasjidBoard Live Core board page is the working primary timetable source. Selected boards refresh independently and a failure for one board does not invalidate the others.
+- theme;
+- slide duration;
+- Islamic Economic Indicators visibility;
+- Daily Ayah, Hadith and Sunnah visibility;
+- Dua after Adhan visibility; and
+- per-masjid detailed Jumu'ah visibility.
 
-Automatic timetable refresh runs every 30 minutes, with manual refresh available from the configuration UI. Startup refresh is asynchronous.
+The display profile itself is not persisted.
 
-Each selected Masjid has an independent last-known-good timetable cache. Verified behaviour is:
+## Validation
 
-```text
-provider available
-    -> current live timetable
+v1.5.2 validation includes automated Go, race, shell, installer and JavaScript checks plus Raspberry Pi 4 source-install testing. Portrait and landscape rendering, detailed Jumu'ah, structured community content, Dua priority, Zawaal warning, special Dhuhr suppression, 11-item Daily Times layout, persistence and service health were verified.
 
-provider unavailable with cache
-    -> stale
-    -> cached timetable remains displayed
-    -> update error recorded
+See [../VALIDATION_CHECKLIST.md](../VALIDATION_CHECKLIST.md) and [../RELEASE_CANDIDATE_v1.5.2.md](../RELEASE_CANDIDATE_v1.5.2.md).
 
-provider available again
-    -> next successful refresh returns board to current
-```
+## Remaining work
 
-This lifecycle has been verified in automated tests and a real provider-outage runtime test. Identical timetable data is not rewritten on every refresh.
+Non-blocking follow-up work includes:
 
-## Display Layouts and Community Content
-
-The read-only display is `/masjidboard.html`, supports one, two or three selected Masjids, and offers a responsive TV / Monitor mode plus a dedicated 7-inch Appliance Display (600 × 1024) mode.
-
-TV / Monitor mode shows current local time/date, selected Masjid names, Fajr, Dhuhr or Friday Jumu'ah, Asr, Maghrib, Esha, per-board stale/unavailable state, per-Masjid countdowns and a full-width Daily Times footer. The 7-inch Appliance Display presents the same core timetable information for the integrated physical-appliance screen.
-
-Jumu'ah replaces Dhuhr on Friday. Timed Jumu'ah events are displayed chronologically with provider labels preserved. The countdown rolls to the following day's first Fajr event after the final visible event of the day.
-
-When a selected board exposes public Premium content, it can enrich the successful Core timetable with active announcements and structured cards. Supported categories include Nikah, funeral, Eid, Salaah changes, well-wishes, Taleem, Dawah/Gasht, three-day Jamaat, contributions and calculated new-moon information. Core remains authoritative for the timetable, and missing or failed Premium enrichment does not make a successful Core board stale. Landscape rotates additional card pages, suppresses duplicates, converts upstream HTML to plain text and labels each card with its source.
-
-The Section 10 community-content review is implemented with these decisions:
-
-| Inventory item | Current handling |
-|---|---|
-| General notice and masjid announcement | Active upstream slots render as sanitised, attributed announcement cards. |
-| Salaah-time and class-time changes | Structured future Salaah changes retain their dedicated model; recognised announcement headings receive conservative Salaah-change or class-time labels. |
-| Weekly and Ramadan/Taraweeh programmes | Recognised headings receive weekly-programme or Ramadan-programme labels without attempting to infer categories from body prose. |
-| Arabic-language notice | Unicode content is preserved, sanitised and rendered with automatic RTL/mixed-direction handling. |
-| Dua after Adhan | Optional MasjidPi-owned bilingual priority card, disabled by default and shown for five minutes from a listed Adhan in the masjid timezone. It temporarily supersedes ordinary Appliance slides or Landscape notice cards. |
-| Requests for dua / names 1–10 | Row 21 names are the upstream sickness/well-wishes module and render through the existing dedicated well-wishes card; no duplicate named-person model is created. |
-| Funeral, Nikah and structured Eid | Parsed and displayed as dedicated structured categories. |
-| Taleem and Jamaat programmes | Parsed and displayed as Taleem, Dawah/Gasht and three-day Jamaat categories. |
-| Contribution appeal | Parsed and displayed as a structured contribution category. |
-| Cellphone reminder | Deliberately excluded: this is static public-board chrome rather than masjid event content and is inappropriate as a rotating home-appliance notice. |
-| Poster-based Ramadan/community content | Kept outside this text-card change. Poster transport, caching, duration and media safety require the separate media feature already identified in the inventory. |
-
-## Validation Completed
-
-Automated Go coverage includes API endpoints, hierarchy/discovery, scoped catalogue and reconciliation, selection persistence, provider parsing/normalization, Jumu'ah handling, cache persistence/write suppression, display presentation, runtime behaviour and stale-cache recovery.
-
-Manual/runtime validation now includes:
-
-- location and Masjid selection;
-- three-board display;
-- Friday/Jumu'ah behaviour;
-- next-event and overnight countdowns;
-- provider outage/cache/recovery;
-- Raspberry Pi OS Lite HDMI display using Cog/WPE DRM;
-- display process restart recovery;
-- reboot/service restart appliance behaviour;
-- Listen-only appliance operation;
-- Board-only appliance operation;
-- combined Listen + Board operation;
-- transitions among all three component profiles;
-- component-aware API exposure and process startup;
-- component-aware installer dependencies and self-tests;
-- transactional profile/update handling and rollback;
-- Board display-service cleanup when Board is removed.
-- TV / Monitor and 7-inch Appliance Display preference changes and persistence;
-- complete anonymised rotating-card fixtures, including RTL and dense-content cases;
-- optional Premium enrichment with Core fallback;
-- Raspberry Pi 4 native-1080p display using Cog's GLES renderer;
-- simultaneous Listen playback and Board rendering on Raspberry Pi 4; and
-- Raspberry Pi 4 recovery after reinstall and full reboot without throttling or unexpected display restarts.
-
-## Remaining Release Work
-
-The automated CI gate and Raspberry Pi 4 functional acceptance pass are complete. Remaining work is to complete the documentation review, merge PR #38, prepare and verify v1.3.0 release artifacts, and publish only after those artifacts pass installation validation.
-
-Longer-duration soak testing, practical HDMI disconnect/reconnect testing, broader hardware validation and poster/media support remain follow-up work rather than release blockers.
+- poster/media transport and caching;
+- broader real-world Arabic/RTL validation;
+- Ramadan Maghrib/Iftar source validation;
+- HDMI reconnect and wider hardware testing; and
+- longer-duration soak monitoring of the final feature set.

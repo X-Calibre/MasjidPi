@@ -1,7 +1,7 @@
 # South African Islamic Radio Stream Research
 
-**Status:** Active research / Raspberry Pi 4 validation complete for eight streams  
-**Last validated:** 2026-08-27  
+**Status:** Historical endpoint research; secondary Radio shipped in v1.5.0
+**Last validated:** 2026-08-27
 **Purpose:** Evaluate South African Islamic radio stations for inclusion in MasjidPi Listen as secondary audio sources.
 
 ## Objective
@@ -361,9 +361,9 @@ Fallback should be triggered by a genuine connection or playback failure, not by
 
 Where two URLs are merely different proxy/access paths to the same upstream service, they should not be represented as independent resilience fallbacks unless testing demonstrates a real availability benefit.
 
-## Potential Secondary-Stream Behaviour
+## Implemented Secondary-Stream Behaviour
 
-A future enhancement could allow a selected radio station to operate as a secondary audio source when a selected masjid is not broadcasting:
+MasjidPi v1.5.0 implemented a selected Radio station as a secondary source while the priority masjid is not broadcasting:
 
 ```text
 Selected Masjid
@@ -373,16 +373,7 @@ Selected Masjid
       +-- Not broadcasting -> Selected radio station
 ```
 
-This behaviour should not be coupled to the initial radio catalogue implementation.
-
-Recommended implementation sequence:
-
-1. Complete endpoint discovery and hardware validation.
-2. Establish a radio catalogue with ordered stream support.
-3. Add Radio Stations as a separate selectable category.
-4. Reuse the existing MasjidPi `mpv` playback architecture.
-5. Validate normal manual radio playback.
-6. Consider automatic fallback/secondary-stream behaviour as a separate enhancement.
+The selected masjid interrupts Radio immediately. Radio may resume after a configurable delay, follow a daily schedule, play immediately, or remain stopped. This section records the research that led to that implementation rather than a future proposal.
 
 ## Remaining Technical Validation
 
@@ -431,4 +422,4 @@ Salaamedia's previously uncertain Antfarm endpoint has now been confirmed as a v
 
 This provides strong evidence that a dedicated Radio Stations catalogue is technically viable in MasjidPi Listen.
 
-Production implementation should wait until the remaining endpoint discovery is completed and the validated streams have been tested on Raspberry Pi 3 B hardware, through the production ALSA output path, and under longer/reconnection test conditions.
+The validated endpoints were sufficient for the v1.5.0 Radio catalogue and secondary-playback implementation. Remaining endpoint, Pi 3B, ALSA and reconnection work is ongoing catalogue/hardware validation rather than an implementation prerequisite.

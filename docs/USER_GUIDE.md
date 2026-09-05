@@ -313,13 +313,15 @@ MasjidPi supports dedicated HDMI presentation including:
 
 The presentation adapts to the number of configured masjids.
 
-The **Display** tab also configures:
+The local HDMI profile is selected automatically from the attached hardware. It is not a saved layout choice. The **Display** tab configures:
 
 - slide duration from 5 to 60 seconds;
 - one of six Board colour themes; and
-- optional Islamic Economic Indicators.
+- optional Islamic Economic Indicators;
+- independently enabled Daily Ayah, Daily Hadith and Daily Sunnah cards; and
+- the optional Dua-after-Adhan card.
 
-Display mode, slide duration, theme and the Economic Indicators option are saved automatically. **Open Display Preview** opens the currently selected layout in the browser.
+Slide duration, theme and optional-content settings are saved automatically. **Open Display Preview** opens the standard browser presentation, while **Appliance Preview** opens the portrait appliance presentation without changing the physical display.
 
 ![Board Display tab showing layout, duration, information and theme settings](images/user-guide/board-display-tab.png)
 
@@ -372,6 +374,8 @@ Depending on available upstream data, Board can show:
 - community announcements, weekly programmes, class-time changes and Ramadan/Taraweeh programmes;
 - structured Nikah, funeral, Eid, Taleem, Jamaat, contribution and well-wishes cards;
 - detailed Friday-only Jumu’ah schedule cards;
+- non-duplicate special-day Dhuhr times in the primary masjid's Daily Times;
+- shared Daily Ayah, Daily Hadith and Daily Sunnah cards;
 - an optional bilingual Dua after Adhan card; and
 - optional Islamic Economic Indicators sourced from Jamiatul Ulama South Africa.
 
@@ -379,7 +383,13 @@ Not every masjid supplies every type of content.
 
 Notice cards identify their upstream masjid with **Source:**. Islamic Economic Indicators retain their own Jamiat attribution and update information.
 
-The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidPi shows its own Arabic-and-English card for five minutes from any listed Adhan time, using the selected masjid's timezone. During this priority window, the Appliance card remains continuously visible and the Landscape card occupies the complete notice column; ordinary slides or notice cards resume automatically afterward. The card does not show a source attribution because it is built-in MasjidPi content rather than a selected masjid notice.
+The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidPi shows its own Arabic-and-English card for five minutes beginning at a listed Adhan time for the primary selected masjid, using that masjid's timezone. During this priority window, the Appliance card remains continuously visible and the Landscape card occupies the complete notice column; ordinary slides or notice cards resume automatically afterward. The card does not show a source attribution because it is built-in MasjidPi content rather than a selected masjid notice.
+
+Community cards are shown one selected masjid at a time and use a consistent priority order. Funeral and urgent/time-sensitive notices appear before general announcements and programmes. Shared Daily Ayah, Hadith, Sunnah and Economic Indicator pages appear after all masjid-specific content.
+
+When the primary masjid publishes an Istiwaa caution/Zawaal interval, the clock and current date flash red throughout that interval. The warning begins at the published caution time (or Istiwaa when no caution time is available) and ends at the published Zawaal end time.
+
+A provider-supplied special Dhuhr time, such as **Dhuhr (Sundays & Public Holidays)**, is always listed in the primary masjid's Daily Times so it can be seen in advance. MasjidPi suppresses it when it is identical to the normal Dhuhr Adhan or Jamaah time.
 
 Arabic and mixed-language notices use automatic text direction. MasjidPi treats upstream notice headings conservatively: only recognised Salaah-change, class-time, weekly-programme and Ramadan/Taraweeh headings receive a specialised label; other text remains a general announcement.
 

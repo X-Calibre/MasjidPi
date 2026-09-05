@@ -57,11 +57,11 @@ which renders the standard presentation.
 
 MasjidPi does not persist `standard` or `appliance` as a user preference. Existing selection files written by releases that stored `layout: landscape` or `layout: portrait` are accepted during upgrade because unknown JSON fields are ignored. The obsolete layout field disappears the next time the selection is saved.
 
-Theme, slide duration and Islamic Economic Indicators visibility remain persisted display preferences and are shared by both profiles.
+Theme, slide duration, Daily Ayah/Hadith/Sunnah visibility, Dua-after-Adhan visibility and Islamic Economic Indicators visibility are persisted preferences shared by both profiles.
 
 ## Configuration UI
 
-The Board Display page no longer offers a layout/profile selector. It reports that the local display profile is automatic and continues to configure the shared theme, slide duration and optional economic indicators.
+The Board Display page no longer offers a layout/profile selector. It reports that the local display profile is automatic and continues to configure the shared theme, slide duration and optional content.
 
 A direct Appliance Preview link is provided for browser-based development and troubleshooting.
 

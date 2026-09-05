@@ -1,7 +1,6 @@
 # MasjidBoard Multi-Board Selection
 
-**Status:** Implemented and live-validated  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented and live-validated
 
 ## Decision
 
@@ -34,6 +33,7 @@ SelectedBoard
     ExternalID
     Name
     TimeZoneOffsetMS
+    ShowDetailedJumuah
 ```
 
 The selection contains enough identity, display-name and timezone information for already-selected boards to operate without loading or refreshing the discovery catalogue.
@@ -81,7 +81,7 @@ The catalogue is loaded only for browsing, selection and maintenance.
 
 ## Display Boundary
 
-The display is read-only. It receives the configured boards in selection order and renders their timetable/status data. Searching, selecting, reordering and replacing boards are API/WebUI responsibilities.
+The timetable presentation is read-only. It receives configured boards in selection order and renders their timetable/status data. Searching, selecting, reordering and replacing boards are API/WebUI responsibilities. The Appliance touch overlay is limited to everyday Listen controls and theme selection.
 
 Missing optional timetable values are not update failures. A board may legitimately omit individual Jamaah or Jumu'ah event times while the board itself remains `current`.
 

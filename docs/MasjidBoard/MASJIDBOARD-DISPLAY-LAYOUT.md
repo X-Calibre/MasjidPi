@@ -30,6 +30,7 @@ Normal browser access uses the standard presentation:
 frontend/masjidboard.html
 frontend/masjidboard-display.css
 frontend/masjidboard-display.js
+frontend/masjidboard-warning-utils.js
 frontend/masjidboard-detailed.css
 frontend/masjidboard-detailed.js
 frontend/masjidboard-appliance.css
@@ -98,6 +99,8 @@ Esha start
 
 When Premium enrichment is available, the standard presentation also shows rotating community information such as announcements, class-time changes, weekly and Ramadan programmes, Nikah, funerals, Eid, Taleem/Jamaat programmes, contributions, well-wishes, Salaah changes, new-moon information and Islamic Economic Indicators. Recognised announcement headings receive a semantic card label; unknown headings remain ordinary announcements instead of being classified from free-form prose. Arabic and mixed-language fields use automatic text direction.
 
+A provider-supplied special Dhuhr entry is appended to Daily Times when it has a usable label/time and differs from normal Dhuhr Adhan and Jamaah. Daily Times dynamically fits up to 11 items into one landscape row.
+
 The standard profile contains no appliance Listen controls.
 
 ## Appliance profile presentation
@@ -125,11 +128,13 @@ These controls deliberately do not expose full catalogue search, board/location 
 
 Theme, slide duration, Islamic Economic Indicators visibility and the optional Dua-after-Adhan card are shared saved display preferences. They are independent of the automatically selected display profile.
 
-The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for five minutes from a listed timetable Adhan for the primary selected masjid and disappears at the end of the window without requiring a new provider refresh. It is built-in content and therefore omits the source attribution used by masjid notices. It is priority content: Appliance suspends its normal slideshow on the full-screen card, while Landscape gives it the complete notice column and suppresses other cards for the five-minute window.
+The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for five minutes beginning at a listed timetable Adhan for the primary selected masjid and disappears at the end of the window without requiring a new provider refresh. It is built-in content and therefore omits the source attribution used by masjid notices. It is priority content: Appliance suspends its normal slideshow on the full-screen card, while Landscape gives it the complete notice column and suppresses other cards for the five-minute window.
 
 Community content completes one selected masjid at a time, in selection order. Within each masjid it is grouped as: funeral notices; urgent announcements, Salaah changes effective within seven days and Eid notices; other announcements, Friday Jumu'ah schedules, Nikah and well-wishes; programmes, class changes, Dawah/Gasht and Jamaat notices; then new-moon information and contributions. Priority groups are packed independently so one slide never combines cards from different masjids or different priority groups. Salaah changes that are past, more than seven days away or have no usable effective date are omitted.
 
 Daily Times uses only the primary masjid. Daily Ayah, Daily Hadith, Daily Sunnah and Islamic Economic Indicators are shared content shown once, after all selected-masjid content has completed.
+
+When the primary masjid supplies a valid Istiwaa caution/Zawaal-end interval, the clock and date flash red from the caution time (or Istiwaa fallback) until, but not including, the end time.
 
 Changing a theme therefore affects both standard and Appliance presentations. Selecting an Appliance profile is never a saved user preference.
 

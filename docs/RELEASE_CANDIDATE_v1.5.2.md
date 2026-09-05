@@ -56,14 +56,14 @@ This record covers promotion of the v1.5.2 release after three release candidate
 ## Publication checklist
 
 - [x] The v1.5.2 version and release documentation are prepared on a dedicated branch.
-- [ ] The release-preparation pull request is merged after CI passes.
-- [ ] Annotated tag `v1.5.2` is created from the accepted `main` commit.
+- [x] The release-preparation pull request was merged after CI passed.
+- [x] Annotated tag `v1.5.2` was created from the accepted `main` commit.
 - [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS`.
 - [ ] Published checksums and release metadata are verified.
 
 ## Publication procedure
 
-After the release-preparation pull request is merged and CI passes:
+The stable tag was published with:
 
 ```bash
 git switch main
@@ -73,4 +73,4 @@ git tag -a v1.5.2 -m "MasjidPi v1.5.2"
 git push origin v1.5.2
 ```
 
-The tag starts the release workflow. Do not reuse or move any release-candidate tag.
+The tag starts the release workflow. It must not be reused or moved. Artifact publication and checksum verification remain recorded separately because they were not yet confirmed when this document was refreshed.

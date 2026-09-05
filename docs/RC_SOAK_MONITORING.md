@@ -1,6 +1,6 @@
 # MasjidPi Release Candidate Soak Monitoring
 
-This document describes a lightweight monitoring service for release-candidate validation on Raspberry Pi hardware.
+This document describes a reusable lightweight monitoring service for release-candidate and post-release validation on Raspberry Pi hardware.
 
 The monitor is intended for temporary 24–48 hour soak testing. It records service health, process resource usage, system load, memory, disk usage, Raspberry Pi temperature/throttling state, Listen status, MasjidBoard status summaries, and recent MasjidPi warnings/errors.
 

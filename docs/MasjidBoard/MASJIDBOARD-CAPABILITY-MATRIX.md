@@ -1,7 +1,6 @@
 # MasjidBoard Live Capability Matrix Research
 
-**Status:** Research / Stage 2  
-**Branch:** `research/masjidboard-live`
+**Status:** Provider research and capability reference; implementation status reviewed for v1.5.2
 
 ## Purpose
 
@@ -608,9 +607,9 @@ MasjidPi must not derive Premium capability solely from these suffixes.
 
 Premium capability should continue to be determined by the Premium capability probe.
 
-## Remaining Stage 2 Questions
+## Remaining provider questions
 
-Stage 2 is not complete. Remaining research includes:
+The production source boundary is implemented. Remaining research questions include:
 
 1. broader Core schema sampling across more countries and `MBL_ID` variants;
 2. whether an explicit perpetual/manual timetable mode is exposed in Core, Premium or supporting JavaScript/configuration;
@@ -620,9 +619,9 @@ Stage 2 is not complete. Remaining research includes:
 6. exact Core Jumu'ah behaviour across more `jumuahHeadings` combinations;
 7. Ramadan-specific values, especially Iftar versus Maghrib behaviour;
 8. how Core live-stream metadata relates to MasjidPi's existing audio-stream subsystem; and
-9. which FindMasjid fields belong in the final user-facing catalogue versus selected-board data.
+9. whether later upstream schema changes require additional catalogue fields.
 
-## Current Stage 2 Direction
+## Implemented source direction
 
 The standard timetable source question is now sufficiently validated for research purposes:
 
@@ -630,6 +629,4 @@ The standard timetable source question is now sufficiently validated for researc
 
 The freshness investigation has also established that MasjidBoard Live supports perpetual, manual and temporary-override timetable workflows. `last_updated` cannot safely be interpreted as the age of today's timetable.
 
-The next Stage 2 work should look for explicit timetable-mode/configuration evidence and broaden Core schema sampling before production implementation is frozen.
-
-No MasjidBoard work from this research branch is intended to be merged into the next MasjidPi release until the module is substantially further developed and validated.
+Core is the production timetable source and Premium is optional enrichment. The implementation remains defensive because later captures may reveal source disagreements or additional timetable modes.

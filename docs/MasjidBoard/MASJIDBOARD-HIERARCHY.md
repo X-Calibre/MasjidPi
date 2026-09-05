@@ -1,7 +1,6 @@
 # MasjidBoard Discovery Hierarchy
 
-**Status:** implementation design  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented design reference
 
 ## Purpose
 

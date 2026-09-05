@@ -1,7 +1,6 @@
 # MasjidBoard Last-Known-Good Board Cache
 
-**Status:** Implemented and live-validated  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented and live-validated
 
 ## Behavioural Rule
 

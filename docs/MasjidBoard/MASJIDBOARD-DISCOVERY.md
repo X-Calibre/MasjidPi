@@ -1,7 +1,6 @@
 # MasjidBoard Live Board Discovery Research
 
-**Status:** Research / architecture
-**Branch:** `research/masjidboard-live`
+**Status:** Historical discovery research; implemented outcome documented separately
 
 ## Purpose
 
@@ -186,7 +185,8 @@ The eventual implementation should cover:
 
 The implementation should keep discovery separate from board retrieval so that a failure in catalogue refresh does not prevent an already-selected board from operating from its cached configuration/data.
 
-**Output:** A tested catalogue/discovery subsystem suitable for later integration into MasjidBoard, but not automatically part of the next MasjidPi release.
+**Outcome:** The tested catalogue/discovery subsystem was integrated into
+MasjidBoard, while preserving manual recovery and last-known-good behaviour.
 
 ## Verified Stage 1 Findings
 
@@ -386,8 +386,8 @@ The eventual architecture should therefore be:
               MasjidBoard Display
 ```
 
-## Current Status
+## Implemented outcome
 
-**Research only. No implementation is proposed yet.**
+This research identified the structured public directory and stable public `web_url` identity now used by MasjidPi. The production implementation persists the hierarchy separately, builds location-scoped catalogue partitions, retains Core-only boards and probes Premium only as optional enrichment.
 
-Stage 1 has now identified a structured public directory endpoint and verified that known Premium public slugs can be correlated with Core catalogue `web_url` values across multiple boards and countries. The next research task is to determine the safest and least assumption-driven way to test whether a discovered Core entry also exposes a usable Premium board, while retaining Core/Basic entries that may be useful without Premium access.
+Current discovery behavior is documented in `MASJIDBOARD-CATALOGUE-DESIGN.md`, `MASJIDBOARD-HIERARCHY.md` and `MASJIDBOARD-IMPLEMENTATION-STATUS.md`.

@@ -1,257 +1,102 @@
 # MasjidBoard Display and Configuration Boundary
 
-**Status:** Architecture decision; presentation API implemented  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented in MasjidPi v1.5.2
 
-## Decision
+## Principle
 
-The MasjidBoard display is a **read-only presentation surface**.
+The timetable/content presentation is read-only. Discovery, selected-board administration and persistent settings belong to the MasjidPi configuration Web UI and APIs.
 
-It exists only to display MasjidBoard information for the configured one to three selected masjids. It must not contain configuration controls, discovery/search workflows, board-selection controls, catalogue maintenance actions, ordering controls or administrative preferences.
+The Appliance profile includes a deliberately narrow touch-control overlay for everyday Listen actions and theme selection. It does not turn the HDMI presentation into an administrative interface.
 
-All configuration and preferences belong to the MasjidPi API and/or administrative WebUI.
+## Display responsibilities
 
-## Responsibility Split
+The display may:
 
-```text
-MasjidPi WebUI / configuration API
-    +-- configure 1-3 discovery locations
-    +-- browse locally persisted catalogue
-    +-- select 1-3 boards
-    +-- reorder/replace selected boards
-    +-- request catalogue refresh
-    +-- configure display preferences
-    +-- inspect diagnostics
-             |
-             v
-MasjidBoard backend service
-    +-- persisted discovery scope/catalogue/selection
-    +-- provider construction
-    +-- independent live refresh
-    +-- independent last-known-good caches
-    +-- current / stale / unavailable runtime state
-             |
-             v
-GET /api/masjidboard/display
-             |
-             v
-MasjidBoard display
-    +-- READ ONLY
-    +-- render selected board information
-    +-- preserve configured board order
-    +-- show per-board stale indication
-```
+- render selected timetable and community data;
+- format board-local times and dates;
+- calculate Friday, countdown and Zawaal warning state;
+- rotate or prioritize cards;
+- show stale/unavailable state;
+- show Listen source notifications;
+- expose the limited Appliance touch overlay; and
+- retry presentation retrieval while retaining usable rendered data.
 
-The display does not need to know how a board was discovered, selected, refreshed or configured.
+The display must not:
+
+- search or alter the MasjidBoard catalogue;
+- change geographic scope or selected boards;
+- edit schedules;
+- select audio devices;
+- expose provider/cache diagnostics; or
+- write upstream content.
+
+## Configuration responsibilities
+
+The Web UI and administrative APIs own:
+
+- location hierarchy and scope;
+- catalogue refresh/search;
+- selected-board add/remove/order;
+- per-board detailed Jumu'ah preference;
+- theme and slide duration;
+- Daily Ayah/Hadith/Sunnah preferences;
+- Dua-after-Adhan preference;
+- Islamic Economic Indicator preference; and
+- timetable refresh/status.
 
 ## Presentation API
 
-The display-facing endpoint is:
-
 ```text
 GET /api/masjidboard/display
 ```
 
-It is derived from the selected-board runtime state but exposes a deliberately smaller provider-neutral contract than the diagnostic status API.
+The response contains only the stable presentation state required by the renderers. It excludes raw upstream payloads, cache paths and detailed errors.
 
-The top-level model is:
-
-```text
-DisplayView
-    configured
-    boards[]
-```
-
-Each board contains presentation information only:
+Administrative state uses separate endpoints including:
 
 ```text
-catalogue_id
-name
-alternate_name (optional)
-time_zone (optional)
-status              current | stale | unavailable
-stale               boolean
-last_successful_update (optional)
-date
-prayers[]
-jumuah[] (optional)
-astronomical (optional)
+GET  /api/masjidboard/status
+GET  /api/masjidboard/hierarchy
+POST /api/masjidboard/hierarchy/refresh
+GET  /api/masjidboard/scope
+PUT  /api/masjidboard/scope
+GET  /api/masjidboard/catalogue
+POST /api/masjidboard/catalogue/refresh
+GET  /api/masjidboard/selection
+PUT  /api/masjidboard/selection
+GET  /api/masjidboard/layout
+PUT  /api/masjidboard/layout
+POST /api/masjidboard/boards/refresh
 ```
 
-The five daily prayers are always presented in stable order:
+## Profiles
+
+The local launcher chooses standard or appliance presentation from attached hardware. Profile is not persisted through the layout API.
+
+A remote browser may open:
 
 ```text
-Fajr
-Dhuhr
-Asr
-Maghrib
-Esha
+/masjidboard.html
+/masjidboard.html?profile=appliance
 ```
 
-Each row contains a stable key, display label and optional Adhan/Jamaah local wall-clock times. Missing individual times are omitted rather than fabricated.
+The query parameter changes only that browser view.
 
-Jumu'ah presentation retains available source headings/events but also exposes `effective_salaah`, which uses a supplied Jumu'ah Jamaah time when available and otherwise the normalised Khutbah fallback already defined by the domain model.
+## Touch-control exception
 
-Astronomical values remain optional. The presentation model currently carries the normalised astronomical fields so later screen layouts/preferences can use them without making the display consume the full internal `Board` object.
+The Appliance overlay may:
 
-Clock times have an explicit display JSON shape:
+- select a favourited Listen masjid;
+- select a Radio station;
+- choose scheduled/immediate/stopped Radio mode;
+- start or stop Listen;
+- adjust source and supported Master volumes; and
+- change the saved Board theme.
 
-```json
-{
-  "hour": 16,
-  "minute": 45
-}
-```
+Catalogue search, Radio schedule editing, Board selection and audio-device configuration remain in the full Web UI.
 
-The display model owns this JSON contract independently of the internal Go domain structs.
+## Failure behavior
 
-## Initial Display Content Scope
+An upstream or optional-content failure must not blank already usable prayer data. Per-board state is current, stale or unavailable, and selected positions remain stable. A temporary display-API failure leaves the last rendered view on screen while retrying.
 
-The initial household display should focus on the information required to decide **where and when to pray** rather than displaying every available timetable field.
-
-The default layout should show:
-
-- masjid name;
-- current local date/time;
-- Fajr, Dhuhr, Asr, Maghrib and Esha;
-- Adhan where supplied;
-- Jamaah where supplied;
-- Jumu'ah information where supplied; and
-- a concise per-board stale/unavailable indication.
-
-The following data may remain available through the presentation API but is **not part of the default initial layout**:
-
-```text
-Suhur
-Fajr Start
-Sunrise
-Ishraaq
-Duha
-Istiwa / Zawaal
-Asr Shafi'i
-Asr Hanafi
-Sunset
-Esha Start
-```
-
-These values are reserved for later layouts/preferences such as an extended timetable or Ramadan-oriented view.
-
-## Prayer Time Presentation Rules
-
-The information order for each daily prayer is fixed:
-
-```text
-Prayer name
-Adhan
-Jamaah
-```
-
-Adhan must therefore appear before Jamaah in reading order.
-
-Visual emphasis is different from reading order:
-
-- when both Adhan and Jamaah are present, **Jamaah is visually dominant** (for example larger and/or bolder);
-- Adhan remains visible first but with secondary emphasis;
-- when only one of Adhan or Jamaah is supplied, that available time takes the dominant styling; and
-- the display must never render a fabricated placeholder such as `--:--` for a missing value.
-
-Example when both values exist:
-
-```text
-Asr
-Adhan    16:30
-Jamaah   16:45   <- dominant
-```
-
-Example when only Adhan exists:
-
-```text
-Maghrib
-Adhan    17:54   <- dominant
-```
-
-This omission rule is general, not Maghrib-specific. Missing optional timetable values do not indicate a failed board update.
-
-## What the Display API Deliberately Omits
-
-The presentation endpoint does **not** expose:
-
-- provider name or provider-specific external IDs;
-- discovery scope or catalogue partitions;
-- upstream provider metadata;
-- update error strings;
-- persistence error strings;
-- configuration operations; or
-- refresh controls.
-
-Those remain available through administrative/configuration APIs where appropriate.
-
-## Runtime/Diagnostic API
-
-The separate diagnostic endpoint remains:
-
-```text
-GET /api/masjidboard/status
-```
-
-It exposes richer runtime information such as provider identity, update-failed flags, attempt timestamps and diagnostic error messages. It is useful for WebUI administration and troubleshooting but should not be the physical display's normal data source.
-
-## Failure Behaviour
-
-Per-board failure state is reduced to the display concepts that matter visually:
-
-```text
-latest refresh succeeds
-    -> status = current
-    -> stale = false
-
-latest refresh fails + last-known-good exists
-    -> cached timetable remains visible
-    -> status = stale
-    -> stale = true
-    -> last_successful_update retained
-
-latest refresh fails + no cache exists
-    -> status = unavailable
-    -> timetable omitted
-```
-
-A failed update must not blank a previously usable timetable. Raw error text is intentionally excluded from the display endpoint.
-
-## Unconfigured / Initial Refresh Behaviour
-
-When MasjidBoard has not been configured:
-
-```json
-{
-  "configured": false,
-  "boards": []
-}
-```
-
-When boards are configured but a particular board has not yet produced live or cached data, its display slot remains present in selection order with `status = unavailable`. This prevents the display layout from silently changing while an initial refresh is pending or unsuccessful.
-
-## Display Lifecycle
-
-The physical display frontend should remain simple:
-
-```text
-load display
-    -> GET /api/masjidboard/display
-    -> render configured board(s)
-    -> periodically GET the same endpoint
-```
-
-It must not call configuration-changing endpoints.
-
-Time formatting (for example 12-hour versus 24-hour presentation), exact typography, stale-warning styling and optional future layouts belong to the display/UI layer rather than the provider or runtime layers.
-
-## Live Validation — 19 August 2026
-
-Three real selected boards were returned in configured order with independent current timetable data. A deliberate failure of one board proved that the other two remained current while the failed board continued to expose its cached timetable as stale. Restoring the provider identity returned all three to current state.
-
-The presentation API was subsequently live-tested with the same three real boards and returned the expected ordered compact display data.
-
-## Independence from Audio Playback
-
-MasjidBoard remains independent from the audio-streaming subsystem. A MasjidBoard display or refresh failure must not prevent audio playback, and audio availability must not determine whether MasjidBoard information can be displayed.
+Board failures do not stop Listen, and Listen failures do not stop Board timetable presentation.

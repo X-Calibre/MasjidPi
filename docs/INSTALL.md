@@ -47,9 +47,7 @@ Component-specific requirements are installed only when needed:
 - **Board** installs Cog and WPE WebKit and uses a DRM/KMS display runtime for the dedicated HDMI board.
 - **Listen + Board** installs both dependency sets.
 
-Raspberry Pi 3B and Raspberry Pi 4 have been validated with 64-bit Raspberry Pi OS. Board has also been validated as a dedicated Raspberry Pi OS Lite HDMI appliance using Cog/WPE directly on DRM/KMS. The production launcher selects Cog's GLES renderer for compatible Pi 4 HDMI output.
-
-The official v1.4.0 release was installed successfully on both the Raspberry Pi 4 test unit and Raspberry Pi 3B production unit. Combined Listen + Board operation and the optional Islamic Economic Indicators display were verified on both devices.
+Raspberry Pi 3B and Raspberry Pi 4 have been validated with 64-bit Raspberry Pi OS. Board has also been validated as a dedicated Raspberry Pi OS Lite HDMI appliance using Cog/WPE directly on DRM/KMS. See [HARDWARE.md](HARDWARE.md) for platform status and measured performance.
 
 32-bit ARM (`armv6l` / `armv7l`) does not currently have an official pre-built release.
 
@@ -88,8 +86,11 @@ masjidpi.service
 When Board is installed, the installer also installs and enables:
 
 ```text
+masjidpi-display-warmup.service
 masjidpi-display.service
 ```
+
+It also installs the boot-splash and read-only boot-firmware protection assets used on Raspberry Pi Board appliances.
 
 When Board is removed from the selected profile, the display service and launcher are removed and stale systemd failure state is cleared.
 

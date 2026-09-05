@@ -1,7 +1,6 @@
 # MasjidBoard Raspberry Pi Display Runtime
 
-**Status:** Cog/DRM appliance runtime validated on Raspberry Pi OS Lite 64-bit  
-**Branch:** `docs/masjidboard-live-data-inventory`
+**Status:** Cog/DRM appliance runtime implemented and validated on Raspberry Pi OS Lite 64-bit
 
 ## Purpose
 
@@ -39,6 +38,8 @@ Cog/WPE renders directly through DRM/KMS
 TV/monitor shows MasjidBoard
 ```
 
+The production boot path also uses `masjidpi-display-warmup.service` to prepare WPE while Plymouth retains the display, then hands DRM ownership to the main display service.
+
 This is substantially better aligned with the MasjidPi appliance goal than the earlier Chromium/labwc prototype direction.
 
 ## Why Cog / WPE
@@ -52,7 +53,7 @@ This preserves:
 - per-Masjid countdowns;
 - stale/current presentation;
 - one-, two- and three-board layouts;
-- future selectable layouts through the same display API.
+- both current display profiles through the same display API.
 
 It also avoids maintaining a second native framebuffer/SDL presentation implementation.
 
@@ -155,7 +156,7 @@ Validation passed for:
 - recovery after a full reboot;
 - complete rotating fixtures, including one-, two- and three-card arrangements;
 - Dawah/Gasht, three-day Jamaat and contribution cards;
-- live theme changes and persistence of the saved Landscape/Slate selection;
+- live theme changes and persistence of the saved Slate theme;
 - persisted masjid configuration;
 - simultaneous Listen playback and Board rendering;
 - stable display operation without unexpected service restarts;
@@ -197,10 +198,10 @@ The display runtime itself is now established. Remaining work should focus on pr
 - longer-duration stability/resource testing on supported Raspberry Pi hardware;
 - monitor/HDMI power-cycle and disconnect/reconnect behaviour where practical;
 - final user-facing error presentation;
-- release/integration validation after the research branch is merged.
+- continued release/integration validation.
 
 A Chromium/labwc desktop kiosk is no longer the preferred production direction for Raspberry Pi appliances. It may remain useful for development or alternative platforms, but the Raspberry Pi appliance target should use Cog/WPE DRM unless later testing establishes a concrete reason to change it.
 
 ## Future Layouts
 
-Automatic display startup is independent of layout selection. Future user-selectable MasjidBoard layouts should continue to use the same browser-based display runtime and normalized display API unless hardware testing establishes a reason to change renderer technology.
+Automatic display startup is independent of presentation profile. Any future presentation should continue to use the same browser-based display runtime and normalized display API unless hardware testing establishes a reason to change renderer technology.

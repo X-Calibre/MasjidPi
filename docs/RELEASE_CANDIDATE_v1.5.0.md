@@ -1,5 +1,7 @@
 # MasjidPi v1.5.0 Release Acceptance Record
 
+**Status:** Historical completed release record. Do not treat its commands or gates as instructions for the current release.
+
 This document records the release-candidate acceptance checks used to promote MasjidPi v1.5.0.
 
 `v1.5.0-rc.4` was selected for stable promotion. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, RC3 addressed issues identified during RC2 hardware soak testing, and RC4 added the responsive and touch-oriented Board appliance experience.

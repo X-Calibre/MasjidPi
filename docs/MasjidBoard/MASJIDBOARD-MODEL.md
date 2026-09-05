@@ -1,459 +1,117 @@
 # MasjidBoard Domain Model
 
-**Status:** Design — proposed for review  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented in MasjidPi v1.5.2
 
-## Purpose
-
-This document defines the semantic domain model that will sit between the MasjidBoard Live provider and the MasjidBoard scheduler/display system.
-
-The model deliberately does **not** mirror MasjidBoard Live's positional 29-row response. The provider is responsible for translating the upstream structure into these semantic types.
-
-## Core Principle
-
-MasjidBoard is fundamentally a prayer-times display.
-
-The model therefore has two levels of importance:
-
-1. **Required core data** — masjid identity, date/context, and the five daily prayer times.
-2. **Optional enrichment** — everything else supplied by MasjidBoard Live.
-
-Missing optional enrichment is normal and must not make a board invalid.
-
-A missing or unusable five-prayer schedule is a genuine data/recovery condition.
-
-## Model Overview
-
-```text
-Board
-├── Identity                  REQUIRED
-├── DateContext               REQUIRED
-├── PrayerTimes               REQUIRED
-│   ├── Fajr
-│   ├── Zuhr
-│   ├── Asr
-│   ├── Maghrib
-│   └── Esha
-│
-├── AstronomicalTimes         OPTIONAL
-├── JumuahServices[]          OPTIONAL
-├── Announcements[]           OPTIONAL
-├── Programmes[]              OPTIONAL
-├── Notices[]                 OPTIONAL
-├── Media[]                   OPTIONAL
-├── Banking                   OPTIONAL
-├── ContributionInformation   OPTIONAL
-├── NewMoon                   OPTIONAL
-└── DisplayConfiguration      OPTIONAL
-
-SharedDailyIslamicContent     OPTIONAL / SERVICE-LEVEL
-```
+The provider translates positional MasjidBoard Live data into semantic Go types. The normalized model does not expose upstream row numbers to the rest of the application.
 
 ## Board
 
-`Board` is the top-level normalised representation of one masjid's board data for a particular date/context.
+A normalized Board contains:
 
-Conceptually:
+- identity and timezone;
+- date context;
+- five daily prayers;
+- optional Jumu'ah services;
+- optional special Dhuhr;
+- optional astronomical times;
+- announcements and programmes;
+- structured notices;
+- media metadata;
+- contribution/banking data; and
+- new-moon data.
 
-```text
-Board
-├── Identity
-├── DateContext
-├── PrayerTimes
-├── AstronomicalTimes?
-├── JumuahServices[]
-├── Announcements[]
-├── Programmes[]
-├── Notices[]
-├── Media[]
-├── Banking?
-├── ContributionInformation?
-├── NewMoon?
-└── DisplayConfiguration?
-```
+Identity and the daily timetable form the core. Other content is optional and may be absent without invalidating the board.
 
-The exact Go representation is intentionally left open until implementation.
+## Identity and date context
 
-## Identity
+Board identity stores the provider ID, display name, alternate name and timezone.
 
-Identity represents the masjid itself rather than the display configuration.
+Date context stores the Gregorian source date plus Islamic-date adjustment information. This lets a cached board follow the masjid's sunset-based Islamic-date rollover without requiring a provider refresh at sunset.
 
-It should be capable of carrying:
+## Prayer times
 
-- Source board/masjid identifier.
-- Public masjid identifier where supplied.
-- Primary masjid name.
-- Alternate/local-language name where supplied.
-- Arabic name where supplied.
-- Location information where supplied.
-- Timezone.
+The five fixed prayers are:
 
-The source identifiers are useful for diagnostics, refreshes and cache association and should not be discarded during normalisation.
+- Fajr
+- Dhuhr
+- Asr
+- Maghrib
+- Esha
 
-## DateContext
+Each prayer may contain an Adhan and Jamaah local wall-clock time. Missing values remain absent rather than being guessed.
 
-Prayer times are date-specific. The model must make the date and timezone context explicit.
+Special Dhuhr stores a provider time and its applicability label, such as “Sundays & Public Holidays”. Presentation suppresses it when it duplicates normal Dhuhr.
 
-It should carry enough information to establish:
+## Jumu'ah
 
-- Gregorian date represented by the board.
-- Islamic/Hijri date where supplied.
-- Timezone used for local prayer times.
-- Whether the board data represents the current configured date or another explicit date.
+Each JumuahService may contain:
 
-The model should use Go's standard time handling rather than inventing a custom clock representation unless a source-specific format must be retained for diagnostics.
+- dedicated Adhan and Jamaah;
+- provider-configured heading/time events;
+- optional Khateeb or explanatory text; and
+- Islamic-time representations retained separately from civil clock times.
 
-## PrayerTimes — Required Core
+The three source heading/time pairs describe stages of a service, not three separate services. A Khutbah time is not reclassified as Salaah when no explicit Jamaah/Salaah value exists.
 
-The five daily prayers are the core of the model.
+Deprecated alternate-time fields remain only for decoding older caches.
 
-```text
-PrayerTimes
-├── Fajr
-├── Zuhr
-├── Asr
-├── Maghrib
-└── Esha
-```
+## Astronomical times
 
-Each prayer should contain semantic timing information rather than source row/column positions.
+Optional astronomical values include:
 
-Conceptually:
+- Suhur/Sehri end;
+- Fajr start;
+- Sunrise;
+- Ishraaq;
+- Duha/Chaasht;
+- Istiwaa caution;
+- Istiwaa;
+- Zawaal end;
+- Asr Shafi'i;
+- Asr Hanafi;
+- Sunset; and
+- Esha start.
 
-```text
-PrayerTime
-├── Prayer
-├── Adhan
-└── Jamaah
-```
+Presentation uses the Istiwaa caution-to-Zawaal-end interval for the warning state, falling back to Istiwaa when the caution value is absent.
 
-### Prayer identity
+## Community content
 
-The model should use a finite semantic prayer identity for the five daily prayers rather than arbitrary strings. This prevents the provider and scheduler from having to compare display labels.
+Announcements contain a conservative semantic category, title, content and optional visibility window.
 
-### Adhan and Jamaah
+Programmes contain title/content plus optional schedule and visibility values.
 
-Adhan and Jamaah are separate values because MasjidBoard Live can supply both.
+Structured notices use a finite notice type and a field map for provider-specific details. Current types include general, Nikah, funeral, well-wishes, Eid, Salaah change, Dawah and three-day Jamaat. Taleem and contribution data have their own normalized representations.
 
-The model should permit a value to be absent at the individual prayer level if the upstream source genuinely does not provide it, while still requiring the prayer itself to exist in the core schedule.
+Unknown or unconfirmed source semantics are not promoted into invented fields.
 
-### Time representation
+## Media, banking and new moon
 
-Prayer times should be represented as local wall-clock times associated with the `Board` timezone/date context, rather than as UTC timestamps detached from the masjid's local date.
+Media metadata provides source identity, retrieval/local paths, type, hash, visibility and display duration. Media presentation is not yet enabled.
 
-The implementation should avoid encoding prayer times as arbitrary formatted strings in the domain model. Formatting belongs to the display layer.
+Banking and new-moon structures preserve known provider fields without making them prerequisites for timetable use.
 
-## Prayer Schedule Validity
+## Shared content
 
-A normalised board is considered to have usable core prayer data when:
+Daily Ayah, Hadith and Sunnah and Islamic Economic Indicators are shared content sources, not properties of an individual selected masjid. They use separate models/caches and are joined only in the display view.
 
-- Identity is valid.
-- Date/context is valid enough to establish the represented day and timezone.
-- Fajr, Zuhr, Asr, Maghrib and Esha each have a usable local prayer time.
+## Display model
 
-Optional Adhan/Jamaah values do not independently invalidate the prayer schedule if the upstream source does not provide them.
+The internal model is not returned directly to browsers. The display package creates a smaller JSON contract with:
 
-A provider refresh with missing optional enrichment remains successful.
+- local clock values as hour/minute objects;
+- stable prayer keys and labels;
+- only presentation-relevant optional content;
+- per-board status; and
+- selected saved display preferences.
 
-A provider refresh without a usable five-prayer schedule should be treated as invalid for replacement of the current cached core schedule.
+Provider diagnostics, raw rows and cache implementation details do not cross the display boundary.
 
-## AstronomicalTimes — Optional
-
-These are supporting daily times supplied by MasjidBoard Live.
-
-```text
-AstronomicalTimes
-├── Suhur
-├── FajrStart
-├── Sunrise
-├── Ishraaq
-├── Duha
-├── Istiwa / SolarNoon
-├── ZuhrStart
-├── AsrShafii
-├── AsrHanafi
-├── Sunset
-└── EshaStart
-```
-
-The model should allow individual values to be absent.
-
-These times are enrichment. They are not required for the board to be valid because the five daily prayer times are the primary purpose of the board.
-
-## JumuahService — Optional
-
-A board may have zero, one or several Jumu'ah services.
-
-```text
-JumuahService
-├── Label / title
-├── Adhan
-├── Lecture / Sunan
-├── Khutbah
-├── Salah
-└── Khateeb
-```
-
-The model must not assume that every service has every field populated.
-
-Different MasjidBoard Live boards use different combinations of Jumu'ah information, so optional fields are preferable to a rigid single format.
-
-## Announcements — Optional
-
-Announcements are repeatable board content.
-
-Conceptually:
-
-```text
-Announcement
-├── Content
-├── Title (if supplied)
-├── Language (if supplied)
-└── Presentation metadata (if supplied)
-```
-
-The model should use a collection rather than fixed fields such as `Announcement1`, `Announcement2`, etc.
-
-The provider is responsible for translating MasjidBoard Live's numbered slots into this collection.
-
-## Programmes — Optional
-
-Programmes cover recurring or scheduled masjid activities such as Taleem, Dawah/Gasht and other programmes.
-
-Conceptually:
-
-```text
-Programme
-├── Title
-├── Description/content
-├── Day/date information
-├── Time information
-└── Presentation metadata
-```
-
-Not every field will be populated for every programme.
-
-## Notices — Optional
-
-Notices represent informational items that do not need to be modelled as announcements or programmes.
-
-The initial semantic categories may include:
-
-- Nikah
-- Funeral
-- Sickness / well-wishes
-- Community notice
-- Eid / Eidgah
-
-The category should remain extensible. The provider should not invent a category when the source does not support a reliable distinction.
-
-Conceptually:
-
-```text
-Notice
-├── Type
-├── Title
-├── Content
-├── Date/time (if supplied)
-└── Presentation metadata
-```
-
-## Media — Optional
-
-Images and posters are first-class board content.
-
-```text
-Media
-├── Source identifier/reference
-├── Media type
-├── Remote source/reference
-├── Local cached reference
-├── Visibility/scheduling metadata
-├── Display duration (if supplied)
-└── Presentation metadata
-```
-
-The domain model should represent the media independently from the renderer. The cache is responsible for ensuring a usable local representation when possible.
-
-The model should support at least:
-
-- Standard posters
-- Large posters
-- Community posters
-- Eid/Eidgah material
-- Other image-based board content
-
-## Banking and Contribution Information — Optional
-
-Banking/contribution information should be represented semantically rather than tied to upstream positional fields.
-
-The model should allow the source to provide structured information where available without requiring every board to have banking information.
-
-## NewMoon — Optional
-
-New Moon/lunar information is represented as an optional semantic object.
-
-The exact fields should only be added when they are supported by the verified upstream data we have chosen to implement.
-
-We should avoid inventing fields simply because a possible future implementation might use them.
-
-## DisplayConfiguration — Optional
-
-Display settings supplied by MasjidBoard Live should be kept separate from content data where practical.
-
-Examples include:
-
-- Display language.
-- RTL behaviour.
-- Theme/style selection.
-- Clock configuration.
-- Slide/display duration settings.
-- Other board presentation preferences supplied by the source.
-
-The normalised model may preserve source display configuration, but the scheduler/renderer remains responsible for interpreting it.
-
-## Shared Daily Islamic Content — Optional
-
-Ayah, Hadith and Sunnah were excluded from the required initial board model.
-Their upstream source and behaviour are now verified and implemented as
-service-level enrichment rather than fields on `Board`:
-
-```text
-DailyIslamicContent
-├── Ayah
-│   ├── Surah
-│   ├── AyahNumber
-│   └── Text
-├── Hadith
-│   ├── Heading
-│   ├── Text
-│   └── Reference
-├── Sunnah
-│   ├── Heading
-│   ├── Text
-│   └── Reference
-├── Language
-├── Source
-├── SourceURL
-├── ContentDate
-└── FetchedAt
-```
-
-This content is shared by MasjidBoard Live and is not attributed to, enabled
-by or cached inside any selected masjid. The display layer independently
-filters its three categories using local user preferences.
-
-## Source Metadata
-
-The normalised model should retain source metadata where it has operational value, but source-specific implementation details should not leak into normal domain objects.
-
-Useful metadata may include:
-
-- Provider/source name.
-- Source board identifier.
-- Retrieval timestamp.
-- Data date.
-- Last successful refresh.
-- Data freshness/staleness state.
-
-The exact metadata placement may ultimately belong in a cache envelope rather than the `Board` itself.
-
-## Cache Envelope
-
-The runtime domain model and the persisted cache representation should be considered separate concerns.
-
-Conceptually:
-
-```text
-CachedBoard
-├── Board
-├── RetrievedAt
-├── LastSuccessfulRefresh
-└── Freshness/validation metadata
-```
-
-The cache must preserve the last known valid core prayer schedule even when a subsequent provider refresh fails.
-
-Optional content may be stale, missing or partially unavailable without invalidating the core board.
-
-## Normalisation Rules
-
-The provider must perform the following translation:
-
-```text
-MasjidBoard Live positional response
-              ↓
-       Provider-specific parsing
-              ↓
-       Validation of core data
-              ↓
-       Semantic normalisation
-              ↓
-          Board model
-```
-
-The following must **not** happen outside the provider:
-
-- indexing into the 29-row response
-- interpreting source-specific field positions
-- comparing source-specific labels to identify prayers
-- reconstructing numbered announcement slots
-- interpreting MasjidBoard Live-specific media fields
-
-## Optionality Rules
-
-The following distinction is intentional:
-
-```text
-Missing Fajr/Zuhr/Asr/Maghrib/Esha time
-    → core data problem
-
-Missing Jumu'ah
-    → normal
-
-Missing announcements
-    → normal
-
-Missing posters
-    → normal
-
-Missing astronomical times
-    → normal
-
-Missing banking information
-    → normal
-
-Missing New Moon information
-    → normal
-```
-
-This distinction should be reflected in validation and cache replacement logic.
-
-## What the Model Does Not Do
-
-The domain model should not:
-
-- fetch data
-- download media
-- render graphics
-- decide slide order
-- calculate the current display state
-- know about HDMI
-- know about MPV
-- expose the MasjidBoard Live 29-row schema
-- format times specifically for a particular screen layout
-
-Those responsibilities belong to the provider, cache, scheduler and display layers respectively.
-
-## Design Review Questions
-
-Before implementing the Go types, confirm:
-
-1. Whether `PrayerTime` should store Adhan/Jamaah as nullable values or optional typed fields.
-2. Whether `DateContext` belongs directly on `Board` or partly in the cache envelope.
-3. Whether source identifiers belong in `Identity`, a source metadata object, or both.
-4. Whether display configuration belongs in the domain model or a separate board configuration object.
-5. Whether `Banking` and `ContributionInformation` should be separate types or one contribution/information structure.
-6. The exact representation of local wall-clock prayer times in Go.
-
-These are implementation-level decisions and do not alter the agreed core principle: **the five daily prayer times are required; everything else is optional enrichment.**
+## Optionality and cache rules
+
+- Missing optional content does not invalidate core prayer data.
+- Invalid core data is not cached as a successful board.
+- One board's failure does not invalidate another board.
+- Older compatible cache fields are migrated during presentation where required.
+- No layer invents times or content that the source did not provide.
+
+The implemented Go structures are authoritative when this overview and source code diverge.

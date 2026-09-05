@@ -1,7 +1,6 @@
 # MasjidBoard Catalogue Memory Lifecycle
 
-**Status:** Implemented architecture  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented architecture
 
 ## Decision
 

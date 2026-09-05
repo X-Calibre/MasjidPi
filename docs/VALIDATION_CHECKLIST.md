@@ -1,100 +1,70 @@
 # MasjidPi Validation Checklist
 
-This document tracks physical and deferred validation work that should be revisited before future releases. Update the checkboxes as tests are completed.
+This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
-## Completed v1.5.2 boot validation
+## Completed for v1.5.2
 
-- [x] **7-inch appliance boot splash — portrait profile**
-  - Quiet boot enabled without removing `console=tty1`.
-  - Raspberry Pi firmware splash suppressed.
-  - Plymouth branded splash displays in the correct portrait orientation.
-  - Headless Cog/WPE warm-up completes while Plymouth remains visible.
-  - Plymouth releases DRM before the display Cog starts.
-  - Brief blank DRM handoff is acceptable.
-  - Cog startup splash displays correctly.
-  - MasjidBoard loads in the appliance profile.
-  - Touch remains correctly calibrated and functional.
-  - Three consecutive cold boots completed successfully without DRM `Cannot set mode` / `Permission denied` failures.
-  - Temporary JEDI TECH SOLUTIONS logo is fully visible and correctly sized in both splash stages.
+### Boot and display
 
-- [x] **Standard/landscape Raspberry Pi boot splash**
-  - Test on a Raspberry Pi connected to a normal HDMI landscape display.
-  - Confirm Plymouth logo is upright, centred, fully visible, and correctly sized.
-  - Confirm headless Cog/WPE warm-up completes successfully.
-  - Confirm no DRM `Cannot set mode` / `Permission denied` failures.
-  - Confirm the Cog startup splash is upright and correctly sized.
-  - Confirm MasjidBoard remains in the standard responsive landscape profile.
-  - Confirm SSH and normal Board operation remain available after boot.
-  - Perform multiple cold boots to confirm repeatability.
+- [x] Portrait 7-inch appliance boots through correctly oriented Plymouth and Cog stages.
+- [x] Landscape HDMI displays use the standard responsive profile.
+- [x] Cog/WPE warm-up and Plymouth-to-Cog DRM handoff complete without persistent mode-setting failures.
+- [x] Touch input is correctly calibrated in the portrait appliance profile.
+- [x] Multiple cold boots and an abrupt-power recovery completed normally.
+- [x] /boot/firmware remains read-only during normal operation and returns to read-only after installer/package write windows.
 
-## Required before a future release
+### Persistence and recovery
 
-- [x] **MasjidBoard Live daily Islamic content on Raspberry Pi 4**
-  - The shared MasjidBoard Live feed returned a current Ayah, Hadith and Sunnah with source attribution.
-  - All three display switches defaulted to enabled, independently hid and restored their category, and persisted across a service restart.
-  - Appliance and landscape layouts rendered each enabled category correctly; the appliance uses dedicated slides.
-  - Daily Ayah presents its Ayah number directly below the Surah heading, and daily cards omit redundant category labels.
-  - Salaah-change notice timestamps use the same `Weekday, DD Month` presentation as human-readable source dates.
-  - The atomic cache survived a service restart with identical content, fetch time and SHA-256 hash.
-  - A controlled upstream failure left all three categories available from the last-known-good cache, logged the expected warning, did not overwrite the cache and left `masjidpi.service` active.
-  - The test restored the original cache byte-for-byte and returned the service to normal operation.
+- [x] Atomic JSON state remains valid across service restarts and abrupt power loss.
+- [x] Source update, staged activation, self-test and rollback behavior were exercised.
+- [x] The mpv IPC socket is created under /run/masjidpi/mpv.sock.
+- [x] Board preferences, Listen settings and component profile survive upgrades and restarts.
+- [x] Last-known-good Board and daily-content caches survive upstream failures without being overwritten.
 
-- [x] **Power-interruption resilience**
-  - `/boot/firmware` remains mounted read-only during normal operation and after reboot.
-  - A source update temporarily enabled boot-firmware writes, regenerated Plymouth/initramfs assets, and restored the read-only mount.
-  - A controlled `raspi-firmware` reinstall copied firmware, kernel and initramfs files successfully; the APT/DPKG hooks restored `/boot/firmware` read-only afterward.
-  - The mpv IPC socket is created by systemd under `/run/masjidpi/mpv.sock`, and playback works normally.
-  - Board theme and slide duration, Radio volume and Radio operating mode were changed, restarted, restored and restarted again; every persisted JSON file remained valid.
-  - A controlled abrupt power loss recovered through normal ext4 orphan cleanup with no FAT repair, filesystem errors or I/O errors.
-  - Both portrait splash stages, Emerald Board startup and Radio playback operated normally after abrupt-power recovery; all services were healthy with zero restarts and no failed units.
+### Audio
 
-- [x] **USB audio hot-plug restoration**
-  - A Logitech H390 USB headset connected after boot was discovered as `alsa/plughw:CARD=Headset,DEV=0` without restarting MasjidPi.
-  - The new USB output was selected and saved, exposed hardware-volume support, and played Radio audio normally.
-  - Disconnecting it during playback left the saved preference intact, marked the device unavailable, and safely fell back to automatic output while playback continued.
-  - Reconnecting it caused MasjidPi to rediscover and automatically restore the saved device and working audio.
-  - The service remained healthy with zero restarts throughout; the original `alsa/plughw:CARD=Headphones,DEV=0` output and scheduled Radio mode were restored after testing.
+- [x] A USB audio device connected after boot is discovered without restarting MasjidPi.
+- [x] Playback falls back safely when the selected USB device is removed.
+- [x] The saved device is restored automatically after reconnection.
+- [x] Playback and services remain healthy throughout device loss and recovery.
 
-- [ ] **Raspberry Pi Zero Listen-only validation**
-  - Install the current release/branch in Listen-only mode on the intended Raspberry Pi Zero hardware.
-  - Confirm architecture/package compatibility, including the intended armv6/armv7 target.
-  - Confirm `masjidpi.service` starts normally.
-  - Confirm catalogue refresh and stream discovery.
-  - Confirm masjid stream playback and radio playback.
-  - Confirm audio output discovery and volume behaviour.
-  - Confirm WebUI responsiveness is acceptable for the hardware.
-  - Run an appropriate stability/soak test.
+### MasjidBoard
 
-- [ ] **Post-change Raspberry Pi soak test**
-  - Run the current candidate on the long-soak Raspberry Pi.
-  - Monitor service restarts, memory, CPU temperature, throttling, disk usage, network stability, and mpv behaviour.
-  - Exercise scheduled radio start/stop and masjid interruption/resume behaviour.
-  - Confirm the display service remains stable where Board is installed.
-  - Review persistent journal logs before release sign-off.
+- [x] Detailed Jumu'ah schedules render in standard and appliance profiles.
+- [x] Supported structured community cards render in both profiles.
+- [x] Daily Ayah, Hadith and Sunnah preferences default correctly, persist and fall back to cache.
+- [x] Dua after Adhan takes priority for five minutes and then releases the display.
+- [x] Zawaal/Istiwaa warning behavior is correct at both interval boundaries.
+- [x] Special-day Dhuhr is shown in Daily Times only when distinct from normal Dhuhr.
+- [x] Eleven Daily Times entries fit on one landscape row.
+- [x] Community content follows selected-masjid and priority ordering.
 
-- [ ] **Published v1.5.2 release-candidate package**
-  - Install the published ARM64 archive on the Raspberry Pi 4 test appliance rather than relying only on a source installation.
-  - Confirm the archive checksum and reported version are `v1.5.2-rc.2`.
-  - Confirm the existing Listen + Board profile, settings, selected audio output and cached data survive the upgrade.
-  - Confirm both splash stages, application services, Board display and Listen playback operate normally after reboot.
-  - Confirm `/boot/firmware` returns to read-only after installation.
+## Release artifact verification
 
-## Deferred hardware / feature investigation
+For every stable release:
 
-- [ ] **HDMI-CEC physical testing**
-  - Verify CEC availability on the Raspberry Pi HDMI output.
-  - Test whether the connected Waveshare 7-inch HDMI LCD responds to relevant CEC power/display commands.
-  - If unsupported by the Waveshare panel, document that limitation rather than treating it as a MasjidPi fault.
+- [ ] Verify the release page contains ARM64 and AMD64 archives plus SHA256SUMS.
+- [ ] Verify archive checksums before installation.
+- [ ] Install the published ARM64 archive on a Raspberry Pi test appliance.
+- [ ] Confirm /api/version reports the expected stable version.
+- [ ] Confirm the installed component profile and persistent settings survive.
+- [ ] Reboot and verify applicable boot, Listen and Board services.
+- [ ] Confirm /boot/firmware returns to read-only where protection is enabled.
 
-- [ ] **Waveshare HDMI audio physical testing**
-  - Confirm whether the 7-inch display exposes an HDMI audio sink to Raspberry Pi OS.
-  - Test actual audio playback through the display's supported audio path/output.
-  - Test any physical volume controls or display-side volume behaviour that are available.
-  - Determine whether this is suitable for the planned appliance speaker design.
+## Future platform validation
+
+- [ ] Run a fresh long-duration soak of the final feature set on Raspberry Pi 3B.
+- [ ] Validate Listen and Board memory headroom on Raspberry Pi Zero 2 W.
+- [ ] Validate Listen and Board memory headroom on Raspberry Pi 3A+.
+- [ ] Test HDMI disconnect/reconnect behavior.
+- [ ] Test HDMI-CEC behavior on intended displays.
+- [ ] Validate the Waveshare display audio path and physical volume controls.
+
+The original ARMv6 Raspberry Pi Zero W and Raspberry Pi 1 are not current release targets and should not be listed as pending stable-release validation.
 
 ## Notes
 
-- Do **not** remove `console=tty1` as part of quiet-boot work; physical testing showed that configuration caused a failed boot/display state.
-- Do **not** mask `getty@tty1.service`; disabling it is sufficient for the dedicated Raspberry Pi Board boot experience.
-- Cog's direct DRM backend must start only after Plymouth releases DRM. Starting it while Plymouth owns DRM produced `Cannot set mode (Permission denied)` and a persistent blank display.
-- The current temporary splash artwork is not final appliance branding and is expected to be replaced later.
+- Do not remove `console=tty1`; physical testing showed that configuration caused a failed boot/display state.
+- Do not mask `getty@tty1.service`; disabling it is sufficient for the dedicated Board boot experience.
+- Cog must start only after Plymouth releases DRM.
+- Temporary splash artwork remains scheduled for replacement with final product branding.

@@ -1,7 +1,6 @@
 # MasjidBoard Catalogue and Persistence Design
 
-**Status:** Implemented core architecture; live integration validated  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented design reference; live integration validated
 
 ## Purpose
 
@@ -240,6 +239,6 @@ The catalogue/selection/runtime reliability path is therefore considered suffici
 12. Display is read-only; all configuration belongs to WebUI/API.
 13. MasjidBoard remains independent from audio playback.
 
-## Next Implementation Boundary
+## Implemented Display Boundary
 
-Define and test the provider-neutral **display presentation model/API** that transforms the validated runtime state into the small stable data contract required by the physical display.
+The provider-neutral display presentation model/API now transforms validated runtime state into the small stable data contract required by the physical display. See `MASJIDBOARD-DISPLAY-BOUNDARY.md`.

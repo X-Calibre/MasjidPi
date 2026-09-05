@@ -1,7 +1,8 @@
 # MasjidBoard Application Design
 
-**Status:** Design — agreed
-**Branch:** `research/masjidboard-live`
+**Status:** Historical initial design; superseded where it differs from the v1.5.2 implementation
+
+> The proposed standalone executable, native renderer and scheduler package in this record were not adopted. See `MASJIDBOARD-ARCHITECTURE.md` and `MASJIDBOARD-IMPLEMENTATION-STATUS.md` for the current architecture.
 
 ## Purpose
 

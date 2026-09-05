@@ -1,7 +1,6 @@
 # MasjidBoard Live Core Provider Validation
 
-**Status:** Research milestone validated  
-**Branch:** `research/masjidboard-live`
+**Status:** Historical provider-validation record
 
 ## Purpose
 
@@ -191,23 +190,11 @@ Core mbl_number     MBL11517PRP
 
 The handoff code preserves the full millisecond timezone offset and formats fixed-offset zones as `GMT±HH:MM`, including fractional offsets such as `+05:30` and `-03:30`.
 
-This validates the discovery -> catalogue entry -> Core provider path experimentally against the live service. It does not make MasjidBoard release-ready; catalogue persistence/refresh, selected-board persistence, caching, broader failure handling, Premium enrichment and display integration remain separate work.
+This validated the discovery -> catalogue entry -> Core provider path experimentally against the live service. The remaining catalogue, cache, enrichment and display work was subsequently implemented.
 
-## Next Work Item
+## Implemented outcome
 
-The next boundary is **Stage 3 catalogue design and persistence strategy**.
-
-Before adding user-facing selection or scheduled catalogue refresh, define:
-
-1. the stable MasjidPi catalogue record and which FindMasjid fields belong in it;
-2. which upstream fields remain provider-only metadata;
-3. how catalogue entries are keyed, renamed and reconciled;
-4. how discovery timestamps and validation state are recorded;
-5. how a selected board is persisted independently from catalogue refresh;
-6. how last-known-good catalogue data is retained if discovery fails; and
-7. how catalogue refresh remains independent from retrieval of an already-selected board.
-
-The intended boundary remains:
+The validated boundary became:
 
 ```text
 FindMasjid discovery
@@ -218,4 +205,4 @@ FindMasjid discovery
     -> cached normalised Board
 ```
 
-Discovery and individual-board retrieval must remain independent so a catalogue refresh failure does not prevent an already-selected board from continuing to operate from cached configuration/data.
+Discovery and individual-board retrieval remain independent, so catalogue-refresh failure does not prevent an already-selected board from operating with persisted identity and cached data. Current behavior is documented in `MASJIDBOARD-IMPLEMENTATION-STATUS.md`.

@@ -1,7 +1,6 @@
 # MasjidBoard Discovery Scope
 
-**Status:** Stage 3 architecture  
-**Branch:** `research/masjidboard-live`
+**Status:** Implemented discovery design
 
 ## Decision
 

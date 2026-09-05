@@ -8,7 +8,7 @@ The roadmap focuses on the current product, remaining reliability work, and plan
 
 ## Current Status
 
-**v1.5.1 is the current stable release. v1.5.2-rc.3 is the current release candidate.**
+**v1.5.2 is the current stable release.**
 
 The current product provides:
 

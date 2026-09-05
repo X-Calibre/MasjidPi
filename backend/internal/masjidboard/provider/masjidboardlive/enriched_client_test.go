@@ -28,6 +28,7 @@ func TestEnrichedClientMergesOptionalPremiumContent(t *testing.T) {
 	}}
 	premiumProvider := &enrichmentProvider{board: model.Board{
 		Identity:      model.BoardIdentity{ID: "premium-id", Name: "Premium Name", TimeZone: "GMT+02"},
+		PrayerTimes:   model.PrayerTimes{SpecialDhuhr: &model.SpecialPrayerTime{Time: &model.ClockTime{Hour: 13}, Label: "(Sundays & Public Holidays)"}},
 		Announcements: []model.Announcement{{Title: "Announcement", Content: "Community update"}},
 		Notices:       []model.Notice{{Type: model.NoticeTypeFuneral, Title: "Funeral Notice"}},
 	}}
@@ -44,6 +45,9 @@ func TestEnrichedClientMergesOptionalPremiumContent(t *testing.T) {
 	}
 	if len(board.Notices) != 1 || board.Notices[0].Type != model.NoticeTypeFuneral {
 		t.Fatalf("Notices = %+v", board.Notices)
+	}
+	if board.PrayerTimes.SpecialDhuhr == nil || board.PrayerTimes.SpecialDhuhr.Time.Hour != 13 || board.PrayerTimes.SpecialDhuhr.Label != "(Sundays & Public Holidays)" {
+		t.Fatalf("Special Dhuhr = %+v", board.PrayerTimes.SpecialDhuhr)
 	}
 }
 

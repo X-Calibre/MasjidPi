@@ -47,4 +47,5 @@ func mergePremiumEnrichment(core *model.Board, premium model.Board) {
 	core.Media = premium.Media
 	core.Banking = premium.Banking
 	core.NewMoon = premium.NewMoon
+	core.PrayerTimes.SpecialDhuhr = premium.PrayerTimes.SpecialDhuhr
 }

@@ -491,6 +491,20 @@ func parseSalahRow(raw json.RawMessage) (model.PrayerTimes, error) {
 		Maghrib: model.PrayerTime{Adhan: fields[6], Jamaah: fields[7]},
 		Esha:    model.PrayerTime{Adhan: fields[8], Jamaah: fields[9]},
 	}
+	if len(values) > 10 {
+		value := strings.TrimSpace(stringValue(values, 10))
+		if !isAbsent(value) {
+			parsed, parseErr := parseClockTime(value)
+			if parseErr != nil {
+				return model.PrayerTimes{}, fmt.Errorf("masjidboardlive: row 3 special Dhuhr value %q: %w", value, parseErr)
+			}
+			label := ""
+			if len(values) > 12 {
+				label = strings.TrimSpace(stringValue(values, 12))
+			}
+			prayers.SpecialDhuhr = &model.SpecialPrayerTime{Time: parsed, Label: label}
+		}
+	}
 
 	checks := []struct {
 		name  string
@@ -511,8 +525,8 @@ func parseSalahRow(raw json.RawMessage) (model.PrayerTimes, error) {
 }
 
 // parseJumuahRow normalises row 1. The row contains three detailed
-// heading/time pairs followed by dedicated Jumu'ah Adhan, Jamaah, alternate
-// language values and the source heading-code configuration.
+// heading/time pairs followed by dedicated Jumu'ah Adhan, Jamaah, Islamic-time
+// representations and the source heading-code configuration.
 func parseJumuahRow(raw json.RawMessage) (*model.JumuahService, error) {
 	values, err := rowValues(raw)
 	if err != nil {
@@ -574,11 +588,11 @@ func parseJumuahRow(raw json.RawMessage) (*model.JumuahService, error) {
 	if err != nil {
 		return nil, err
 	}
-	alternateAdhan, err := parseOptional(9)
+	islamicAdhan, err := parseOptional(9)
 	if err != nil {
 		return nil, err
 	}
-	alternateJamaah, err := parseOptional(10)
+	islamicJamaah, err := parseOptional(10)
 	if err != nil {
 		return nil, err
 	}
@@ -586,8 +600,8 @@ func parseJumuahRow(raw json.RawMessage) (*model.JumuahService, error) {
 	return &model.JumuahService{
 		Adhan:           adhan,
 		Jamaah:          jamaah,
-		AlternateAdhan:  alternateAdhan,
-		AlternateJamaah: alternateJamaah,
+		IslamicAdhan:    islamicAdhan,
+		IslamicJamaah:   islamicJamaah,
 		Khateeb:         stringValue(values, 6),
 		Events:          events,
 	}, nil

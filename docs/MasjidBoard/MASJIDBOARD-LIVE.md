@@ -231,11 +231,11 @@ The following mapping is **verified from the supplied JavaScript source**. Row a
 | 6 | `jumuahKhateeb` | Khateeb |
 | 7 | `jumuahAdhan` | Jumu'ah Adhan |
 | 8 | `jumuahJamaah` | Jumu'ah Jamaah/Salah |
-| 9 | `jumuahAdhanI` | Alternate-language Jumu'ah Adhan |
-| 10 | `jumuahJamaahI` | Alternate-language Jumu'ah Jamaah/Salah |
+| 9 | `jumuahAdhanI` | Islamic-time representation of Jumu'ah Adhan; not an additional service |
+| 10 | `jumuahJamaahI` | Islamic-time representation of Jumu'ah Jamaah/Salah; not an additional service |
 | 11 | `jumuahHeadingsArray` | Jumu'ah headings configuration/array |
 
-This confirms that Jumu'ah is not limited to one service or one simple time value.
+The three heading/time pairs describe stages of one Jumu'ah service. Columns 9–10 are alternate time representations, not evidence of an additional service.
 
 #### Row 2 — moon/location/masjid media data
 
@@ -269,15 +269,17 @@ This confirms that Jumu'ah is not limited to one service or one simple time valu
 | 7 | `maghribJamaah` | Maghrib Jamaah |
 | 8 | `eshaAthan` | Esha Adhan |
 | 9 | `eshaJamaah` | Esha Jamaah |
-| 10 | `sundayDhuhr` | Sunday Zuhr value |
+| 10 | `sundayDhuhr` | Additional Dhuhr time |
 | 11 | `salaahLanguage` | Salah-language setting |
-| 12 | `sundayzuhr` | Additional Sunday Zuhr value |
+| 12 | `sundayzuhr` | Applicability label, such as `(Sundays & Public Holidays)` or `(Everyday)` |
 | 13 | `highlightSalaah` | Highlight Salah setting |
 | 14 | `highlightOwwal` | Highlight Owwal/early-time setting |
 | 15 | `liveStreamingServer` | Live-stream server |
 | 16 | `liveStreamingURL` | Live-stream URL |
 
 **Important source-code observation:** `handleResults()` assigns `spreadsheetArray[3][6]` to both `iftar` and `maghribAthan`. This does not establish that Iftar and Maghrib are semantically identical. A masjid may publish Iftar at a time that differs from the Maghrib Adhan by a few minutes, depending on its timetable/practice. MasjidPi must therefore retain this as an open research question rather than collapsing the two concepts in the normalised model. During Ramadhaan, compare real MasjidBoard Live boards that explicitly display both Iftar and Maghrib times to determine whether MasjidBoard Live supports distinct values or only exposes a shared source value. Row 23 separately contains `maghribAthanI` and other alternate-language Salah values.
+
+MasjidPi preserves the additional Dhuhr time and its label. It displays `(Everyday)`/daily entries every day and Sunday-labelled entries on Sunday using the masjid timezone. Public-holiday-only applicability remains hidden until a reliable local holiday calendar is available; the ordinary Dhuhr timetable is never replaced.
 
 #### Row 4 — display/theme/time configuration
 

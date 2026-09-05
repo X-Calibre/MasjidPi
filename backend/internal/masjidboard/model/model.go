@@ -40,12 +40,13 @@ type DateContext struct {
 // PrayerTimes contains the five daily prayers and optional Friday Jumu'ah
 // services. On Friday, Jumu'ah replaces Dhuhr as the congregational prayer.
 type PrayerTimes struct {
-	Fajr    PrayerTime
-	Dhuhr   PrayerTime
-	Asr     PrayerTime
-	Maghrib PrayerTime
-	Esha    PrayerTime
-	Jumuah  []JumuahService
+	Fajr         PrayerTime
+	Dhuhr        PrayerTime
+	Asr          PrayerTime
+	Maghrib      PrayerTime
+	Esha         PrayerTime
+	SpecialDhuhr *SpecialPrayerTime
+	Jumuah       []JumuahService
 }
 
 // ClockTime is a local wall-clock time. The board timezone is stored once on
@@ -63,15 +64,28 @@ type PrayerTime struct {
 	Jamaah *ClockTime
 }
 
+// SpecialPrayerTime is an additional provider-supplied prayer time whose
+// applicability is described by the provider label, for example
+// "(Sundays & Public Holidays)" or "(Everyday)".
+type SpecialPrayerTime struct {
+	Time  *ClockTime
+	Label string
+}
+
 // JumuahService represents one Friday congregational service.
 //
 // MasjidBoard Live supplies three configurable heading/time pairs in addition
-// to dedicated Jumu'ah Adhan, Jamaah, alternate-language and Khateeb fields.
+// to dedicated Jumu'ah Adhan, Jamaah, Islamic-time and Khateeb fields.
 // The event heading and source code are preserved so presentation-specific
 // translation can be applied later without losing the upstream value.
 type JumuahService struct {
 	Adhan           *ClockTime
 	Jamaah          *ClockTime
+	IslamicAdhan    *ClockTime
+	IslamicJamaah   *ClockTime
+	// AlternateAdhan and AlternateJamaah are retained only so older cached
+	// boards can be decoded. The Premium source columns are Islamic-time
+	// representations, not additional Jumu'ah services.
 	AlternateAdhan  *ClockTime
 	AlternateJamaah *ClockTime
 	Khateeb         string

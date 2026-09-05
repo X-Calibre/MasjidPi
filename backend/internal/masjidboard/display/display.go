@@ -66,6 +66,7 @@ type Board struct {
 	ShowDetailedJumuah bool                      `json:"show_detailed_jumuah"`
 	Date               Date                      `json:"date"`
 	Prayers            []Prayer                  `json:"prayers,omitempty"`
+	SpecialDhuhr       *SpecialPrayerTime         `json:"special_dhuhr,omitempty"`
 	Jumuah             []JumuahService           `json:"jumuah,omitempty"`
 	Astronomical       *Astronomical             `json:"astronomical,omitempty"`
 	Announcements      []Announcement            `json:"announcements,omitempty"`
@@ -95,12 +96,17 @@ type Prayer struct {
 	Jamaah *ClockTime `json:"jamaah,omitempty"`
 }
 
+type SpecialPrayerTime struct {
+	Time  *ClockTime `json:"time,omitempty"`
+	Label string     `json:"label,omitempty"`
+}
+
 type JumuahService struct {
 	Adhan           *ClockTime    `json:"adhan,omitempty"`
 	Jamaah          *ClockTime    `json:"jamaah,omitempty"`
 	EffectiveSalaah *ClockTime    `json:"effective_salaah,omitempty"`
-	AlternateAdhan  *ClockTime    `json:"alternate_adhan,omitempty"`
-	AlternateJamaah *ClockTime    `json:"alternate_jamaah,omitempty"`
+	IslamicAdhan    *ClockTime    `json:"islamic_adhan,omitempty"`
+	IslamicJamaah   *ClockTime    `json:"islamic_jamaah,omitempty"`
 	Khateeb         string        `json:"khateeb,omitempty"`
 	Events          []JumuahEvent `json:"events,omitempty"`
 }

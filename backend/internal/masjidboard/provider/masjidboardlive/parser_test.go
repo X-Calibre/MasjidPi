@@ -75,6 +75,13 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	}
 	assertClock("Esha Adhan", board.PrayerTimes.Esha.Adhan, 19, 15)
 	assertClock("Esha Jamaah", board.PrayerTimes.Esha.Jamaah, 19, 30)
+	if board.PrayerTimes.SpecialDhuhr == nil {
+		t.Fatal("Special Dhuhr is nil")
+	}
+	assertClock("Special Dhuhr", board.PrayerTimes.SpecialDhuhr.Time, 12, 45)
+	if board.PrayerTimes.SpecialDhuhr.Label != "(Everyday)" {
+		t.Fatalf("Special Dhuhr label = %q", board.PrayerTimes.SpecialDhuhr.Label)
+	}
 
 	if len(board.PrayerTimes.Jumuah) != 1 {
 		t.Fatalf("Jumuah services = %d, want 1", len(board.PrayerTimes.Jumuah))
@@ -82,8 +89,11 @@ func TestParseCapturedMasjidBoardLiveCore(t *testing.T) {
 	jumuah := board.PrayerTimes.Jumuah[0]
 	assertClock("Jumuah Adhan", jumuah.Adhan, 12, 45)
 	assertClock("Jumuah Jamaah", jumuah.Jamaah, 12, 55)
-	assertClock("Jumuah Alternate Adhan", jumuah.AlternateAdhan, 18, 56)
-	assertClock("Jumuah Alternate Jamaah", jumuah.AlternateJamaah, 19, 6)
+	assertClock("Jumuah Islamic Adhan", jumuah.IslamicAdhan, 18, 56)
+	assertClock("Jumuah Islamic Jamaah", jumuah.IslamicJamaah, 19, 6)
+	if jumuah.AlternateAdhan != nil || jumuah.AlternateJamaah != nil {
+		t.Fatal("newly parsed Jumuah data must not use deprecated alternate fields")
+	}
 	if jumuah.Khateeb != "Sunnats after Adhān" {
 		t.Fatalf("Jumuah Khateeb = %q", jumuah.Khateeb)
 	}

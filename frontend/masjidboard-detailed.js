@@ -9,7 +9,7 @@
     const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
     const displayUtils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {communityPriorityGroups, dailyIslamicItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedCommunityItemGroups, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {communityPriorityGroups, dailyIslamicItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedCommunityItemGroups, orderedFields, plainText, specialDhuhrItem} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
@@ -67,6 +67,9 @@
                 : format(zawaalStart);
             add(items, "Zawaal / Istiwa", zawaalStart, range);
         }
+
+        const specialDhuhr = specialDhuhrItem(board, displayUtils.displayNow());
+        if (specialDhuhr) add(items, specialDhuhr.label, specialDhuhr.time);
 
         add(items, "Asr Shafi‘i", astronomical.asr_shafii);
         add(items, "Asr Hanafi", astronomical.asr_hanafi);

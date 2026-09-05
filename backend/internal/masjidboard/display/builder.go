@@ -93,16 +93,27 @@ func populateBoard(out *Board, board model.Board, now time.Time) {
 		{Key: "maghrib", Label: "Maghrib", Adhan: displayTime(board.PrayerTimes.Maghrib.Adhan), Jamaah: displayTime(board.PrayerTimes.Maghrib.Jamaah)},
 		{Key: "esha", Label: "Esha", Adhan: displayTime(board.PrayerTimes.Esha.Adhan), Jamaah: displayTime(board.PrayerTimes.Esha.Jamaah)},
 	}
+	if special := board.PrayerTimes.SpecialDhuhr; special != nil && special.Time != nil {
+		out.SpecialDhuhr = &SpecialPrayerTime{Time: displayTime(special.Time), Label: special.Label}
+	}
 
 	if len(board.PrayerTimes.Jumuah) > 0 {
 		out.Jumuah = make([]JumuahService, 0, len(board.PrayerTimes.Jumuah))
 		for _, service := range board.PrayerTimes.Jumuah {
+			islamicAdhan := service.IslamicAdhan
+			if islamicAdhan == nil {
+				islamicAdhan = service.AlternateAdhan
+			}
+			islamicJamaah := service.IslamicJamaah
+			if islamicJamaah == nil {
+				islamicJamaah = service.AlternateJamaah
+			}
 			presented := JumuahService{
 				Adhan:           displayTime(service.Adhan),
 				Jamaah:          displayTime(service.Jamaah),
 				EffectiveSalaah: displayTime(service.EffectiveSalaah()),
-				AlternateAdhan:  displayTime(service.AlternateAdhan),
-				AlternateJamaah: displayTime(service.AlternateJamaah),
+				IslamicAdhan:    displayTime(islamicAdhan),
+				IslamicJamaah:   displayTime(islamicJamaah),
 				Khateeb:         service.Khateeb,
 			}
 			if len(service.Events) > 0 {

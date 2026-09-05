@@ -11,7 +11,7 @@
     document.body.classList.add("appliance-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {communityPriorityGroups, dailyIslamicItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedCommunityItemGroups, orderedFields, plainText, specialDhuhrItem} = window.MasjidBoardCommunityUtils;
     const state = document.getElementById("applianceState");
     const slidesHost = document.getElementById("applianceSlides");
     const dotsHost = document.getElementById("applianceDots");
@@ -77,6 +77,9 @@
                 : utils.formatClock(zawaalStart);
             add("Zawaal / Istiwa", zawaalStart, range);
         }
+
+        const specialDhuhr = specialDhuhrItem(board);
+        if (specialDhuhr) add(specialDhuhr.label, specialDhuhr.time);
 
         add("Asr Shafi‘i", astronomical.asr_shafii);
         add("Asr Hanafi", astronomical.asr_hanafi);
@@ -329,23 +332,24 @@
     function renderSlides(boards, indicators, dailyContent, showDuaAfterAdhan) {
         slidesHost.replaceChildren();
         dotsHost.replaceChildren();
-        const duaItem = duaAfterAdhanItem(boards, utils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
+        const primaryBoard = boards[0];
+        const duaItem = duaAfterAdhanItem(primaryBoard ? [primaryBoard] : [], utils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
         duaAfterAdhanVisible = Boolean(duaItem);
         if (duaItem) {
             slides = [communitySlide([duaItem])];
         } else {
-            slides = boards.map(salaahSlide);
-            if (boards[0] && dailyItems(boards[0]).length > 0) slides.push(dailySlide(boards[0]));
-			for (const item of dailyIslamicItems(dailyContent)) slides.push(communitySlide([item]));
-            const communityItems = useCommunityFixtures
-                ? fixtureCommunityItems(communityFixtureMode)
-                : collectCommunityItems(boards);
-            const jumuahItems = detailedJumuahItems(boards, utils.displayNow(), dateUtils.isIslamicFriday);
-            if (useJumuahKhateebFixture) {
-                for (const item of jumuahItems) item.body = "Khateeb: To be announced";
-            }
-            communityItems.unshift(...jumuahItems);
-            slides.push(...communitySlides(communityItems));
+            boards.forEach((board, boardIndex) => {
+                slides.push(salaahSlide(board));
+                if (boardIndex === 0 && dailyItems(board).length > 0) slides.push(dailySlide(board));
+                const communityGroups = useCommunityFixtures && boardIndex === 0
+                    ? communityPriorityGroups(fixtureCommunityItems(communityFixtureMode))
+                    : useCommunityFixtures ? [] : orderedCommunityItemGroups(board, utils.displayNow(), dateUtils.isIslamicFriday);
+                if (useJumuahKhateebFixture) {
+                    for (const item of communityGroups.flat().filter((entry) => entry.type === "jumuah_schedule")) item.body = "Khateeb: To be announced";
+                }
+                for (const group of communityGroups) slides.push(...communitySlides(group));
+            });
+            for (const item of dailyIslamicItems(dailyContent)) slides.push(communitySlide([item]));
             const indicatorsSlide = economicSlide(indicators);
             if (indicatorsSlide) slides.push(indicatorsSlide);
         }
@@ -378,7 +382,7 @@
 
         const boards = latestView.boards.slice(0, 3);
         const duaVisibleNow = Boolean(duaAfterAdhanItem(
-            boards,
+            boards[0] ? [boards[0]] : [],
             now,
             latestView.show_dua_after_adhan || useDuaAfterAdhanFixture,
             duaAfterAdhanWindowMinutes,

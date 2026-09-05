@@ -14,6 +14,7 @@ const inertElement = () => ({
 
 global.document = {
     hidden: false,
+    body: inertElement(),
     getElementById() { return inertElement(); },
 };
 global.CustomEvent = function CustomEvent() {};
@@ -26,6 +27,7 @@ global.window = {
     setTimeout() {},
 };
 
+require("../frontend/masjidboard-warning-utils.js");
 require("../frontend/masjidboard-display.js");
 
 const {prayerRenderKey, viewSignature} = window.MasjidBoardDisplayUtils;

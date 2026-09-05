@@ -23,7 +23,7 @@ assert.equal(
     "notice cards must be built only when the notice-page cache changes",
 );
 
-assert.match(html, /masjidboard-display\.js\?v=20260905-view-replay/);
-assert.match(html, /masjidboard-detailed\.js\?v=20260905-dua-priority/);
+assert.match(html, /masjidboard-display\.js\?v=20260905-zawaal-warning/);
+assert.match(html, /masjidboard-detailed\.js\?v=20260905-daily-times-fit/);
 
 console.log("MasjidBoard memory efficiency tests passed");

@@ -68,7 +68,7 @@ Only the dependencies, backend subsystems, APIs, configuration pages and applian
 
 ### MasjidBoard HDMI display
 
-The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select the responsive TV / Monitor presentation or the purpose-built 7-inch Appliance Display used by the physical MasjidPi appliance. TV / Monitor mode combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, Daily Times and rotating community cards when supplied upstream. Board colour themes are also user-selectable from the Web UI.
+The Board profile turns the appliance's HDMI output into a dedicated prayer-time display. Users can select the responsive TV / Monitor presentation or the purpose-built 7-inch Appliance Display used by the physical MasjidPi appliance. TV / Monitor mode combines up to three masjid columns, Gregorian/Islamic dates, Friday Jumu'ah information, next-event countdowns, primary-masjid Daily Times and rotating community cards when supplied upstream. Community cards complete one selected masjid at a time in priority order; shared daily Islamic content and economic indicators appear once at the end. Board colour themes are also user-selectable from the Web UI.
 
 ![MasjidBoard Landscape HDMI display with Funeral and Nikaah notice fixtures](docs/images/masjidboard-display-v1.3.0.png)
 

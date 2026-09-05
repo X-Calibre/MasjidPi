@@ -29,9 +29,10 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 		Identity:    model.BoardIdentity{ID: "two", Name: "Two Live", TimeZone: "GMT+02:00"},
 		DateContext: model.DateContext{GregorianDate: time.Date(2026, 8, 19, 0, 0, 0, 0, updated.Location())},
 		PrayerTimes: model.PrayerTimes{
-			Fajr:   model.PrayerTime{Adhan: ct(5, 40), Jamaah: ct(6, 0)},
-			Asr:    model.PrayerTime{Adhan: ct(16, 40), Jamaah: ct(17, 0)},
-			Jumuah: []model.JumuahService{{Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
+			Fajr:         model.PrayerTime{Adhan: ct(5, 40), Jamaah: ct(6, 0)},
+			Asr:          model.PrayerTime{Adhan: ct(16, 40), Jamaah: ct(17, 0)},
+			SpecialDhuhr: &model.SpecialPrayerTime{Time: ct(13, 0), Label: "(Sundays & Public Holidays)"},
+			Jumuah:       []model.JumuahService{{IslamicAdhan: ct(18, 56), IslamicJamaah: ct(19, 6), Events: []model.JumuahEvent{{Code: "6", Heading: "Khutbah", Time: ct(13, 0)}}}},
 		},
 		Astronomical:  &model.AstronomicalTimes{Sunrise: ct(6, 33), Sunset: ct(17, 51)},
 		Announcements: []model.Announcement{{Category: "weekly_programme", Title: "Community update", Content: "<b>Tonight</b>"}},
@@ -74,11 +75,17 @@ func TestBuildPreservesSelectionOrderAndBuildsTimetable(t *testing.T) {
 	if got.Prayers[0].Jamaah == nil || got.Prayers[0].Jamaah.Hour != 6 {
 		t.Fatalf("fajr = %+v", got.Prayers[0])
 	}
+	if got.SpecialDhuhr == nil || got.SpecialDhuhr.Time.Hour != 13 || got.SpecialDhuhr.Label != "(Sundays & Public Holidays)" {
+		t.Fatalf("special Dhuhr = %+v", got.SpecialDhuhr)
+	}
 	if len(got.Jumuah) != 1 || got.Jumuah[0].EffectiveSalaah != nil {
 		t.Fatalf("jumuah effective salaah = %+v, want nil without explicit Jamaah", got.Jumuah)
 	}
 	if len(got.Jumuah[0].Events) != 1 || got.Jumuah[0].Events[0].Heading != "Khutbah" || got.Jumuah[0].Events[0].Time == nil || got.Jumuah[0].Events[0].Time.Hour != 13 {
 		t.Fatalf("jumuah events = %+v", got.Jumuah[0].Events)
+	}
+	if got.Jumuah[0].IslamicAdhan == nil || got.Jumuah[0].IslamicAdhan.Hour != 18 || got.Jumuah[0].IslamicJamaah == nil || got.Jumuah[0].IslamicJamaah.Minute != 6 {
+		t.Fatalf("Jumuah Islamic times = %+v", got.Jumuah[0])
 	}
 	if got.Astronomical == nil || got.Astronomical.Sunrise == nil || got.Astronomical.Sunset == nil {
 		t.Fatalf("astronomical = %+v", got.Astronomical)
@@ -130,5 +137,24 @@ func TestBuildMarksCachedBoardStaleWithoutDiagnostics(t *testing.T) {
 	got := view.Boards[0]
 	if got.Status != masjidboardruntime.StatusStale || !got.Stale {
 		t.Fatalf("board = %+v", got)
+	}
+}
+
+func TestBuildMapsDeprecatedCachedJumuahTimesToIslamicFields(t *testing.T) {
+	selectedBoard := selected("cached", "Cached")
+	board := model.Board{
+		Identity: model.BoardIdentity{ID: "cached", Name: "Cached"},
+		PrayerTimes: model.PrayerTimes{Jumuah: []model.JumuahService{{
+			AlternateAdhan: ct(18, 56), AlternateJamaah: ct(19, 6),
+		}}},
+	}
+
+	view := Build(true, selection.State{Boards: []selection.Board{selectedBoard}}, []masjidboardruntime.Result{{
+		Selection: selectedBoard, Board: &board, Status: masjidboardruntime.StatusCurrent,
+	}})
+
+	got := view.Boards[0].Jumuah[0]
+	if got.IslamicAdhan == nil || got.IslamicAdhan.Hour != 18 || got.IslamicJamaah == nil || got.IslamicJamaah.Minute != 6 {
+		t.Fatalf("cached Jumuah Islamic times = %+v", got)
 	}
 }

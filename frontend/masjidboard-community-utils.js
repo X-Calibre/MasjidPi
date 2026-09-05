@@ -86,6 +86,19 @@
         }
     }
 
+    function specialDhuhrItem(board) {
+        const special = board && board.special_dhuhr;
+        const time = special && special.time;
+        const label = plainText(special && special.label);
+        if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute) || !label) return null;
+        const dhuhr = Array.isArray(board.prayers)
+            ? board.prayers.find((prayer) => prayer && prayer.key === "dhuhr")
+            : null;
+        const matches = (ordinary) => ordinary && ordinary.hour === time.hour && ordinary.minute === time.minute;
+        if (dhuhr && (matches(dhuhr.adhan) || matches(dhuhr.jamaah))) return null;
+        return {label: `Dhuhr ${label}`, time};
+    }
+
     function duaAfterAdhanContent() {
         return {
             type: "dua_after_adhan",
@@ -158,6 +171,121 @@
         return items;
     }
 
+    function boardLocalDate(board, now) {
+        const timezone = String(board && board.time_zone || "").trim();
+        try {
+            const parts = new Intl.DateTimeFormat("en-CA", {
+                timeZone: timezone || undefined,
+                year: "numeric", month: "2-digit", day: "2-digit",
+            }).formatToParts(now);
+            const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+            return new Date(Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day)));
+        } catch (_) {
+            return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+        }
+    }
+
+    function noticeEffectiveDate(value, today) {
+        const raw = plainText(value).replace(/^(?:mon|tue|wed|thu|fri|sat|sun)(?:day)?\s*,?\s*/i, "").trim();
+        const months = {
+            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+            jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+        };
+        const iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        const dayFirst = raw.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s*,?\s*(\d{4}))?/);
+        const monthFirst = raw.match(/^([A-Za-z]+)\s+(\d{1,2})(?:\s*,?\s*(\d{4}))?/);
+        let year;
+        let month;
+        let day;
+        let explicitYear = false;
+        if (iso) {
+            year = Number(iso[1]); month = Number(iso[2]) - 1; day = Number(iso[3]); explicitYear = true;
+        } else if (dayFirst) {
+            year = dayFirst[3] ? Number(dayFirst[3]) : today.getUTCFullYear();
+            month = months[dayFirst[2].slice(0, 3).toLowerCase()];
+            day = Number(dayFirst[1]);
+            explicitYear = Boolean(dayFirst[3]);
+        } else if (monthFirst) {
+            year = monthFirst[3] ? Number(monthFirst[3]) : today.getUTCFullYear();
+            month = months[monthFirst[1].slice(0, 3).toLowerCase()];
+            day = Number(monthFirst[2]);
+            explicitYear = Boolean(monthFirst[3]);
+        } else {
+            return null;
+        }
+        if (month === undefined) return null;
+        let result = new Date(Date.UTC(year, month, day));
+        if (!explicitYear && result < today) result = new Date(Date.UTC(year + 1, month, day));
+        if (result.getUTCMonth() !== month || result.getUTCDate() !== day) return null;
+        return result;
+    }
+
+    function salaahChangeEffectiveDate(item, today) {
+        const fields = item && item.fields && typeof item.fields === "object" ? item.fields : {};
+        const structured = noticeEffectiveDate(fields.effective_date, today);
+        if (structured) return structured;
+        const text = `${plainText(item && item.title)}\n${plainText(item && item.body)}`;
+        const match = text.match(/\b(?:effective\s+(?:from\s+)?|as\s+of\s+)?((?:(?:mon|tue|wed|thu|fri|sat|sun)(?:day)?\s*,?\s*)?(?:\d{1,2}\s+[A-Za-z]+|[A-Za-z]+\s+\d{1,2})(?:\s*,?\s*\d{4})?)/i);
+        return match ? noticeEffectiveDate(match[1], today) : null;
+    }
+
+    function isVisibleSalaahChange(item, board, now) {
+        if (item.type !== "salaah_change" && item.type !== "salaah_change_announcement") return true;
+        const today = boardLocalDate(board, now);
+        const effective = salaahChangeEffectiveDate(item, today);
+        if (!effective) return false;
+        const daysAway = Math.round((effective.getTime() - today.getTime()) / 86_400_000);
+        return daysAway >= 0 && daysAway <= 7;
+    }
+
+    function communityRank(item) {
+        const ranks = {
+            funeral: 10,
+            urgent_announcement: 20,
+            salaah_change: 21,
+            salaah_change_announcement: 21,
+            eid: 22,
+            announcement: 30,
+            general: 30,
+            jumuah_schedule: 31,
+            nikah: 32,
+            well_wishes: 33,
+            programme: 40,
+            weekly_programme: 40,
+            ramadan_programme: 40,
+            class_time_change: 41,
+            dawah: 42,
+            three_day_jamaat: 43,
+            new_moon: 50,
+            contribution: 51,
+        };
+        return ranks[item.type] || 30;
+    }
+
+    function communityPriorityGroups(items) {
+        const groups = new Map();
+        for (const entry of items.map((item, index) => ({item, index, rank: communityRank(item)}))
+            .sort((left, right) => left.rank - right.rank || left.index - right.index)) {
+            const tier = Math.floor(entry.rank / 10);
+            if (!groups.has(tier)) groups.set(tier, []);
+            groups.get(tier).push(entry.item);
+        }
+        return [...groups.entries()]
+            .sort((left, right) => left[0] - right[0])
+            .map(([, entries]) => entries);
+    }
+
+    function orderedCommunityItemGroups(board, now, isFriday) {
+        if (!board) return [];
+        const items = collectCommunityItems([board]);
+        items.push(...detailedJumuahItems([board], now, isFriday));
+        return communityPriorityGroups(items.filter((item) => isVisibleSalaahChange(item, board, now)));
+    }
+
+    function orderedCommunityItems(board, now, isFriday) {
+        return orderedCommunityItemGroups(board, now, isFriday).flat();
+    }
+
     function fieldLabel(name) {
         const labels = {
             address: "Address", bride: "Bride", cemetery: "Cemetery", date: "Date",
@@ -216,7 +344,7 @@
 
     function communityTypeLabel(type) {
         const labels = {
-            announcement: "Announcement", eid: "Eid Notice", funeral: "Funeral Notice",
+            announcement: "Announcement", urgent_announcement: "Urgent Announcement", eid: "Eid Notice", funeral: "Funeral Notice",
             nikah: "Nikah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change",
             programme: "Programme", new_moon: "New Moon", dawah: "Dawah / Gasht",
             three_day_jamaat: "Three-Day Jamaat", contribution: "Contributions",
@@ -251,7 +379,7 @@
                 });
             }
             for (const announcement of Array.isArray(board.announcements) ? board.announcements : []) {
-                const categories = new Set(["announcement", "salaah_change_announcement", "class_time_change", "weekly_programme", "ramadan_programme"]);
+                const categories = new Set(["announcement", "urgent_announcement", "salaah_change_announcement", "class_time_change", "weekly_programme", "ramadan_programme"]);
                 const category = plainText(announcement.category).toLowerCase();
                 add({
                     type: categories.has(category) ? category : "announcement",
@@ -455,7 +583,11 @@
         formatRand,
         formatUpdatedAt,
         noticeTitle,
+        communityPriorityGroups,
+        orderedCommunityItemGroups,
+        orderedCommunityItems,
         orderedFields,
         plainText,
+        specialDhuhrItem,
     };
 })();

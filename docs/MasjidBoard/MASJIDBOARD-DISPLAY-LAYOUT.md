@@ -125,7 +125,11 @@ These controls deliberately do not expose full catalogue search, board/location 
 
 Theme, slide duration, Islamic Economic Indicators visibility and the optional Dua-after-Adhan card are shared saved display preferences. They are independent of the automatically selected display profile.
 
-The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for five minutes from a listed timetable Adhan in the board's timezone and disappears at the end of the window without requiring a new provider refresh. It is built-in content and therefore omits the source attribution used by masjid notices. It is priority content: Appliance suspends its normal slideshow on the full-screen card, while Landscape gives it the complete notice column and suppresses other cards for the five-minute window.
+The bilingual Dua-after-Adhan card is disabled by default. When enabled, it appears for five minutes from a listed timetable Adhan for the primary selected masjid and disappears at the end of the window without requiring a new provider refresh. It is built-in content and therefore omits the source attribution used by masjid notices. It is priority content: Appliance suspends its normal slideshow on the full-screen card, while Landscape gives it the complete notice column and suppresses other cards for the five-minute window.
+
+Community content completes one selected masjid at a time, in selection order. Within each masjid it is grouped as: funeral notices; urgent announcements, Salaah changes effective within seven days and Eid notices; other announcements, Friday Jumu'ah schedules, Nikah and well-wishes; programmes, class changes, Dawah/Gasht and Jamaat notices; then new-moon information and contributions. Priority groups are packed independently so one slide never combines cards from different masjids or different priority groups. Salaah changes that are past, more than seven days away or have no usable effective date are omitted.
+
+Daily Times uses only the primary masjid. Daily Ayah, Daily Hadith, Daily Sunnah and Islamic Economic Indicators are shared content shown once, after all selected-masjid content has completed.
 
 Changing a theme therefore affects both standard and Appliance presentations. Selecting an Appliance profile is never a saved user preference.
 

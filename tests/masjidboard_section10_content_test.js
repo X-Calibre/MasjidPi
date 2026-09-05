@@ -81,6 +81,6 @@ assert.match(landscapeJS, /item\.type !== "dua_after_adhan"/, "Landscape must om
 assert.match(applianceJS, /item\.type !== "dua_after_adhan"/, "Appliance must omit Dua source attribution");
 assert.match(displayJS, /window\.MasjidBoardCurrentView = view/, "the base renderer must retain the latest view for late layout modules");
 assert.match(landscapeJS, /if \(window\.MasjidBoardCurrentView\) refresh\(window\.MasjidBoardCurrentView\)/, "Landscape must replay an already-fetched view");
-assert.match(html, /masjidboard-community-utils\.js\?v=20260905-special-dhuhr-always/, "special-Dhuhr assets must use a new cache key");
+assert.match(html, /masjidboard-community-utils\.js\?v=20260905-special-dhuhr-distinct/, "special-Dhuhr assets must use a new cache key");
 
 console.log("MasjidBoard Section 10 community-content tests passed");

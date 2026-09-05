@@ -279,7 +279,7 @@ The three heading/time pairs describe stages of one Jumu'ah service. Columns 9â€
 
 **Important source-code observation:** `handleResults()` assigns `spreadsheetArray[3][6]` to both `iftar` and `maghribAthan`. This does not establish that Iftar and Maghrib are semantically identical. A masjid may publish Iftar at a time that differs from the Maghrib Adhan by a few minutes, depending on its timetable/practice. MasjidPi must therefore retain this as an open research question rather than collapsing the two concepts in the normalised model. During Ramadhaan, compare real MasjidBoard Live boards that explicitly display both Iftar and Maghrib times to determine whether MasjidBoard Live supports distinct values or only exposes a shared source value. Row 23 separately contains `maghribAthanI` and other alternate-language Salah values.
 
-MasjidPi preserves the additional Dhuhr time and its label and always presents it in the primary masjid's Daily Times. The label communicates its applicability, such as `(Sundays & Public Holidays)` or `(Everyday)`, without requiring date inference. The ordinary Dhuhr timetable is never replaced.
+MasjidPi preserves the additional Dhuhr time and its label and presents it in the primary masjid's Daily Times whenever it differs from both ordinary Dhuhr times. The label communicates its applicability, such as `(Sundays & Public Holidays)` or `(Everyday)`, without requiring date inference. The ordinary Dhuhr timetable is never replaced.
 
 #### Row 4 â€” display/theme/time configuration
 

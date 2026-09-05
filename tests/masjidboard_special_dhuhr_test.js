@@ -21,7 +21,11 @@ vm.runInNewContext(utilitySource, context);
 const {specialDhuhrItem} = context.window.MasjidBoardCommunityUtils;
 
 function board(label, timeZone = "Africa/Johannesburg") {
-    return {time_zone: timeZone, special_dhuhr: {time: {hour: 13, minute: 0}, label}};
+    return {
+        time_zone: timeZone,
+        prayers: [{key: "dhuhr", adhan: {hour: 12, minute: 30}, jamaah: {hour: 13, minute: 30}}],
+        special_dhuhr: {time: {hour: 13, minute: 0}, label},
+    };
 }
 
 assert.deepEqual(
@@ -32,6 +36,12 @@ assert.equal(specialDhuhrItem(board("(Everyday)")).time.hour, 13);
 assert.equal(specialDhuhrItem(board("(Public Holidays)")).time.hour, 13, "the label explains applicability without date inference");
 assert.equal(specialDhuhrItem({special_dhuhr: {label: "(Everyday)"}}), null);
 assert.equal(specialDhuhrItem({special_dhuhr: {time: {hour: 13, minute: 0}}}), null);
+const duplicateJamaah = board("(Everyday)");
+duplicateJamaah.prayers[0].jamaah = {hour: 13, minute: 0};
+assert.equal(specialDhuhrItem(duplicateJamaah), null, "a normal Jamaah duplicate must be hidden");
+const duplicateAdhan = board("(Everyday)");
+duplicateAdhan.prayers[0].adhan = {hour: 13, minute: 0};
+assert.equal(specialDhuhrItem(duplicateAdhan), null, "a normal Adhan duplicate must be hidden");
 
 for (const source of [applianceSource, landscapeSource]) {
     assert.match(source, /specialDhuhrItem\(board\)/);

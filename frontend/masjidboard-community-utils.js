@@ -91,6 +91,11 @@
         const time = special && special.time;
         const label = plainText(special && special.label);
         if (!time || !Number.isInteger(time.hour) || !Number.isInteger(time.minute) || !label) return null;
+        const dhuhr = Array.isArray(board.prayers)
+            ? board.prayers.find((prayer) => prayer && prayer.key === "dhuhr")
+            : null;
+        const matches = (ordinary) => ordinary && ordinary.hour === time.hour && ordinary.minute === time.minute;
+        if (dhuhr && (matches(dhuhr.adhan) || matches(dhuhr.jamaah))) return null;
         return {label: `Dhuhr ${label}`, time};
     }
 

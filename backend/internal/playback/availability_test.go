@@ -149,7 +149,10 @@ func TestManagerWaitsForMountStartupDelay(t *testing.T) {
 	if got := fake.playCount(); got != 0 {
 		t.Fatalf("play calls during mount startup delay = %d, want 0", got)
 	}
-	waitFor(t, time.Second, func() bool { return fake.playCount() == 1 })
+	// The race detector can delay this goroutine substantially on a busy CI
+	// runner. Keep the production startup delay small while allowing enough
+	// wall-clock time for the asynchronous assertion to observe it.
+	waitFor(t, 3*time.Second, func() bool { return fake.playCount() == 1 })
 }
 
 func TestManagerCancelsMountStartupWhenMountStops(t *testing.T) {

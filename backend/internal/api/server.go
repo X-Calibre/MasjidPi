@@ -11,6 +11,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
 	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	masjidnetwork "github.com/X-Calibre/MasjidPi/backend/internal/network"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
@@ -43,6 +44,7 @@ type Server struct {
 	catalogueFile               string
 	catalogueDataRoot           string
 	installed                   components.Installed
+	wifi                        masjidnetwork.WiFiManager
 }
 
 type Config struct {
@@ -65,6 +67,7 @@ type Dependencies struct {
 	Favourites             *storage.Favourites
 	Preferences            *storage.Preferences
 	AudioDeviceState       *storage.AudioDeviceState
+	WiFi                   masjidnetwork.WiFiManager
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
 }
@@ -92,6 +95,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		catalogueFile:            config.CatalogueFile,
 		catalogueDataRoot:        config.CatalogueDataRoot,
 		installed:                config.Installed,
+		wifi:                     dependencies.WiFi,
 		httpServer:               &http.Server{Addr: config.Address, Handler: mux},
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
@@ -118,6 +122,10 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/listen/stop", server.listenStop)
 	}
 	if config.Installed.Board {
+		mux.HandleFunc("/appliance", server.applianceEntry)
+		mux.HandleFunc("/api/setup/wifi/status", server.wifiStatus)
+		mux.HandleFunc("/api/setup/wifi/networks", server.wifiNetworks)
+		mux.HandleFunc("/api/setup/wifi/connect", server.wifiConnect)
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
 		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
@@ -145,6 +153,21 @@ func New(config Config, dependencies Dependencies) *Server {
 		fileServer.ServeHTTP(w, r)
 	})
 	return server
+}
+
+func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	if s.wifi != nil {
+		status, err := s.wifi.Status(r.Context())
+		if err == nil && status.Supported && !status.Configured {
+			http.Redirect(w, r, "/setup.html?profile=appliance", http.StatusTemporaryRedirect)
+			return
+		}
+	}
+	http.Redirect(w, r, "/masjidboard.html?profile=appliance", http.StatusTemporaryRedirect)
 }
 
 func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) { s.audioDeviceState = state }

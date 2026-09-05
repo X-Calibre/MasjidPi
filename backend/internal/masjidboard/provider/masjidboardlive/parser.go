@@ -598,12 +598,12 @@ func parseJumuahRow(raw json.RawMessage) (*model.JumuahService, error) {
 	}
 
 	return &model.JumuahService{
-		Adhan:           adhan,
-		Jamaah:          jamaah,
-		IslamicAdhan:    islamicAdhan,
-		IslamicJamaah:   islamicJamaah,
-		Khateeb:         stringValue(values, 6),
-		Events:          events,
+		Adhan:         adhan,
+		Jamaah:        jamaah,
+		IslamicAdhan:  islamicAdhan,
+		IslamicJamaah: islamicJamaah,
+		Khateeb:       stringValue(values, 6),
+		Events:        events,
 	}, nil
 }
 

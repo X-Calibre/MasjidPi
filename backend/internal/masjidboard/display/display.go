@@ -66,7 +66,7 @@ type Board struct {
 	ShowDetailedJumuah bool                      `json:"show_detailed_jumuah"`
 	Date               Date                      `json:"date"`
 	Prayers            []Prayer                  `json:"prayers,omitempty"`
-	SpecialDhuhr       *SpecialPrayerTime         `json:"special_dhuhr,omitempty"`
+	SpecialDhuhr       *SpecialPrayerTime        `json:"special_dhuhr,omitempty"`
 	Jumuah             []JumuahService           `json:"jumuah,omitempty"`
 	Astronomical       *Astronomical             `json:"astronomical,omitempty"`
 	Announcements      []Announcement            `json:"announcements,omitempty"`

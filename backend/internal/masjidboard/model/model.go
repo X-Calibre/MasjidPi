@@ -79,10 +79,10 @@ type SpecialPrayerTime struct {
 // The event heading and source code are preserved so presentation-specific
 // translation can be applied later without losing the upstream value.
 type JumuahService struct {
-	Adhan           *ClockTime
-	Jamaah          *ClockTime
-	IslamicAdhan    *ClockTime
-	IslamicJamaah   *ClockTime
+	Adhan         *ClockTime
+	Jamaah        *ClockTime
+	IslamicAdhan  *ClockTime
+	IslamicJamaah *ClockTime
 	// AlternateAdhan and AlternateJamaah are retained only so older cached
 	// boards can be decoded. The Premium source columns are Islamic-time
 	// representations, not additional Jumu'ah services.

@@ -114,6 +114,9 @@
 
         const list = document.createElement("div");
         list.className = "additional-times-list";
+        list.style.setProperty("--daily-time-columns", String(items.length));
+        if (items.length > 10) list.classList.add("is-crowded");
+        if (items.length > 11) list.classList.add("is-very-crowded");
         for (const item of items) {
             const row = document.createElement("div");
             row.className = "additional-time-row";

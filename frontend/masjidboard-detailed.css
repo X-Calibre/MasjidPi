@@ -544,7 +544,7 @@ html.landscape-layout {
     grid-row:1 / span 2;
     min-height:0;
     display:grid;
-    grid-template-columns:repeat(10,minmax(0,1fr));
+    grid-template-columns:repeat(var(--daily-time-columns,10),minmax(0,1fr));
     gap:clamp(5px,.42vw,8px);
     padding:0;
 }
@@ -576,6 +576,25 @@ html.landscape-layout {
     letter-spacing:0;
     line-height:1;
     white-space:nowrap;
+}
+.additional-times-list.is-crowded {
+    gap:clamp(3px,.3vw,6px);
+}
+.additional-times-list.is-crowded .additional-time-row {
+    gap:3px;
+    padding-inline:clamp(2px,.22vw,4px);
+}
+.additional-times-list.is-crowded .additional-time-label {
+    font-size:clamp(.78rem,.82vw,.94rem);
+}
+.additional-times-list.is-crowded .additional-time-value {
+    font-size:clamp(1.08rem,1.16vw,1.32rem);
+}
+.additional-times-list.is-very-crowded .additional-time-label {
+    font-size:clamp(.7rem,.74vw,.86rem);
+}
+.additional-times-list.is-very-crowded .additional-time-value {
+    font-size:clamp(.98rem,1.04vw,1.2rem);
 }
 
 /* Full-HD displays have enough overall room, but the three-masjid layout can

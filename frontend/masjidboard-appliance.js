@@ -332,6 +332,7 @@
     function renderSlides(boards, indicators, dailyContent, showDuaAfterAdhan) {
         slidesHost.replaceChildren();
         dotsHost.replaceChildren();
+        slides = [];
         const primaryBoard = boards[0];
         const duaItem = duaAfterAdhanItem(primaryBoard ? [primaryBoard] : [], utils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
         duaAfterAdhanVisible = Boolean(duaItem);

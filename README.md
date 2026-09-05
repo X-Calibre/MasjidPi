@@ -277,13 +277,11 @@ See [ROADMAP.md](ROADMAP.md) for the current development roadmap, the [User Guid
 
 ## Project Status
 
-**Current stable release: v1.5.1**
+**Current stable release: v1.5.2**
 
-**Current release candidate: v1.5.2-rc.3**
+v1.5.2 improves appliance startup and resilience, protects persistent state and the Raspberry Pi boot filesystem, hardens source updates and rollback recovery, and reduces long-running WebKit render churn. It also expands MasjidBoard with detailed Jumu'ah schedules, structured community content, daily Ayah/Hadith/Sunnah cards, a five-minute Dua-after-Adhan takeover, ordered notice rotation, Zawaal/Istiwaa warning highlighting, and non-duplicate special-day Dhuhr times.
 
-v1.5.2-rc.3 improves appliance startup and resilience without changing the established Listen or Board workflows. It adds a quiet two-stage branded boot, protects the Raspberry Pi boot filesystem during normal operation, reduces the risk of corrupted persisted state after interrupted writes, makes source updates and rollback recovery safer, hardens Jamiat economic-date parsing, validates automatic USB audio fallback and restoration, and reduces long-running WebKit render churn identified during the RC1 Pi 3 soak.
-
-The candidate has passed automated validation and focused Raspberry Pi 4 testing. Stable promotion remains subject to installation of the published ARM64 artifact and review of the post-change Raspberry Pi 3 soak test. See [docs/RELEASE_CANDIDATE_v1.5.2.md](docs/RELEASE_CANDIDATE_v1.5.2.md).
+The release passed the full automated suite and focused Raspberry Pi 4 source-install validation in portrait and landscape layouts. See [docs/RELEASE_CANDIDATE_v1.5.2.md](docs/RELEASE_CANDIDATE_v1.5.2.md) for the acceptance record.
 
 v1.5.0 adds secondary Islamic radio to Listen. The selected masjid remains the primary source and interrupts Radio immediately whenever it comes online. Radio can resume after a configurable 1–30 minute delay, follow an optional daily playback window, or be manually controlled through Play on Schedule, Play Now and Stop Radio modes. Masjid and Radio have independent 0–150% software volumes, while Master Volume remains a separate hardware control where supported.
 

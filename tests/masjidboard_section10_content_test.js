@@ -55,6 +55,11 @@ const midnightBoard = {
     prayers: [{key: "esha", adhan: {hour: 23, minute: 58}}],
 };
 assert.equal(duaAfterAdhanItem([midnightBoard], new Date("2026-09-06T00:04:00Z"), true).type, "dua_after_adhan", "the window must continue through local midnight");
+const fixedOffsetBoard = {
+    time_zone: "GMT+10:00",
+    prayers: [{key: "fajr", adhan: {hour: 5, minute: 30}}],
+};
+assert.equal(duaAfterAdhanItem([fixedOffsetBoard], new Date("2026-09-05T19:35:00Z"), true).type, "dua_after_adhan", "provider GMT offsets must not fall back to the browser timezone");
 assert.equal(duaAfterAdhanItem([], new Date("2026-09-05T03:40:00Z"), true, 10, true).type, "dua_after_adhan");
 
 for (const renderer of [applianceJS, landscapeJS]) {
@@ -66,5 +71,6 @@ for (const renderer of [applianceJS, landscapeJS]) {
 }
 assert.match(applianceCSS, /\[dir="rtl"\]/);
 assert.match(landscapeCSS, /\[dir="rtl"\]/);
+assert.match(landscapeJS, /item\.type === "dua_after_adhan"/, "the Landscape Dua card must reserve a detailed-content slot");
 
 console.log("MasjidBoard Section 10 community-content tests passed");

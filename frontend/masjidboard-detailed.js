@@ -134,7 +134,7 @@
     }
 
     function isDetailedCommunityItem(item) {
-        return item.type === "jumuah_schedule" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
+        return item.type === "jumuah_schedule" || item.type === "dua_after_adhan" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
     }
 
     function packCommunityPages(items) {

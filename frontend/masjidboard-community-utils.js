@@ -64,9 +64,18 @@
     const duaAfterAdhanTranslation = "O Allah, Lord of this perfect call and established prayer, grant Muhammad the Wasilah and virtue, and raise him to the praised position You have promised him.";
 
     function boardLocalMinutes(board, now) {
+        const timezone = String(board && board.time_zone || "").trim();
+        const fixedOffset = timezone.match(/^(?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?$/i);
+        if (fixedOffset) {
+            const sign = fixedOffset[1] === "-" ? -1 : 1;
+            const offset = fixedOffset[1]
+                ? sign * (Number(fixedOffset[2]) * 60 + Number(fixedOffset[3] || 0))
+                : 0;
+            return (now.getUTCHours() * 60 + now.getUTCMinutes() + offset + 24 * 60) % (24 * 60);
+        }
         try {
             const parts = new Intl.DateTimeFormat("en-GB", {
-                timeZone: board && board.time_zone || undefined,
+                timeZone: timezone || undefined,
                 hour: "2-digit", minute: "2-digit", hourCycle: "h23",
             }).formatToParts(now);
             const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));

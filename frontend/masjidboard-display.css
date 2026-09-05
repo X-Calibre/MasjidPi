@@ -72,6 +72,33 @@ body { min-height:100vh; }
 .clock-block { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
 .current-time { font-size:clamp(4.1rem,5.9vw,6.5rem); font-weight:840; letter-spacing:-.055em; line-height:.92; }
 .current-date { margin-top:10px; color:var(--muted); font-size:clamp(1.18rem,1.5vw,1.55rem); font-weight:540; }
+
+@keyframes zawaal-header-pulse {
+    0%, 100% { color:#ff3b30; text-shadow:0 0 4px rgba(255,59,48,.35); }
+    50% { color:#ff8a82; text-shadow:0 0 18px rgba(255,59,48,.9); }
+}
+
+.zawaal-warning-active .current-time,
+.zawaal-warning-active .detailed-gregorian-date,
+.zawaal-warning-active .detailed-islamic-date,
+.zawaal-warning-active .appliance-clock,
+.zawaal-warning-active .appliance-information time,
+.zawaal-warning-active .appliance-information div {
+    animation:zawaal-header-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .zawaal-warning-active .current-time,
+    .zawaal-warning-active .detailed-gregorian-date,
+    .zawaal-warning-active .detailed-islamic-date,
+    .zawaal-warning-active .appliance-clock,
+    .zawaal-warning-active .appliance-information time,
+    .zawaal-warning-active .appliance-information div {
+        animation:none;
+        color:#ff3b30;
+        text-shadow:0 0 8px rgba(255,59,48,.6);
+    }
+}
 .connection-state { position:absolute; right:0; top:4px; color:var(--muted); font-size:.86rem; }
 .connection-state.warning { color:var(--warning); }
 .board-source-toast {

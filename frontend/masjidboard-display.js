@@ -12,6 +12,7 @@
     const currentDate = document.getElementById("currentDate");
     const connectionState = document.getElementById("connectionState");
     const dateUtils = window.MasjidBoardDate;
+    const warningUtils = window.MasjidBoardWarningUtils;
     let latestView = null;
     let renderedViewSignature = "";
     let renderedPrayerState = "";
@@ -178,6 +179,8 @@
         const date = displayDate();
         currentTime.textContent = now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});
         currentDate.textContent = date.toLocaleDateString([], {weekday: "long", day: "numeric", month: "long"});
+        const primaryBoard = latestView && Array.isArray(latestView.boards) ? latestView.boards[0] : null;
+        document.body.classList.toggle("zawaal-warning-active", warningUtils.isZawaalWarningActive(primaryBoard, now));
         if (!latestView) return;
 
         const boards = (latestView.boards || []).slice(0, 3);

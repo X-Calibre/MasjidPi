@@ -411,6 +411,7 @@
     });
 
     window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    if (window.MasjidBoardCurrentView) refresh(window.MasjidBoardCurrentView);
     window.addEventListener("masjidpi:appliance-listen-panel", event => {
         state.classList.toggle("listen-panel-open", Boolean(event.detail && event.detail.open));
         if (state.classList.contains("listen-panel-open")) window.clearInterval(slideTimer);

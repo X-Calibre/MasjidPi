@@ -28,4 +28,5 @@
     applyTheme(hasThemeOverride ? themeOverride : "emerald");
     applyFontPreview(fontPreview);
     window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    if (window.MasjidBoardCurrentView) refresh(window.MasjidBoardCurrentView);
 })();

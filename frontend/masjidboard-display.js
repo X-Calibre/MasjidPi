@@ -334,6 +334,7 @@
             displayETag = response.headers.get("ETag") || "";
             const view = await response.json();
             latestView = view;
+            window.MasjidBoardCurrentView = view;
             const signature = viewSignature(view);
             if (signature !== renderedViewSignature) {
                 render(view);

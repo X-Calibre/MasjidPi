@@ -11,6 +11,8 @@ const applianceJS = fs.readFileSync(path.join(root, "frontend/masjidboard-applia
 const landscapeJS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.js"), "utf8");
 const applianceCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.css"), "utf8");
 const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.css"), "utf8");
+const displayJS = fs.readFileSync(path.join(root, "frontend/masjidboard-display.js"), "utf8");
+const html = fs.readFileSync(path.join(root, "frontend/masjidboard.html"), "utf8");
 
 class TestDOMParser {
     parseFromString(value) {
@@ -72,5 +74,8 @@ for (const renderer of [applianceJS, landscapeJS]) {
 assert.match(applianceCSS, /\[dir="rtl"\]/);
 assert.match(landscapeCSS, /\[dir="rtl"\]/);
 assert.match(landscapeJS, /item\.type === "dua_after_adhan"/, "the Landscape Dua card must reserve a detailed-content slot");
+assert.match(displayJS, /window\.MasjidBoardCurrentView = view/, "the base renderer must retain the latest view for late layout modules");
+assert.match(landscapeJS, /if \(window\.MasjidBoardCurrentView\) refresh\(window\.MasjidBoardCurrentView\)/, "Landscape must replay an already-fetched view");
+assert.match(html, /masjidboard-community-utils\.js\?v=20260905-section10/, "Section 10 assets must use a new cache key");
 
 console.log("MasjidBoard Section 10 community-content tests passed");

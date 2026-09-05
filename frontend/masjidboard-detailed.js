@@ -433,6 +433,7 @@
     }
 
     window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    if (window.MasjidBoardCurrentView) refresh(window.MasjidBoardCurrentView);
     window.setInterval(() => {
         if (!latestCommunityView) return;
         const boards = Array.isArray(latestCommunityView.boards) ? latestCommunityView.boards.slice(0, 3) : [];

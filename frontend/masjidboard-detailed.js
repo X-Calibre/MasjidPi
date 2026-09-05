@@ -9,7 +9,7 @@
     const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
     const displayUtils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
-    const {collectCommunityItems, dailyIslamicItems, detailedJumuahItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
+    const {communityPriorityGroups, dailyIslamicItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedCommunityItemGroups, orderedFields, plainText} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
     document.body.classList.add("landscape-layout");
@@ -292,26 +292,29 @@
             communityPanel.classList.add("hidden");
             return;
         }
-		let items = useCommunityFixtures ? fixtureCommunityItems(communityFixtureMode) : collectCommunityItems(boards);
-		const jumuahItems = detailedJumuahItems(boards, displayUtils.displayNow(), dateUtils.isIslamicFriday);
+		let itemGroups = boards.flatMap((board, boardIndex) => useCommunityFixtures
+			? (boardIndex === 0 ? communityPriorityGroups(fixtureCommunityItems(communityFixtureMode)) : [])
+			: orderedCommunityItemGroups(board, displayUtils.displayNow(), dateUtils.isIslamicFriday));
 		if (useJumuahKhateebFixture) {
-			for (const item of jumuahItems) item.body = "Khateeb: To be announced";
+			for (const item of itemGroups.flat().filter((entry) => entry.type === "jumuah_schedule")) item.body = "Khateeb: To be announced";
 		}
-		items.unshift(...jumuahItems);
-		const duaItem = duaAfterAdhanItem(boards, displayUtils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
+		const primaryBoard = boards[0];
+		const duaItem = duaAfterAdhanItem(primaryBoard ? [primaryBoard] : [], displayUtils.displayNow(), showDuaAfterAdhan || useDuaAfterAdhanFixture, duaAfterAdhanWindowMinutes, useDuaAfterAdhanFixture);
 		duaAfterAdhanVisible = Boolean(duaItem);
 		if (duaItem) {
-			items = [duaItem];
+			itemGroups = [[duaItem]];
 		} else {
-			items.push(...dailyIslamicItems(dailyContent));
+			const sharedItems = dailyIslamicItems(dailyContent);
 			const economicItem = economicCommunityItem(indicators);
-			if (economicItem) items.push(economicItem);
+			if (economicItem) sharedItems.push(economicItem);
+			itemGroups.push(sharedItems);
 		}
+		const items = itemGroups.flat();
         const signature = JSON.stringify(items);
         if (signature !== communitySignature) {
             communitySignature = signature;
             communityItems = items;
-            communityPages = packCommunityPages(items);
+            communityPages = itemGroups.flatMap((group) => packCommunityPages(group));
             buildCommunityPageNodes();
             communityPage = 0;
         }
@@ -441,7 +444,7 @@
         if (!latestCommunityView) return;
         const boards = Array.isArray(latestCommunityView.boards) ? latestCommunityView.boards.slice(0, 3) : [];
         const duaVisibleNow = Boolean(duaAfterAdhanItem(
-            boards,
+            boards[0] ? [boards[0]] : [],
             displayUtils.displayNow(),
             latestCommunityView.show_dua_after_adhan || useDuaAfterAdhanFixture,
             duaAfterAdhanWindowMinutes,

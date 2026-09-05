@@ -66,7 +66,6 @@ for (const renderer of [applianceJS, landscapeJS]) {
 }
 assert.match(landscapeJS, /const displayUtils = window\.MasjidBoardDisplayUtils/);
 assert.match(landscapeJS, /const dateUtils = window\.MasjidBoardDate/);
-assert.match(landscapeJS, /detailedJumuahItems\(boards, displayUtils\.displayNow\(\), dateUtils\.isIslamicFriday\)/);
-assert.doesNotMatch(landscapeJS, /detailedJumuahItems\(boards, displayNow\(\)/);
+assert.match(landscapeJS, /orderedCommunityItemGroups\(board, displayUtils\.displayNow\(\), dateUtils\.isIslamicFriday\)/);
 
 console.log("MasjidBoard detailed Jumu'ah schedule tests passed");

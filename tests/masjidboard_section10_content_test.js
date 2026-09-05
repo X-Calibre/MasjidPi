@@ -75,12 +75,12 @@ for (const renderer of [applianceJS, landscapeJS]) {
 assert.match(applianceCSS, /\[dir="rtl"\]/);
 assert.match(landscapeCSS, /\[dir="rtl"\]/);
 assert.match(landscapeJS, /item\.type === "dua_after_adhan"/, "the Landscape Dua card must reserve a detailed-content slot");
-assert.match(landscapeJS, /items = \[duaItem\]/, "the Landscape Dua card must override all other cards");
+assert.match(landscapeJS, /itemGroups = \[\[duaItem\]\]/, "the Landscape Dua card must override all other cards");
 assert.match(applianceJS, /slides = \[communitySlide\(\[duaItem\]\)\]/, "the Appliance Dua card must suspend all other slides");
 assert.match(landscapeJS, /item\.type !== "dua_after_adhan"/, "Landscape must omit Dua source attribution");
 assert.match(applianceJS, /item\.type !== "dua_after_adhan"/, "Appliance must omit Dua source attribution");
 assert.match(displayJS, /window\.MasjidBoardCurrentView = view/, "the base renderer must retain the latest view for late layout modules");
 assert.match(landscapeJS, /if \(window\.MasjidBoardCurrentView\) refresh\(window\.MasjidBoardCurrentView\)/, "Landscape must replay an already-fetched view");
-assert.match(html, /masjidboard-community-utils\.js\?v=20260905-dua-priority/, "Dua priority assets must use a new cache key");
+assert.match(html, /masjidboard-community-utils\.js\?v=20260905-slide-ordering/, "slide-ordering assets must use a new cache key");
 
 console.log("MasjidBoard Section 10 community-content tests passed");

@@ -282,6 +282,8 @@ func announcementCategory(title string) string {
 		return "ramadan_programme"
 	case strings.Contains(normalized, "weekly program"), strings.Contains(normalized, "weekly programme"):
 		return "weekly_programme"
+	case strings.Contains(normalized, "urgent"):
+		return "urgent_announcement"
 	default:
 		return "announcement"
 	}

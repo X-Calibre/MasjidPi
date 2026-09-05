@@ -42,7 +42,8 @@ assert.equal(dailyIslamicItems({source: "MasjidBoard Live", ayah: {text: "Only A
 assert.match(appliance, /dailyIslamicItems\(dailyContent\)/);
 assert.match(appliance, /slides\.push\(communitySlide\(\[item\]\)\)/, "each appliance item must receive a dedicated slide");
 assert.match(appliance, /view\.daily_islamic_content/);
-assert.match(landscape, /items\.push\(\.\.\.dailyIslamicItems\(dailyContent\)\)/);
+assert.match(landscape, /const sharedItems = dailyIslamicItems\(dailyContent\)/);
+assert.match(landscape, /itemGroups\.push\(sharedItems\)/, "landscape shared content must form one final group");
 assert.match(landscape, /view\.daily_islamic_content/);
 assert.match(appliance, /"Source: " \+ item\.source/);
 assert.match(landscape, /`Source: \$\{item\.source\}`/);

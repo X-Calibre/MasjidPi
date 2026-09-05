@@ -313,7 +313,7 @@ func TestParseAnnouncementCategoriesAreConservative(t *testing.T) {
 		"Urgent access notice","Use the side entrance","Display"
 	]`)
 	announcements := parseAnnouncementRows(raw)
-	want := []string{"salaah_change_announcement", "class_time_change", "weekly_programme", "ramadan_programme", "announcement"}
+	want := []string{"salaah_change_announcement", "class_time_change", "weekly_programme", "ramadan_programme", "urgent_announcement"}
 	if len(announcements) != len(want) {
 		t.Fatalf("announcements = %+v", announcements)
 	}

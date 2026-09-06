@@ -61,21 +61,25 @@ primary_ipv4_address() {
 }
 
 web_hostname() {
-    command_exists hostname || return
+    command_exists curl || return
+    command_exists jq || return
 
-    local fqdn short_name
-    fqdn="$(hostname --fqdn 2>/dev/null || true)"
-    short_name="$(hostname --short 2>/dev/null || true)"
+    local fqdn
+    fqdn="$(
+        curl -fsS --max-time 2 http://127.0.0.1:8080/api/setup/device-access 2>/dev/null \
+            | jq -er '
+                .fqdn |
+                select(
+                    type == "string" and
+                    test("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+\\.?$")
+                ) |
+                rtrimstr(".")
+            ' 2>/dev/null \
+            || true
+    )"
 
-    if [[ "$fqdn" == *.* && "$fqdn" != "localhost.localdomain" ]]; then
+    if [[ -n "$fqdn" ]]; then
         printf '%s\n' "$fqdn"
-        return
-    fi
-
-    if [[ -n "$short_name" ]] \
-        && command_exists systemctl \
-        && systemctl is-active --quiet avahi-daemon.service 2>/dev/null; then
-        printf '%s.local\n' "$short_name"
     fi
 }
 

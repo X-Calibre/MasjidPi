@@ -507,7 +507,12 @@
     document.getElementById("backToLocation").addEventListener("click", showLocationStep);
     document.getElementById("continueButton").addEventListener("click", () => continueAction());
 
-    const requestedStep = new URLSearchParams(window.location.search).get("step");
+    const setupParams = new URLSearchParams(window.location.search);
+    if (setupParams.get("return") === "board") {
+        document.getElementById("returnToBoard").hidden = false;
+        document.getElementById("networkHeading").textContent = "Change Wi-Fi network";
+    }
+    const requestedStep = setupParams.get("step");
     if (requestedStep === "location") showLocationStep();
     else scanNetworks();
 })();

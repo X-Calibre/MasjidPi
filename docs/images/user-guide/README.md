@@ -15,7 +15,7 @@ Add screenshots as PNG files using the exact names below. Capture the configurat
 | `board-7-inch-layout.png` | Unobscured 7-inch Appliance Display at 600 × 1024. |
 | `board-touch-masjid-tab.png` | 7-inch control panel with the Masjid tab active. |
 | `board-touch-radio-tab.png` | 7-inch control panel with the Radio tab active. |
-| `board-touch-theme-tab.png` | 7-inch control panel with the Theme tab active and all six themes visible. |
+| `board-touch-theme-tab.png` | 7-inch control panel with the Theme tab active and all ten themes visible. |
 | `board-source-notification.png` | Board showing a named Masjid/Radio transition notification or the persistent Radio-resume countdown. |
 | `board-status-tab.png` | Board Status tab showing selected boards and Current/Stale/Unavailable information. |
 

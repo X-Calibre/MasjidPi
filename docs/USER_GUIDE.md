@@ -39,6 +39,8 @@ The completion screen directs you to the full Web UI from a phone, tablet or com
 
 After setup, normal boots open the configured Board directly.
 
+To change Wi-Fi later, swipe up on the Appliance Display and open the **Network** tab. This tab also shows the current IP address and any network-issued FQDN for opening the full Web UI from another device. Select **Change Wi-Fi network** to open the same visible/hidden-network setup screen with a **Back to board** action. Merely opening or leaving this screen does not alter the current connection; a network change occurs only after a new connection succeeds.
+
 ## 2. Listen: how audio priority works
 
 Listen has two possible audio sources:
@@ -331,7 +333,7 @@ The presentation adapts to the number of configured masjids.
 The local HDMI profile is selected automatically from the attached hardware. It is not a saved layout choice. The **Display** tab configures:
 
 - slide duration from 5 to 60 seconds;
-- one of six Board colour themes; and
+- one of ten Board colour themes; and
 - optional Islamic Economic Indicators;
 - independently enabled Daily Ayah, Daily Hadith and Daily Sunnah cards; and
 - the optional Dua-after-Adhan card.
@@ -354,6 +356,8 @@ The control sheet provides:
 - a **Radio** tab for choosing a station, adjusting Radio and Master volume, and selecting Scheduled Play, Play Now or Stop Radio; and
 - a **Theme** tab for immediately applying and saving any supported Board colour theme.
 
+The **Network** tab shows the current IP address and any network-issued FQDN for accessing advanced configuration from another device. It also provides **Change Wi-Fi network**, which reopens the appliance network setup without deleting the current profile first.
+
 Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
 
 The panel closes automatically after 60 seconds without user activity. Tapping, scrolling, swiping, using the keyboard or adjusting a control restarts that timer. The time and upcoming-event section remains visible while the panel is open.
@@ -366,7 +370,7 @@ The panel closes automatically after 60 seconds without user activity. Tapping, 
 
 ### Themes
 
-Board includes curated colour themes. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
+Board includes ten curated colour themes: Emerald, Midnight, Slate, Ruby, Light Gold, Ivory, Sage, Sky, Rose and Black & White. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
 
 The Board theme is an appliance setting shared by the HDMI display, browser preview and touch panel. It is separate from the System/Light/Dark theme used by the configuration Web UI.
 

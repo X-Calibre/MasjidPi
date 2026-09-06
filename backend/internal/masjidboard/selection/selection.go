@@ -20,12 +20,17 @@ const (
 	ThemeSlate      = "slate"
 	ThemeRuby       = "ruby"
 	ThemeLight      = "light"
+	ThemeIvory      = "ivory"
+	ThemeSage       = "sage"
+	ThemeSky        = "sky"
+	ThemeRose       = "rose"
 	ThemeBlackWhite = "black-white"
 )
 
 var supportedThemes = map[string]struct{}{
 	ThemeEmerald: {}, ThemeMidnight: {}, ThemeSlate: {},
-	ThemeRuby: {}, ThemeLight: {}, ThemeBlackWhite: {},
+	ThemeRuby: {}, ThemeLight: {}, ThemeIvory: {}, ThemeSage: {},
+	ThemeSky: {}, ThemeRose: {}, ThemeBlackWhite: {},
 }
 
 // Board is the minimal last-known identity required to keep a selected

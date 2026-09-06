@@ -32,7 +32,7 @@ It can run either capability independently or install both together:
 - Show optional Daily Ayah, Hadith, Sunnah, Islamic Economic Indicators and Dua after Adhan
 - Highlight the published Zawaal/Istiwaa interval
 - Continue with last-known-good timetable data during temporary upstream outages
-- Use six colour themes and integrated touch controls on the Appliance Display
+- Use ten colour themes and integrated touch controls on the Appliance Display
 
 Content availability depends on what each upstream masjid publishes.
 
@@ -101,9 +101,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Current stable release: v1.5.2**
 
-**Current release candidate: v1.6.0-rc.1**
+**Current release candidate: v1.6.0-rc.2**
 
-v1.6.0-rc.1 adds a touchscreen-first MasjidFrame onboarding flow for Wi-Fi, location and initial masjid selection. It supports visible and hidden networks, an embedded keyboard, and network-issued FQDN/IP guidance for completing advanced configuration from another device. It also includes the accumulated post-v1.5.2 Board fixes. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
+v1.6.0-rc.2 builds on the touchscreen-first MasjidFrame onboarding introduced in RC1. It adds post-setup Wi-Fi management from the Appliance Display, shows the active FQDN and IP address for advanced configuration, improves touch-panel behaviour and expands the Board to ten colour themes. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
 
 v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 

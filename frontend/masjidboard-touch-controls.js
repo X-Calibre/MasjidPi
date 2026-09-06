@@ -34,12 +34,21 @@
     };
     const radioModeDetail = document.getElementById("applianceRadioModeDetail");
     const themeHost = document.getElementById("applianceThemeChoices");
+    const networkFQDNRow = document.getElementById("applianceNetworkFQDNRow");
+    const networkFQDN = document.getElementById("applianceNetworkFQDN");
+    const networkIPRow = document.getElementById("applianceNetworkIPRow");
+    const networkIP = document.getElementById("applianceNetworkIP");
+    const networkUnavailable = document.getElementById("applianceNetworkUnavailable");
     const themes = [
         ["emerald", "Emerald", "MasjidPi green"],
         ["midnight", "Midnight", "Deep blue"],
         ["slate", "Slate", "Neutral gold"],
         ["ruby", "Ruby", "Warm red"],
-        ["light", "Light", "Bright display"],
+        ["light", "Light Gold", "Warm gold"],
+        ["ivory", "Ivory", "Ivory & emerald"],
+        ["sage", "Sage", "Soft forest green"],
+        ["sky", "Sky", "Cool blue"],
+        ["rose", "Rose", "Blush & burgundy"],
         ["black-white", "Black & White", "Maximum contrast"]
     ];
 
@@ -52,6 +61,7 @@
     let refreshTimer = 0;
     let inactivityTimer = 0;
     let gestureStart = null;
+    let closeGestureStart = null;
     let busy = false;
     let currentTheme = document.body.dataset.boardTheme || "emerald";
     const volumeSaveTimers = {master:0, masjid:0, radio:0};
@@ -92,6 +102,17 @@
         connection.classList.toggle("hidden", !message);
     }
 
+    function renderNetworkAccess(access = null) {
+        const port = window.location.port || "8080";
+        const fqdn = access?.fqdn || "";
+        const ipAddress = access?.ip_address || "";
+        networkFQDN.textContent = fqdn ? `http://${fqdn}:${port}` : "";
+        networkIP.textContent = ipAddress ? `http://${ipAddress}:${port}` : "";
+        networkFQDNRow.classList.toggle("hidden", !fqdn);
+        networkIPRow.classList.toggle("hidden", !ipAddress);
+        networkUnavailable.classList.toggle("hidden", Boolean(fqdn || ipAddress));
+    }
+
     function setBusy(value) {
         busy = value;
         renderStatus();
@@ -112,7 +133,6 @@
         if (open) {
             resetInactivityTimer();
             loadPanel();
-            panel.querySelector(".appliance-listen-close")?.focus();
         }
     }
 
@@ -287,10 +307,12 @@
                 requestJSON("/api/streams?kind=masjid"),
                 requestJSON("/api/streams?kind=radio"),
                 requestJSON("/api/favourites"),
-                requestJSON("/api/masjidboard/layout")
+                requestJSON("/api/masjidboard/layout"),
+                requestJSON("/api/setup/device-access")
             ]);
             const boardLayout = results[4].status === "fulfilled" ? results[4].value : null;
             if (boardLayout) currentTheme = boardLayout.theme || "emerald";
+            renderNetworkAccess(results[5].status === "fulfilled" ? results[5].value : null);
             if (results.slice(0, 4).every(result => result.status === "fulfilled")) {
                 const [newStatus, masjids, radioItems, favourites] = results.map(result => result.value);
                 const favouriteIDs = new Set(favourites.ids || []);
@@ -460,18 +482,32 @@
         if (dy < -70 && Math.abs(dy) > Math.abs(dx)) setOpen(true);
     });
     panel.addEventListener("pointerdown", event => event.stopPropagation());
-    panel.addEventListener("pointerup", event => event.stopPropagation());
+    panel.addEventListener("pointermove", event => {
+        if (!closeGestureStart || closeGestureStart.pointerId !== event.pointerId) return;
+        const dx = event.clientX - closeGestureStart.x;
+        const dy = event.clientY - closeGestureStart.y;
+        if (dy > 45 && Math.abs(dy) > Math.abs(dx)) {
+            const captureTarget = closeGestureStart.target;
+            closeGestureStart = null;
+            if (captureTarget.hasPointerCapture?.(event.pointerId)) captureTarget.releasePointerCapture(event.pointerId);
+            setOpen(false);
+        }
+        event.stopPropagation();
+    });
+    panel.addEventListener("pointerup", event => {
+        closeGestureStart = null;
+        event.stopPropagation();
+    });
+    panel.addEventListener("pointercancel", event => {
+        closeGestureStart = null;
+        event.stopPropagation();
+    });
     for (const target of panel.querySelectorAll(".appliance-listen-handle,.appliance-listen-heading")) {
         target.addEventListener("pointerdown", event => {
-            gestureStart = {x:event.clientX, y:event.clientY};
-            event.stopPropagation();
-        });
-        target.addEventListener("pointerup", event => {
-            if (!gestureStart) return;
-            const dx = event.clientX - gestureStart.x;
-            const dy = event.clientY - gestureStart.y;
-            gestureStart = null;
-            if (dy > 70 && Math.abs(dy) > Math.abs(dx)) setOpen(false);
+            if (event.target.closest("button,a,input")) return;
+            closeGestureStart = {x:event.clientX, y:event.clientY, pointerId:event.pointerId, target};
+            target.setPointerCapture?.(event.pointerId);
+            event.preventDefault();
             event.stopPropagation();
         });
     }

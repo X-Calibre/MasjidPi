@@ -2,6 +2,25 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
+## Completed for v1.6.0-rc.2
+
+### Appliance network and controls
+
+- [x] Network setup can be reopened from the configured Appliance Display.
+- [x] The current Wi-Fi connection remains active until a replacement connection succeeds.
+- [x] Visible and hidden replacement Wi-Fi networks connect successfully.
+- [x] The Network tab shows the current IPv4 address and genuine network-issued FQDN.
+- [x] The installer summary uses the genuine network-issued FQDN rather than an assumed `.local` address.
+- [x] A downward drag from the control-sheet handle/header closes the sheet under Cog/WPE.
+- [x] The control sheet opens without an initial focus highlight on the close button.
+- [x] Highlighted controls use readable text in light themes.
+
+### Board themes
+
+- [x] Light Gold, Ivory, Sage, Sky and Rose render correctly.
+- [x] All ten themes can be selected and persist across display refreshes.
+- [x] The compact theme selector remains usable on the 7-inch Appliance Display.
+
 ## Completed for v1.6.0-rc.1
 
 ### First-run MasjidFrame setup

@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "black-white"]);
+    const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "ivory", "sage", "sky", "rose", "black-white"]);
     const supportedFontPreviews = new Set(["ibm-plex", "source-sans"]);
     const params = new URLSearchParams(window.location.search);
     const themeOverride = params.get("theme");

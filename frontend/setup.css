@@ -38,7 +38,7 @@ html, body {
 }
 
 body { min-height: 100vh; }
-button, input, select { font: inherit; }
+button, input { font: inherit; }
 button { touch-action: manipulation; }
 [hidden] { display: none !important; }
 
@@ -134,7 +134,7 @@ h2 { margin-bottom: 8px; font-size: clamp(28px, 5vw, 40px); }
 
 label { display: block; margin: 22px 0 8px; font-weight: 700; }
 .password-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
-input:not([type="radio"]), select {
+input:not([type="radio"]) {
     min-width: 0;
     height: 58px;
     padding: 0 16px;
@@ -146,12 +146,29 @@ input:not([type="radio"]), select {
     font-size: 23px;
 }
 
-select {
+.picker-button {
     width: 100%;
-    appearance: auto;
+    min-height: 58px;
+    padding: 0 52px 0 16px;
+    border: 2px solid var(--blue);
+    border-radius: 13px;
+    background: #020a09;
+    color: var(--text);
+    font-size: 21px;
+    text-align: left;
+    position: relative;
 }
 
-select:disabled { opacity: .55; }
+.picker-button::after {
+    content: "▾";
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    color: var(--blue);
+    transform: translateY(-50%);
+}
+
+.picker-button:disabled { opacity: .55; }
 
 .selected-network { margin-bottom: 4px; color: var(--blue) !important; font-size: 22px; font-weight: 700; }
 .field-help, .status-message { margin: 12px 0; color: var(--muted); }
@@ -196,6 +213,64 @@ select:disabled { opacity: .55; }
 .masjid-option small { display: block; }
 .masjid-option strong { font-size: 20px; }
 .masjid-option small { margin-top: 3px; color: var(--muted); font-size: 15px; }
+
+.picker-sheet {
+    position: fixed;
+    z-index: 20;
+    inset: 8% 18px 18px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: #061714;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .7), 0 20px 50px rgba(0, 0, 0, .55);
+}
+
+.picker-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 15px;
+}
+
+.picker-header h2 { margin: 0; }
+.picker-close {
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-size: 35px;
+}
+
+.picker-options {
+    display: grid;
+    flex: 1 1 auto;
+    gap: 9px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.picker-option {
+    min-height: 62px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 20px;
+    text-align: left;
+}
+
+.picker-option.selected {
+    border-color: var(--green);
+    background: var(--green-dark);
+}
 
 .keyboard {
     position: fixed;
@@ -246,4 +321,6 @@ body.keyboard-open .setup-shell { padding-bottom: 365px; }
     body.keyboard-open .field-help { display: none; }
     body.keyboard-open label { margin-top: 10px; }
     .masjid-list { max-height: 270px; }
+    .picker-sheet { inset: 12px; }
+    .picker-option { min-height: 50px; }
 }

@@ -38,7 +38,7 @@ html, body {
 }
 
 body { min-height: 100vh; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button { touch-action: manipulation; }
 [hidden] { display: none !important; }
 
@@ -134,7 +134,7 @@ h2 { margin-bottom: 8px; font-size: clamp(28px, 5vw, 40px); }
 
 label { display: block; margin: 22px 0 8px; font-weight: 700; }
 .password-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
-input {
+input:not([type="radio"]), select {
     min-width: 0;
     height: 58px;
     padding: 0 16px;
@@ -146,11 +146,56 @@ input {
     font-size: 23px;
 }
 
+select {
+    width: 100%;
+    appearance: auto;
+}
+
+select:disabled { opacity: .55; }
+
 .selected-network { margin-bottom: 4px; color: var(--blue) !important; font-size: 22px; font-weight: 700; }
 .field-help, .status-message { margin: 12px 0; color: var(--muted); }
 .error-message { min-height: 24px; color: var(--danger) !important; }
 .success-step { padding-top: 18vh; text-align: center; }
 .success-icon { display: grid; width: 92px; height: 92px; margin: 0 auto 24px; place-items: center; border-radius: 50%; background: var(--green); color: #02140e; font-size: 54px; font-weight: 700; }
+
+.masjid-list {
+    display: grid;
+    gap: 10px;
+    max-height: 470px;
+    margin-top: 16px;
+    overflow-y: auto;
+}
+
+.masjid-option {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    min-height: 78px;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+}
+
+.masjid-option.selected {
+    border-color: var(--green);
+    background: var(--surface-raised);
+    box-shadow: inset 0 0 0 1px var(--green);
+}
+
+.masjid-option input {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    accent-color: var(--green);
+}
+
+.masjid-option strong,
+.masjid-option small { display: block; }
+.masjid-option strong { font-size: 20px; }
+.masjid-option small { margin-top: 3px; color: var(--muted); font-size: 15px; }
 
 .keyboard {
     position: fixed;
@@ -200,4 +245,5 @@ body.keyboard-open .setup-shell { padding-bottom: 365px; }
     body.keyboard-open .step-number,
     body.keyboard-open .field-help { display: none; }
     body.keyboard-open label { margin-top: 10px; }
+    .masjid-list { max-height: 270px; }
 }

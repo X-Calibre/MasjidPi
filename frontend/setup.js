@@ -4,6 +4,8 @@
     const networkStep = document.getElementById("networkStep");
     const passwordStep = document.getElementById("passwordStep");
     const successStep = document.getElementById("successStep");
+    const locationStep = document.getElementById("locationStep");
+    const masjidStep = document.getElementById("masjidStep");
     const networkList = document.getElementById("networkList");
     const networkStatus = document.getElementById("networkStatus");
     const selectedNetwork = document.getElementById("selectedNetwork");
@@ -12,7 +14,16 @@
     const keyboard = document.getElementById("keyboard");
     const keyboardRows = document.getElementById("keyboardRows");
     const connectButton = document.getElementById("connectButton");
+    const countrySelect = document.getElementById("countrySelect");
+    const regionSelect = document.getElementById("regionSelect");
+    const citySelect = document.getElementById("citySelect");
+    const findMasjidsButton = document.getElementById("findMasjidsButton");
+    const masjidList = document.getElementById("masjidList");
+    const finishSetupButton = document.getElementById("finishSetupButton");
     let currentNetwork = null;
+    let hierarchy = null;
+    let selectedMasjid = null;
+    let continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
     let shifted = false;
     let symbols = false;
 
@@ -99,13 +110,21 @@
         return "Weak";
     }
 
+    async function jsonRequest(url, options = {}) {
+        const response = await fetch(url, {cache: "no-store", ...options});
+        let payload = null;
+        try {
+            payload = await response.json();
+        } catch (_) {}
+        if (!response.ok) throw new Error(payload?.error || `Request failed (${response.status})`);
+        return payload;
+    }
+
     async function scanNetworks() {
         networkStatus.textContent = "Looking for nearby networks…";
         networkList.replaceChildren();
         try {
-            const response = await fetch("/api/setup/wifi/networks", {cache: "no-store"});
-            const payload = await response.json();
-            if (!response.ok) throw new Error(payload.error || "Could not scan for Wi-Fi networks");
+            const payload = await jsonRequest("/api/setup/wifi/networks");
             if (!payload.networks.length) {
                 networkStatus.textContent = "No 2.4 GHz Wi-Fi networks were found. Move MasjidFrame closer to your router and refresh.";
                 return;
@@ -144,23 +163,198 @@
         connectButton.textContent = "Connecting…";
         connectStatus.textContent = "This can take up to 20 seconds.";
         try {
-            const response = await fetch("/api/setup/wifi/connect", {
+            await jsonRequest("/api/setup/wifi/connect", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({ssid: currentNetwork.ssid, password: password.value})
             });
-            const payload = await response.json();
-            if (!response.ok) throw new Error(payload.error || "Could not connect to Wi-Fi");
             password.value = "";
             passwordStep.hidden = true;
-            successStep.hidden = false;
-            document.getElementById("successNetwork").textContent = `Connected to ${currentNetwork.ssid}`;
+            await showConnectedStep();
         } catch (error) {
             connectStatus.textContent = error.message;
             setKeyboardOpen(true);
         } finally {
             connectButton.disabled = false;
             connectButton.textContent = "Connect";
+        }
+    }
+
+    async function showConnectedStep() {
+        let configured = false;
+        try {
+            const selection = await jsonRequest("/api/masjidboard/selection");
+            configured = selection?.configured === true;
+        } catch (_) {}
+
+        successStep.hidden = false;
+        document.getElementById("successHeading").textContent = "MasjidFrame is online";
+        document.getElementById("successNetwork").textContent = `Connected to ${currentNetwork.ssid}`;
+        if (configured) {
+            document.getElementById("continueButton").textContent = "Start MasjidFrame";
+            continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
+        } else {
+            document.getElementById("continueButton").textContent = "Choose your location";
+            continueAction = showLocationStep;
+        }
+    }
+
+    function option(value, label) {
+        const item = document.createElement("option");
+        item.value = value;
+        item.textContent = label;
+        return item;
+    }
+
+    function countries() {
+        return Array.isArray(hierarchy?.countries) ? hierarchy.countries : [];
+    }
+
+    function selectedCountry() {
+        return countries().find((country) => country.name === countrySelect.value) || null;
+    }
+
+    function selectedRegion() {
+        const index = Number.parseInt(regionSelect.value, 10);
+        return Number.isInteger(index) ? (selectedCountry()?.regions || [])[index] || null : null;
+    }
+
+    function populateCountries() {
+        countrySelect.replaceChildren(option("", "Select country…"));
+        countries().forEach((country) => countrySelect.append(option(country.name, country.name)));
+        countrySelect.disabled = countries().length === 0;
+        const southAfrica = countries().find((country) => country.name === "South Africa");
+        if (southAfrica) {
+            countrySelect.value = southAfrica.name;
+            populateRegions();
+        }
+    }
+
+    function populateRegions() {
+        regionSelect.replaceChildren(option("", "Select province or region…"));
+        citySelect.replaceChildren(option("", "Select town or city…"));
+        citySelect.disabled = true;
+        findMasjidsButton.disabled = true;
+        const country = selectedCountry();
+        regionSelect.disabled = !country;
+        (country?.regions || []).forEach((region, index) => {
+            const label = region.name || "Other areas";
+            regionSelect.append(option(String(index), label));
+        });
+    }
+
+    function populateCities() {
+        citySelect.replaceChildren(option("", "Select town or city…"));
+        findMasjidsButton.disabled = true;
+        const region = selectedRegion();
+        citySelect.disabled = !region;
+        (region?.cities || []).forEach((city) => citySelect.append(option(city.name, city.name)));
+    }
+
+    async function loadHierarchy() {
+        const status = document.getElementById("locationStatus");
+        status.textContent = "Loading locations…";
+        hierarchy = await jsonRequest("/api/masjidboard/hierarchy");
+        if (!countries().length) {
+            status.textContent = "Downloading the location list…";
+            await jsonRequest("/api/masjidboard/hierarchy/refresh", {method: "POST"});
+            hierarchy = await jsonRequest("/api/masjidboard/hierarchy");
+        }
+        populateCountries();
+        status.textContent = countries().length ? "Select the location nearest to your masjid." : "No locations are currently available.";
+    }
+
+    function showLocationStep() {
+        successStep.hidden = true;
+        masjidStep.hidden = true;
+        locationStep.hidden = false;
+        loadHierarchy().catch((error) => {
+            document.getElementById("locationStatus").textContent = `Could not load locations: ${error.message}`;
+        });
+    }
+
+    function locationValue() {
+        return {country: countrySelect.value, region: selectedRegion()?.name || "", city: citySelect.value};
+    }
+
+    function renderMasjids(records) {
+        masjidList.replaceChildren();
+        selectedMasjid = null;
+        finishSetupButton.disabled = true;
+        records.forEach((record) => {
+            const label = document.createElement("label");
+            label.className = "masjid-option";
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "masjid";
+            radio.value = record.id;
+            const details = document.createElement("span");
+            const name = document.createElement("strong");
+            name.textContent = record.name;
+            const location = document.createElement("small");
+            location.textContent = [record.city, record.region, record.country].filter(Boolean).join(" · ");
+            details.append(name, location);
+            label.append(radio, details);
+            label.addEventListener("click", () => {
+                selectedMasjid = record;
+                masjidList.querySelectorAll(".masjid-option").forEach((item) => item.classList.toggle("selected", item === label));
+                finishSetupButton.disabled = false;
+            });
+            masjidList.append(label);
+        });
+    }
+
+    async function findMasjids() {
+        const location = locationValue();
+        if (!location.country || !location.city) return;
+        findMasjidsButton.disabled = true;
+        findMasjidsButton.textContent = "Finding masjids…";
+        document.getElementById("locationStatus").textContent = "Saving your location and retrieving MasjidBoards…";
+        try {
+            await jsonRequest("/api/masjidboard/scope", {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({locations: [location]})
+            });
+            await jsonRequest("/api/masjidboard/catalogue/refresh", {method: "POST"});
+            const catalogue = await jsonRequest("/api/masjidboard/catalogue?status=active");
+            const records = Array.isArray(catalogue?.records) ? catalogue.records : [];
+            locationStep.hidden = true;
+            masjidStep.hidden = false;
+            document.getElementById("masjidLocation").textContent = [location.city, location.region, location.country].filter(Boolean).join(", ");
+            document.getElementById("masjidStatus").textContent = records.length
+                ? `${records.length} MasjidBoard${records.length === 1 ? "" : "s"} found`
+                : "No MasjidBoards were found for this location. Choose another location.";
+            renderMasjids(records);
+        } catch (error) {
+            document.getElementById("locationStatus").textContent = `Could not find masjids: ${error.message}`;
+        } finally {
+            findMasjidsButton.disabled = !citySelect.value;
+            findMasjidsButton.textContent = "Find masjids";
+        }
+    }
+
+    async function finishSetup() {
+        if (!selectedMasjid) return;
+        finishSetupButton.disabled = true;
+        finishSetupButton.textContent = "Setting up MasjidFrame…";
+        document.getElementById("masjidStatus").textContent = "Downloading the first timetable…";
+        try {
+            await jsonRequest("/api/masjidboard/selection", {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({catalogue_ids: [selectedMasjid.id]})
+            });
+            masjidStep.hidden = true;
+            successStep.hidden = false;
+            document.getElementById("successHeading").textContent = "MasjidFrame is ready";
+            document.getElementById("successNetwork").textContent = selectedMasjid.name;
+            document.getElementById("continueButton").textContent = "Start MasjidFrame";
+            continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
+        } catch (error) {
+            document.getElementById("masjidStatus").textContent = `Could not save this masjid: ${error.message}`;
+            finishSetupButton.disabled = false;
+            finishSetupButton.textContent = "Use selected masjid";
         }
     }
 
@@ -183,9 +377,15 @@
         event.currentTarget.textContent = showing ? "Show" : "Hide";
         event.currentTarget.setAttribute("aria-pressed", String(!showing));
     });
-    document.getElementById("continueButton").addEventListener("click", () => {
-        window.location.replace("/masjidboard-config.html");
-    });
+    countrySelect.addEventListener("change", populateRegions);
+    regionSelect.addEventListener("change", populateCities);
+    citySelect.addEventListener("change", () => { findMasjidsButton.disabled = !citySelect.value; });
+    findMasjidsButton.addEventListener("click", findMasjids);
+    finishSetupButton.addEventListener("click", finishSetup);
+    document.getElementById("backToLocation").addEventListener("click", showLocationStep);
+    document.getElementById("continueButton").addEventListener("click", () => continueAction());
 
-    scanNetworks();
+    const requestedStep = new URLSearchParams(window.location.search).get("step");
+    if (requestedStep === "location") showLocationStep();
+    else scanNetworks();
 })();

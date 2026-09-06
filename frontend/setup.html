@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="dark">
     <title>Set up MasjidFrame</title>
-    <link rel="stylesheet" href="setup.css?v=20260905-number-row">
+    <link rel="stylesheet" href="setup.css?v=20260906-masjid-wizard">
 </head>
 <body>
     <main class="setup-shell">
@@ -52,12 +52,46 @@
             <p id="successNetwork"></p>
             <button id="continueButton" class="primary-button" type="button">Choose your masjid</button>
         </section>
+
+        <section id="locationStep" class="setup-step" aria-labelledby="locationHeading" hidden>
+            <p class="step-number">Step 2</p>
+            <h2 id="locationHeading">Choose your location</h2>
+            <p>We’ll use this to find MasjidBoards in your area.</p>
+            <p id="locationStatus" class="status-message" role="status">Loading locations…</p>
+
+            <label for="countrySelect">Country</label>
+            <select id="countrySelect" disabled>
+                <option value="">Select country…</option>
+            </select>
+
+            <label for="regionSelect">Province or region</label>
+            <select id="regionSelect" disabled>
+                <option value="">Select province or region…</option>
+            </select>
+
+            <label for="citySelect">Town or city</label>
+            <select id="citySelect" disabled>
+                <option value="">Select town or city…</option>
+            </select>
+
+            <button id="findMasjidsButton" class="primary-button" type="button" disabled>Find masjids</button>
+        </section>
+
+        <section id="masjidStep" class="setup-step" aria-labelledby="masjidHeading" hidden>
+            <button id="backToLocation" class="back-button" type="button">‹ Change location</button>
+            <p class="step-number">Step 3</p>
+            <h2 id="masjidHeading">Choose your masjid</h2>
+            <p id="masjidLocation" class="selected-network"></p>
+            <p id="masjidStatus" class="status-message" role="status">Finding MasjidBoards…</p>
+            <div id="masjidList" class="masjid-list" aria-live="polite"></div>
+            <button id="finishSetupButton" class="primary-button" type="button" disabled>Use selected masjid</button>
+        </section>
     </main>
 
     <section id="keyboard" class="keyboard" aria-label="On-screen keyboard" hidden>
         <div id="keyboardRows" class="keyboard-rows"></div>
     </section>
 
-    <script src="setup.js?v=20260905-number-row"></script>
+    <script src="setup.js?v=20260906-masjid-wizard"></script>
 </body>
 </html>

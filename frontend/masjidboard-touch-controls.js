@@ -129,7 +129,6 @@
         if (open) {
             resetInactivityTimer();
             loadPanel();
-            panel.querySelector(".appliance-listen-close")?.focus();
         }
     }
 

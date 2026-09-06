@@ -13,7 +13,7 @@ const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-applianc
 
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
-assert.match(html, /masjidboard-appliance\.css\?v=20260906-network-addresses/);
+assert.match(html, /masjidboard-appliance\.css\?v=20260906-highlight-text/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
@@ -41,6 +41,7 @@ assert.match(controller, /event\.target\.closest\("button,a,input"\)/);
 assert.match(controller, /panel\.addEventListener\("pointermove"/);
 assert.match(controller, /panel\.addEventListener\("pointercancel"/);
 assert.match(controller, /event\.preventDefault\(\)/);
+assert.doesNotMatch(controller, /appliance-listen-close"\)\?\.focus\(\)/);
 assert.match(controller, /\/api\/favourites/);
 assert.match(controller, /\/api\/listen\/radio-mode/);
 assert.match(controller, /\/api\/masjidboard\/layout/);
@@ -75,7 +76,9 @@ assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:84px/s);
 assert.match(css, /\.appliance-network-settings a\s*\{[^}]*min-height:52px/s);
 assert.match(css, /\.appliance-network-address b\s*\{[^}]*overflow-wrap/);
 assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
+assert.match(css, /\.appliance-listen-tabs button\.active\s*\{[^}]*color:var\(--appliance-highlight-text\)/s);
 assert.doesNotMatch(css, /portrait/);
 assert.match(themes, /--appliance-danger:var\(--danger\)/);
+assert.match(themes, /body\.appliance-layout\[data-board-theme="light"\]\s*\{\s*--appliance-highlight-text:#fff;/);
 
 console.log("MasjidBoard appliance touch-control tests passed");

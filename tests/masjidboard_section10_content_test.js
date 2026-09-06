@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const TestDOMParser = require("./helpers/test_dom_parser.js");
 
 const root = path.resolve(__dirname, "..");
 const utilitySource = fs.readFileSync(path.join(root, "frontend/masjidboard-community-utils.js"), "utf8");
@@ -14,11 +15,6 @@ const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detai
 const displayJS = fs.readFileSync(path.join(root, "frontend/masjidboard-display.js"), "utf8");
 const html = fs.readFileSync(path.join(root, "frontend/masjidboard.html"), "utf8");
 
-class TestDOMParser {
-    parseFromString(value) {
-        return {body: {textContent: String(value).replace(/<[^>]*>/g, "")}};
-    }
-}
 
 const context = {window: {}, DOMParser: TestDOMParser};
 vm.runInNewContext(utilitySource, context);

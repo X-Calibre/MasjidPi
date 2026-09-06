@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const TestDOMParser = require("./helpers/test_dom_parser.js");
 
 const root = path.resolve(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "frontend/masjidboard-community-utils.js"), "utf8");
@@ -12,11 +13,6 @@ const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detai
 const applianceJS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.js"), "utf8");
 const landscapeJS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.js"), "utf8");
 
-class TestDOMParser {
-    parseFromString(value) {
-        return {body: {textContent: String(value).replace(/<[^>]*>/g, "")}};
-    }
-}
 
 const context = {window: {}, DOMParser: TestDOMParser};
 vm.runInNewContext(source, context);

@@ -34,6 +34,11 @@
     };
     const radioModeDetail = document.getElementById("applianceRadioModeDetail");
     const themeHost = document.getElementById("applianceThemeChoices");
+    const networkFQDNRow = document.getElementById("applianceNetworkFQDNRow");
+    const networkFQDN = document.getElementById("applianceNetworkFQDN");
+    const networkIPRow = document.getElementById("applianceNetworkIPRow");
+    const networkIP = document.getElementById("applianceNetworkIP");
+    const networkUnavailable = document.getElementById("applianceNetworkUnavailable");
     const themes = [
         ["emerald", "Emerald", "MasjidPi green"],
         ["midnight", "Midnight", "Deep blue"],
@@ -90,6 +95,17 @@
     function setConnectionError(message = "") {
         connection.textContent = message;
         connection.classList.toggle("hidden", !message);
+    }
+
+    function renderNetworkAccess(access = null) {
+        const port = window.location.port || "8080";
+        const fqdn = access?.fqdn || "";
+        const ipAddress = access?.ip_address || "";
+        networkFQDN.textContent = fqdn ? `http://${fqdn}:${port}` : "";
+        networkIP.textContent = ipAddress ? `http://${ipAddress}:${port}` : "";
+        networkFQDNRow.classList.toggle("hidden", !fqdn);
+        networkIPRow.classList.toggle("hidden", !ipAddress);
+        networkUnavailable.classList.toggle("hidden", Boolean(fqdn || ipAddress));
     }
 
     function setBusy(value) {
@@ -287,10 +303,12 @@
                 requestJSON("/api/streams?kind=masjid"),
                 requestJSON("/api/streams?kind=radio"),
                 requestJSON("/api/favourites"),
-                requestJSON("/api/masjidboard/layout")
+                requestJSON("/api/masjidboard/layout"),
+                requestJSON("/api/setup/device-access")
             ]);
             const boardLayout = results[4].status === "fulfilled" ? results[4].value : null;
             if (boardLayout) currentTheme = boardLayout.theme || "emerald";
+            renderNetworkAccess(results[5].status === "fulfilled" ? results[5].value : null);
             if (results.slice(0, 4).every(result => result.status === "fulfilled")) {
                 const [newStatus, masjids, radioItems, favourites] = results.map(result => result.value);
                 const favouriteIDs = new Set(favourites.ids || []);

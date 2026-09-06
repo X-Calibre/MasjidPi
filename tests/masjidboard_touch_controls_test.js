@@ -13,7 +13,7 @@ const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-applianc
 
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
-assert.match(html, /masjidboard-appliance\.css\?v=20260906-network-setup/);
+assert.match(html, /masjidboard-appliance\.css\?v=20260906-network-addresses/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
@@ -22,6 +22,9 @@ assert.match(html, /data-touch-tab="theme"/);
 assert.match(html, /data-touch-tab="network"/);
 assert.match(html, /data-touch-panel="network"/);
 assert.match(html, /id="applianceChangeWiFi"[^>]*href="\/setup\.html\?return=board"/);
+assert.match(html, /id="applianceNetworkFQDN"/);
+assert.match(html, /id="applianceNetworkIP"/);
+assert.match(html, /On another device connected to this network/);
 assert.match(html, /Change Wi-Fi network/);
 assert.match(html, /Scheduled Play/);
 assert.match(html, /Play Now/);
@@ -36,6 +39,9 @@ assert.match(controller, /dy > 70/);
 assert.match(controller, /\/api\/favourites/);
 assert.match(controller, /\/api\/listen\/radio-mode/);
 assert.match(controller, /\/api\/masjidboard\/layout/);
+assert.match(controller, /\/api\/setup\/device-access/);
+assert.match(controller, /`http:\/\/\$\{fqdn\}:\$\{port\}`/);
+assert.match(controller, /`http:\/\/\$\{ipAddress\}:\$\{port\}`/);
 assert.match(controller, /button\.dataset\.sourceId = item\.id/);
 assert.match(controller, /selectSource\("masjid", button\.dataset\.sourceId\)/);
 assert.match(controller, /selectSource\("radio", button\.dataset\.sourceId\)/);
@@ -61,6 +67,7 @@ assert.match(css, /\.appliance-listen-close::before,\.appliance-listen-close::af
 assert.match(css, /\.appliance-listen-close::after\s*\{[^}]*rotate\(-45deg\)/s);
 assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:84px/s);
 assert.match(css, /\.appliance-network-settings a\s*\{[^}]*min-height:52px/s);
+assert.match(css, /\.appliance-network-address b\s*\{[^}]*overflow-wrap/);
 assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
 assert.doesNotMatch(css, /portrait/);
 assert.match(themes, /--appliance-danger:var\(--danger\)/);

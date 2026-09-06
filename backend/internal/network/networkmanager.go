@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"os/exec"
 	"sort"
 	"strconv"
@@ -156,6 +157,124 @@ func (m *NetworkManager) Connect(ctx context.Context, ssid, password string) err
 		return errors.New("could not connect; check the Wi-Fi password and try again")
 	}
 	return nil
+}
+
+func (m *NetworkManager) DeviceAccess(ctx context.Context) (DeviceAccess, error) {
+	if !m.available() {
+		return DeviceAccess{}, errors.New("NetworkManager is unavailable")
+	}
+	ctx, cancel := context.WithTimeout(ctx, commandTimeout)
+	defer cancel()
+
+	devices, err := m.runner.Run(ctx, []string{"-t", "--escape", "yes", "-f", "DEVICE,TYPE,STATE", "device", "status"}, "")
+	if err != nil {
+		return DeviceAccess{}, fmt.Errorf("find active Wi-Fi device: %w", err)
+	}
+	device := ""
+	for _, line := range lines(devices) {
+		fields := splitEscaped(line, ':')
+		if len(fields) == 3 && fields[1] == "wifi" && strings.HasPrefix(fields[2], "connected") {
+			device = fields[0]
+			break
+		}
+	}
+	if device == "" {
+		return DeviceAccess{}, errors.New("no connected Wi-Fi device")
+	}
+
+	addressOutput, err := m.runner.Run(ctx, []string{"-g", "IP4.ADDRESS", "device", "show", device}, "")
+	if err != nil {
+		return DeviceAccess{}, fmt.Errorf("read DHCP address: %w", err)
+	}
+	ipAddress := firstIPv4Address(addressOutput)
+	if ipAddress == "" {
+		return DeviceAccess{}, errors.New("the connected Wi-Fi device has no IPv4 address")
+	}
+
+	optionsOutput, err := m.runner.Run(ctx, []string{"-g", "DHCP4.OPTION", "device", "show", device}, "")
+	if err != nil {
+		return DeviceAccess{IPAddress: ipAddress}, nil
+	}
+	options := parseDHCPOptions(string(optionsOutput))
+	fqdn := dhcpFQDN(options)
+	if fqdn == "" {
+		fqdn = reverseFQDN(ipAddress)
+	}
+	return DeviceAccess{IPAddress: ipAddress, FQDN: fqdn}, nil
+}
+
+func firstIPv4Address(output []byte) string {
+	for _, line := range lines(output) {
+		value := strings.TrimSpace(strings.SplitN(line, "/", 2)[0])
+		if ip := net.ParseIP(value); ip != nil && ip.To4() != nil && !ip.IsLoopback() && !ip.IsLinkLocalUnicast() {
+			return value
+		}
+	}
+	return ""
+}
+
+func parseDHCPOptions(output string) map[string]string {
+	options := make(map[string]string)
+	for _, item := range strings.FieldsFunc(output, func(char rune) bool { return char == '|' || char == '\n' }) {
+		parts := strings.SplitN(item, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.ToLower(strings.TrimSpace(parts[0]))
+		value := strings.TrimSpace(parts[1])
+		if key != "" && value != "" {
+			options[key] = value
+		}
+	}
+	return options
+}
+
+func dhcpFQDN(options map[string]string) string {
+	for _, key := range []string{"fqdn", "dhcp_fqdn"} {
+		if value := validFQDN(options[key]); value != "" {
+			return value
+		}
+	}
+	host := strings.TrimSuffix(strings.TrimSpace(options["host_name"]), ".")
+	if strings.Contains(host, ".") {
+		return validFQDN(host)
+	}
+	domain := strings.TrimSuffix(strings.TrimSpace(options["domain_name"]), ".")
+	if host == "" || domain == "" {
+		return ""
+	}
+	return validFQDN(host + "." + domain)
+}
+
+func reverseFQDN(ipAddress string) string {
+	names, err := net.LookupAddr(ipAddress)
+	if err != nil {
+		return ""
+	}
+	for _, name := range names {
+		if value := validFQDN(name); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func validFQDN(value string) string {
+	value = strings.ToLower(strings.TrimSuffix(strings.TrimSpace(value), "."))
+	if !strings.Contains(value, ".") || len(value) > 253 {
+		return ""
+	}
+	for _, label := range strings.Split(value, ".") {
+		if label == "" || len(label) > 63 || strings.HasPrefix(label, "-") || strings.HasSuffix(label, "-") {
+			return ""
+		}
+		for _, char := range label {
+			if (char < 'a' || char > 'z') && (char < '0' || char > '9') && char != '-' {
+				return ""
+			}
+		}
+	}
+	return value
 }
 
 func lines(value []byte) []string {

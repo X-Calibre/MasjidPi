@@ -126,6 +126,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/setup/wifi/status", server.wifiStatus)
 		mux.HandleFunc("/api/setup/wifi/networks", server.wifiNetworks)
 		mux.HandleFunc("/api/setup/wifi/connect", server.wifiConnect)
+		mux.HandleFunc("/api/setup/device-access", server.deviceAccess)
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
 		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)

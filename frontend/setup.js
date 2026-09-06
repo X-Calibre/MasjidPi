@@ -195,12 +195,36 @@
         successStep.hidden = false;
         document.getElementById("successHeading").textContent = "MasjidFrame is online";
         document.getElementById("successNetwork").textContent = `Connected to ${currentNetwork.ssid}`;
+        await loadDeviceAccess();
         if (configured) {
             document.getElementById("continueButton").textContent = "Start MasjidFrame";
             continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
         } else {
             document.getElementById("continueButton").textContent = "Choose your location";
             continueAction = showLocationStep;
+        }
+    }
+
+    async function loadDeviceAccess() {
+        const advancedSetup = document.getElementById("advancedSetup");
+        const fqdnAccess = document.getElementById("fqdnAccess");
+        const ipAccess = document.getElementById("ipAccess");
+        fqdnAccess.hidden = true;
+        ipAccess.hidden = true;
+        try {
+            const access = await jsonRequest("/api/setup/device-access");
+            const port = window.location.port || "8080";
+            if (access?.fqdn) {
+                document.getElementById("fqdnURL").textContent = `http://${access.fqdn}:${port}`;
+                fqdnAccess.hidden = false;
+            }
+            if (access?.ip_address) {
+                document.getElementById("ipURL").textContent = `http://${access.ip_address}:${port}`;
+                ipAccess.hidden = false;
+            }
+            advancedSetup.hidden = fqdnAccess.hidden && ipAccess.hidden;
+        } catch (_) {
+            advancedSetup.hidden = true;
         }
     }
 
@@ -371,6 +395,7 @@
             document.getElementById("successNetwork").textContent = selectedMasjid.name;
             document.getElementById("continueButton").textContent = "Start MasjidFrame";
             continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
+            await loadDeviceAccess();
         } catch (error) {
             document.getElementById("masjidStatus").textContent = `Could not save this masjid: ${error.message}`;
             finishSetupButton.disabled = false;

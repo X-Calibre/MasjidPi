@@ -173,8 +173,26 @@ input:not([type="radio"]) {
 .selected-network { margin-bottom: 4px; color: var(--blue) !important; font-size: 22px; font-weight: 700; }
 .field-help, .status-message { margin: 12px 0; color: var(--muted); }
 .error-message { min-height: 24px; color: var(--danger) !important; }
-.success-step { padding-top: 18vh; text-align: center; }
+.success-step { padding-top: clamp(20px, 8vh, 80px); text-align: center; }
 .success-icon { display: grid; width: 92px; height: 92px; margin: 0 auto 24px; place-items: center; border-radius: 50%; background: var(--green); color: #02140e; font-size: 54px; font-weight: 700; }
+
+.advanced-setup {
+    margin: 22px 0 8px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    text-align: left;
+}
+
+.advanced-setup h3 { margin: 0 0 8px; font-size: 22px; }
+.advanced-setup p { margin: 0 0 14px; color: var(--muted); font-size: 17px; line-height: 1.4; }
+.access-address { padding: 11px 13px; border-radius: 11px; background: #020a09; }
+.access-address + .access-address { margin-top: 9px; }
+.access-address span,
+.access-address strong { display: block; }
+.access-address span { margin-bottom: 3px; color: var(--muted); font-size: 14px; }
+.access-address strong { overflow-wrap: anywhere; color: var(--blue); font-size: 18px; }
 
 .masjid-list {
     display: grid;

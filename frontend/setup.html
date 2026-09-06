@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="dark">
     <title>Set up MasjidFrame</title>
-    <link rel="stylesheet" href="setup.css?v=20260906-pinned-save">
+    <link rel="stylesheet" href="setup.css?v=20260906-network-addresses">
 </head>
 <body>
     <main class="setup-shell">
@@ -50,6 +50,18 @@
             <p class="step-number">Connected</p>
             <h2 id="successHeading">MasjidFrame is online</h2>
             <p id="successNetwork"></p>
+            <div id="advancedSetup" class="advanced-setup" hidden>
+                <h3>More setup options</h3>
+                <p>On a phone, tablet, or computer connected to this Wi-Fi, open one of these addresses to configure Listen, audio, additional masjids, and display preferences:</p>
+                <div id="fqdnAccess" class="access-address" hidden>
+                    <span>Network address</span>
+                    <strong id="fqdnURL"></strong>
+                </div>
+                <div id="ipAccess" class="access-address" hidden>
+                    <span>IP address</span>
+                    <strong id="ipURL"></strong>
+                </div>
+            </div>
             <button id="continueButton" class="primary-button" type="button">Choose your masjid</button>
         </section>
 
@@ -94,6 +106,6 @@
         <div id="pickerOptions" class="picker-options"></div>
     </section>
 
-    <script src="setup.js?v=20260906-pinned-save"></script>
+    <script src="setup.js?v=20260906-network-addresses"></script>
 </body>
 </html>

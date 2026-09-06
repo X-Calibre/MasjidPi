@@ -19,6 +19,7 @@ type fakeWiFiManager struct {
 	connectError error
 	connectedTo  string
 	password     string
+	access       masjidnetwork.DeviceAccess
 }
 
 func (f *fakeWiFiManager) Status(context.Context) (masjidnetwork.WiFiStatus, error) {
@@ -33,6 +34,30 @@ func (f *fakeWiFiManager) Connect(_ context.Context, ssid, password string) erro
 	f.connectedTo = ssid
 	f.password = password
 	return f.connectError
+}
+
+func (f *fakeWiFiManager) DeviceAccess(context.Context) (masjidnetwork.DeviceAccess, error) {
+	return f.access, nil
+}
+
+func TestDeviceAccessReturnsDHCPNetworkDetails(t *testing.T) {
+	wifi := &fakeWiFiManager{access: masjidnetwork.DeviceAccess{
+		IPAddress: "10.78.63.4",
+		FQDN:      "zc-masjidpi-test.internal.cassim.net.za",
+	}}
+	server := setupTestServer(wifi)
+	request := httptest.NewRequest(http.MethodGet, "/api/setup/device-access", nil)
+	response := httptest.NewRecorder()
+
+	server.deviceAccess(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	if !bytes.Contains(response.Body.Bytes(), []byte(`"fqdn":"zc-masjidpi-test.internal.cassim.net.za"`)) ||
+		!bytes.Contains(response.Body.Bytes(), []byte(`"ip_address":"10.78.63.4"`)) {
+		t.Fatalf("unexpected body: %s", response.Body.String())
+	}
 }
 
 func setupTestServer(wifi masjidnetwork.WiFiManager) *Server {

@@ -18,10 +18,18 @@ type WiFiStatus struct {
 	SSID       string `json:"ssid,omitempty"`
 }
 
+// DeviceAccess contains LAN addressing supplied by the active network. FQDN
+// remains empty when DHCP and network DNS do not provide a usable name.
+type DeviceAccess struct {
+	IPAddress string `json:"ip_address,omitempty"`
+	FQDN      string `json:"fqdn,omitempty"`
+}
+
 // WiFiManager provides the small subset of networking operations required by
 // the first-run appliance interface.
 type WiFiManager interface {
 	Status(context.Context) (WiFiStatus, error)
 	Scan(context.Context) ([]WiFiNetwork, error)
 	Connect(context.Context, string, string) error
+	DeviceAccess(context.Context) (DeviceAccess, error)
 }

@@ -95,3 +95,30 @@ func TestConnectReturnsSafeError(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+func TestDeviceAccessUsesDHCPHostnameDomainAndAddress(t *testing.T) {
+	runner := &fakeRunner{responses: []runnerResponse{
+		{out: []byte("wlan0:wifi:connected\nlo:loopback:connected (externally)\n")},
+		{out: []byte("10.78.63.4/24\n")},
+		{out: []byte("domain_name = internal.cassim.net.za | host_name = zc-masjidpi-test | ip_address = 10.78.63.4\n")},
+	}}
+	manager := newNetworkManager(runner)
+
+	got, err := manager.DeviceAccess(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := DeviceAccess{IPAddress: "10.78.63.4", FQDN: "zc-masjidpi-test.internal.cassim.net.za"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("access = %#v, want %#v", got, want)
+	}
+}
+
+func TestDHCPFQDNRequiresNetworkSuppliedDomain(t *testing.T) {
+	if got := dhcpFQDN(map[string]string{"host_name": "masjidframe"}); got != "" {
+		t.Fatalf("dhcpFQDN() = %q, want empty", got)
+	}
+	if got := dhcpFQDN(map[string]string{"fqdn": "Frame-01.Masjid.Example."}); got != "frame-01.masjid.example" {
+		t.Fatalf("dhcpFQDN() = %q", got)
+	}
+}

@@ -481,7 +481,9 @@
     panel.addEventListener("pointerup", event => event.stopPropagation());
     for (const target of panel.querySelectorAll(".appliance-listen-handle,.appliance-listen-heading")) {
         target.addEventListener("pointerdown", event => {
+            if (event.target.closest("button,a,input")) return;
             gestureStart = {x:event.clientX, y:event.clientY};
+            target.setPointerCapture?.(event.pointerId);
             event.stopPropagation();
         });
         target.addEventListener("pointerup", event => {
@@ -489,7 +491,13 @@
             const dx = event.clientX - gestureStart.x;
             const dy = event.clientY - gestureStart.y;
             gestureStart = null;
+            if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId);
             if (dy > 70 && Math.abs(dy) > Math.abs(dx)) setOpen(false);
+            event.stopPropagation();
+        });
+        target.addEventListener("pointercancel", event => {
+            gestureStart = null;
+            if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId);
             event.stopPropagation();
         });
     }

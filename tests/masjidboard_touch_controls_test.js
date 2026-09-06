@@ -36,6 +36,9 @@ assert.match(controller, /params\.get\("profile"\) !== "appliance"/);
 assert.match(controller, /dy < -70/);
 assert.doesNotMatch(controller, /portrait/);
 assert.match(controller, /dy > 70/);
+assert.match(controller, /target\.setPointerCapture\?\.\(event\.pointerId\)/);
+assert.match(controller, /event\.target\.closest\("button,a,input"\)/);
+assert.match(controller, /target\.addEventListener\("pointercancel"/);
 assert.match(controller, /\/api\/favourites/);
 assert.match(controller, /\/api\/listen\/radio-mode/);
 assert.match(controller, /\/api\/masjidboard\/layout/);
@@ -65,6 +68,7 @@ assert.match(css, /\.appliance-listen-content\s*\{[^}]*flex:1 1 auto;[^}]*min-he
 assert.match(css, /\.appliance-listen-status\s*\{[^}]*height:76px;[^}]*flex:0 0 76px/s);
 assert.match(css, /\.appliance-listen-close::before,\.appliance-listen-close::after\s*\{[^}]*top:50%;[^}]*left:50%;[^}]*transform:translate\(-50%,-50%\) rotate\(45deg\)/s);
 assert.match(css, /\.appliance-listen-close::after\s*\{[^}]*rotate\(-45deg\)/s);
+assert.match(css, /\.appliance-listen-heading\s*\{[^}]*touch-action:none/s);
 assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:84px/s);
 assert.match(css, /\.appliance-network-settings a\s*\{[^}]*min-height:52px/s);
 assert.match(css, /\.appliance-network-address b\s*\{[^}]*overflow-wrap/);

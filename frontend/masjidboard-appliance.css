@@ -134,8 +134,8 @@ body.appliance-layout {
     display:flex;
     flex-direction:column;
 }
-.appliance-listen-handle { width:76px; height:6px; margin:0 auto 10px; border-radius:10px; background:var(--appliance-strong-line); }
-.appliance-listen-heading { height:64px; flex:0 0 64px; display:flex; align-items:center; justify-content:space-between; }
+.appliance-listen-handle { width:76px; height:6px; margin:0 auto 10px; border-radius:10px; background:var(--appliance-strong-line); touch-action:none; }
+.appliance-listen-heading { height:64px; flex:0 0 64px; display:flex; align-items:center; justify-content:space-between; touch-action:none; }
 .appliance-listen-heading small { color:var(--appliance-heading-accent); font-size:13px; font-weight:800; letter-spacing:.12em; }
 .appliance-listen-heading h2 { margin:2px 0 0; font-size:28px; line-height:1; }
 .appliance-listen-close { position:relative; width:48px; height:48px; flex:0 0 48px; padding:0; border:1px solid var(--appliance-line); border-radius:50%; color:var(--appliance-text); background:var(--appliance-panel); font-size:0; }

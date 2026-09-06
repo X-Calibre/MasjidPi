@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduces first-run touchscreen onboarding for the MasjidFrame appliance and includes the accumulated Board fixes completed after v1.5.2.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` adds post-setup network management, touch-control refinements and four additional light Board themes.
 
 ## Release scope
 
@@ -22,6 +22,18 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduces 
 - report the project version correctly from source builds;
 - derive missing Zawaal warning boundaries from available Istiwaa data; and
 - format Gregorian Board dates in day-first order, for example `Saturday, 5 September 2026`.
+
+### RC2 appliance enhancements
+
+- reopen visible or hidden Wi-Fi setup from the Appliance Display without deleting the active connection first;
+- return from network setup to the Board without changing Wi-Fi;
+- show the active network-issued FQDN and IPv4 URL in the Network tab for advanced configuration;
+- use the same network-issued FQDN in the installer summary instead of assuming a `.local` hostname;
+- reliably close the control sheet with a downward drag under Cog/WPE;
+- avoid highlighting the close button when the control sheet first opens;
+- use readable white text on highlighted controls in light themes;
+- rename the displayed Light theme to Light Gold while retaining its compatible saved identifier; and
+- add Ivory, Sage, Sky and Rose, expanding the curated Board theme set from six to ten.
 
 ## Automated validation
 
@@ -50,17 +62,39 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduces 
 - [x] Version metadata is set to `v1.6.0-rc.1`.
 - [x] Release documentation is prepared.
 - [x] Integrated changes are merged to `main` after local validation.
-- [ ] Tag `v1.6.0-rc.1` is created from the accepted `main` commit.
+- [x] Tag `v1.6.0-rc.1` is created from the accepted `main` commit.
+- [x] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
+- [x] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
+
+## RC2 source validation
+
+- [x] Reopening network setup and returning to the Board work on the Pi 4 appliance.
+- [x] Visible and hidden replacement networks connect successfully.
+- [x] The Network tab displays the current DHCP/reverse-DNS FQDN and IPv4 URL.
+- [x] The installer summary displays the real network-issued FQDN.
+- [x] Downward control-sheet closing works reliably on the Cog/WPE touchscreen renderer.
+- [x] The control sheet opens without an unwanted close-button focus highlight.
+- [x] Highlighted controls remain readable in the light themes.
+- [x] Light Gold, Ivory, Sage, Sky and Rose render, apply and persist correctly.
+- [x] The ten-theme Appliance selector fits and works on the 7-inch display.
+
+## RC2 publication checklist
+
+- [x] Version metadata is set to `v1.6.0-rc.2`.
+- [x] RC2 release scope and hardware results are documented.
+- [ ] Automated CI passes on the integrated `main` commit.
+- [ ] The RC2 preparation branch is merged to `main`.
+- [ ] Tag `v1.6.0-rc.2` is created from the accepted `main` commit.
 - [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
 - [ ] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
 
 ## RC1 hardware follow-up
 
-The first-run flow has been functionally accepted on Raspberry Pi 4 source installation. Before stable v1.6.0 promotion:
+The first-run and RC2 enhancement flows have been functionally accepted on Raspberry Pi 4 source installations. Before stable v1.6.0 promotion:
 
-- install and validate the published ARM64 RC1 artifact on the Pi 4;
+- install and validate the published ARM64 RC2 artifact on the Pi 4;
 - confirm the first-run flow on the intended Pi 3B appliance hardware or explicitly record its deferral;
 - review Pi 3B memory headroom during setup and normal Board operation; and
 - complete any fixes discovered during the RC soak period.
 
-The RC tag is immutable and must not be moved or reused. Any code change after RC1 requires a new release-candidate tag.
+Release-candidate tags are immutable and must not be moved or reused. Any code change after RC2 requires a new release-candidate tag.

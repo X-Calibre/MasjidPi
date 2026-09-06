@@ -19,6 +19,23 @@ body[data-board-theme="light"] {
     --text:#17201c; --muted:#66716c; --accent:#816b20; --warning:#956715; --danger:#a93b36;
 }
 body.appliance-layout[data-board-theme="light"] { --appliance-highlight-text:#fff; }
+body[data-board-theme="ivory"] {
+    --bg:#f7f1df; --panel:#fffaf0; --panel-soft:#eee5ce; --line:rgba(28,50,41,.16);
+    --text:#17201c; --muted:#627069; --accent:#176b4d; --warning:#8a681d; --danger:#a93b36;
+}
+body[data-board-theme="sage"] {
+    --bg:#e8eee5; --panel:#f8fbf6; --panel-soft:#dce7da; --line:rgba(31,55,42,.16);
+    --text:#172019; --muted:#5f6e63; --accent:#3f6f52; --warning:#86651d; --danger:#a93b36;
+}
+body[data-board-theme="sky"] {
+    --bg:#e8f1f6; --panel:#f8fcfe; --panel-soft:#dceaf2; --line:rgba(30,52,66,.16);
+    --text:#172127; --muted:#60717b; --accent:#28658a; --warning:#86651d; --danger:#a93b36;
+}
+body[data-board-theme="rose"] {
+    --bg:#f4e8ea; --panel:#fff8f8; --panel-soft:#eadadd; --line:rgba(65,34,43,.16);
+    --text:#271a1e; --muted:#78636a; --accent:#8a3650; --warning:#86651d; --danger:#a33131;
+}
+body.appliance-layout:is([data-board-theme="ivory"],[data-board-theme="sage"],[data-board-theme="sky"],[data-board-theme="rose"]) { --appliance-highlight-text:#fff; }
 body[data-board-theme="black-white"] {
     --bg:#000; --panel:#101010; --panel-soft:#1a1a1a; --line:rgba(255,255,255,.19);
     --text:#fff; --muted:#bcbcbc; --accent:#fff; --warning:#d7d7d7; --danger:#fff;
@@ -78,11 +95,11 @@ body[data-board-theme]:not([data-board-theme="emerald"]).landscape-layout .praye
     background:linear-gradient(180deg,color-mix(in srgb,var(--panel-soft) 88%,var(--accent) 12%),var(--panel));
 }
 
-body[data-board-theme="light"] .event-countdown,
-body[data-board-theme="light"] .prayer-label,
-body[data-board-theme="light"] .additional-time-value,
-body[data-board-theme="light"] .additional-times-heading,
-body[data-board-theme="light"] .detailed-islamic-date { color:var(--accent); }
+body:is([data-board-theme="light"],[data-board-theme="ivory"],[data-board-theme="sage"],[data-board-theme="sky"],[data-board-theme="rose"]) .event-countdown,
+body:is([data-board-theme="light"],[data-board-theme="ivory"],[data-board-theme="sage"],[data-board-theme="sky"],[data-board-theme="rose"]) .prayer-label,
+body:is([data-board-theme="light"],[data-board-theme="ivory"],[data-board-theme="sage"],[data-board-theme="sky"],[data-board-theme="rose"]) .additional-time-value,
+body:is([data-board-theme="light"],[data-board-theme="ivory"],[data-board-theme="sage"],[data-board-theme="sky"],[data-board-theme="rose"]) .additional-times-heading,
+body:is([data-board-theme="light"],[data-board-theme="ivory"],[data-board-theme="sage"],[data-board-theme="sky"],[data-board-theme="rose"]) .detailed-islamic-date { color:var(--accent); }
 
 body[data-board-theme="black-white"] .board-header.stale,
 body[data-board-theme="black-white"] .prayer-cell.stale,

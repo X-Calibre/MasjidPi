@@ -333,7 +333,7 @@ The presentation adapts to the number of configured masjids.
 The local HDMI profile is selected automatically from the attached hardware. It is not a saved layout choice. The **Display** tab configures:
 
 - slide duration from 5 to 60 seconds;
-- one of six Board colour themes; and
+- one of ten Board colour themes; and
 - optional Islamic Economic Indicators;
 - independently enabled Daily Ayah, Daily Hadith and Daily Sunnah cards; and
 - the optional Dua-after-Adhan card.
@@ -370,7 +370,7 @@ The panel closes automatically after 60 seconds without user activity. Tapping, 
 
 ### Themes
 
-Board includes curated colour themes. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
+Board includes ten curated colour themes: Emerald, Midnight, Slate, Ruby, Light Gold, Ivory, Sage, Sky, Rose and Black & White. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
 
 The Board theme is an appliance setting shared by the HDMI display, browser preview and touch panel. It is separate from the System/Light/Dark theme used by the configuration Web UI.
 

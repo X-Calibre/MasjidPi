@@ -8,12 +8,15 @@ const root = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(root, "frontend/masjidboard.html"), "utf8");
 const css = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.css"), "utf8");
 const themes = fs.readFileSync(path.join(root, "frontend/masjidboard-themes.css"), "utf8");
+const themeController = fs.readFileSync(path.join(root, "frontend/masjidboard-theme.js"), "utf8");
+const config = fs.readFileSync(path.join(root, "frontend/masjidboard-config.html"), "utf8");
+const layoutController = fs.readFileSync(path.join(root, "frontend/masjidboard-layout-config.js"), "utf8");
 const controller = fs.readFileSync(path.join(root, "frontend/masjidboard-touch-controls.js"), "utf8");
 const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.js"), "utf8");
 
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
-assert.match(html, /masjidboard-appliance\.css\?v=20260906-highlight-text/);
+assert.match(html, /masjidboard-appliance\.css\?v=20260906-light-themes/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
@@ -63,6 +66,11 @@ assert.match(controller, /\{volume:value, persist:true\}/);
 assert.match(controller, /volumeOutputs\.master\.textContent = status\.master_volume_supported \? `\$\{masterVolume\.value\}%` : "Unavailable"/);
 assert.match(controller, /playMasjid\.textContent = selectedMasjidPlaying \? "Masjid Playing" : "▶ Play Masjid"/);
 assert.match(controller, /\["black-white", "Black & White"/);
+assert.match(controller, /\["light", "Light Gold"/);
+assert.match(controller, /\["ivory", "Ivory"/);
+assert.match(controller, /\["sage", "Sage"/);
+assert.match(controller, /\["sky", "Sky"/);
+assert.match(controller, /\["rose", "Rose"/);
 assert.match(appliance, /masjidpi:appliance-listen-panel/);
 assert.doesNotMatch(appliance, /portrait/);
 assert.match(css, /var\(--appliance-panel\)/);
@@ -72,7 +80,8 @@ assert.match(css, /\.appliance-listen-status\s*\{[^}]*height:76px;[^}]*flex:0 0 
 assert.match(css, /\.appliance-listen-close::before,\.appliance-listen-close::after\s*\{[^}]*top:50%;[^}]*left:50%;[^}]*transform:translate\(-50%,-50%\) rotate\(45deg\)/s);
 assert.match(css, /\.appliance-listen-close::after\s*\{[^}]*rotate\(-45deg\)/s);
 assert.match(css, /\.appliance-listen-heading\s*\{[^}]*touch-action:none/s);
-assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:84px/s);
+assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:62px/s);
+assert.match(css, /\.appliance-theme-grid\s*\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/s);
 assert.match(css, /\.appliance-network-settings a\s*\{[^}]*min-height:52px/s);
 assert.match(css, /\.appliance-network-address b\s*\{[^}]*overflow-wrap/);
 assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
@@ -80,5 +89,12 @@ assert.match(css, /\.appliance-listen-tabs button\.active\s*\{[^}]*color:var\(--
 assert.doesNotMatch(css, /portrait/);
 assert.match(themes, /--appliance-danger:var\(--danger\)/);
 assert.match(themes, /body\.appliance-layout\[data-board-theme="light"\]\s*\{\s*--appliance-highlight-text:#fff;/);
+for (const theme of ["ivory", "sage", "sky", "rose"]) {
+    assert.match(themeController, new RegExp(`"${theme}"`));
+    assert.match(layoutController, new RegExp(`"${theme}"`));
+    assert.match(config, new RegExp(`name="boardTheme" value="${theme}"`));
+    assert.match(themes, new RegExp(`body\\[data-board-theme="${theme}"\\]`));
+}
+assert.match(config, /value="light"[^>]*>[\s\S]*?<strong>Light Gold<\/strong>/);
 
 console.log("MasjidBoard appliance touch-control tests passed");

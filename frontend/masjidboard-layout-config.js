@@ -22,10 +22,11 @@
     let savePending = false;
     let saving = false;
 
-    const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "black-white"]);
+    const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "ivory", "sage", "sky", "rose", "black-white"]);
     const themeNames = {
         emerald: "Emerald", midnight: "Midnight", slate: "Slate",
-        ruby: "Ruby", light: "Light", "black-white": "Black & White",
+        ruby: "Ruby", light: "Light Gold", ivory: "Ivory", sage: "Sage",
+        sky: "Sky", rose: "Rose", "black-white": "Black & White",
     };
 
     function showBanner(message, kind = "success") {

@@ -10,7 +10,7 @@ func TestEffectiveThemeDefaultsToEmerald(t *testing.T) {
 
 func TestValidateAcceptsSupportedThemes(t *testing.T) {
 	board := selected("test", "Test Masjid", 0)
-	for _, theme := range []string{ThemeEmerald, ThemeMidnight, ThemeSlate, ThemeRuby, ThemeLight, ThemeBlackWhite} {
+	for _, theme := range []string{ThemeEmerald, ThemeMidnight, ThemeSlate, ThemeRuby, ThemeLight, ThemeIvory, ThemeSage, ThemeSky, ThemeRose, ThemeBlackWhite} {
 		if err := Validate(State{Boards: []Board{board}, Theme: theme}); err != nil {
 			t.Fatalf("theme %q rejected: %v", theme, err)
 		}

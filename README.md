@@ -32,7 +32,7 @@ It can run either capability independently or install both together:
 - Show optional Daily Ayah, Hadith, Sunnah, Islamic Economic Indicators and Dua after Adhan
 - Highlight the published Zawaal/Istiwaa interval
 - Continue with last-known-good timetable data during temporary upstream outages
-- Use six colour themes and integrated touch controls on the Appliance Display
+- Use ten colour themes and integrated touch controls on the Appliance Display
 
 Content availability depends on what each upstream masjid publishes.
 

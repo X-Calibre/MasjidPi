@@ -44,7 +44,11 @@
         ["midnight", "Midnight", "Deep blue"],
         ["slate", "Slate", "Neutral gold"],
         ["ruby", "Ruby", "Warm red"],
-        ["light", "Light", "Bright display"],
+        ["light", "Light Gold", "Warm gold"],
+        ["ivory", "Ivory", "Ivory & emerald"],
+        ["sage", "Sage", "Soft forest green"],
+        ["sky", "Sky", "Cool blue"],
+        ["rose", "Rose", "Blush & burgundy"],
         ["black-white", "Black & White", "Maximum contrast"]
     ];
 

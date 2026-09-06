@@ -72,7 +72,7 @@ Both profiles support:
 - provider-supplied special Dhuhr when distinct from normal Dhuhr;
 - Zawaal/Istiwaa clock/date warning;
 - stale/unavailable state; and
-- six colour themes.
+- ten colour themes.
 
 The Appliance profile uses one timetable slide per masjid and includes a touch-control sheet for selected Listen and theme actions.
 

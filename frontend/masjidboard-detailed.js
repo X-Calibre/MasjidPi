@@ -9,6 +9,7 @@
     const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
     const displayUtils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
+    const warningUtils = window.MasjidBoardWarningUtils;
     const {communityPriorityGroups, dailyIslamicItems, duaAfterAdhanItem, duaAfterAdhanWindowMinutes, fixtureCommunityItems, formatNoticeDate, formatRand, formatUpdatedAt, orderedCommunityItemGroups, orderedFields, plainText, specialDhuhrItem} = window.MasjidBoardCommunityUtils;
 
     document.documentElement.classList.add("landscape-layout");
@@ -55,12 +56,7 @@
         add(items, "Ishraq", astronomical.ishraaq);
         add(items, "Duha / Chaasht", astronomical.duha);
 
-        const zawaalStart = validTime(astronomical.istiwa_caution)
-            ? astronomical.istiwa_caution
-            : astronomical.istiwa;
-        const zawaalEnd = validTime(astronomical.zawaal_end)
-            ? astronomical.zawaal_end
-            : astronomical.istiwa;
+        const {start: zawaalStart, end: zawaalEnd} = warningUtils.zawaalWindow(astronomical);
         if (validTime(zawaalStart)) {
             const range = validTime(zawaalEnd) && minutes(zawaalEnd) !== minutes(zawaalStart)
                 ? `${format(zawaalStart)}–${format(zawaalEnd)}`

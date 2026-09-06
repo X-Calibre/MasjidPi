@@ -24,6 +24,21 @@ The Web UI shows a **Listen** tab, a **Board** tab, or both, according to the co
 
 ![MasjidPi Web UI showing the Listen and Board navigation](images/user-guide/web-ui-navigation.png)
 
+## First-run MasjidFrame setup
+
+When a new portrait Board appliance has no saved Wi-Fi profile, its touchscreen opens the setup wizard automatically.
+
+1. Select a detected 2.4 GHz Wi-Fi network, or choose **Add hidden network** and enter its exact SSID.
+2. Use the built-in keyboard to enter the password. The normal keyboard includes a number row; select **#+=** for additional symbols.
+3. For a hidden network, choose whether it is password protected or open before connecting.
+4. After connection, note the displayed IP address and any network-issued FQDN.
+5. Choose the country, province/region and town/city, then select the initial masjid.
+6. Select **Start MasjidFrame** to open the Board.
+
+The completion screen directs you to the full Web UI from a phone, tablet or computer on the same Wi-Fi. Use the displayed address to configure Listen, audio, additional masjids and Board preferences. An FQDN is shown only when the local network supplies or resolves one; MasjidFrame does not assume that a `.local` address exists.
+
+After setup, normal boots open the configured Board directly.
+
 ## 2. Listen: how audio priority works
 
 Listen has two possible audio sources:

@@ -15,6 +15,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
+	masjidnetwork "github.com/X-Calibre/MasjidPi/backend/internal/network"
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/player"
 	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
@@ -56,6 +57,7 @@ func Run() error {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		server := newAPIServer(cfg, paths, installed, api.Dependencies{
 			Logger:                 log,
+			WiFi:                   masjidnetwork.NewNetworkManager(),
 			MasjidBoardService:     masjidBoardService,
 			MasjidBoardMaintenance: masjidBoardMaintenance,
 		})
@@ -184,6 +186,7 @@ func Run() error {
 	favourites := storage.NewFavourites(paths.FavouritesState)
 	dependencies := api.Dependencies{
 		Logger:           log,
+		WiFi:             masjidnetwork.NewNetworkManager(),
 		Playback:         playbackManager,
 		Listen:           listenController,
 		Streams:          streamStore,

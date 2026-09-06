@@ -98,6 +98,22 @@ The Web UI listens on port `8080`.
 
 Existing configuration and runtime data are preserved when upgrading an existing installation or changing component profile.
 
+## First-run appliance setup
+
+On a fresh Raspberry Pi Board appliance with no saved Wi-Fi profile, the attached display opens the MasjidFrame setup wizard automatically. The wizard is designed for the constrained Cog/WPE renderer and portrait touchscreen; it does not require a desktop environment or a separate operating-system keyboard.
+
+The wizard can:
+
+1. Scan for nearby 2.4 GHz Wi-Fi networks.
+2. Connect to a visible network using the on-screen keyboard.
+3. Add a hidden password-protected or open network by entering its SSID manually.
+4. Select the initial country, province/region, town/city and MasjidBoard.
+5. Start the appliance Board after downloading its first timetable.
+
+After Wi-Fi connects, the wizard displays the appliance IPv4 URL and, when supplied by DHCP or network DNS, its FQDN URL. It does not invent a `.local` hostname. From a phone, tablet or computer on the same network, use either displayed address to configure Listen, audio, additional masjids and display preferences.
+
+The normal appliance startup bypasses the wizard once NetworkManager has a saved Wi-Fi profile. Removing a profile is therefore a factory/reset operation rather than a normal way to reopen setup.
+
 ## Installation validation
 
 The installer does not consider installation successful merely because the systemd service starts.

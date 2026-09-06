@@ -23,6 +23,8 @@ It can run either capability independently or install both together:
 
 ### Board
 
+- Complete first-run setup on the attached touchscreen, including visible or hidden Wi-Fi networks
+- Choose the initial location and MasjidBoard without another computer
 - Select and order up to three MasjidBoard Live masjids
 - Use a responsive TV/Monitor layout or the portrait 7-inch Appliance Display
 - Show prayer times, next-event countdowns, Daily Times and detailed Friday Jumu'ah schedules
@@ -98,6 +100,10 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Release
 
 **Current stable release: v1.5.2**
+
+**Current release candidate: v1.6.0-rc.1**
+
+v1.6.0-rc.1 adds a touchscreen-first MasjidFrame onboarding flow for Wi-Fi, location and initial masjid selection. It supports visible and hidden networks, an embedded keyboard, and network-issued FQDN/IP guidance for completing advanced configuration from another device. It also includes the accumulated post-v1.5.2 Board fixes. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
 
 v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 

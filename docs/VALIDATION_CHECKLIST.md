@@ -2,6 +2,21 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
+## Completed for v1.6.0-rc.1
+
+### First-run MasjidFrame setup
+
+- [x] A clean Pi 4 with no saved Wi-Fi profile opens setup automatically.
+- [x] Nearby 2.4 GHz networks scan and render correctly in Cog/WPE on DRM.
+- [x] The embedded keyboard accepts letters, numbers and symbols and supports password visibility.
+- [x] A visible password-protected network connects successfully.
+- [x] A hidden password-protected network connects successfully after manual SSID entry.
+- [x] Touch-native location and masjid pickers work without unsupported browser dropdown popups.
+- [x] Location scoping, primary-masjid selection and initial timetable retrieval complete successfully.
+- [x] The completion screen shows the current IPv4 address and DHCP/network-issued FQDN without inventing `.local`.
+- [x] The normal Board opens after setup and opens directly on subsequent appliance startup.
+- [x] Setup controls fit the 1024 × 600 portrait touchscreen, including the masjid save action.
+
 ## Completed for v1.5.2
 
 ### Boot and display

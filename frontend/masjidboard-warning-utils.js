@@ -11,6 +11,23 @@
         return time.hour * 60 + time.minute;
     }
 
+    function clockFromMinutes(value) {
+        const normalized = (value + 24 * 60) % (24 * 60);
+        return {hour: Math.floor(normalized / 60), minute: normalized % 60};
+    }
+
+    function zawaalWindow(astronomical) {
+        const times = astronomical || {};
+        const istiwa = validTime(times.istiwa) ? times.istiwa : null;
+        const start = validTime(times.istiwa_caution)
+            ? times.istiwa_caution
+            : istiwa ? clockFromMinutes(minutes(istiwa) - 5) : null;
+        const end = validTime(times.zawaal_end)
+            ? times.zawaal_end
+            : istiwa ? clockFromMinutes(minutes(istiwa) + 5) : null;
+        return {start, end};
+    }
+
     function boardLocalMinutes(board, now) {
         const timezone = String(board && board.time_zone || "").trim();
         const fixedOffset = timezone.match(/^(?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?$/i);
@@ -35,11 +52,7 @@
 
     function isZawaalWarningActive(board, now) {
         if (!board || !now || typeof now.getTime !== "function" || Number.isNaN(now.getTime())) return false;
-        const astronomical = board.astronomical || {};
-        const start = validTime(astronomical.istiwa_caution)
-            ? astronomical.istiwa_caution
-            : astronomical.istiwa;
-        const end = astronomical.zawaal_end;
+        const {start, end} = zawaalWindow(board.astronomical);
         if (!validTime(start) || !validTime(end)) return false;
 
         const startMinutes = minutes(start);
@@ -49,5 +62,5 @@
         return currentMinutes >= startMinutes && currentMinutes < endMinutes;
     }
 
-    window.MasjidBoardWarningUtils = {isZawaalWarningActive};
+    window.MasjidBoardWarningUtils = {isZawaalWarningActive, zawaalWindow};
 })();

@@ -1,0 +1,373 @@
+@font-face {
+    font-family: "Fira Sans";
+    src: url("fonts/fira-sans/FiraSans-Regular.woff2") format("woff2");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: "Fira Sans";
+    src: url("fonts/fira-sans/FiraSans-Bold.woff2") format("woff2");
+    font-weight: 700;
+}
+
+:root {
+    color-scheme: dark;
+    font-family: "Fira Sans", sans-serif;
+    --background: #04110f;
+    --surface: #0b211d;
+    --surface-raised: #12302a;
+    --border: #2c5148;
+    --text: #f6f3e8;
+    --muted: #b9c9c3;
+    --green: #31b77a;
+    --green-dark: #13704b;
+    --gold: #d8ad4a;
+    --blue: #4ba5c8;
+    --danger: #ffaaa2;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    background: radial-gradient(circle at 85% 0, #0b2b2d 0, var(--background) 45%);
+    color: var(--text);
+    overscroll-behavior: none;
+}
+
+body { min-height: 100vh; }
+button, input { font: inherit; }
+button { touch-action: manipulation; }
+[hidden] { display: none !important; }
+
+.setup-shell {
+    width: min(100%, 760px);
+    margin: 0 auto;
+    padding: 34px 30px 38px;
+}
+
+.setup-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.brand-mark {
+    display: grid;
+    width: 64px;
+    height: 64px;
+    place-items: center;
+    border: 2px solid var(--gold);
+    border-radius: 19px 19px 24px 24px;
+    background: linear-gradient(145deg, var(--green-dark), #0a3935);
+    color: var(--gold);
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.eyebrow, .step-number {
+    margin: 0 0 3px;
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 0; font-size: 35px; line-height: 1; }
+h2 { margin-bottom: 8px; font-size: clamp(28px, 5vw, 40px); }
+.setup-step > p, .step-heading p { color: var(--muted); }
+
+.step-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.network-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.network-button {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 72px;
+    padding: 13px 17px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+}
+
+.network-button:active, .key:active { background: var(--green-dark); }
+.hidden-network-button { width: 100%; margin-top: 14px; }
+.network-name { overflow: hidden; font-size: 21px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.network-meta { color: var(--muted); font-size: 15px; }
+.signal { align-self: center; color: var(--blue); font-size: 18px; font-weight: 700; }
+
+.primary-button, .secondary-button, .back-button {
+    min-height: 52px;
+    border-radius: 13px;
+    font-weight: 700;
+}
+
+.primary-button {
+    width: 100%;
+    margin-top: 18px;
+    border: 0;
+    background: var(--green);
+    color: #02140e;
+    font-size: 21px;
+}
+
+.primary-button:disabled { opacity: .55; }
+.secondary-button, .back-button { border: 1px solid var(--border); background: var(--surface-raised); color: var(--text); }
+.secondary-button { padding: 0 18px; }
+.back-button { margin-bottom: 18px; padding: 0 17px; }
+
+label { display: block; margin: 22px 0 8px; font-weight: 700; }
+.password-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+input:not([type="radio"]) {
+    min-width: 0;
+    height: 58px;
+    padding: 0 16px;
+    border: 2px solid var(--blue);
+    border-radius: 13px;
+    outline: 0;
+    background: #020a09;
+    color: var(--text);
+    font-size: 23px;
+}
+
+.picker-button {
+    width: 100%;
+    min-height: 58px;
+    padding: 0 52px 0 16px;
+    border: 2px solid var(--blue);
+    border-radius: 13px;
+    background: #020a09;
+    color: var(--text);
+    font-size: 21px;
+    text-align: left;
+    position: relative;
+}
+
+.picker-button::after {
+    content: "▾";
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    color: var(--blue);
+    transform: translateY(-50%);
+}
+
+.picker-button:disabled { opacity: .55; }
+
+.selected-network { margin-bottom: 4px; color: var(--blue) !important; font-size: 22px; font-weight: 700; }
+.field-help, .status-message { margin: 12px 0; color: var(--muted); }
+.error-message { min-height: 24px; color: var(--danger) !important; }
+.success-step { padding-top: clamp(20px, 8vh, 80px); text-align: center; }
+.success-icon { display: grid; width: 92px; height: 92px; margin: 0 auto 24px; place-items: center; border-radius: 50%; background: var(--green); color: #02140e; font-size: 54px; font-weight: 700; }
+
+.advanced-setup {
+    margin: 22px 0 8px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    text-align: left;
+}
+
+.advanced-setup h3 { margin: 0 0 8px; font-size: 22px; }
+.advanced-setup p { margin: 0 0 14px; color: var(--muted); font-size: 17px; line-height: 1.4; }
+.access-address { padding: 11px 13px; border-radius: 11px; background: #020a09; }
+.access-address + .access-address { margin-top: 9px; }
+.access-address span,
+.access-address strong { display: block; }
+.access-address span { margin-bottom: 3px; color: var(--muted); font-size: 14px; }
+.access-address strong { overflow-wrap: anywhere; color: var(--blue); font-size: 18px; }
+
+.masjid-list {
+    display: grid;
+    flex: 1 1 auto;
+    gap: 10px;
+    min-height: 0;
+    margin-top: 16px;
+    overflow-y: auto;
+}
+
+.masjid-option {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    min-height: 78px;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    margin: 0;
+}
+
+.masjid-option.selected {
+    border-color: var(--green);
+    background: var(--surface-raised);
+    box-shadow: inset 0 0 0 1px var(--green);
+}
+
+.masjid-option input {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    accent-color: var(--green);
+}
+
+.masjid-option strong,
+.masjid-option small { display: block; }
+.masjid-option strong { font-size: 20px; }
+.masjid-option small { margin-top: 3px; color: var(--muted); font-size: 15px; }
+
+body.masjid-step-open { overflow: hidden; }
+body.masjid-step-open .setup-shell {
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    padding-bottom: 22px;
+}
+body.masjid-step-open .setup-header {
+    flex: 0 0 auto;
+    margin-bottom: 14px;
+}
+body.masjid-step-open #masjidStep {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+body.masjid-step-open #masjidStep .back-button {
+    align-self: flex-start;
+    margin-bottom: 9px;
+}
+body.masjid-step-open #masjidStep > p { margin-bottom: 7px; }
+body.masjid-step-open #finishSetupButton { flex: 0 0 auto; }
+
+.picker-sheet {
+    position: fixed;
+    z-index: 20;
+    inset: 8% 18px 18px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: #061714;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .7), 0 20px 50px rgba(0, 0, 0, .55);
+}
+
+.picker-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 15px;
+}
+
+.picker-header h2 { margin: 0; }
+.picker-close {
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-size: 35px;
+}
+
+.picker-options {
+    display: grid;
+    flex: 1 1 auto;
+    gap: 9px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.picker-option {
+    min-height: 62px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 20px;
+    text-align: left;
+}
+
+.picker-option.selected {
+    border-color: var(--green);
+    background: var(--green-dark);
+}
+
+.keyboard {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 9px 7px max(10px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: #020907;
+    box-shadow: 0 -12px 35px rgba(0, 0, 0, .42);
+}
+
+.keyboard-rows { display: grid; gap: 6px; width: min(100%, 760px); margin: 0 auto; }
+.keyboard-row { display: flex; justify-content: center; gap: 5px; }
+.key {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 54px;
+    padding: 0 2px;
+    border: 1px solid #345b52;
+    border-radius: 9px;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-size: 21px;
+    font-weight: 700;
+}
+.key-wide { flex-grow: 1.6; }
+.key-space { flex-grow: 4; }
+.key-accent { background: var(--green-dark); }
+
+body.keyboard-open .setup-shell { padding-bottom: 365px; }
+
+@media (orientation: landscape) {
+    .setup-shell { width: min(100%, 920px); padding-top: 22px; }
+    .setup-header { margin-bottom: 18px; }
+    .brand-mark { width: 54px; height: 54px; font-size: 28px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 31px; }
+    .keyboard { padding-top: 6px; }
+    .keyboard-rows { gap: 4px; width: min(100%, 940px); }
+    .key { height: 38px; font-size: 17px; }
+    body.keyboard-open .setup-shell { padding-bottom: 225px; }
+    body.keyboard-open .setup-header { display: none; }
+    body.keyboard-open .setup-shell { padding-top: 10px; }
+    body.keyboard-open .back-button { min-height: 44px; margin-bottom: 8px; }
+    body.keyboard-open .step-number,
+    body.keyboard-open .field-help { display: none; }
+    body.keyboard-open label { margin-top: 10px; }
+    body.masjid-step-open .setup-header { display: none; }
+    body.masjid-step-open .setup-shell { padding: 10px 22px 12px; }
+    body.masjid-step-open #masjidStep .back-button { min-height: 42px; }
+    .picker-sheet { inset: 12px; }
+    .picker-option { min-height: 50px; }
+}

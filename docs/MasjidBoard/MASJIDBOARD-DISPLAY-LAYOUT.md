@@ -97,6 +97,8 @@ Sunset
 Esha start
 ```
 
+For Zawaal/Istiwaa, supplied `istiwaCaution` and `zawaalEnd` boundaries remain authoritative. If either boundary is absent while `istiwa` is available, the missing start is derived as five minutes before Istiwaa and the missing end as five minutes after it. An Istiwaa-only board therefore displays and warns across a ten-minute window centred on the supplied Istiwaa time. If both boundaries are supplied without `istiwa`, MasjidPi uses the supplied range directly.
+
 When Premium enrichment is available, the standard presentation also shows rotating community information such as announcements, class-time changes, weekly and Ramadan programmes, Nikah, funerals, Eid, Taleem/Jamaat programmes, contributions, well-wishes, Salaah changes, new-moon information and Islamic Economic Indicators. Recognised announcement headings receive a semantic card label; unknown headings remain ordinary announcements instead of being classified from free-form prose. Arabic and mixed-language fields use automatic text direction.
 
 A provider-supplied special Dhuhr entry is appended to Daily Times when it has a usable label/time and differs from normal Dhuhr Adhan and Jamaah. Daily Times dynamically fits up to 11 items into one landscape row.

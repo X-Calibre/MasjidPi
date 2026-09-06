@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="dark">
+    <title>Set up MasjidFrame</title>
+    <link rel="stylesheet" href="setup.css?v=20260906-hidden-network">
+</head>
+<body>
+    <main class="setup-shell">
+        <header class="setup-header">
+            <div class="brand-mark" aria-hidden="true">M</div>
+            <div>
+                <p class="eyebrow">Welcome to</p>
+                <h1>MasjidFrame</h1>
+            </div>
+        </header>
+
+        <section id="networkStep" class="setup-step" aria-labelledby="networkHeading">
+            <div class="step-heading">
+                <div>
+                    <p class="step-number">Step 1</p>
+                    <h2 id="networkHeading">Connect to Wi-Fi</h2>
+                    <p>Choose your 2.4 GHz Wi-Fi network.</p>
+                </div>
+                <button id="refreshNetworks" class="secondary-button" type="button">Refresh</button>
+            </div>
+            <p id="networkStatus" class="status-message" role="status">Looking for nearby networks…</p>
+            <div id="networkList" class="network-list" aria-live="polite"></div>
+            <button id="addHiddenNetwork" class="secondary-button hidden-network-button" type="button">Add hidden network</button>
+        </section>
+
+        <section id="passwordStep" class="setup-step" aria-labelledby="passwordHeading" hidden>
+            <button id="backToNetworks" class="back-button" type="button">‹ Back</button>
+            <p class="step-number">Step 1</p>
+            <h2 id="passwordHeading">Enter Wi-Fi password</h2>
+            <p id="selectedNetwork" class="selected-network"></p>
+            <div id="hiddenNetworkFields" hidden>
+                <label for="wifiSSID">Network name (SSID)</label>
+                <input id="wifiSSID" type="text" readonly autocomplete="off" spellcheck="false" maxlength="32">
+                <label>Security</label>
+                <button id="hiddenSecurity" class="picker-button" type="button" aria-pressed="true">Password protected</button>
+            </div>
+            <div id="passwordFields">
+            <label for="wifiPassword">Password</label>
+            <div class="password-row">
+                <input id="wifiPassword" type="password" readonly autocomplete="off" spellcheck="false" maxlength="64" aria-describedby="passwordHelp">
+                <button id="togglePassword" class="secondary-button" type="button" aria-pressed="false">Show</button>
+            </div>
+            </div>
+            <p id="passwordHelp" class="field-help">Use the keyboard below, then select Connect.</p>
+            <p id="connectStatus" class="status-message error-message" role="alert"></p>
+            <button id="connectButton" class="primary-button" type="button">Connect</button>
+        </section>
+
+        <section id="successStep" class="setup-step success-step" aria-labelledby="successHeading" hidden>
+            <div class="success-icon" aria-hidden="true">✓</div>
+            <p class="step-number">Connected</p>
+            <h2 id="successHeading">MasjidFrame is online</h2>
+            <p id="successNetwork"></p>
+            <div id="advancedSetup" class="advanced-setup" hidden>
+                <h3>More setup options</h3>
+                <p>On a phone, tablet, or computer connected to this Wi-Fi, open one of these addresses to configure Listen, audio, additional masjids, and display preferences:</p>
+                <div id="fqdnAccess" class="access-address" hidden>
+                    <span>Network address</span>
+                    <strong id="fqdnURL"></strong>
+                </div>
+                <div id="ipAccess" class="access-address" hidden>
+                    <span>IP address</span>
+                    <strong id="ipURL"></strong>
+                </div>
+            </div>
+            <button id="continueButton" class="primary-button" type="button">Choose your masjid</button>
+        </section>
+
+        <section id="locationStep" class="setup-step" aria-labelledby="locationHeading" hidden>
+            <p class="step-number">Step 2</p>
+            <h2 id="locationHeading">Choose your location</h2>
+            <p>We’ll use this to find MasjidBoards in your area.</p>
+            <p id="locationStatus" class="status-message" role="status">Loading locations…</p>
+
+            <label for="countryButton">Country</label>
+            <button id="countryButton" class="picker-button" type="button" disabled>Select country…</button>
+
+            <label for="regionButton">Province or region</label>
+            <button id="regionButton" class="picker-button" type="button" disabled>Select province or region…</button>
+
+            <label for="cityButton">Town or city</label>
+            <button id="cityButton" class="picker-button" type="button" disabled>Select town or city…</button>
+
+            <button id="findMasjidsButton" class="primary-button" type="button" disabled>Find masjids</button>
+        </section>
+
+        <section id="masjidStep" class="setup-step" aria-labelledby="masjidHeading" hidden>
+            <button id="backToLocation" class="back-button" type="button">‹ Change location</button>
+            <p class="step-number">Step 3</p>
+            <h2 id="masjidHeading">Choose your masjid</h2>
+            <p id="masjidLocation" class="selected-network"></p>
+            <p id="masjidStatus" class="status-message" role="status">Finding MasjidBoards…</p>
+            <div id="masjidList" class="masjid-list" aria-live="polite"></div>
+            <button id="finishSetupButton" class="primary-button" type="button" disabled>Use selected masjid</button>
+        </section>
+    </main>
+
+    <section id="keyboard" class="keyboard" aria-label="On-screen keyboard" hidden>
+        <div id="keyboardRows" class="keyboard-rows"></div>
+    </section>
+
+    <section id="pickerSheet" class="picker-sheet" aria-modal="true" role="dialog" aria-labelledby="pickerHeading" hidden>
+        <div class="picker-header">
+            <h2 id="pickerHeading">Choose an option</h2>
+            <button id="closePicker" class="picker-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div id="pickerOptions" class="picker-options"></div>
+    </section>
+
+    <script src="setup.js?v=20260906-hidden-network"></script>
+</body>
+</html>

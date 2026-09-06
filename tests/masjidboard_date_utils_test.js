@@ -9,6 +9,12 @@ const dates = window.MasjidBoardDate;
 const board = {astronomical: {sunset: {hour: 18, minute: 0}}};
 
 assert.equal(
+    dates.formatGregorianDate({date: {gregorian: "2026-09-05"}}),
+    "Saturday, 5 September 2026",
+    "Gregorian display dates must use South African day-month order",
+);
+
+assert.equal(
     dates.isIslamicFriday(board, new Date(2026, 7, 27, 18, 3, 5)),
     false,
     "Thursday remains Thursday at the exact Islamic-date rollover boundary",

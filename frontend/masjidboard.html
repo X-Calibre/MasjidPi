@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="masjidboard-display.css?v=20260905-zawaal-warning">
     <link rel="stylesheet" href="masjidboard-detailed.css?v=20260905-daily-times-fit">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
-    <link rel="stylesheet" href="masjidboard-appliance.css?v=20260905-section10">
+    <link rel="stylesheet" href="masjidboard-appliance.css?v=20260906-network-setup">
     <link rel="stylesheet" href="masjidboard-themes.css?v=20260831-appliance-profile">
 </head>
 <body data-board-theme="emerald">
@@ -89,7 +89,7 @@
                 <div class="appliance-listen-handle" aria-hidden="true"></div>
                 <header class="appliance-listen-heading">
                     <div>
-                        <small>LISTEN CONTROLS</small>
+                        <small>APPLIANCE CONTROLS</small>
                         <h2>Now Playing</h2>
                     </div>
                     <button class="appliance-listen-close" type="button" data-listen-close aria-label="Close Listen controls"></button>
@@ -114,6 +114,7 @@
                     <button id="applianceMasjidTab" class="active" type="button" role="tab" data-touch-tab="masjid" aria-controls="applianceMasjidPanel" aria-selected="true">Masjid</button>
                     <button id="applianceRadioTab" type="button" role="tab" data-touch-tab="radio" aria-controls="applianceRadioPanel" aria-selected="false">Radio</button>
                     <button id="applianceThemeTab" type="button" role="tab" data-touch-tab="theme" aria-controls="applianceThemePanel" aria-selected="false">Theme</button>
+                    <button id="applianceNetworkTab" type="button" role="tab" data-touch-tab="network" aria-controls="applianceNetworkPanel" aria-selected="false">Network</button>
                 </nav>
                 <div class="appliance-listen-content">
                     <section id="applianceMasjidPanel" data-touch-panel="masjid" role="tabpanel" aria-labelledby="applianceMasjidTab">
@@ -157,6 +158,15 @@
                         </div>
                         <div id="applianceThemeChoices" class="appliance-theme-grid" role="radiogroup" aria-label="Display theme"></div>
                     </section>
+                    <section id="applianceNetworkPanel" class="hidden" data-touch-panel="network" role="tabpanel" aria-labelledby="applianceNetworkTab">
+                        <div class="appliance-network-settings">
+                            <div>
+                                <strong>Change Wi-Fi network</strong>
+                                <span>Scan for a visible network or enter a hidden network name. Your current connection is not changed until another connection succeeds.</span>
+                            </div>
+                            <a id="applianceChangeWiFi" href="/setup.html?return=board">Change Wi-Fi network</a>
+                        </div>
+                    </section>
                 </div>
             </section>
         </aside>
@@ -171,6 +181,6 @@
 <script src="masjidboard-detailed.js?v=20260905-daily-times-fit"></script>
 <script src="masjidboard-appliance.js?v=20260905-slide-model-reset"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
-<script src="masjidboard-touch-controls.js?v=20260831-appliance-profile"></script>
+<script src="masjidboard-touch-controls.js?v=20260906-network-setup"></script>
 </body>
 </html>

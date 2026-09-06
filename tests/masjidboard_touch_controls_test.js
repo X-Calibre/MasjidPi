@@ -13,12 +13,16 @@ const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-applianc
 
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
-assert.match(html, /masjidboard-appliance\.css\?v=20260905-section10/);
+assert.match(html, /masjidboard-appliance\.css\?v=20260906-network-setup/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);
 assert.match(html, /data-touch-tab="radio"/);
 assert.match(html, /data-touch-tab="theme"/);
+assert.match(html, /data-touch-tab="network"/);
+assert.match(html, /data-touch-panel="network"/);
+assert.match(html, /id="applianceChangeWiFi"[^>]*href="\/setup\.html\?return=board"/);
+assert.match(html, /Change Wi-Fi network/);
 assert.match(html, /Scheduled Play/);
 assert.match(html, /Play Now/);
 assert.match(html, /Stop Radio/);
@@ -56,6 +60,8 @@ assert.match(css, /\.appliance-listen-status\s*\{[^}]*height:76px;[^}]*flex:0 0 
 assert.match(css, /\.appliance-listen-close::before,\.appliance-listen-close::after\s*\{[^}]*top:50%;[^}]*left:50%;[^}]*transform:translate\(-50%,-50%\) rotate\(45deg\)/s);
 assert.match(css, /\.appliance-listen-close::after\s*\{[^}]*rotate\(-45deg\)/s);
 assert.match(css, /\.appliance-theme-option\s*\{[^}]*height:84px/s);
+assert.match(css, /\.appliance-network-settings a\s*\{[^}]*min-height:52px/s);
+assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
 assert.doesNotMatch(css, /portrait/);
 assert.match(themes, /--appliance-danger:var\(--danger\)/);
 

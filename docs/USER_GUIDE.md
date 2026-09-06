@@ -39,6 +39,8 @@ The completion screen directs you to the full Web UI from a phone, tablet or com
 
 After setup, normal boots open the configured Board directly.
 
+To change Wi-Fi later, swipe up on the Appliance Display, open the **Network** tab and select **Change Wi-Fi network**. The same visible/hidden-network setup screen opens with a **Back to board** action. Merely opening or leaving this screen does not alter the current connection; a network change occurs only after a new connection succeeds.
+
 ## 2. Listen: how audio priority works
 
 Listen has two possible audio sources:
@@ -353,6 +355,8 @@ The control sheet provides:
 - a **Masjid** tab for choosing a favourited masjid, adjusting Masjid and Master volume, starting playback and stopping Listen;
 - a **Radio** tab for choosing a station, adjusting Radio and Master volume, and selecting Scheduled Play, Play Now or Stop Radio; and
 - a **Theme** tab for immediately applying and saving any supported Board colour theme.
+
+The **Network** tab provides **Change Wi-Fi network**, which reopens the appliance network setup without deleting the current profile first.
 
 Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
 

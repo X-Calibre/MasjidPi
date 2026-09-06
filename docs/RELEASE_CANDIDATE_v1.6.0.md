@@ -30,7 +30,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduces 
 - [x] Go tests pass, including NetworkManager, API and credential-safety coverage.
 - [x] Frontend JavaScript tests cover first-run routing, keyboard layouts, touch pickers, hidden networks and access URLs.
 - [x] Installer, runtime, boot, display-profile and release-package shell tests pass.
-- [ ] GitHub Actions passes on the integrated `main` commit.
+- [x] GitHub Actions passes on the integrated `main` commit.
 
 ## Raspberry Pi 4 source validation
 
@@ -49,7 +49,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduces 
 - [x] All outstanding feature and bug-fix work is integrated with the latest `main` documentation.
 - [x] Version metadata is set to `v1.6.0-rc.1`.
 - [x] Release documentation is prepared.
-- [ ] Integrated changes are merged to `main` after local validation.
+- [x] Integrated changes are merged to `main` after local validation.
 - [ ] Tag `v1.6.0-rc.1` is created from the accepted `main` commit.
 - [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
 - [ ] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.

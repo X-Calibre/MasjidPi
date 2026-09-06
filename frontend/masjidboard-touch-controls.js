@@ -57,6 +57,7 @@
     let refreshTimer = 0;
     let inactivityTimer = 0;
     let gestureStart = null;
+    let closeGestureStart = null;
     let busy = false;
     let currentTheme = document.body.dataset.boardTheme || "emerald";
     const volumeSaveTimers = {master:0, masjid:0, radio:0};
@@ -478,26 +479,32 @@
         if (dy < -70 && Math.abs(dy) > Math.abs(dx)) setOpen(true);
     });
     panel.addEventListener("pointerdown", event => event.stopPropagation());
-    panel.addEventListener("pointerup", event => event.stopPropagation());
+    panel.addEventListener("pointermove", event => {
+        if (!closeGestureStart || closeGestureStart.pointerId !== event.pointerId) return;
+        const dx = event.clientX - closeGestureStart.x;
+        const dy = event.clientY - closeGestureStart.y;
+        if (dy > 45 && Math.abs(dy) > Math.abs(dx)) {
+            const captureTarget = closeGestureStart.target;
+            closeGestureStart = null;
+            if (captureTarget.hasPointerCapture?.(event.pointerId)) captureTarget.releasePointerCapture(event.pointerId);
+            setOpen(false);
+        }
+        event.stopPropagation();
+    });
+    panel.addEventListener("pointerup", event => {
+        closeGestureStart = null;
+        event.stopPropagation();
+    });
+    panel.addEventListener("pointercancel", event => {
+        closeGestureStart = null;
+        event.stopPropagation();
+    });
     for (const target of panel.querySelectorAll(".appliance-listen-handle,.appliance-listen-heading")) {
         target.addEventListener("pointerdown", event => {
             if (event.target.closest("button,a,input")) return;
-            gestureStart = {x:event.clientX, y:event.clientY};
+            closeGestureStart = {x:event.clientX, y:event.clientY, pointerId:event.pointerId, target};
             target.setPointerCapture?.(event.pointerId);
-            event.stopPropagation();
-        });
-        target.addEventListener("pointerup", event => {
-            if (!gestureStart) return;
-            const dx = event.clientX - gestureStart.x;
-            const dy = event.clientY - gestureStart.y;
-            gestureStart = null;
-            if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId);
-            if (dy > 70 && Math.abs(dy) > Math.abs(dx)) setOpen(false);
-            event.stopPropagation();
-        });
-        target.addEventListener("pointercancel", event => {
-            gestureStart = null;
-            if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId);
+            event.preventDefault();
             event.stopPropagation();
         });
     }

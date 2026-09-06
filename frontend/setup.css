@@ -178,8 +178,9 @@ input:not([type="radio"]) {
 
 .masjid-list {
     display: grid;
+    flex: 1 1 auto;
     gap: 10px;
-    max-height: 470px;
+    min-height: 0;
     margin-top: 16px;
     overflow-y: auto;
 }
@@ -194,6 +195,7 @@ input:not([type="radio"]) {
     border: 1px solid var(--border);
     border-radius: 16px;
     background: var(--surface);
+    margin: 0;
 }
 
 .masjid-option.selected {
@@ -213,6 +215,30 @@ input:not([type="radio"]) {
 .masjid-option small { display: block; }
 .masjid-option strong { font-size: 20px; }
 .masjid-option small { margin-top: 3px; color: var(--muted); font-size: 15px; }
+
+body.masjid-step-open { overflow: hidden; }
+body.masjid-step-open .setup-shell {
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    padding-bottom: 22px;
+}
+body.masjid-step-open .setup-header {
+    flex: 0 0 auto;
+    margin-bottom: 14px;
+}
+body.masjid-step-open #masjidStep {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+body.masjid-step-open #masjidStep .back-button {
+    align-self: flex-start;
+    margin-bottom: 9px;
+}
+body.masjid-step-open #masjidStep > p { margin-bottom: 7px; }
+body.masjid-step-open #finishSetupButton { flex: 0 0 auto; }
 
 .picker-sheet {
     position: fixed;
@@ -320,7 +346,9 @@ body.keyboard-open .setup-shell { padding-bottom: 365px; }
     body.keyboard-open .step-number,
     body.keyboard-open .field-help { display: none; }
     body.keyboard-open label { margin-top: 10px; }
-    .masjid-list { max-height: 270px; }
+    body.masjid-step-open .setup-header { display: none; }
+    body.masjid-step-open .setup-shell { padding: 10px 22px 12px; }
+    body.masjid-step-open #masjidStep .back-button { min-height: 42px; }
     .picker-sheet { inset: 12px; }
     .picker-option { min-height: 50px; }
 }

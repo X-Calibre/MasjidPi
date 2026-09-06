@@ -282,6 +282,7 @@
     }
 
     function showLocationStep() {
+        document.body.classList.remove("masjid-step-open");
         successStep.hidden = true;
         masjidStep.hidden = true;
         locationStep.hidden = false;
@@ -338,6 +339,7 @@
             const records = Array.isArray(catalogue?.records) ? catalogue.records : [];
             locationStep.hidden = true;
             masjidStep.hidden = false;
+            document.body.classList.add("masjid-step-open");
             document.getElementById("masjidLocation").textContent = [location.city, location.region, location.country].filter(Boolean).join(", ");
             document.getElementById("masjidStatus").textContent = records.length
                 ? `${records.length} MasjidBoard${records.length === 1 ? "" : "s"} found`
@@ -362,6 +364,7 @@
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({catalogue_ids: [selectedMasjid.id]})
             });
+            document.body.classList.remove("masjid-step-open");
             masjidStep.hidden = true;
             successStep.hidden = false;
             document.getElementById("successHeading").textContent = "MasjidFrame is ready";

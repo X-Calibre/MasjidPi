@@ -21,6 +21,17 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 - [x] All ten themes can be selected and persist across display refreshes.
 - [x] The compact theme selector remains usable on the 7-inch Appliance Display.
 
+### Published ARM64 package
+
+- [x] The published archive checksum matches `SHA256SUMS`.
+- [x] Release installation and the built-in self-test pass on the Pi 4 appliance.
+- [x] `/api/version` reports `v1.6.0-rc.2`.
+- [x] Listen + Board components and all saved display settings survive the upgrade.
+- [x] All configured masjids return current data without cache fallback or update errors.
+- [x] The display service starts Cog with the Appliance profile.
+- [x] The WebKit warm-up oneshot completes successfully.
+- [x] `/boot/firmware` returns to read-only mode after installation.
+
 ## Completed for v1.6.0-rc.1
 
 ### First-run MasjidFrame setup

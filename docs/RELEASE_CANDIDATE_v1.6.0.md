@@ -82,17 +82,27 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 
 - [x] Version metadata is set to `v1.6.0-rc.2`.
 - [x] RC2 release scope and hardware results are documented.
-- [ ] Automated CI passes on the integrated `main` commit.
-- [ ] The RC2 preparation branch is merged to `main`.
-- [ ] Tag `v1.6.0-rc.2` is created from the accepted `main` commit.
-- [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
-- [ ] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
+- [x] Automated CI passes on the integrated `main` commit `efa580d02ffa6057d4bce62df564a2af552dc65b`.
+- [x] The RC2 preparation branch is merged to `main`.
+- [x] Tag `v1.6.0-rc.2` is created from the accepted `main` commit.
+- [x] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
+- [x] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
 
-## RC1 hardware follow-up
+## RC2 published-package validation
+
+- [x] The published ARM64 archive matches its SHA-256 checksum `10b403f836f160055b82a396d0c6d1dd60bca27606d53191503f6e8f880544df`.
+- [x] Release installation completes and the installer self-test passes on the Pi 4.
+- [x] `/api/version` reports `v1.6.0-rc.2`.
+- [x] The Listen + Board component profile and all saved Board settings survive the upgrade.
+- [x] All three configured masjids return current data without cache fallback or update errors.
+- [x] The Network tab data retains the expected IPv4 address and network-issued FQDN.
+- [x] Cog starts the Appliance Display and `/boot/firmware` returns to read-only mode.
+- [x] The warm-up oneshot completes with `Result=success` and `ExecMainStatus=0`.
+
+## Stable-release hardware follow-up
 
 The first-run and RC2 enhancement flows have been functionally accepted on Raspberry Pi 4 source installations. Before stable v1.6.0 promotion:
 
-- install and validate the published ARM64 RC2 artifact on the Pi 4;
 - confirm the first-run flow on the intended Pi 3B appliance hardware or explicitly record its deferral;
 - review Pi 3B memory headroom during setup and normal Board operation; and
 - complete any fixes discovered during the RC soak period.

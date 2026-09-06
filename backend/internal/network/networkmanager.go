@@ -128,7 +128,7 @@ func (m *NetworkManager) Scan(ctx context.Context) ([]WiFiNetwork, error) {
 	return networks, nil
 }
 
-func (m *NetworkManager) Connect(ctx context.Context, ssid, password string) error {
+func (m *NetworkManager) Connect(ctx context.Context, ssid, password string, hidden bool) error {
 	ssid = strings.TrimSpace(ssid)
 	if ssid == "" {
 		return errors.New("Wi-Fi network name is required")
@@ -149,7 +149,11 @@ func (m *NetworkManager) Connect(ctx context.Context, ssid, password string) err
 	// --ask reads the secret from stdin, keeping it out of the process argument
 	// list. Command output is deliberately discarded so a secret can never be
 	// included in an API response or application log.
-	_, err := m.runner.Run(ctx, []string{"--ask", "--wait", "20", "device", "wifi", "connect", ssid}, stdin)
+	args := []string{"--ask", "--wait", "20", "device", "wifi", "connect", ssid}
+	if hidden {
+		args = append(args, "hidden", "yes")
+	}
+	_, err := m.runner.Run(ctx, args, stdin)
 	if err != nil {
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			return errors.New("the Wi-Fi connection attempt timed out")

@@ -19,6 +19,7 @@ type fakeWiFiManager struct {
 	connectError error
 	connectedTo  string
 	password     string
+	hidden       bool
 	access       masjidnetwork.DeviceAccess
 }
 
@@ -30,9 +31,10 @@ func (f *fakeWiFiManager) Scan(context.Context) ([]masjidnetwork.WiFiNetwork, er
 	return f.networks, nil
 }
 
-func (f *fakeWiFiManager) Connect(_ context.Context, ssid, password string) error {
+func (f *fakeWiFiManager) Connect(_ context.Context, ssid, password string, hidden bool) error {
 	f.connectedTo = ssid
 	f.password = password
+	f.hidden = hidden
 	return f.connectError
 }
 
@@ -104,7 +106,7 @@ func TestWiFiNetworksAllowsOnlyDeviceLoopback(t *testing.T) {
 func TestWiFiConnectPassesCredentialsWithoutReturningPassword(t *testing.T) {
 	wifi := &fakeWiFiManager{}
 	server := setupTestServer(wifi)
-	request := httptest.NewRequest(http.MethodPost, "/api/setup/wifi/connect", bytes.NewBufferString(`{"ssid":"Home WiFi","password":"private-pass"}`))
+	request := httptest.NewRequest(http.MethodPost, "/api/setup/wifi/connect", bytes.NewBufferString(`{"ssid":"Home WiFi","password":"private-pass","hidden":true}`))
 	request.RemoteAddr = "127.0.0.1:1234"
 	response := httptest.NewRecorder()
 
@@ -113,7 +115,7 @@ func TestWiFiConnectPassesCredentialsWithoutReturningPassword(t *testing.T) {
 	if response.Code != http.StatusOK {
 		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
 	}
-	if wifi.connectedTo != "Home WiFi" || wifi.password != "private-pass" {
+	if wifi.connectedTo != "Home WiFi" || wifi.password != "private-pass" || !wifi.hidden {
 		t.Fatalf("credentials not passed to manager: ssid=%q password=%q", wifi.connectedTo, wifi.password)
 	}
 	var payload map[string]any

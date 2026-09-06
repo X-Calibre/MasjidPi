@@ -30,6 +30,6 @@ type DeviceAccess struct {
 type WiFiManager interface {
 	Status(context.Context) (WiFiStatus, error)
 	Scan(context.Context) ([]WiFiNetwork, error)
-	Connect(context.Context, string, string) error
+	Connect(context.Context, string, string, bool) error
 	DeviceAccess(context.Context) (DeviceAccess, error)
 }

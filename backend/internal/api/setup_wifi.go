@@ -10,6 +10,7 @@ import (
 type wifiConnectRequest struct {
 	SSID     string `json:"ssid"`
 	Password string `json:"password"`
+	Hidden   bool   `json:"hidden"`
 }
 
 func (s *Server) wifiStatus(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +79,7 @@ func (s *Server) wifiConnect(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid Wi-Fi network name or password")
 		return
 	}
-	if err := s.wifi.Connect(r.Context(), request.SSID, request.Password); err != nil {
+	if err := s.wifi.Connect(r.Context(), request.SSID, request.Password, request.Hidden); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}

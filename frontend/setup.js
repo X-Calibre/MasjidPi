@@ -9,7 +9,10 @@
     const networkList = document.getElementById("networkList");
     const networkStatus = document.getElementById("networkStatus");
     const selectedNetwork = document.getElementById("selectedNetwork");
+    const ssid = document.getElementById("wifiSSID");
     const password = document.getElementById("wifiPassword");
+    const hiddenNetworkFields = document.getElementById("hiddenNetworkFields");
+    const passwordFields = document.getElementById("passwordFields");
     const connectStatus = document.getElementById("connectStatus");
     const keyboard = document.getElementById("keyboard");
     const keyboardRows = document.getElementById("keyboardRows");
@@ -31,6 +34,7 @@
     let continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
     let shifted = false;
     let symbols = false;
+    let activeKeyboardInput = password;
 
     const letterRows = [
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
@@ -92,16 +96,16 @@
             return;
         }
         if (key === "backspace") {
-            password.value = Array.from(password.value).slice(0, -1).join("");
+            activeKeyboardInput.value = Array.from(activeKeyboardInput.value).slice(0, -1).join("");
             return;
         }
         if (key === "done") {
             setKeyboardOpen(false);
             return;
         }
-        if (password.value.length >= password.maxLength) return;
+        if (activeKeyboardInput.value.length >= activeKeyboardInput.maxLength) return;
         const value = key === "space" ? " " : (shifted ? key.toUpperCase() : key);
-        password.value += value;
+        activeKeyboardInput.value += value;
         if (shifted) {
             shifted = false;
             renderKeyboard();
@@ -152,17 +156,45 @@
     }
 
     function chooseNetwork(network) {
-        currentNetwork = network;
+        currentNetwork = {...network, hidden: false};
         selectedNetwork.textContent = network.ssid;
+        hiddenNetworkFields.hidden = true;
+        passwordFields.hidden = network.security === "Open";
+        document.getElementById("passwordHeading").textContent = network.security === "Open" ? "Connect to Wi-Fi" : "Enter Wi-Fi password";
         password.value = "";
         connectStatus.textContent = "";
         networkStep.hidden = true;
         passwordStep.hidden = false;
+        activeKeyboardInput = password;
         setKeyboardOpen(network.security !== "Open");
+    }
+
+    function addHiddenNetwork() {
+        currentNetwork = {ssid: "", security: "WPA2", hidden: true};
+        ssid.value = "";
+        password.value = "";
+        selectedNetwork.textContent = "Hidden network";
+        document.getElementById("passwordHeading").textContent = "Add hidden Wi-Fi network";
+        hiddenNetworkFields.hidden = false;
+        passwordFields.hidden = false;
+        document.getElementById("hiddenSecurity").textContent = "Password protected";
+        document.getElementById("hiddenSecurity").setAttribute("aria-pressed", "true");
+        connectStatus.textContent = "";
+        networkStep.hidden = true;
+        passwordStep.hidden = false;
+        activeKeyboardInput = ssid;
+        setKeyboardOpen(true);
     }
 
     async function connect() {
         if (!currentNetwork) return;
+        if (currentNetwork.hidden) currentNetwork.ssid = ssid.value.trim();
+        if (!currentNetwork.ssid) {
+            connectStatus.textContent = "Enter the hidden network name.";
+            activeKeyboardInput = ssid;
+            setKeyboardOpen(true);
+            return;
+        }
         setKeyboardOpen(false);
         connectButton.disabled = true;
         connectButton.textContent = "Connecting…";
@@ -171,7 +203,7 @@
             await jsonRequest("/api/setup/wifi/connect", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ssid: currentNetwork.ssid, password: password.value})
+                body: JSON.stringify({ssid: currentNetwork.ssid, password: passwordFields.hidden ? "" : password.value, hidden: currentNetwork.hidden})
             });
             password.value = "";
             passwordStep.hidden = true;
@@ -407,14 +439,31 @@
         const key = event.target.closest("[data-key]");
         if (key) pressKey(key.dataset.key);
     });
-    password.addEventListener("click", () => setKeyboardOpen(true));
+    ssid.addEventListener("click", () => {
+        activeKeyboardInput = ssid;
+        setKeyboardOpen(true);
+    });
+    password.addEventListener("click", () => {
+        activeKeyboardInput = password;
+        setKeyboardOpen(true);
+    });
     connectButton.addEventListener("click", connect);
+    document.getElementById("addHiddenNetwork").addEventListener("click", addHiddenNetwork);
     document.getElementById("refreshNetworks").addEventListener("click", scanNetworks);
     document.getElementById("backToNetworks").addEventListener("click", () => {
         password.value = "";
+        ssid.value = "";
         setKeyboardOpen(false);
         passwordStep.hidden = true;
         networkStep.hidden = false;
+    });
+    document.getElementById("hiddenSecurity").addEventListener("click", (event) => {
+        const secured = event.currentTarget.getAttribute("aria-pressed") !== "true";
+        event.currentTarget.setAttribute("aria-pressed", String(secured));
+        event.currentTarget.textContent = secured ? "Password protected" : "Open network";
+        passwordFields.hidden = !secured;
+        currentNetwork.security = secured ? "WPA2" : "Open";
+        activeKeyboardInput = ssid;
     });
     document.getElementById("togglePassword").addEventListener("click", (event) => {
         const showing = password.type === "text";

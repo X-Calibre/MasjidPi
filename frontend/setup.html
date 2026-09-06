@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="dark">
     <title>Set up MasjidFrame</title>
-    <link rel="stylesheet" href="setup.css?v=20260906-network-addresses">
+    <link rel="stylesheet" href="setup.css?v=20260906-hidden-network">
 </head>
 <body>
     <main class="setup-shell">
@@ -28,6 +28,7 @@
             </div>
             <p id="networkStatus" class="status-message" role="status">Looking for nearby networks…</p>
             <div id="networkList" class="network-list" aria-live="polite"></div>
+            <button id="addHiddenNetwork" class="secondary-button hidden-network-button" type="button">Add hidden network</button>
         </section>
 
         <section id="passwordStep" class="setup-step" aria-labelledby="passwordHeading" hidden>
@@ -35,10 +36,18 @@
             <p class="step-number">Step 1</p>
             <h2 id="passwordHeading">Enter Wi-Fi password</h2>
             <p id="selectedNetwork" class="selected-network"></p>
+            <div id="hiddenNetworkFields" hidden>
+                <label for="wifiSSID">Network name (SSID)</label>
+                <input id="wifiSSID" type="text" readonly autocomplete="off" spellcheck="false" maxlength="32">
+                <label>Security</label>
+                <button id="hiddenSecurity" class="picker-button" type="button" aria-pressed="true">Password protected</button>
+            </div>
+            <div id="passwordFields">
             <label for="wifiPassword">Password</label>
             <div class="password-row">
                 <input id="wifiPassword" type="password" readonly autocomplete="off" spellcheck="false" maxlength="64" aria-describedby="passwordHelp">
                 <button id="togglePassword" class="secondary-button" type="button" aria-pressed="false">Show</button>
+            </div>
             </div>
             <p id="passwordHelp" class="field-help">Use the keyboard below, then select Connect.</p>
             <p id="connectStatus" class="status-message error-message" role="alert"></p>
@@ -106,6 +115,6 @@
         <div id="pickerOptions" class="picker-options"></div>
     </section>
 
-    <script src="setup.js?v=20260906-network-addresses"></script>
+    <script src="setup.js?v=20260906-hidden-network"></script>
 </body>
 </html>

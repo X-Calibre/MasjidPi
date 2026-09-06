@@ -70,7 +70,7 @@ func TestConnectPassesPasswordOnlyOnStandardInput(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{{}}}
 	manager := newNetworkManager(runner)
 
-	if err := manager.Connect(context.Background(), "Home WiFi", "very-secret"); err != nil {
+	if err := manager.Connect(context.Background(), "Home WiFi", "very-secret", false); err != nil {
 		t.Fatal(err)
 	}
 	if len(runner.calls) != 1 || len(runner.stdin) != 1 {
@@ -90,9 +90,22 @@ func TestConnectReturnsSafeError(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{{out: []byte("secret diagnostic"), err: errors.New("exit 10")}}}
 	manager := newNetworkManager(runner)
 
-	err := manager.Connect(context.Background(), "Home", "password")
+	err := manager.Connect(context.Background(), "Home", "password", false)
 	if err == nil || err.Error() != "could not connect; check the Wi-Fi password and try again" {
 		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestConnectMarksHiddenNetwork(t *testing.T) {
+	runner := &fakeRunner{responses: []runnerResponse{{}}}
+	manager := newNetworkManager(runner)
+
+	if err := manager.Connect(context.Background(), "Hidden Masjid", "secret", true); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"--ask", "--wait", "20", "device", "wifi", "connect", "Hidden Masjid", "hidden", "yes"}
+	if !reflect.DeepEqual(runner.calls[0], want) {
+		t.Fatalf("args = %#v, want %#v", runner.calls[0], want)
 	}
 }
 

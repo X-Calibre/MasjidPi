@@ -108,6 +108,7 @@ h2 { margin-bottom: 8px; font-size: clamp(28px, 5vw, 40px); }
 }
 
 .network-button:active, .key:active { background: var(--green-dark); }
+.hidden-network-button { width: 100%; margin-top: 14px; }
 .network-name { overflow: hidden; font-size: 21px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .network-meta { color: var(--muted); font-size: 15px; }
 .signal { align-self: center; color: var(--blue); font-size: 18px; font-weight: 700; }

@@ -15,6 +15,9 @@ assert.match(html, /Set up MasjidFrame/);
 assert.match(html, /Choose your 2\.4 GHz Wi-Fi network/);
 assert.match(html, /id="wifiPassword"[^>]*readonly/);
 assert.match(html, /id="keyboard"[^>]*aria-label="On-screen keyboard"/);
+assert.match(html, /id="addHiddenNetwork"[^>]*>Add hidden network</);
+assert.match(html, /id="wifiSSID"[^>]*readonly/);
+assert.match(html, /id="hiddenSecurity"/);
 assert.match(html, /id="locationStep"/);
 assert.match(html, /id="countryButton"[^>]*class="picker-button"/);
 assert.match(html, /id="regionButton"[^>]*class="picker-button"/);
@@ -32,6 +35,9 @@ assert.match(css, /body\.masjid-step-open #masjidStep\s*\{[^}]*display: flex;[^}
 assert.match(css, /body\.masjid-step-open #finishSetupButton\s*\{[^}]*flex: 0 0 auto/s);
 assert.match(js, /\/api\/setup\/wifi\/networks/);
 assert.match(js, /\/api\/setup\/wifi\/connect/);
+assert.match(js, /hidden: currentNetwork\.hidden/);
+assert.match(js, /function addHiddenNetwork/);
+assert.match(js, /activeKeyboardInput/);
 assert.match(js, /\/api\/setup\/device-access/);
 assert.match(js, /`http:\/\/\$\{access\.fqdn\}:\$\{port\}`/);
 assert.match(js, /`http:\/\/\$\{access\.ip_address\}:\$\{port\}`/);
@@ -48,7 +54,7 @@ assert.doesNotMatch(html, /<select/);
 assert.match(js, /const symbolRows/);
 assert.match(js, /const letterRows = \[\s*\["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"\]/s);
 assert.match(js, /symbols: "#\+="/);
-assert.match(js, /password\.value = Array\.from\(password\.value\)\.slice\(0, -1\)/);
+assert.match(js, /activeKeyboardInput\.value = Array\.from\(activeKeyboardInput\.value\)\.slice\(0, -1\)/);
 assert.doesNotMatch(js, /innerHTML\s*=.*network\.ssid/);
 
 console.log("MasjidFrame first-run setup UI tests passed");

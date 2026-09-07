@@ -280,18 +280,20 @@
             grid.append(row);
         }
         const footer = element("footer", "appliance-economic-footer");
+        const meta = element("div", "appliance-economic-meta");
         const updatedAt = formatUpdatedAt(indicators.updated_at);
-        if (updatedAt) footer.append(element("div", "appliance-economic-retrieved", `Updated at ${updatedAt}`));
-        footer.append(element("div", "appliance-economic-source", `From ${indicators.source}`));
+        if (updatedAt) meta.append(element("div", "appliance-economic-retrieved", `Updated at ${updatedAt}`));
+        meta.append(element("div", "appliance-economic-source", `From ${indicators.source}`));
+        footer.append(meta);
 
-        slide.append(grid);
         const notes = plainText(indicators.notes);
         if (notes) {
-            const note = element("p", "appliance-community-body", notes);
+            const note = element("p", "appliance-economic-note", notes);
             note.dir = "auto";
-            slide.append(note);
+            footer.append(note);
         }
-        slide.append(footer);
+
+        slide.append(grid, footer);
         return slide;
     }
 

@@ -5,98 +5,153 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
 
-func TestClientFetchParsesLatestIndicatorRowByHeading(t *testing.T) {
+const validAPIResponse = `{
+  "id":21226,
+  "gregorian_date":"2026-09-07",
+  "hijri_day":25,
+  "hijri_month":3,
+  "hijri_year":1448,
+  "hijri_month_name":"Rabi' al-Awwal",
+  "usd_zar":"15.9637",
+  "gold_24k":"2266.5684",
+  "gold_22k":"2077.6877",
+  "gold_21k":"1983.2474",
+  "gold_18k":"1699.9263",
+  "gold_14k":"1322.1649",
+  "gold_9k":"849.9632",
+  "silver":"33.9823",
+  "nisaab":"20809.40",
+  "mahr_min":"1040.47",
+  "mahr_faatimi":"52023.50",
+  "krugerrand":"73485.25",
+  "notes":"Weekend — prices copied from 2026-09-04",
+  "created_by":10,
+  "created_at":"2026-09-07T08:33:23.766Z",
+  "updated_at":"2026-09-07T08:33:23.766Z",
+  "prices_pulled_at":"2026-09-07T08:33:15.037Z"
+}`
+
+func TestClientFetchParsesLatestIndicator(t *testing.T) {
 	t.Parallel()
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, `[{
-            "date":"2026-08-14T09:02:11",
-            "link":"https://www.jamiatsa.org/rabi-al-awwal-1448-2/",
-            "title":{"rendered":"Rabi &#8216;al Awwal 1448"},
-            "content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>14 Carat</th><th>9 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>24 Aug</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R1391.75</td><td>R894.69</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr><tr><td>8</td><td>21 Aug</td><td>R16.06</td><td>R2356.62</td><td>R2160.24</td><td>R1767.47</td><td>R1374.70</td><td>R883.73</td><td>R35.60</td><td>R21800.02</td><td>R1090.00</td><td>R54500.04</td><td>R76538.96</td></tr></tbody></table>"}
-        }]`)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("Accept"); got != "application/json" {
+			t.Errorf("Accept = %q", got)
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		fmt.Fprint(w, validAPIResponse)
 	}))
 	defer server.Close()
 
-	fetchedAt := time.Date(2026, 8, 24, 19, 0, 0, 0, time.UTC)
+	fetchedAt := time.Date(2026, 9, 7, 9, 30, 0, 0, time.UTC)
 	got, err := (Client{APIURL: server.URL, HTTPClient: server.Client(), Now: func() time.Time { return fetchedAt }}).Fetch(context.Background())
 	if err != nil {
 		t.Fatalf("Fetch() error = %v", err)
 	}
-	if got.EffectiveDate != "2026-08-24" || got.HijriDate != "11 Rabi ‘al Awwal 1448" {
+	if got.EffectiveDate != "2026-09-07" || got.HijriDate != "25 Rabi' al-Awwal 1448" {
 		t.Fatalf("dates = %q, %q", got.EffectiveDate, got.HijriDate)
 	}
-	if got.RandDollar != 16.01 || got.Gold14Carat != 1391.75 || got.Gold9Carat != 894.69 ||
-		got.Nisaab != 21708.16 || got.Krugerrand != 77626.36 || got.Gold24Carat != 2385.85 || got.Silver != 35.45 {
+	if got.RandDollar != 15.9637 || got.Gold24Carat != 2266.5684 || got.Gold22Carat != 2077.6877 ||
+		got.Gold21Carat != 1983.2474 || got.Gold18Carat != 1699.9263 || got.Gold14Carat != 1322.1649 || got.Gold9Carat != 849.9632 ||
+		got.Silver != 33.9823 || got.Nisaab != 20809.40 || got.MinimumMahr != 1040.47 ||
+		got.MahrFaatimi != 52023.50 || got.Krugerrand != 73485.25 {
 		t.Fatalf("unexpected values: %+v", got)
 	}
-	if got.Source != SourceName || got.FetchedAt != fetchedAt {
+	wantUpdatedAt := time.Date(2026, 9, 7, 8, 33, 23, 766000000, time.UTC)
+	if got.Source != SourceName || got.SourceURL != SourcePageURL || got.FetchedAt != fetchedAt ||
+		!got.UpdatedAt.Equal(wantUpdatedAt) || got.Notes != "Weekend — prices copied from 2026-09-04" {
 		t.Fatalf("metadata = %+v", got)
+	}
+	if !got.Valid() || !got.Complete() {
+		t.Fatalf("indicator should be valid and complete: %+v", got)
 	}
 }
 
-func TestClientFetchRejectsMissingRequiredColumn(t *testing.T) {
+func TestClientFetchRejectsHTMLResponse(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+		fmt.Fprint(w, "<!DOCTYPE html><html></html>")
+	}))
+	defer server.Close()
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), `unexpected content type "text/html; charset=UTF-8"`) {
+		t.Fatalf("Fetch() error = %v", err)
+	}
+}
+
+func TestClientFetchRejectsNonSuccessStatus(t *testing.T) {
 	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, `[{"date":"2026-08-14T09:02:11","link":"https://example.test","title":{"rendered":"Rabi 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th></tr></thead><tbody><tr><td>11</td><td>24 Aug</td></tr></tbody></table>"}}]`)
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprint(w, `{"error":"upstream unavailable"}`)
 	}))
 	defer server.Close()
-	if _, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background()); err == nil {
-		t.Fatal("Fetch() expected missing-column error")
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "unexpected HTTP status 502 Bad Gateway") {
+		t.Fatalf("Fetch() error = %v", err)
 	}
 }
 
-func TestParseEffectiveDateAcceptsJamiatFormatsAndEveryMonth(t *testing.T) {
+func TestClientFetchRejectsMalformedJSON(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		value    string
-		postYear int
-		want     string
-	}{
-		{"01 Jan", 2026, "2026-01-01"},
-		{"02 Feb", 2026, "2026-02-02"},
-		{"03 Mar", 2026, "2026-03-03"},
-		{"04 Apr", 2026, "2026-04-04"},
-		{"05 May", 2026, "2026-05-05"},
-		{"06 Jun", 2026, "2026-06-06"},
-		{"07 Jul", 2026, "2026-07-07"},
-		{"08 Aug", 2026, "2026-08-08"},
-		{"09 Sep", 2026, "2026-09-09"},
-		{"10 Oct", 2026, "2026-10-10"},
-		{"11 Nov", 2026, "2026-11-11"},
-		{"12 Dec", 2026, "2026-12-12"},
-		{"02 Sept", 2026, "2026-09-02"},
-		{"16-Jun", 2026, "2026-06-16"},
-		{"30–Apr", 2026, "2026-04-30"},
-		{"13 Jul 18", 2018, "2018-07-13"},
-		{"12 Mar '21", 2021, "2021-03-12"},
-		{"2 September 2026", 2026, "2026-09-02"},
-	}
-	for _, test := range tests {
-		test := test
-		t.Run(test.value, func(t *testing.T) {
-			t.Parallel()
-			got, err := parseEffectiveDate(test.value, test.postYear)
-			if err != nil {
-				t.Fatalf("parseEffectiveDate() error = %v", err)
-			}
-			if formatted := got.Format("2006-01-02"); formatted != test.want {
-				t.Fatalf("parseEffectiveDate() = %s, want %s", formatted, test.want)
-			}
-		})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{not-json}`)
+	}))
+	defer server.Close()
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "decode response") {
+		t.Fatalf("Fetch() error = %v", err)
 	}
 }
 
-func TestParseEffectiveDateRejectsInvalidValues(t *testing.T) {
+func TestClientFetchRejectsInvalidDate(t *testing.T) {
 	t.Parallel()
-	for _, value := range []string{"", "Sept", "31 Feb", "2 Smarch", "2 Sep 2", "2 Sep twenty"} {
-		if _, err := parseEffectiveDate(value, 2026); err == nil {
-			t.Errorf("parseEffectiveDate(%q) expected error", value)
-		}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, strings.Replace(validAPIResponse, `"gregorian_date":"2026-09-07"`, `"gregorian_date":"2026-02-30"`, 1))
+	}))
+	defer server.Close()
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "invalid gregorian_date") {
+		t.Fatalf("Fetch() error = %v", err)
+	}
+}
+
+func TestClientFetchRejectsInvalidUpdatedAt(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, strings.Replace(validAPIResponse, `"updated_at":"2026-09-07T08:33:23.766Z"`, `"updated_at":"not-a-time"`, 1))
+	}))
+	defer server.Close()
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "invalid updated_at") {
+		t.Fatalf("Fetch() error = %v", err)
+	}
+}
+
+func TestClientFetchRejectsInvalidNumericValue(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, strings.Replace(validAPIResponse, `"nisaab":"20809.40"`, `"nisaab":"not-a-number"`, 1))
+	}))
+	defer server.Close()
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "invalid nisaab value") {
+		t.Fatalf("Fetch() error = %v", err)
 	}
 }

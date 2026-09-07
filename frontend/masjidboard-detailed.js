@@ -228,7 +228,7 @@
         }
 
         const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
-            (item.type !== "economic" || field.label !== "Retrieved at") &&
+            (item.type !== "economic" || field.label !== "Updated at") &&
             (item.type !== "daily_ayah" || field.label !== "Ayah")
         );
         if (fields.length > 0) {
@@ -253,9 +253,14 @@
             card.append(list);
         }
         if (item.type === "economic") {
+            if (item.notes) {
+                const notes = makeElement("p", "detailed-community-body", item.notes);
+                notes.dir = "auto";
+                card.append(notes);
+            }
             const footer = makeElement("footer", "detailed-community-footer");
-            if (item.fields.retrieved_at) {
-                footer.append(makeElement("div", "detailed-community-retrieved", `Retrieved at ${item.fields.retrieved_at}`));
+            if (item.fields.updated_at) {
+                footer.append(makeElement("div", "detailed-community-retrieved", `Updated at ${item.fields.updated_at}`));
             }
             footer.append(makeElement("div", "detailed-community-source", `From ${item.source}`));
             card.append(footer);
@@ -338,14 +343,16 @@
                 krugerrand: formatRand(indicators.krugerrand),
                 gold_24: formatRand(indicators.gold_24_carat_per_gram),
                 gold_22: formatRand(indicators.gold_22_carat_per_gram),
+                gold_21: formatRand(indicators.gold_21_carat_per_gram),
                 gold_18: formatRand(indicators.gold_18_carat_per_gram),
                 gold_14: formatRand(indicators.gold_14_carat_per_gram),
                 gold_9: formatRand(indicators.gold_9_carat_per_gram),
                 silver: formatRand(indicators.silver_per_gram),
                 minimum_mahr: formatRand(indicators.minimum_mahr),
                 mahr_faatimi: formatRand(indicators.mahr_faatimi),
-                retrieved_at: formatUpdatedAt(indicators.fetched_at),
+                updated_at: formatUpdatedAt(indicators.updated_at),
             },
+            notes: plainText(indicators.notes),
         };
     }
 

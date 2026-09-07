@@ -492,13 +492,44 @@ body.appliance-layout {
     font-weight:600;
 }
 .appliance-economic-values { overflow:hidden; border:2px solid var(--appliance-line); border-radius:16px; background:var(--appliance-panel); }
-.appliance-economic-value { min-height:43px; padding:0 18px; border-top:1px solid var(--appliance-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:18px; }
+.appliance-economic-value { min-height:39px; padding:0 18px; border-top:1px solid var(--appliance-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:18px; }
 .appliance-economic-value:first-child { border-top:0; }
 .appliance-economic-value strong { color:var(--appliance-text); font-size:21px; font-variant-numeric:tabular-nums; }
 .appliance-economic-accounting { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:baseline; gap:12px; }
 .appliance-economic-currency { justify-self:start; }
 .appliance-economic-amount { justify-self:end; text-align:right; white-space:nowrap; }
-.appliance-economic-footer { margin-top:0; padding-top:14px; display:grid; gap:5px; color:var(--appliance-muted); font-size:16px; font-weight:650; line-height:1.2; }
+.appliance-economic-footer {
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--appliance-line);
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:start;
+    column-gap:18px;
+    color:var(--appliance-muted);
+    font-size:16px;
+    font-weight:650;
+    line-height:1.2;
+}
+.appliance-economic-meta {
+    min-width:0;
+    display:grid;
+    gap:5px;
+}
+.appliance-economic-note {
+    min-width:0;
+    margin:0;
+    padding-left:18px;
+    border-left:1px solid var(--appliance-line);
+    color:var(--appliance-muted);
+    font-size:16px;
+    font-weight:600;
+    line-height:1.25;
+    overflow-wrap:anywhere;
+}
+.appliance-economic-footer:not(:has(.appliance-economic-note)) {
+    grid-template-columns:1fr;
+}
 .appliance-economic-source { margin:0; padding:0; }
 
 @media (prefers-reduced-motion:reduce) {

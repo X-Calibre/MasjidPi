@@ -481,6 +481,18 @@ body.appliance-layout {
     font-variant-numeric:tabular-nums;
 }
 
+.appliance-economic-slide.active,
+.appliance-economic-slide.exit-to-left,
+.appliance-economic-slide.exit-to-right {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:auto auto auto auto;
+    column-gap:20px;
+    align-content:start;
+}
+.appliance-economic-slide .appliance-slide-heading,
+.appliance-economic-date,
+.appliance-economic-values { grid-column:1 / -1; }
 .appliance-economic-slide .appliance-slide-heading {
     height:auto;
     border-bottom:0;
@@ -492,13 +504,42 @@ body.appliance-layout {
     font-weight:600;
 }
 .appliance-economic-values { overflow:hidden; border:2px solid var(--appliance-line); border-radius:16px; background:var(--appliance-panel); }
-.appliance-economic-value { min-height:43px; padding:0 18px; border-top:1px solid var(--appliance-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:18px; }
+.appliance-economic-value { min-height:39px; padding:0 18px; border-top:1px solid var(--appliance-line); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:18px; font-size:18px; }
 .appliance-economic-value:first-child { border-top:0; }
 .appliance-economic-value strong { color:var(--appliance-text); font-size:21px; font-variant-numeric:tabular-nums; }
 .appliance-economic-accounting { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:baseline; gap:12px; }
 .appliance-economic-currency { justify-self:start; }
 .appliance-economic-amount { justify-self:end; text-align:right; white-space:nowrap; }
-.appliance-economic-footer { margin-top:0; padding-top:14px; display:grid; gap:5px; color:var(--appliance-muted); font-size:16px; font-weight:650; line-height:1.2; }
+.appliance-economic-footer {
+    grid-column:1;
+    grid-row:4;
+    margin-top:10px;
+    padding:10px 18px 0 0;
+    border-top:1px solid var(--appliance-line);
+    display:grid;
+    align-content:start;
+    gap:5px;
+    color:var(--appliance-muted);
+    font-size:16px;
+    font-weight:650;
+    line-height:1.2;
+}
+.appliance-economic-slide > .appliance-community-body {
+    grid-column:2;
+    grid-row:4;
+    margin:10px 0 0;
+    padding:10px 0 0 18px;
+    border-top:1px solid var(--appliance-line);
+    border-left:1px solid var(--appliance-line);
+    color:var(--appliance-muted);
+    font-size:16px;
+    font-weight:600;
+    line-height:1.25;
+}
+.appliance-economic-slide:not(:has(> .appliance-community-body)) .appliance-economic-footer {
+    grid-column:1 / -1;
+    padding-right:0;
+}
 .appliance-economic-source { margin:0; padding:0; }
 
 @media (prefers-reduced-motion:reduce) {

@@ -77,11 +77,12 @@ body.appliance-720-layout {
     flex-direction:column;
 }
 .appliance-720-layout .appliance-economic-slide .appliance-slide-heading {
+    height:auto;
     flex:0 0 auto;
 }
 .appliance-720-layout .appliance-economic-date {
     flex:0 0 auto;
-    margin:10px 0 18px;
+    margin:8px 0 18px;
     font-size:20px;
 }
 .appliance-720-layout .appliance-economic-values {

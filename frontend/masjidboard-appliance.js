@@ -260,6 +260,7 @@
             ["Krugerrand", formatRand(indicators.krugerrand)],
             ["Gold 24 ct / g", formatRand(indicators.gold_24_carat_per_gram)],
             ["Gold 22 ct / g", formatRand(indicators.gold_22_carat_per_gram)],
+            ["Gold 21 ct / g", formatRand(indicators.gold_21_carat_per_gram)],
             ["Gold 18 ct / g", formatRand(indicators.gold_18_carat_per_gram)],
             ["Gold 14 ct / g", formatRand(indicators.gold_14_carat_per_gram)],
             ["Gold 9 ct / g", formatRand(indicators.gold_9_carat_per_gram)],
@@ -279,10 +280,18 @@
             grid.append(row);
         }
         const footer = element("footer", "appliance-economic-footer");
-        const retrievedAt = formatUpdatedAt(indicators.fetched_at);
-        if (retrievedAt) footer.append(element("div", "appliance-economic-retrieved", `Retrieved at ${retrievedAt}`));
+        const updatedAt = formatUpdatedAt(indicators.updated_at);
+        if (updatedAt) footer.append(element("div", "appliance-economic-retrieved", `Updated at ${updatedAt}`));
         footer.append(element("div", "appliance-economic-source", `From ${indicators.source}`));
-        slide.append(grid, footer);
+
+        slide.append(grid);
+        const notes = plainText(indicators.notes);
+        if (notes) {
+            const note = element("p", "appliance-community-body", notes);
+            note.dir = "auto";
+            slide.append(note);
+        }
+        slide.append(footer);
         return slide;
     }
 

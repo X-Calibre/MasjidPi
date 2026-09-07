@@ -298,10 +298,10 @@
             gasht_in_time: "In Time", first_location: "First Jamaat", first_date: "First Date",
             second_location: "Second Jamaat", second_date: "Second Date",
             nisaab: "Nisaab", krugerrand: "Krugerrand", gold_24: "Gold 24 ct / g",
-            rand_dollar: "Rand/Dollar", gold_22: "Gold 22 ct / g", gold_18: "Gold 18 ct / g",
+            rand_dollar: "Rand/Dollar", gold_22: "Gold 22 ct / g", gold_21: "Gold 21 ct / g", gold_18: "Gold 18 ct / g",
             gold_14: "Gold 14 ct / g", gold_9: "Gold 9 ct / g", silver: "Silver / g",
             minimum_mahr: "Minimum Mahr", mahr_faatimi: "Mahr Faatimi",
-            retrieved_at: "Retrieved at", ayah_number: "Ayah", reference: "Reference",
+            updated_at: "Updated at", ayah_number: "Ayah", reference: "Reference",
             arabic: "Arabic", translation: "Translation", note: "Note",
         };
         return labels[name] || name.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -318,7 +318,7 @@
             dawah: ["masjid_taleem", "gasht_out_day", "gasht_out_time", "gasht_in_day", "gasht_in_time"],
             three_day_jamaat: ["first_location", "first_date", "second_location", "second_date"],
             contribution: ["bank", "account_name", "branch_code", "account_number", "bsb"],
-            economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "retrieved_at"],
+            economic: ["rand_dollar", "nisaab", "krugerrand", "gold_24", "gold_22", "gold_21", "gold_18", "gold_14", "gold_9", "silver", "minimum_mahr", "mahr_faatimi", "updated_at"],
 			dua_after_adhan: ["arabic", "translation", "note"],
 			daily_ayah: ["ayah_number"], daily_hadith: ["reference"], daily_sunnah: ["reference"],
         }[item.type] || [];
@@ -328,7 +328,7 @@
         const names = [...preferred, ...Object.keys(fields).sort()].filter((name, index, all) =>
             !titleFields.has(name) && all.indexOf(name) === index && plainText(fields[name])
         );
-        const fieldLimit = item.type === "economic" ? 13 : 6;
+        const fieldLimit = item.type === "economic" ? 14 : 6;
         return names.slice(0, fieldLimit).map((name) => ({label: fieldLabel(name), value: plainText(fields[name])}));
     }
 

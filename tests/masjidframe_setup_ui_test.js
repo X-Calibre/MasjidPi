@@ -65,6 +65,7 @@ assert.doesNotMatch(js, /innerHTML\s*=.*network\.ssid/);
 assert.match(css720, /body\.setup-720-layout/);
 assert.match(css720, /width:720px/);
 assert.match(css720, /min-height:1280px/);
+assert.match(css720, /\.keyboard-rows\s*\{[^}]*width:min\(100%,720px\)/s);
 assert.match(css720, /\.key\s*\{[^}]*height:65px/s);
 assert.match(css720, /keyboard-open \.setup-shell\s*\{[^}]*padding-bottom:440px/s);
 

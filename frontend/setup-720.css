@@ -125,7 +125,7 @@ body.setup-720-layout.masjid-step-open #masjidStep .back-button { margin-bottom:
 }
 
 .setup-720-layout .keyboard { padding:11px 9px max(12px,env(safe-area-inset-bottom)); }
-.setup-720-layout .keyboard-rows { width:720px; gap:8px; }
+.setup-720-layout .keyboard-rows { width:min(100%,720px); gap:8px; }
 .setup-720-layout .keyboard-row { gap:6px; }
 .setup-720-layout .key {
     height:65px;

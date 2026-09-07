@@ -41,10 +41,13 @@
     <script>
         (() => {
             const params = new URLSearchParams(window.location.search);
-            const profile = params.get("profile") === "appliance" ? "appliance" : "standard";
+            const requestedProfile = params.get("profile");
+            const profile = ["appliance", "appliance-720"].includes(requestedProfile)
+                ? requestedProfile
+                : "standard";
             const readyUrl = "http://127.0.0.1:8080/api/version";
-            const target = profile === "appliance"
-                ? "http://127.0.0.1:8080/appliance"
+            const target = profile.startsWith("appliance")
+                ? `http://127.0.0.1:8080/appliance?profile=${profile}`
                 : "http://127.0.0.1:8080/masjidboard.html";
             let navigating = false;
 

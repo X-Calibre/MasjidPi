@@ -1,6 +1,6 @@
 # MasjidBoard Display Presentation
 
-**Status:** Responsive standard display and dedicated 7-inch Appliance profile implemented
+**Status:** Responsive standard display and dedicated 7-inch Appliance profiles implemented
 
 ## Purpose
 
@@ -38,7 +38,9 @@ frontend/masjidboard-appliance.js
 frontend/masjidboard-touch-controls.js
 ```
 
-The old generic `portrait` presentation name is no longer used. The current 600x1024 interface is specifically the Appliance profile.
+The old generic `portrait` presentation name is no longer used. The 600x1024
+Waveshare interface is the `appliance` profile, while the native 720x1280
+Raspberry Pi Touch Display 2 interface is the `appliance-720` profile.
 
 ## Shared timetable semantics
 
@@ -107,7 +109,10 @@ The standard profile contains no appliance Listen controls.
 
 ## Appliance profile presentation
 
-The Appliance profile targets the validated 7-inch Waveshare display at an effective 600x1024 portrait viewport. It uses the same timetable and notice data but adapts it to a slideshow-oriented compact interface.
+The Appliance profiles target the validated 7-inch Waveshare display at an
+effective 600x1024 portrait viewport and the Raspberry Pi Touch Display 2 at its
+native 720x1280 portrait viewport. Both use the same timetable and notice data
+but adapt it to a slideshow-oriented compact interface.
 
 The top area includes the clock, Gregorian date, Islamic date, primary masjid name and next-event information. Slides include one salaah-times slide per selected masjid, Daily Times, community notices and optional Islamic Economic Indicators.
 

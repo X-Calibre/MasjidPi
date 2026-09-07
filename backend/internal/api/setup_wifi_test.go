@@ -90,6 +90,30 @@ func TestApplianceEntryPreservesBoardWhenWiFiProfileExists(t *testing.T) {
 	}
 }
 
+func TestApplianceEntryPreservesTouchDisplay2Profile(t *testing.T) {
+	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	request := httptest.NewRequest(http.MethodGet, "/appliance?profile=appliance-720", nil)
+	response := httptest.NewRecorder()
+
+	server.applianceEntry(response, request)
+
+	if response.Code != http.StatusTemporaryRedirect || response.Header().Get("Location") != "/masjidboard.html?profile=appliance-720" {
+		t.Fatalf("unexpected redirect: %d %q", response.Code, response.Header().Get("Location"))
+	}
+}
+
+func TestApplianceEntryPreservesTouchDisplay2ProfileForSetup(t *testing.T) {
+	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true}})
+	request := httptest.NewRequest(http.MethodGet, "/appliance?profile=appliance-720", nil)
+	response := httptest.NewRecorder()
+
+	server.applianceEntry(response, request)
+
+	if response.Code != http.StatusTemporaryRedirect || response.Header().Get("Location") != "/setup.html?profile=appliance-720" {
+		t.Fatalf("unexpected redirect: %d %q", response.Code, response.Header().Get("Location"))
+	}
+}
+
 func TestWiFiNetworksAllowsOnlyDeviceLoopback(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{})
 	request := httptest.NewRequest(http.MethodGet, "/api/setup/wifi/networks", nil)

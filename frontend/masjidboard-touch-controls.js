@@ -2,11 +2,15 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("profile") !== "appliance") return;
+    const profile = params.get("profile");
+    if (profile !== "appliance" && profile !== "appliance-720") return;
 
     const state = document.getElementById("applianceState");
     const panel = document.getElementById("applianceListenPanel");
     if (!state || !panel) return;
+
+    const changeWiFi = document.getElementById("applianceChangeWiFi");
+    if (changeWiFi) changeWiFi.href = `/setup.html?return=board&profile=${profile}`;
 
     const connection = document.getElementById("applianceListenConnection");
     const statusBadge = document.getElementById("applianceListenState");

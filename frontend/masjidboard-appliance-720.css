@@ -1,0 +1,84 @@
+/* Native portrait layout for the 7-inch Raspberry Pi Touch Display 2.
+   The original appliance rules remain the 600x1024 Waveshare contract. */
+body.appliance-720-layout {
+    min-width:720px;
+    min-height:1280px;
+}
+
+.appliance-720-layout .board-shell {
+    width:720px;
+    height:1280px;
+    min-height:1280px;
+}
+
+.appliance-720-layout .appliance-header {
+    height:350px;
+    padding:18px 36px 14px;
+}
+
+.appliance-720-layout .appliance-clock-row {
+    height:156px;
+    gap:28px;
+}
+
+.appliance-720-layout .appliance-clock { font-size:116px; }
+.appliance-720-layout .appliance-information { height:132px; gap:10px; font-size:20px; }
+.appliance-720-layout .appliance-information strong { font-size:29px; }
+
+.appliance-720-layout .appliance-next {
+    height:124px;
+    margin-top:12px;
+    padding:13px 21px;
+    border-radius:21px;
+    grid-template-columns:174px minmax(0,1fr) 168px;
+    column-gap:15px;
+}
+
+.appliance-720-layout #applianceNextTime { font-size:58px; }
+.appliance-720-layout .appliance-next-name { font-size:28px; }
+.appliance-720-layout .appliance-countdown { font-size:26px; }
+
+.appliance-720-layout .appliance-slides {
+    top:350px;
+    width:720px;
+    height:930px;
+}
+
+.appliance-720-layout .appliance-slide { padding:28px 36px 62px; }
+.appliance-720-layout .appliance-slide-heading { height:98px; }
+.appliance-720-layout .appliance-slide-heading small { margin-bottom:6px; font-size:19px; }
+.appliance-720-layout .appliance-slide-heading h2 { font-size:41px; }
+.appliance-720-layout .appliance-times { margin-top:18px; border-radius:19px; }
+.appliance-720-layout .appliance-time-row { height:122px; padding:0 24px; font-size:34px; }
+.appliance-720-layout .appliance-time-row strong { font-size:39px; }
+.appliance-720-layout .appliance-time-head { height:58px; font-size:19px; }
+.appliance-720-layout .appliance-daily-times { margin-top:12px; }
+.appliance-720-layout .appliance-daily-row { height:64px; padding:0 22px; font-size:25px; }
+.appliance-720-layout .appliance-daily-row strong { min-width:180px; font-size:29px; }
+
+.appliance-720-layout .appliance-footer { bottom:23px; left:36px; right:36px; font-size:13px; }
+.appliance-720-layout .appliance-dots { gap:10px; }
+.appliance-720-layout .appliance-dots button { width:10px; height:10px; }
+.appliance-720-layout .appliance-dots button.active { width:29px; }
+.appliance-720-layout .appliance-listen-hint { font-size:15px; }
+
+.appliance-720-layout .appliance-community-slide { padding:28px 36px 62px; gap:18px; }
+.appliance-720-layout .appliance-community-card { padding:36px 34px 30px; border-radius:21px; }
+.appliance-720-layout .appliance-community-type { font-size:19px; }
+.appliance-720-layout .appliance-community-title { font-size:46px; }
+.appliance-720-layout .appliance-community-body { margin-top:22px; font-size:29px; }
+.appliance-720-layout .appliance-community-field { font-size:24px; }
+.appliance-720-layout .appliance-community-source { font-size:19px; }
+
+.appliance-720-layout .appliance-listen-sheet {
+    height:930px;
+    padding:20px 36px 24px;
+}
+
+.appliance-720-layout .appliance-listen-heading { height:76px; flex-basis:76px; }
+.appliance-720-layout .appliance-listen-heading h2 { font-size:34px; }
+.appliance-720-layout .appliance-listen-status { height:92px; flex-basis:92px; }
+.appliance-720-layout .appliance-master-volume { height:108px; flex-basis:108px; }
+.appliance-720-layout .appliance-listen-tabs { height:66px; flex-basis:66px; }
+.appliance-720-layout .appliance-listen-tabs button { font-size:21px; }
+.appliance-720-layout .appliance-source-list { max-height:230px; }

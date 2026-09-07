@@ -161,14 +161,18 @@ func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+	profile := r.URL.Query().Get("profile")
+	if profile != "appliance-720" {
+		profile = "appliance"
+	}
 	if s.wifi != nil {
 		status, err := s.wifi.Status(r.Context())
 		if err == nil && status.Supported && !status.Configured {
-			http.Redirect(w, r, "/setup.html?profile=appliance", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/setup.html?profile="+profile, http.StatusTemporaryRedirect)
 			return
 		}
 	}
-	http.Redirect(w, r, "/masjidboard.html?profile=appliance", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/masjidboard.html?profile="+profile, http.StatusTemporaryRedirect)
 }
 
 func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) { s.audioDeviceState = state }

@@ -50,9 +50,9 @@
     </div>
     <div id="boardPanelDisplay" class="board-panel" data-board-panel="display" hidden>
     <section class="card">
-        <div class="section-heading-row"><div><h2>Display</h2><p class="config-intro">MasjidPi selects the local HDMI display profile automatically. Configure the shared colour theme, slide duration and additional information here.</p></div></div>
+        <div class="section-heading-row"><div><h2>Display</h2><p class="config-intro">MasjidPi selects the local display profile automatically. Configure the shared colour theme, slide duration and additional information here.</p></div></div>
         <div class="display-layout-picker">
-            <label>Local display profile</label><div><strong>Automatic</strong><small class="config-meta">The 7-inch Waveshare appliance display is detected at startup; other displays use the standard landscape profile.</small></div>
+            <label>Local display profile</label><div><strong>Automatic</strong><small class="config-meta">The 7-inch Waveshare and Raspberry Pi Touch Display 2 appliance displays are detected at startup; other displays use the standard landscape profile.</small></div>
             <label for="slideDuration">Slide duration</label><div><input id="slideDuration" type="range" min="5" max="60" step="1" value="15"><output id="slideDurationValue" for="slideDuration">15 seconds</output></div>
             <label for="showEconomicIndicators">Additional information</label><label class="display-option-toggle"><input id="showEconomicIndicators" type="checkbox"><span><strong>Islamic Economic Indicators</strong><small>Show current Nisaab, Krugerrand, gold, silver and Mahr values from Jamiatul Ulama South Africa.</small></span></label>
             <label>Daily Islamic content</label><div>
@@ -63,6 +63,7 @@
             <label for="showDuaAfterAdhan">After Adhan</label><label class="display-option-toggle"><input id="showDuaAfterAdhan" type="checkbox"><span><strong>Dua after Adhan</strong><small>Show MasjidPi's bilingual Dua card for five minutes after a listed Adhan time.</small></span></label>
             <div id="displayLayoutMeta" class="config-meta">Loading current display settings…</div>
             <div><a class="nav-button preview-button" href="masjidboard.html?profile=appliance" target="_blank" rel="noopener">Open Appliance Preview</a></div>
+            <div><a class="nav-button preview-button" href="masjidboard.html?profile=appliance-720" target="_blank" rel="noopener">Open Touch Display 2 Preview</a></div>
         </div>
         <fieldset class="board-theme-picker">
             <legend>Colour Theme</legend>

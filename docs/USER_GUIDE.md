@@ -326,7 +326,7 @@ In TV / Monitor mode, the first selected masjid supplies the shared Daily Times 
 MasjidPi supports dedicated HDMI presentation including:
 
 - **TV / Monitor (responsive landscape)**
-- **7-inch Appliance Display (600 × 1024)** — purpose-built for the integrated screen in the physical MasjidPi appliance
+- **7-inch Appliance Display** — purpose-built portrait layouts for the 600 × 1024 Waveshare display and 720 × 1280 Raspberry Pi Touch Display 2
 
 The presentation adapts to the number of configured masjids.
 
@@ -513,7 +513,7 @@ curl -s http://127.0.0.1:8080/api/masjidboard/status
 
 ### Touch controls do not open
 
-The swipe-up controls are available only in **7-inch Appliance Display (600 × 1024)** mode. Confirm that this mode is selected in Board → Display and that the small **Swipe up for controls** hint is visible.
+The swipe-up controls are available on both **7-inch Appliance Display** profiles. Confirm that the display was detected as either the 600 × 1024 Waveshare panel or 720 × 1280 Raspberry Pi Touch Display 2 and that the small **Swipe up for controls** hint is visible.
 
 Swipe upward from the lower display area. The panel closes automatically after 60 seconds without activity.
 

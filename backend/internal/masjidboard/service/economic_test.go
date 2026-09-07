@@ -187,7 +187,7 @@ func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) 
 	}))
 	defer server.Close()
 
-	now := time.Date(2026, 8, 25, 7, 30, 0, 0, 0, time.UTC)
+	now := time.Date(2026, 8, 25, 7, 30, 0, 0, time.UTC)
 	current := completeIndicators("2026-08-24")
 	service := &Service{
 		selection:      selection.State{ShowEconomicIndicators: true},

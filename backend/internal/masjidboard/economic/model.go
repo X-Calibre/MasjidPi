@@ -13,6 +13,7 @@ type Indicators struct {
 	RandDollar    float64   `json:"rand_dollar"`
 	Gold24Carat   float64   `json:"gold_24_carat_per_gram"`
 	Gold22Carat   float64   `json:"gold_22_carat_per_gram"`
+	Gold21Carat   float64   `json:"gold_21_carat_per_gram"`
 	Gold18Carat   float64   `json:"gold_18_carat_per_gram"`
 	Gold14Carat   float64   `json:"gold_14_carat_per_gram"`
 	Gold9Carat    float64   `json:"gold_9_carat_per_gram"`
@@ -21,6 +22,8 @@ type Indicators struct {
 	MinimumMahr   float64   `json:"minimum_mahr"`
 	MahrFaatimi   float64   `json:"mahr_faatimi"`
 	Krugerrand    float64   `json:"krugerrand"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	Notes         string    `json:"notes,omitempty"`
 	FetchedAt     time.Time `json:"fetched_at"`
 }
 
@@ -34,7 +37,8 @@ func (i Indicators) Valid() bool {
 // so newly introduced fields can be backfilled from the same source row.
 func (i Indicators) Complete() bool {
 	return i.RandDollar > 0 && i.Gold24Carat > 0 && i.Gold22Carat > 0 &&
-		i.Gold18Carat > 0 && i.Gold14Carat > 0 && i.Gold9Carat > 0 &&
-		i.Silver > 0 && i.Nisaab > 0 && i.MinimumMahr > 0 &&
-		i.MahrFaatimi > 0 && i.Krugerrand > 0
+		i.Gold21Carat > 0 && i.Gold18Carat > 0 && i.Gold14Carat > 0 &&
+		i.Gold9Carat > 0 && i.Silver > 0 && i.Nisaab > 0 &&
+		i.MinimumMahr > 0 && i.MahrFaatimi > 0 && i.Krugerrand > 0 &&
+		!i.UpdatedAt.IsZero()
 }

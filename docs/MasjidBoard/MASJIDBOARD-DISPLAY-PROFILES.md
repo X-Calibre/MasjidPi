@@ -49,6 +49,11 @@ This profile:
 - relies on the Raspberry Pi OS DSI display and touch drivers, without the
   Waveshare USB calibration rule.
 
+First-run setup and the reopened Change Wi-Fi workflow retain the detected
+profile. The Touch Display 2 receives a dedicated 720x1280 setup presentation,
+including larger network rows, form controls, picker sheets, on-screen keyboard,
+masjid choices and success screen; the 600x1024 setup presentation is unchanged.
+
 The DSI mode is checked before the Waveshare HDMI profile so the Touch Display 2
 wins if both displays happen to be attached during startup.
 

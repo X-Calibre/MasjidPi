@@ -350,6 +350,9 @@ Slide duration, theme and optional-content settings are saved automatically. **O
 
 On the 7-inch Appliance Display, swipe up to open the touch control sheet. A small on-screen hint identifies the gesture. Opening the sheet pauses slide rotation; swipe down from its handle/header, tap ×, or tap outside the sheet to close it and resume the slideshow.
 
+The first-run setup and Change Wi-Fi screens automatically use the matching
+600 × 1024 Waveshare or 720 × 1280 Raspberry Pi Touch Display 2 portrait layout.
+
 The control sheet provides:
 
 - a **Masjid** tab for choosing a favourited masjid, adjusting Masjid and Master volume, starting playback and stopping Listen;

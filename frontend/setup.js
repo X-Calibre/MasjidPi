@@ -4,6 +4,7 @@
     const requestedProfile = new URLSearchParams(window.location.search).get("profile");
     const applianceProfile = requestedProfile === "appliance-720" ? "appliance-720" : "appliance";
     const boardURL = `/masjidboard.html?profile=${applianceProfile}`;
+    if (applianceProfile === "appliance-720") document.body.classList.add("setup-720-layout");
     const networkStep = document.getElementById("networkStep");
     const passwordStep = document.getElementById("passwordStep");
     const successStep = document.getElementById("successStep");
@@ -512,7 +513,9 @@
 
     const setupParams = new URLSearchParams(window.location.search);
     if (setupParams.get("return") === "board") {
-        document.getElementById("returnToBoard").hidden = false;
+        const returnToBoard = document.getElementById("returnToBoard");
+        returnToBoard.href = boardURL;
+        returnToBoard.hidden = false;
         document.getElementById("networkHeading").textContent = "Change Wi-Fi network";
     }
     const requestedStep = setupParams.get("step");

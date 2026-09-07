@@ -1,0 +1,135 @@
+/* Native portrait setup layout for the 7-inch Raspberry Pi Touch Display 2.
+   The base setup.css remains the 600x1024 appliance contract. */
+body.setup-720-layout { min-width:720px; min-height:1280px; }
+
+.setup-720-layout .setup-shell {
+    width:720px;
+    min-height:1280px;
+    padding:42px 36px 46px;
+}
+.setup-720-layout .setup-header { gap:20px; margin-bottom:36px; }
+.setup-720-layout .brand-mark {
+    width:76px;
+    height:76px;
+    border-radius:22px 22px 29px 29px;
+    font-size:41px;
+}
+.setup-720-layout .eyebrow,
+.setup-720-layout .step-number { font-size:18px; }
+.setup-720-layout h1 { font-size:42px; }
+.setup-720-layout h2 { margin-bottom:10px; font-size:42px; }
+.setup-720-layout .setup-step > p,
+.setup-720-layout .step-heading p { font-size:19px; line-height:1.35; }
+.setup-720-layout .return-board {
+    min-height:60px;
+    padding:0 20px;
+    border-radius:16px;
+    font-size:18px;
+}
+
+.setup-720-layout .network-list { gap:12px; margin-top:22px; }
+.setup-720-layout .network-button {
+    min-height:86px;
+    padding:16px 21px;
+    border-radius:19px;
+}
+.setup-720-layout .hidden-network-button { margin-top:17px; }
+.setup-720-layout .network-name { font-size:25px; }
+.setup-720-layout .network-meta { font-size:18px; }
+.setup-720-layout .signal { font-size:22px; }
+
+.setup-720-layout .primary-button,
+.setup-720-layout .secondary-button,
+.setup-720-layout .back-button {
+    min-height:62px;
+    border-radius:16px;
+    font-size:19px;
+}
+.setup-720-layout .primary-button { margin-top:22px; font-size:25px; }
+.setup-720-layout .secondary-button { padding:0 22px; }
+.setup-720-layout .back-button { margin-bottom:22px; padding:0 21px; }
+
+.setup-720-layout label { margin:26px 0 10px; font-size:19px; }
+.setup-720-layout .password-row { gap:12px; }
+.setup-720-layout input:not([type="radio"]) {
+    height:70px;
+    padding:0 20px;
+    border-radius:16px;
+    font-size:28px;
+}
+.setup-720-layout .picker-button {
+    min-height:70px;
+    padding:0 62px 0 20px;
+    border-radius:16px;
+    font-size:25px;
+}
+.setup-720-layout .selected-network { font-size:26px; }
+.setup-720-layout .field-help,
+.setup-720-layout .status-message { margin:15px 0; font-size:18px; }
+.setup-720-layout .error-message { min-height:29px; }
+
+.setup-720-layout .success-step { padding-top:80px; }
+.setup-720-layout .success-icon {
+    width:110px;
+    height:110px;
+    margin-bottom:29px;
+    font-size:65px;
+}
+.setup-720-layout .advanced-setup {
+    margin:26px 0 10px;
+    padding:22px;
+    border-radius:19px;
+}
+.setup-720-layout .advanced-setup h3 { font-size:26px; }
+.setup-720-layout .advanced-setup p { font-size:20px; }
+.setup-720-layout .access-address { padding:13px 16px; border-radius:13px; }
+.setup-720-layout .access-address span { font-size:17px; }
+.setup-720-layout .access-address strong { font-size:22px; }
+
+.setup-720-layout .masjid-list { gap:12px; margin-top:19px; }
+.setup-720-layout .masjid-option {
+    grid-template-columns:38px minmax(0,1fr);
+    min-height:94px;
+    gap:12px;
+    padding:15px 20px;
+    border-radius:19px;
+}
+.setup-720-layout .masjid-option input { width:30px; height:30px; }
+.setup-720-layout .masjid-option strong { font-size:24px; }
+.setup-720-layout .masjid-option small { font-size:18px; }
+body.setup-720-layout.masjid-step-open .setup-shell {
+    height:1280px;
+    padding-bottom:28px;
+}
+body.setup-720-layout.masjid-step-open .setup-header { margin-bottom:17px; }
+body.setup-720-layout.masjid-step-open #masjidStep .back-button { margin-bottom:11px; }
+
+.setup-720-layout .picker-sheet {
+    inset:7% 24px 24px;
+    padding:25px;
+    border-radius:26px;
+}
+.setup-720-layout .picker-header { margin-bottom:18px; }
+.setup-720-layout .picker-close {
+    width:65px;
+    height:65px;
+    flex-basis:65px;
+    font-size:42px;
+}
+.setup-720-layout .picker-options { gap:11px; }
+.setup-720-layout .picker-option {
+    min-height:75px;
+    padding:12px 20px;
+    border-radius:16px;
+    font-size:24px;
+}
+
+.setup-720-layout .keyboard { padding:11px 9px max(12px,env(safe-area-inset-bottom)); }
+.setup-720-layout .keyboard-rows { width:720px; gap:8px; }
+.setup-720-layout .keyboard-row { gap:6px; }
+.setup-720-layout .key {
+    height:65px;
+    border-radius:11px;
+    font-size:25px;
+}
+body.setup-720-layout.keyboard-open .setup-shell { padding-bottom:440px; }

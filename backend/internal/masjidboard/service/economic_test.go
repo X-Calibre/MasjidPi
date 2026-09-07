@@ -32,6 +32,7 @@ func economicResponse(effectiveDate string) string {
 		"usd_zar":"16.01",
 		"gold_24k":"2385.85",
 		"gold_22k":"2187.03",
+		"gold_21k":"2087.62",
 		"gold_18k":"1789.39",
 		"gold_14k":"1391.75",
 		"gold_9k":"894.69",
@@ -39,16 +40,19 @@ func economicResponse(effectiveDate string) string {
 		"nisaab":"21708.16",
 		"mahr_min":"1085.40",
 		"mahr_faatimi":"54270.41",
-		"krugerrand":"77626.36"
+		"krugerrand":"77626.36",
+		"updated_at":"2026-08-25T07:30:00Z",
+		"notes":null
 	}`, effectiveDate)
 }
 
 func completeIndicators(effectiveDate string) *economic.Indicators {
 	return &economic.Indicators{
 		EffectiveDate: effectiveDate,
-		RandDollar:    1, Gold24Carat: 1, Gold22Carat: 1, Gold18Carat: 1,
+		RandDollar:    1, Gold24Carat: 1, Gold22Carat: 1, Gold21Carat: 1, Gold18Carat: 1,
 		Gold14Carat: 1, Gold9Carat: 1, Silver: 1, Nisaab: 1,
 		MinimumMahr: 1, MahrFaatimi: 1, Krugerrand: 1,
+		UpdatedAt: time.Date(2026, 8, 24, 7, 30, 0, 0, time.UTC),
 	}
 }
 
@@ -78,7 +82,7 @@ func TestRefreshEconomicIndicatorsFetchesOnceForCurrentSourceDay(t *testing.T) {
 	if got := requests.Load(); got != 1 {
 		t.Fatalf("requests = %d, want 1", got)
 	}
-	if got := service.EconomicIndicators(); got == nil || got.Nisaab != 21708.16 || got.Krugerrand != 77626.36 {
+	if got := service.EconomicIndicators(); got == nil || got.Nisaab != 21708.16 || got.Krugerrand != 77626.36 || got.Gold21Carat != 2087.62 {
 		t.Fatalf("EconomicIndicators() = %+v", got)
 	}
 	if cached, err := (economic.Store{Path: cachePath}).Load(); err != nil || cached == nil {
@@ -114,7 +118,7 @@ func TestRefreshEconomicIndicatorsBackfillsIncompleteCurrentDayCache(t *testing.
 	if got := requests.Load(); got != 1 {
 		t.Fatalf("requests = %d, want 1", got)
 	}
-	if got := service.EconomicIndicators(); got == nil || got.Gold14Carat != 1391.75 || got.Gold9Carat != 894.69 {
+	if got := service.EconomicIndicators(); got == nil || got.Gold14Carat != 1391.75 || got.Gold9Carat != 894.69 || got.Gold21Carat != 2087.62 {
 		t.Fatalf("EconomicIndicators() = %+v", got)
 	}
 }

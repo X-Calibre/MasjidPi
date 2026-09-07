@@ -29,7 +29,7 @@ const validAPIResponse = `{
   "mahr_min":"1040.47",
   "mahr_faatimi":"52023.50",
   "krugerrand":"73485.25",
-  "notes":null,
+  "notes":"Weekend — prices copied from 2026-09-04",
   "created_by":10,
   "created_at":"2026-09-07T08:33:23.766Z",
   "updated_at":"2026-09-07T08:33:23.766Z",
@@ -56,12 +56,14 @@ func TestClientFetchParsesLatestIndicator(t *testing.T) {
 		t.Fatalf("dates = %q, %q", got.EffectiveDate, got.HijriDate)
 	}
 	if got.RandDollar != 15.9637 || got.Gold24Carat != 2266.5684 || got.Gold22Carat != 2077.6877 ||
-		got.Gold18Carat != 1699.9263 || got.Gold14Carat != 1322.1649 || got.Gold9Carat != 849.9632 ||
+		got.Gold21Carat != 1983.2474 || got.Gold18Carat != 1699.9263 || got.Gold14Carat != 1322.1649 || got.Gold9Carat != 849.9632 ||
 		got.Silver != 33.9823 || got.Nisaab != 20809.40 || got.MinimumMahr != 1040.47 ||
 		got.MahrFaatimi != 52023.50 || got.Krugerrand != 73485.25 {
 		t.Fatalf("unexpected values: %+v", got)
 	}
-	if got.Source != SourceName || got.SourceURL != SourcePageURL || got.FetchedAt != fetchedAt {
+	wantUpdatedAt := time.Date(2026, 9, 7, 8, 33, 23, 766000000, time.UTC)
+	if got.Source != SourceName || got.SourceURL != SourcePageURL || got.FetchedAt != fetchedAt ||
+		!got.UpdatedAt.Equal(wantUpdatedAt) || got.Notes != "Weekend — prices copied from 2026-09-04" {
 		t.Fatalf("metadata = %+v", got)
 	}
 	if !got.Valid() || !got.Complete() {
@@ -122,6 +124,20 @@ func TestClientFetchRejectsInvalidDate(t *testing.T) {
 
 	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
 	if err == nil || !strings.Contains(err.Error(), "invalid gregorian_date") {
+		t.Fatalf("Fetch() error = %v", err)
+	}
+}
+
+func TestClientFetchRejectsInvalidUpdatedAt(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, strings.Replace(validAPIResponse, `"updated_at":"2026-09-07T08:33:23.766Z"`, `"updated_at":"not-a-time"`, 1))
+	}))
+	defer server.Close()
+
+	_, err := (Client{APIURL: server.URL, HTTPClient: server.Client()}).Fetch(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "invalid updated_at") {
 		t.Fatalf("Fetch() error = %v", err)
 	}
 }

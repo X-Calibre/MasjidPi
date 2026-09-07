@@ -33,6 +33,7 @@ type apiResponse struct {
 	USDZAR         string `json:"usd_zar"`
 	Gold24K        string `json:"gold_24k"`
 	Gold22K        string `json:"gold_22k"`
+	Gold21K        string `json:"gold_21k"`
 	Gold18K        string `json:"gold_18k"`
 	Gold14K        string `json:"gold_14k"`
 	Gold9K         string `json:"gold_9k"`
@@ -41,6 +42,8 @@ type apiResponse struct {
 	MinimumMahr    string `json:"mahr_min"`
 	MahrFaatimi    string `json:"mahr_faatimi"`
 	Krugerrand     string `json:"krugerrand"`
+	UpdatedAt      string `json:"updated_at"`
+	Notes          string `json:"notes"`
 }
 
 func (c Client) Fetch(ctx context.Context) (Indicators, error) {
@@ -103,12 +106,18 @@ func normalizeResponse(data apiResponse, fetchedAt time.Time) (Indicators, error
 	if data.HijriDay <= 0 || data.HijriMonth <= 0 || data.HijriMonth > 12 || data.HijriYear <= 0 || strings.TrimSpace(data.HijriMonthName) == "" {
 		return Indicators{}, fmt.Errorf("economic indicators: invalid Hijri date")
 	}
+	updatedAt, err := time.Parse(time.RFC3339Nano, strings.TrimSpace(data.UpdatedAt))
+	if err != nil {
+		return Indicators{}, fmt.Errorf("economic indicators: invalid updated_at %q", data.UpdatedAt)
+	}
 
 	result := Indicators{
 		Source:        SourceName,
 		SourceURL:     SourcePageURL,
 		EffectiveDate: effectiveDate,
 		HijriDate:     fmt.Sprintf("%d %s %d", data.HijriDay, strings.TrimSpace(data.HijriMonthName), data.HijriYear),
+		UpdatedAt:     updatedAt,
+		Notes:         strings.TrimSpace(data.Notes),
 		FetchedAt:     fetchedAt,
 	}
 
@@ -120,6 +129,7 @@ func normalizeResponse(data apiResponse, fetchedAt time.Time) (Indicators, error
 		{"usd_zar", data.USDZAR, &result.RandDollar},
 		{"gold_24k", data.Gold24K, &result.Gold24Carat},
 		{"gold_22k", data.Gold22K, &result.Gold22Carat},
+		{"gold_21k", data.Gold21K, &result.Gold21Carat},
 		{"gold_18k", data.Gold18K, &result.Gold18Carat},
 		{"gold_14k", data.Gold14K, &result.Gold14Carat},
 		{"gold_9k", data.Gold9K, &result.Gold9Carat},

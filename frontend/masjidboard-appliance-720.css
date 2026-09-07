@@ -70,6 +70,48 @@ body.appliance-720-layout {
 .appliance-720-layout .appliance-community-field { font-size:24px; }
 .appliance-720-layout .appliance-community-source { font-size:19px; }
 
+/* Use the taller Touch Display 2 slide area instead of leaving the compact
+   economic table anchored at the top of the page. */
+.appliance-720-layout .appliance-economic-slide {
+    display:flex;
+    flex-direction:column;
+}
+.appliance-720-layout .appliance-economic-slide .appliance-slide-heading {
+    flex:0 0 auto;
+}
+.appliance-720-layout .appliance-economic-date {
+    flex:0 0 auto;
+    margin:10px 0 18px;
+    font-size:20px;
+}
+.appliance-720-layout .appliance-economic-values {
+    flex:1 1 auto;
+    min-height:0;
+    border-radius:19px;
+    display:grid;
+    grid-template-rows:repeat(12,minmax(0,1fr));
+}
+.appliance-720-layout .appliance-economic-value {
+    min-height:0;
+    padding:0 22px;
+    gap:22px;
+    font-size:21px;
+}
+.appliance-720-layout .appliance-economic-value strong { font-size:25px; }
+.appliance-720-layout .appliance-economic-accounting { gap:15px; }
+.appliance-720-layout .appliance-economic-footer {
+    flex:0 0 auto;
+    margin-top:14px;
+    padding-top:12px;
+    column-gap:22px;
+    font-size:18px;
+}
+.appliance-720-layout .appliance-economic-meta { gap:6px; }
+.appliance-720-layout .appliance-economic-note {
+    padding-left:22px;
+    font-size:18px;
+}
+
 .appliance-720-layout .appliance-listen-sheet {
     height:930px;
     padding:20px 36px 24px;

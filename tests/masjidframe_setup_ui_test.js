@@ -20,7 +20,7 @@ assert.match(html, /id="addHiddenNetwork"[^>]*>Add hidden network</);
 assert.match(html, /id="wifiSSID"[^>]*readonly/);
 assert.match(html, /id="hiddenSecurity"/);
 assert.match(html, /id="returnToBoard"[^>]*href="\/masjidboard\.html\?profile=appliance"[^>]*hidden/);
-assert.match(html, /setup-720\.css\?v=20260907-touch-display-2/);
+assert.match(html, /setup-720\.css\?v=20260907-keyboard-width/);
 assert.match(html, /id="locationStep"/);
 assert.match(html, /id="countryButton"[^>]*class="picker-button"/);
 assert.match(html, /id="regionButton"[^>]*class="picker-button"/);

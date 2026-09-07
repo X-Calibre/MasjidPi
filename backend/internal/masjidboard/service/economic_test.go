@@ -23,7 +23,24 @@ func (l *recordingLogger) Warn(string, ...any) {
 }
 
 func economicResponse(effectiveDate string) string {
-	return fmt.Sprintf(`[{"date":"2026-08-14T09:02:11","link":"https://www.jamiatsa.org/source/","title":{"rendered":"Rabi al-Awwal 1448"},"content":{"rendered":"<table><thead><tr><th>Hijri</th><th>Date</th><th>Rand-Dollar</th><th>24 Carat</th><th>22 Carat</th><th>18 Carat</th><th>14 Carat</th><th>9 Carat</th><th>Silver</th><th>Nisaab</th><th>Min Mahr</th><th>Mahr Faatimi</th><th>Krugerrand</th></tr></thead><tbody><tr><td>11</td><td>%s</td><td>R16.01</td><td>R2385.85</td><td>R2187.03</td><td>R1789.39</td><td>R1391.75</td><td>R894.69</td><td>R35.45</td><td>R21708.16</td><td>R1085.40</td><td>R54270.41</td><td>R77626.36</td></tr></tbody></table>"}}]`, effectiveDate)
+	return fmt.Sprintf(`{
+		"gregorian_date":%q,
+		"hijri_day":11,
+		"hijri_month":3,
+		"hijri_year":1448,
+		"hijri_month_name":"Rabi al-Awwal",
+		"usd_zar":"16.01",
+		"gold_24k":"2385.85",
+		"gold_22k":"2187.03",
+		"gold_18k":"1789.39",
+		"gold_14k":"1391.75",
+		"gold_9k":"894.69",
+		"silver":"35.45",
+		"nisaab":"21708.16",
+		"mahr_min":"1085.40",
+		"mahr_faatimi":"54270.41",
+		"krugerrand":"77626.36"
+	}`, effectiveDate)
 }
 
 func completeIndicators(effectiveDate string) *economic.Indicators {
@@ -41,7 +58,7 @@ func TestRefreshEconomicIndicatorsFetchesOnceForCurrentSourceDay(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("24 Aug"))
+		fmt.Fprint(w, economicResponse("2026-08-24"))
 	}))
 	defer server.Close()
 
@@ -75,7 +92,7 @@ func TestRefreshEconomicIndicatorsBackfillsIncompleteCurrentDayCache(t *testing.
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("24 Aug"))
+		fmt.Fprint(w, economicResponse("2026-08-24"))
 	}))
 	defer server.Close()
 
@@ -107,7 +124,7 @@ func TestRefreshEconomicIndicatorsWaitsUntilNineInJohannesburg(t *testing.T) {
 	var requests atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
-		fmt.Fprint(w, economicResponse("25 Aug"))
+		fmt.Fprint(w, economicResponse("2026-08-25"))
 	}))
 	defer server.Close()
 
@@ -133,7 +150,7 @@ func TestRefreshEconomicIndicatorsRetriesUnchangedSource(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("24 Aug"))
+		fmt.Fprint(w, economicResponse("2026-08-24"))
 	}))
 	defer server.Close()
 
@@ -166,11 +183,11 @@ func TestRefreshEconomicIndicatorsStopsAfterEffectiveDateAdvances(t *testing.T) 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, economicResponse("25 Aug"))
+		fmt.Fprint(w, economicResponse("2026-08-25"))
 	}))
 	defer server.Close()
 
-	now := time.Date(2026, 8, 25, 7, 30, 0, 0, time.UTC)
+	now := time.Date(2026, 8, 25, 7, 30, 0, 0, 0, time.UTC)
 	current := completeIndicators("2026-08-24")
 	service := &Service{
 		selection:      selection.State{ShowEconomicIndicators: true},

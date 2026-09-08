@@ -4,7 +4,7 @@ MasjidPi is a lightweight appliance for live masjid audio and prayer-time inform
 
 ## Current release
 
-**v1.5.2 is the current stable release. v1.6.0-rc.1 is the current release candidate.**
+**v1.5.2 is the current stable release. v1.6.0-rc.3 is the current release candidate.**
 
 MasjidPi currently provides:
 
@@ -13,7 +13,7 @@ MasjidPi currently provides:
 - priority masjid audio with optional secondary Islamic Radio;
 - saved favourites, scheduling, source volumes and audio-output recovery;
 - discovery and selection of up to three MasjidBoard Live masjids;
-- responsive TV/Monitor and portrait Appliance Display presentations;
+- responsive TV/Monitor presentation and dedicated 600 × 1024 and 720 × 1280 portrait Appliance Display profiles;
 - prayer, Jumu'ah, Daily Times and next-event information;
 - supported community notices and optional shared Islamic content;
 - last-known-good data during temporary upstream failures; and
@@ -33,7 +33,7 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 
 ### Appliance product work
 
-- Complete published-package validation of v1.6.0-rc.1 on Raspberry Pi 4 and confirm acceptable Pi 3B resource use.
+- Complete published-package validation of v1.6.0-rc.3 on Raspberry Pi 4 and confirm acceptable Pi 3B resource use.
 - Replace temporary splash artwork with final MasjidFrame branding.
 - Finalise the portrait enclosure, display, audio and power design.
 - Validate the selected Waveshare display's audio path and physical controls.

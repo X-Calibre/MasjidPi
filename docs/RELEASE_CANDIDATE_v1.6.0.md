@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` adds post-setup network management, touch-control refinements and four additional light Board themes.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` adds native Raspberry Pi Touch Display 2 support and on-device screen controls.
 
 ## Release scope
 
@@ -98,6 +98,50 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] The Network tab data retains the expected IPv4 address and network-issued FQDN.
 - [x] Cog starts the Appliance Display and `/boot/firmware` returns to read-only mode.
 - [x] The warm-up oneshot completes with `Result=success` and `ExecMainStatus=0`.
+
+## RC3 scope
+
+- detect a connected 7-inch Raspberry Pi Touch Display 2 from its DRM DSI connector and exact 720 × 1280 mode;
+- launch a dedicated `appliance-720` profile in the panel's native portrait orientation without Cog rotation;
+- preserve the established rotated 600 × 1024 Waveshare appliance profile unchanged;
+- provide a purpose-built 720 × 1280 Board, touch-control sheet, first-run setup and Change Wi-Fi layout;
+- select an upright boot splash for native portrait DSI while retaining the pre-rotated Waveshare splash;
+- expose persistent Touch Display 2 backlight brightness through the standard Linux kernel backlight interface;
+- provide Off, Mild, Medium and Strong cool-white correction for the Board and Wi-Fi setup interfaces;
+- correct keyboard width, economic-indicator vertical use and economic heading spacing at 720 × 1280; and
+- refresh changed frontend asset keys so Cog/WPE cannot reuse controllers that predate `appliance-720`.
+
+## RC3 automated and source validation
+
+- [x] Go formatting passes.
+- [x] The full Go test suite passes, including display-settings persistence, validation and backlight conversion coverage.
+- [x] The ARM64 source build completes on Raspberry Pi 4.
+- [x] Frontend JavaScript tests pass.
+- [x] Installer, display-profile and other shell tests pass.
+- [ ] GitHub Actions passes on the integrated `main` commit.
+
+## RC3 Raspberry Pi 4 hardware validation
+
+- [x] DRM reports `card1-DSI-1` connected with the native `720x1280` mode.
+- [x] The display launcher automatically selects `profile=appliance-720`.
+- [x] Cog runs without `rotation=1` and loads the dedicated portrait presentation.
+- [x] The Board fills the display and all portrait slides render legibly.
+- [x] Touch directions, swipe-up controls and swipe-down closing work correctly.
+- [x] First-run setup and Change Wi-Fi use the 720 × 1280 layout.
+- [x] The on-screen keyboard fits without horizontal clipping.
+- [x] Islamic Economic Indicators use the available height with corrected heading-to-date spacing.
+- [x] The kernel exposes `panel_backlight@1` with a native brightness range of 0–31.
+- [x] Backlight brightness and selectable cool-white correction work from the Display tab.
+
+## RC3 publication checklist
+
+- [x] Validated Touch Display 2 work is integrated with current `main`.
+- [x] Version metadata is set to `v1.6.0-rc.3`.
+- [x] RC3 scope and hardware results are documented.
+- [ ] GitHub Actions passes on the release-preparation `main` commit.
+- [ ] Tag `v1.6.0-rc.3` is created from the accepted `main` commit.
+- [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
+- [ ] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
 
 ## Stable-release hardware follow-up
 

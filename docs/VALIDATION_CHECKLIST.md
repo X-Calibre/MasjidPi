@@ -2,6 +2,27 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
+## Completed for v1.6.0-rc.3
+
+### Raspberry Pi Touch Display 2
+
+- [x] The connected 7-inch DSI panel reports its native 720 × 1280 mode.
+- [x] Hardware detection selects `appliance-720` without applying Cog rotation.
+- [x] The dedicated portrait Board fills the screen and retains usable typography and spacing.
+- [x] Touch gestures and directions operate correctly.
+- [x] First-run and Change Wi-Fi screens fit the display.
+- [x] The on-screen keyboard fits without horizontal clipping.
+- [x] The existing 600 × 1024 appliance profile remains separately routed and styled.
+
+### Screen controls
+
+- [x] The standard kernel backlight interface reports `panel_backlight@1` with range 0–31.
+- [x] Backlight brightness can be changed from the appliance Display tab.
+- [x] Brightness persists and is restored when MasjidPi starts.
+- [x] Off, Mild, Medium and Strong cool-white corrections apply correctly.
+- [x] Colour correction also applies to the 720 × 1280 Wi-Fi setup flow.
+- [x] Display controls remain hidden from the 600 × 1024 profile.
+
 ## Completed for v1.6.0-rc.2
 
 ### Appliance network and controls

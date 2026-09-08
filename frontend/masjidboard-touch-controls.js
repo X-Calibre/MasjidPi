@@ -11,6 +11,8 @@
 
     const changeWiFi = document.getElementById("applianceChangeWiFi");
     if (changeWiFi) changeWiFi.href = `/setup.html?return=board&profile=${profile}`;
+    const displayTab = document.getElementById("applianceDisplayTab");
+    if (profile === "appliance-720") displayTab?.classList.remove("hidden");
 
     const connection = document.getElementById("applianceListenConnection");
     const statusBadge = document.getElementById("applianceListenState");
@@ -43,6 +45,10 @@
     const networkIPRow = document.getElementById("applianceNetworkIPRow");
     const networkIP = document.getElementById("applianceNetworkIP");
     const networkUnavailable = document.getElementById("applianceNetworkUnavailable");
+    const brightness = document.getElementById("applianceBrightness");
+    const brightnessValue = document.getElementById("applianceBrightnessValue");
+    const brightnessUnavailable = document.getElementById("applianceBrightnessUnavailable");
+    const temperatureHost = document.getElementById("applianceTemperatureChoices");
     const themes = [
         ["emerald", "Emerald", "MasjidPi green"],
         ["midnight", "Midnight", "Deep blue"],
@@ -68,6 +74,8 @@
     let closeGestureStart = null;
     let busy = false;
     let currentTheme = document.body.dataset.boardTheme || "emerald";
+    let displaySettings = null;
+    let brightnessSaveTimer = 0;
     const volumeSaveTimers = {master:0, masjid:0, radio:0};
     const volumeSaveSerials = {master:0, masjid:0, radio:0};
     const pendingVolumes = {master:null, masjid:null, radio:null};
@@ -115,6 +123,21 @@
         networkFQDNRow.classList.toggle("hidden", !fqdn);
         networkIPRow.classList.toggle("hidden", !ipAddress);
         networkUnavailable.classList.toggle("hidden", Boolean(fqdn || ipAddress));
+    }
+
+    function renderDisplaySettings() {
+        if (!brightness || !temperatureHost) return;
+        const available = Boolean(displaySettings?.brightness_available);
+        brightness.disabled = busy || !available;
+        brightness.value = displaySettings?.brightness_percent ?? 100;
+        brightnessValue.textContent = available ? `${brightness.value}%` : "Unavailable";
+        brightnessUnavailable.classList.toggle("hidden", available);
+        for (const button of temperatureHost.querySelectorAll("[data-temperature]")) {
+            const active = button.dataset.temperature === (displaySettings?.color_temperature || "off");
+            button.classList.toggle("active", active);
+            button.setAttribute("aria-checked", active ? "true" : "false");
+            button.disabled = busy;
+        }
     }
 
     function setBusy(value) {
@@ -285,6 +308,7 @@
         radioModeDetail.textContent = modeText;
         renderSources();
         renderThemes();
+        renderDisplaySettings();
     }
 
     async function refreshStatus() {
@@ -312,11 +336,13 @@
                 requestJSON("/api/streams?kind=radio"),
                 requestJSON("/api/favourites"),
                 requestJSON("/api/masjidboard/layout"),
-                requestJSON("/api/setup/device-access")
+                requestJSON("/api/setup/device-access"),
+                requestJSON("/api/display/settings")
             ]);
             const boardLayout = results[4].status === "fulfilled" ? results[4].value : null;
             if (boardLayout) currentTheme = boardLayout.theme || "emerald";
             renderNetworkAccess(results[5].status === "fulfilled" ? results[5].value : null);
+            if (results[6].status === "fulfilled") displaySettings = results[6].value;
             if (results.slice(0, 4).every(result => result.status === "fulfilled")) {
                 const [newStatus, masjids, radioItems, favourites] = results.map(result => result.value);
                 const favouriteIDs = new Set(favourites.ids || []);
@@ -401,6 +427,31 @@
             document.body.dataset.boardTheme = currentTheme;
             renderThemes();
         }, false);
+    });
+    temperatureHost?.addEventListener("click", event => {
+        const button = event.target.closest("button[data-temperature]");
+        if (!button) return;
+        runAction(async () => {
+            displaySettings = await window.MasjidPiDisplaySettings.save({color_temperature:button.dataset.temperature});
+            renderDisplaySettings();
+        }, false);
+    });
+    brightness?.addEventListener("input", () => {
+        brightnessValue.textContent = `${brightness.value}%`;
+        window.clearTimeout(brightnessSaveTimer);
+        brightnessSaveTimer = window.setTimeout(async () => {
+            try {
+                displaySettings = await window.MasjidPiDisplaySettings.save({brightness_percent:Number(brightness.value)});
+                setConnectionError();
+            } catch (error) {
+                setConnectionError(error.message);
+            }
+            renderDisplaySettings();
+        }, 150);
+    });
+    window.addEventListener("masjidpi:display-settings", event => {
+        displaySettings = event.detail;
+        renderDisplaySettings();
     });
 
     for (const button of panel.querySelectorAll("[data-touch-tab]")) button.addEventListener("click", () => activateTab(button.dataset.touchTab));

@@ -357,9 +357,12 @@ The control sheet provides:
 
 - a **Masjid** tab for choosing a favourited masjid, adjusting Masjid and Master volume, starting playback and stopping Listen;
 - a **Radio** tab for choosing a station, adjusting Radio and Master volume, and selecting Scheduled Play, Play Now or Stop Radio; and
-- a **Theme** tab for immediately applying and saving any supported Board colour theme.
+- a **Theme** tab for immediately applying and saving any supported Board colour theme; and
+- on Raspberry Pi Touch Display 2, a **Display** tab for persistent backlight brightness and Off, Mild, Medium or Strong cool-white correction.
 
 The **Network** tab shows the current IP address and any network-issued FQDN for accessing advanced configuration from another device. It also provides **Change Wi-Fi network**, which reopens the appliance network setup without deleting the current profile first.
+
+Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidPi starts. Colour correction affects the MasjidBoard and Wi-Fi setup interfaces only; it does not alter the boot splash. These controls are not shown on the 600 × 1024 Waveshare profile.
 
 Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
 

@@ -18,6 +18,10 @@ const appliance720 = fs.readFileSync(path.join(root, "frontend/masjidboard-appli
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /class="appliance-listen-close"[^>]*aria-label="Close Listen controls"><\/button>/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260907-economic-footer/);
+assert.match(html, /id="applianceDisplayTab" class="hidden"/);
+assert.match(html, /id="applianceBrightness"/);
+assert.match(html, /data-temperature="mild"/);
+assert.match(html, /display-adjustments\.js\?v=20260908-display-controls/);
 assert.match(html, /↑ Swipe up for controls/);
 assert.doesNotMatch(html, /id="applianceOpenListenPanel"/);
 assert.match(html, /data-touch-tab="masjid"/);

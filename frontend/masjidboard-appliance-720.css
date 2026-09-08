@@ -143,3 +143,81 @@ body.appliance-720-layout {
 .appliance-720-layout .appliance-temperature-grid { margin-top:18px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
 .appliance-720-layout .appliance-temperature-grid button { min-height:64px; border:2px solid var(--appliance-line); border-radius:12px; color:var(--appliance-text); background:var(--appliance-raised); font-size:19px; font-weight:800; }
 .appliance-720-layout .appliance-temperature-grid button.active { border-color:var(--appliance-accent); color:var(--appliance-highlight-text); background:var(--appliance-accent); }
+
+
+/* Distance-legibility refinements for the physical seven-inch panel.
+   Keep these overrides profile-scoped so the 600x1024 appliance is unchanged. */
+.appliance-720-layout .appliance-information {
+    color:var(--appliance-secondary-text);
+    font-size:22px;
+}
+.appliance-720-layout .appliance-information div { font-size:21px; }
+
+.appliance-720-layout .appliance-time-row {
+    border-top-color:var(--appliance-strong-line);
+    font-size:35px;
+}
+.appliance-720-layout .appliance-time-row strong {
+    font-size:40px;
+    font-weight:750;
+}
+.appliance-720-layout .appliance-time-head {
+    color:var(--appliance-secondary-text);
+    font-size:20px;
+}
+.appliance-720-layout .appliance-time-row.upcoming {
+    outline:2px solid var(--appliance-upcoming-line);
+    outline-offset:-2px;
+    box-shadow:inset 8px 0 var(--appliance-accent);
+}
+
+.appliance-720-layout .appliance-footer {
+    bottom:20px;
+    color:var(--appliance-secondary-text);
+    font-size:16px;
+}
+.appliance-720-layout .appliance-dots button {
+    width:12px;
+    height:12px;
+    border-width:2px;
+}
+.appliance-720-layout .appliance-dots button.active { width:32px; }
+.appliance-720-layout .appliance-listen-hint {
+    color:var(--appliance-secondary-text);
+    font-size:17px;
+}
+
+.appliance-720-layout .appliance-economic-date {
+    color:var(--appliance-secondary-text);
+    font-size:22px;
+    font-weight:700;
+}
+.appliance-720-layout .appliance-economic-value {
+    border-top-color:var(--appliance-strong-line);
+    font-size:23px;
+}
+.appliance-720-layout .appliance-economic-value strong {
+    font-size:28px;
+    font-weight:750;
+}
+.appliance-720-layout .appliance-economic-accounting {
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+}
+.appliance-720-layout .appliance-economic-currency,
+.appliance-720-layout .appliance-economic-amount {
+    justify-self:auto;
+}
+.appliance-720-layout .appliance-economic-footer {
+    color:var(--appliance-secondary-text);
+    font-size:19px;
+}
+.appliance-720-layout .appliance-economic-note {
+    color:var(--appliance-secondary-text);
+    font-size:19px;
+    display:-webkit-box;
+    overflow:hidden;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:3;
+}

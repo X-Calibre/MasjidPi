@@ -221,3 +221,45 @@ body.appliance-720-layout {
     -webkit-box-orient:vertical;
     -webkit-line-clamp:3;
 }
+
+
+/* Give Salaah Time Change cards a clearer reading rhythm at arm's length.
+   Compact single cards get extra height; paired cards retain their two-row flow. */
+.appliance-720-layout .appliance-community-slide.compact-single {
+    grid-template-rows:minmax(0,340px);
+}
+.appliance-720-layout .appliance-community-card.appliance-community-salaah_change {
+    padding:38px 36px 32px;
+}
+.appliance-720-layout .appliance-community-card.compact.appliance-community-salaah_change {
+    padding:30px 30px 26px;
+}
+.appliance-720-layout .appliance-community-card.appliance-community-salaah_change .appliance-community-title {
+    margin-bottom:14px;
+    font-size:50px;
+    line-height:1.12;
+}
+.appliance-720-layout .appliance-community-card.compact.appliance-community-salaah_change .appliance-community-title {
+    margin-bottom:12px;
+    font-size:34px;
+    line-height:1.15;
+}
+.appliance-720-layout .appliance-community-salaah_change .appliance-salaah-change-main {
+    gap:18px;
+}
+.appliance-720-layout .appliance-community-salaah_change .appliance-salaah-change-effective {
+    color:var(--appliance-secondary-text);
+    font-size:25px;
+    font-weight:700;
+    line-height:1.4;
+}
+.appliance-720-layout .appliance-community-salaah_change .appliance-salaah-change-time {
+    font-size:68px;
+    line-height:1.05;
+}
+.appliance-720-layout .appliance-community-card.appliance-community-salaah_change .appliance-community-source {
+    padding-top:16px;
+    color:var(--appliance-secondary-text);
+    font-size:27px;
+    line-height:1.2;
+}

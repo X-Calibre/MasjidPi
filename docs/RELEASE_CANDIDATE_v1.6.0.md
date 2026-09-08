@@ -118,7 +118,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] The ARM64 source build completes on Raspberry Pi 4.
 - [x] Frontend JavaScript tests pass.
 - [x] Installer, display-profile and other shell tests pass.
-- [ ] GitHub Actions passes on the integrated `main` commit.
+- [x] GitHub Actions passes on integrated `main` commit `eb7f998be51e54d3958aab65ba45ae68df34800c`.
 
 ## RC3 Raspberry Pi 4 hardware validation
 
@@ -138,7 +138,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Validated Touch Display 2 work is integrated with current `main`.
 - [x] Version metadata is set to `v1.6.0-rc.3`.
 - [x] RC3 scope and hardware results are documented.
-- [ ] GitHub Actions passes on the release-preparation `main` commit.
+- [x] GitHub Actions passes on release-preparation `main` commit `eb7f998be51e54d3958aab65ba45ae68df34800c`.
 - [ ] Tag `v1.6.0-rc.3` is created from the accepted `main` commit.
 - [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
 - [ ] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.

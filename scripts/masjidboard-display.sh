@@ -54,8 +54,20 @@ hdmi_1024x600_present() {
     return 1
 }
 
+dsi_720x1280_present() {
+    local connector
+    for connector in "$MASJIDPI_DRM_SYSFS_ROOT"/card*-DSI-*; do
+        [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
+        [[ "$(<"$connector/status")" == "connected" ]] || continue
+        grep -Fxq '720x1280' "$connector/modes" && return 0
+    done
+    return 1
+}
+
 display_profile() {
-    if waveshare_touch_present && hdmi_1024x600_present; then
+    if dsi_720x1280_present; then
+        printf 'appliance-720\n'
+    elif waveshare_touch_present && hdmi_1024x600_present; then
         printf 'appliance\n'
     else
         printf 'standard\n'
@@ -73,11 +85,11 @@ display_url() {
         return
     fi
 
-    if [[ "$profile" == "appliance" ]]; then
+    if [[ "$profile" == appliance* ]]; then
         if [[ "$MASJIDBOARD_BASE_URL" == *\?* ]]; then
-            printf '%s&profile=appliance\n' "$MASJIDBOARD_BASE_URL"
+            printf '%s&profile=%s\n' "$MASJIDBOARD_BASE_URL" "$profile"
         else
-            printf '%s?profile=appliance\n' "$MASJIDBOARD_BASE_URL"
+            printf '%s?profile=%s\n' "$MASJIDBOARD_BASE_URL" "$profile"
         fi
         return
     fi
@@ -88,7 +100,7 @@ uses_startup_screen() {
     local profile="$1"
 
     [[ -z "${MASJIDBOARD_URL:-}" ]] || return 1
-    [[ "$profile" == "appliance" ]] && return 0
+    [[ "$profile" == appliance* ]] && return 0
     is_raspberry_pi_runtime
 }
 

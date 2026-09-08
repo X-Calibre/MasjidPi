@@ -57,9 +57,21 @@ appliance_hdmi_mode_present() {
     return 1
 }
 
+touch_display_2_present() {
+    local connector
+
+    for connector in "$APPLIANCE_DRM_SYSFS_ROOT"/card*-DSI-*; do
+        [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
+        [[ "$(<"$connector/status")" == "connected" ]] || continue
+        grep -Fxq '720x1280' "$connector/modes" && return 0
+    done
+
+    return 1
+}
+
 is_appliance_display_hardware() {
     is_raspberry_pi_board || return 1
-    waveshare_appliance_touch_present && appliance_hdmi_mode_present
+    touch_display_2_present || { waveshare_appliance_touch_present && appliance_hdmi_mode_present; }
 }
 
 prepare_boot_firmware_update() {
@@ -153,7 +165,10 @@ configure_boot_splash() {
     local logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo.png"
     local appliance_logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo-appliance.png"
 
-    if is_appliance_display_hardware; then
+    # The Waveshare panel exposes a landscape framebuffer while being mounted
+    # in portrait, so it needs the pre-rotated asset. Touch Display 2 exposes a
+    # native portrait framebuffer and uses the normal upright asset.
+    if waveshare_appliance_touch_present && appliance_hdmi_mode_present; then
         script_file="$PROJECT_ROOT/scripts/masjidpi-splash.script"
         logo_file="$appliance_logo_file"
     fi

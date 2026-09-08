@@ -2,13 +2,15 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("profile") !== "appliance") return;
+    const profile = params.get("profile");
+    if (profile !== "appliance" && profile !== "appliance-720") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
     const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
 
     document.body.classList.add("appliance-layout");
+    if (profile === "appliance-720") document.body.classList.add("appliance-720-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
     const warningUtils = window.MasjidBoardWarningUtils;

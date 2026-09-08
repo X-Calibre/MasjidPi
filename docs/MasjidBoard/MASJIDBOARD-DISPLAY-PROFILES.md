@@ -35,12 +35,40 @@ The appliance profile:
 
 If either hardware condition is absent, MasjidPi falls back to the standard profile.
 
+### Appliance 720
+
+The `appliance-720` profile is the native portrait presentation for the official
+7-inch Raspberry Pi Touch Display 2. MasjidPi selects it when a connected DSI
+connector advertises the panel's native `720x1280` mode.
+
+This profile:
+
+- launches Cog with `renderer=gles` and no output rotation;
+- renders the appliance interface at the native 720x1280 portrait viewport;
+- enables the same slideshow and touch controls as the existing appliance profile;
+- relies on the Raspberry Pi OS DSI display and touch drivers, without the
+  Waveshare USB calibration rule.
+
+First-run setup and the reopened Change Wi-Fi workflow retain the detected
+profile. The Touch Display 2 receives a dedicated 720x1280 setup presentation,
+including larger network rows, form controls, picker sheets, on-screen keyboard,
+masjid choices and success screen; the 600x1024 setup presentation is unchanged.
+
+The DSI mode is checked before the Waveshare HDMI profile so the Touch Display 2
+wins if both displays happen to be attached during startup.
+
 ## Remote browser preview
 
 Profile detection controls only the local Cog display runtime. The appliance presentation remains directly accessible for development and troubleshooting from another computer:
 
 ```text
 /masjidboard.html?profile=appliance
+```
+
+The Touch Display 2 presentation can be previewed at:
+
+```text
+/masjidboard.html?profile=appliance-720
 ```
 
 This URL forces the appliance frontend presentation but does not rotate the remote computer's display or alter any saved MasjidPi setting.
@@ -76,8 +104,9 @@ Touch calibration is installed as a narrow udev rule matching the validated Wave
 Profile and orientation are intentionally separate concepts. The current mapping is:
 
 ```text
-standard  -> responsive landscape presentation
-appliance -> dedicated 7-inch portrait presentation
+standard      -> responsive landscape presentation
+appliance     -> 600x1024 Waveshare portrait presentation
+appliance-720 -> 720x1280 Touch Display 2 portrait presentation
 ```
 
 A future conventional monitor/TV portrait presentation can therefore be added without redefining the appliance profile or restoring a saved layout selector.

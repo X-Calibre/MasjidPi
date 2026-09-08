@@ -52,7 +52,8 @@ These measurements show comfortable headroom on the Pi 3B. They do not replace r
 Board supports:
 
 - a responsive landscape TV/Monitor profile; and
-- a portrait 600 × 1024 Appliance Display profile with touch controls.
+- portrait Appliance Display profiles with touch controls for the 600 × 1024
+  Waveshare panel and 720 × 1280 Raspberry Pi Touch Display 2.
 
 The local display service uses Cog/WPE directly on DRM/KMS. Display detection, orientation and touchscreen calibration are handled by the appliance runtime rather than saved as Board layout preferences.
 

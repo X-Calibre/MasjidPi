@@ -2,7 +2,7 @@
     "use strict";
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("profile") === "appliance") return;
+    if (["appliance", "appliance-720"].includes(params.get("profile"))) return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";

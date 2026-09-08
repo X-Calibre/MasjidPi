@@ -70,6 +70,18 @@ printf 'WaveShare\n' > "$usb/manufacturer"
 printf 'WS170120\n' > "$usb/product"
 assert_profile appliance
 
+# The official Touch Display 2 is a native portrait DSI panel. Its connected
+# 720x1280 DRM mode is sufficient to select the dedicated layout; it does not
+# expose the Waveshare USB touch controller or require output rotation.
+dsi="$MASJIDPI_DRM_SYSFS_ROOT/card1-DSI-1"
+mkdir -p "$dsi"
+printf 'connected\n' > "$dsi/status"
+printf '720x1280\n' > "$dsi/modes"
+assert_profile appliance-720
+
+printf 'disconnected\n' > "$dsi/status"
+assert_profile appliance
+
 if [[ "$(display_url standard)" != "$MASJIDBOARD_BASE_URL" ]]; then
     echo "standard display URL is incorrect" >&2
     exit 1
@@ -80,6 +92,14 @@ if [[ "$(display_url appliance)" != "${MASJIDBOARD_BASE_URL}?profile=appliance" 
 fi
 if [[ "$(launch_url appliance)" != "file://${MASJIDBOARD_STARTUP_FILE}?profile=appliance" ]]; then
     echo "appliance launch URL must use the installed local startup screen" >&2
+    exit 1
+fi
+if [[ "$(display_url appliance-720)" != "${MASJIDBOARD_BASE_URL}?profile=appliance-720" ]]; then
+    echo "Touch Display 2 URL is incorrect" >&2
+    exit 1
+fi
+if [[ "$(launch_url appliance-720)" != "file://${MASJIDBOARD_STARTUP_FILE}?profile=appliance-720" ]]; then
+    echo "Touch Display 2 launch URL must use the installed local startup screen" >&2
     exit 1
 fi
 

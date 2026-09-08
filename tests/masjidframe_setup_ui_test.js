@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, "..");
 const startup = fs.readFileSync(path.join(root, "frontend/masjidboard-startup.html"), "utf8");
 const html = fs.readFileSync(path.join(root, "frontend/setup.html"), "utf8");
 const css = fs.readFileSync(path.join(root, "frontend/setup.css"), "utf8");
+const css720 = fs.readFileSync(path.join(root, "frontend/setup-720.css"), "utf8");
 const js = fs.readFileSync(path.join(root, "frontend/setup.js"), "utf8");
 
 assert.match(startup, /http:\/\/127\.0\.0\.1:8080\/appliance/);
@@ -19,6 +20,7 @@ assert.match(html, /id="addHiddenNetwork"[^>]*>Add hidden network</);
 assert.match(html, /id="wifiSSID"[^>]*readonly/);
 assert.match(html, /id="hiddenSecurity"/);
 assert.match(html, /id="returnToBoard"[^>]*href="\/masjidboard\.html\?profile=appliance"[^>]*hidden/);
+assert.match(html, /setup-720\.css\?v=20260907-keyboard-width/);
 assert.match(html, /id="locationStep"/);
 assert.match(html, /id="countryButton"[^>]*class="picker-button"/);
 assert.match(html, /id="regionButton"[^>]*class="picker-button"/);
@@ -40,6 +42,8 @@ assert.match(js, /hidden: currentNetwork\.hidden/);
 assert.match(js, /function addHiddenNetwork/);
 assert.match(js, /activeKeyboardInput/);
 assert.match(js, /setupParams\.get\("return"\) === "board"/);
+assert.match(js, /classList\.add\("setup-720-layout"\)/);
+assert.match(js, /returnToBoard\.href = boardURL/);
 assert.match(js, /\/api\/setup\/device-access/);
 assert.match(js, /`http:\/\/\$\{access\.fqdn\}:\$\{port\}`/);
 assert.match(js, /`http:\/\/\$\{access\.ip_address\}:\$\{port\}`/);
@@ -58,5 +62,11 @@ assert.match(js, /const letterRows = \[\s*\["1", "2", "3", "4", "5", "6", "7", "
 assert.match(js, /symbols: "#\+="/);
 assert.match(js, /activeKeyboardInput\.value = Array\.from\(activeKeyboardInput\.value\)\.slice\(0, -1\)/);
 assert.doesNotMatch(js, /innerHTML\s*=.*network\.ssid/);
+assert.match(css720, /body\.setup-720-layout/);
+assert.match(css720, /width:720px/);
+assert.match(css720, /min-height:1280px/);
+assert.match(css720, /\.keyboard-rows\s*\{[^}]*width:min\(100%,720px\)/s);
+assert.match(css720, /\.key\s*\{[^}]*height:65px/s);
+assert.match(css720, /keyboard-open \.setup-shell\s*\{[^}]*padding-bottom:440px/s);
 
 console.log("MasjidFrame first-run setup UI tests passed");

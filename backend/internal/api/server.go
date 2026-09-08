@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
+	"github.com/X-Calibre/MasjidPi/backend/internal/display"
 	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
 	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
@@ -45,6 +46,7 @@ type Server struct {
 	catalogueDataRoot           string
 	installed                   components.Installed
 	wifi                        masjidnetwork.WiFiManager
+	displaySettings             *display.Controller
 }
 
 type Config struct {
@@ -68,6 +70,7 @@ type Dependencies struct {
 	Preferences            *storage.Preferences
 	AudioDeviceState       *storage.AudioDeviceState
 	WiFi                   masjidnetwork.WiFiManager
+	DisplaySettings        *display.Controller
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
 }
@@ -96,6 +99,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		catalogueDataRoot:        config.CatalogueDataRoot,
 		installed:                config.Installed,
 		wifi:                     dependencies.WiFi,
+		displaySettings:          dependencies.DisplaySettings,
 		httpServer:               &http.Server{Addr: config.Address, Handler: mux},
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
@@ -137,6 +141,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/masjidboard/catalogue/refresh", server.masjidBoardCatalogueRefresh)
 		mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
 		mux.HandleFunc("/api/masjidboard/layout", server.masjidBoardLayout)
+		mux.HandleFunc("/api/display/settings", server.displaySettingsHandler)
 	}
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -161,14 +166,18 @@ func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+	profile := r.URL.Query().Get("profile")
+	if profile != "appliance-720" {
+		profile = "appliance"
+	}
 	if s.wifi != nil {
 		status, err := s.wifi.Status(r.Context())
 		if err == nil && status.Supported && !status.Configured {
-			http.Redirect(w, r, "/setup.html?profile=appliance", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/setup.html?profile="+profile, http.StatusTemporaryRedirect)
 			return
 		}
 	}
-	http.Redirect(w, r, "/masjidboard.html?profile=appliance", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/masjidboard.html?profile="+profile, http.StatusTemporaryRedirect)
 }
 
 func (s *Server) SetAudioDeviceState(state *storage.AudioDeviceState) { s.audioDeviceState = state }

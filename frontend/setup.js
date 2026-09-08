@@ -1,6 +1,10 @@
 "use strict";
 
 (() => {
+    const requestedProfile = new URLSearchParams(window.location.search).get("profile");
+    const applianceProfile = requestedProfile === "appliance-720" ? "appliance-720" : "appliance";
+    const boardURL = `/masjidboard.html?profile=${applianceProfile}`;
+    if (applianceProfile === "appliance-720") document.body.classList.add("setup-720-layout");
     const networkStep = document.getElementById("networkStep");
     const passwordStep = document.getElementById("passwordStep");
     const successStep = document.getElementById("successStep");
@@ -31,7 +35,7 @@
     let selectedCountryName = "";
     let selectedRegionIndex = -1;
     let selectedCityName = "";
-    let continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
+    let continueAction = () => window.location.replace(boardURL);
     let shifted = false;
     let symbols = false;
     let activeKeyboardInput = password;
@@ -230,7 +234,7 @@
         await loadDeviceAccess();
         if (configured) {
             document.getElementById("continueButton").textContent = "Start MasjidFrame";
-            continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
+            continueAction = () => window.location.replace(boardURL);
         } else {
             document.getElementById("continueButton").textContent = "Choose your location";
             continueAction = showLocationStep;
@@ -426,7 +430,7 @@
             document.getElementById("successHeading").textContent = "MasjidFrame is ready";
             document.getElementById("successNetwork").textContent = selectedMasjid.name;
             document.getElementById("continueButton").textContent = "Start MasjidFrame";
-            continueAction = () => window.location.replace("/masjidboard.html?profile=appliance");
+            continueAction = () => window.location.replace(boardURL);
             await loadDeviceAccess();
         } catch (error) {
             document.getElementById("masjidStatus").textContent = `Could not save this masjid: ${error.message}`;
@@ -509,7 +513,9 @@
 
     const setupParams = new URLSearchParams(window.location.search);
     if (setupParams.get("return") === "board") {
-        document.getElementById("returnToBoard").hidden = false;
+        const returnToBoard = document.getElementById("returnToBoard");
+        returnToBoard.href = boardURL;
+        returnToBoard.hidden = false;
         document.getElementById("networkHeading").textContent = "Change Wi-Fi network";
     }
     const requestedStep = setupParams.get("step");

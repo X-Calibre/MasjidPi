@@ -12,6 +12,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	"github.com/X-Calibre/MasjidPi/backend/internal/config"
+	"github.com/X-Calibre/MasjidPi/backend/internal/display"
 	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
 	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
 	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
@@ -49,6 +50,10 @@ func Run() error {
 	if !installed.Listen && !installed.Board {
 		return fmt.Errorf("no MasjidPi components are installed")
 	}
+	displaySettings := display.NewController(paths.DisplaySettingsState, "")
+	if err := displaySettings.Restore(); err != nil {
+		log.Warn("Could not restore display brightness", "error", err)
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -60,6 +65,7 @@ func Run() error {
 			WiFi:                   masjidnetwork.NewNetworkManager(),
 			MasjidBoardService:     masjidBoardService,
 			MasjidBoardMaintenance: masjidBoardMaintenance,
+			DisplaySettings:        displaySettings,
 		})
 		return runHTTPServer(ctx, server, log)
 	}
@@ -193,6 +199,7 @@ func Run() error {
 		Favourites:       favourites,
 		Preferences:      preferences,
 		AudioDeviceState: audioDeviceState,
+		DisplaySettings:  displaySettings,
 	}
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)

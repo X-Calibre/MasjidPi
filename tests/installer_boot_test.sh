@@ -127,4 +127,18 @@ cmp -s "$ROOT/scripts/masjidpi-splash.script" \
 [[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash-logo-appliance.png" ]]
 [[ "$(grep -c -- '^-R masjidpi$' "$TMP/plymouth-calls")" -eq 3 ]]
 
+# Touch Display 2 exposes a native 720x1280 portrait DSI framebuffer, so it is
+# appliance hardware but must retain the upright (not pre-rotated) splash.
+printf 'disconnected\n' > "$hdmi/status"
+dsi="$MASJIDPI_DRM_SYSFS_ROOT/card1-DSI-1"
+mkdir -p "$dsi"
+printf 'connected\n' > "$dsi/status"
+printf '720x1280\n' > "$dsi/modes"
+
+configure_boot_splash
+
+cmp -s "$ROOT/scripts/masjidpi-splash-standard.script" \
+    "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+[[ -f "$MASJIDPI_PLYMOUTH_THEME_DIR/masjidpi-splash-logo.png" ]]
+
 printf '[PASS] quiet boot and branded splash cover standard and appliance Raspberry Pi Board profiles\n'

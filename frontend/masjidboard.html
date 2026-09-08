@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="masjidboard-detailed.css?v=20260905-daily-times-fit">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
     <link rel="stylesheet" href="masjidboard-appliance.css?v=20260907-economic-footer">
+    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260907-economic-heading-gap">
     <link rel="stylesheet" href="masjidboard-themes.css?v=20260906-light-themes">
 </head>
 <body data-board-theme="emerald">
@@ -115,6 +116,7 @@
                     <button id="applianceRadioTab" type="button" role="tab" data-touch-tab="radio" aria-controls="applianceRadioPanel" aria-selected="false">Radio</button>
                     <button id="applianceThemeTab" type="button" role="tab" data-touch-tab="theme" aria-controls="applianceThemePanel" aria-selected="false">Theme</button>
                     <button id="applianceNetworkTab" type="button" role="tab" data-touch-tab="network" aria-controls="applianceNetworkPanel" aria-selected="false">Network</button>
+                    <button id="applianceDisplayTab" class="hidden" type="button" role="tab" data-touch-tab="display" aria-controls="applianceDisplayPanel" aria-selected="false">Display</button>
                 </nav>
                 <div class="appliance-listen-content">
                     <section id="applianceMasjidPanel" data-touch-panel="masjid" role="tabpanel" aria-labelledby="applianceMasjidTab">
@@ -180,20 +182,41 @@
                             <a id="applianceChangeWiFi" href="/setup.html?return=board">Change Wi-Fi network</a>
                         </div>
                     </section>
+                    <section id="applianceDisplayPanel" class="hidden" data-touch-panel="display" role="tabpanel" aria-labelledby="applianceDisplayTab">
+                        <div class="appliance-display-settings">
+                            <div class="appliance-display-heading">
+                                <strong>Screen brightness</strong>
+                                <output id="applianceBrightnessValue">--%</output>
+                            </div>
+                            <input id="applianceBrightness" type="range" min="10" max="100" step="5" value="100">
+                            <p id="applianceBrightnessUnavailable" class="hidden">Backlight control is unavailable on this display.</p>
+                            <div class="appliance-temperature-settings">
+                                <strong>White balance</strong>
+                                <span>Apply a cooler colour correction to compensate for a warm panel.</span>
+                                <div id="applianceTemperatureChoices" class="appliance-temperature-grid" role="radiogroup" aria-label="White balance correction">
+                                    <button type="button" data-temperature="off">Off</button>
+                                    <button type="button" data-temperature="mild">Mild</button>
+                                    <button type="button" data-temperature="medium">Medium</button>
+                                    <button type="button" data-temperature="strong">Strong</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </section>
         </aside>
     </section>
 </main>
 
+<script src="display-adjustments.js?v=20260908-display-controls"></script>
 <script src="masjidboard-theme.js?v=20260906-light-themes"></script>
 <script src="masjidboard-date-utils.js?v=20260905-day-first-date"></script>
 <script src="masjidboard-warning-utils.js?v=20260905-zawaal-fallbacks"></script>
 <script src="masjidboard-display.js?v=20260905-zawaal-warning"></script>
 <script src="masjidboard-community-utils.js?v=20260907-economic-data"></script>
-<script src="masjidboard-detailed.js?v=20260907-economic-data"></script>
-<script src="masjidboard-appliance.js?v=20260907-economic-footer"></script>
+<script src="masjidboard-detailed.js?v=20260908-touch-display-2"></script>
+<script src="masjidboard-appliance.js?v=20260908-touch-display-2"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
-<script src="masjidboard-touch-controls.js?v=20260906-panel-focus"></script>
+<script src="masjidboard-touch-controls.js?v=20260908-display-controls"></script>
 </body>
 </html>

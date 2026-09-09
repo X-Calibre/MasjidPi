@@ -353,3 +353,34 @@ body.appliance-720-layout {
     font-size:33px;
     line-height:1.55;
 }
+
+
+/* Listen source changes overlay the header instead of reflowing it. */
+.appliance-720-layout .appliance-header { position:relative; }
+.appliance-720-layout .appliance-header .board-source-toast {
+    position:absolute;
+    z-index:30;
+    top:14px;
+    left:36px;
+    right:36px;
+    width:auto;
+    min-height:76px;
+    padding:11px 18px;
+    border-radius:16px;
+    flex:none;
+    box-shadow:0 12px 30px rgba(0,0,0,.38);
+    animation:appliance-720-toast-drop 220ms ease-out;
+}
+.appliance-720-layout .appliance-header .board-source-toast-label { font-size:14px; }
+.appliance-720-layout .appliance-header .board-source-toast-message { font-size:22px; }
+.appliance-720-layout .appliance-header:has(.board-source-toast:not(.hidden)) .appliance-clock-row {
+    height:174px;
+}
+.appliance-720-layout .appliance-header:has(.board-source-toast:not(.hidden)) .appliance-next {
+    height:124px;
+    margin-top:12px;
+}
+@keyframes appliance-720-toast-drop {
+    from { opacity:0; transform:translateY(-24px); }
+    to { opacity:1; transform:translateY(0); }
+}

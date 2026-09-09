@@ -5,7 +5,6 @@ set -Eeuo pipefail
 MASJIDBOARD_BASE_URL="${MASJIDBOARD_BASE_URL:-http://127.0.0.1:8080/masjidboard.html}"
 MASJIDBOARD_STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidpi/frontend/masjidboard-startup.html}"
 MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
-MASJIDPI_USB_SYSFS_ROOT="${MASJIDPI_USB_SYSFS_ROOT:-/sys/bus/usb/devices}"
 MASJIDPI_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
 MASJIDPI_RPI_MODEL_FILE="${MASJIDPI_RPI_MODEL_FILE:-/proc/device-tree/model}"
 
@@ -25,35 +24,6 @@ is_raspberry_pi_runtime() {
     grep -aqi 'Raspberry Pi' "$MASJIDPI_RPI_MODEL_FILE"
 }
 
-waveshare_touch_present() {
-    local device
-    for device in "$MASJIDPI_USB_SYSFS_ROOT"/*; do
-        [[ -r "$device/idVendor" && -r "$device/idProduct" ]] || continue
-        [[ "$(<"$device/idVendor")" == "0eef" ]] || continue
-        [[ "$(<"$device/idProduct")" == "0005" ]] || continue
-
-        # Some kernels/udev timing windows may expose VID/PID before optional
-        # descriptive strings. When the strings are present, require the
-        # validated Waveshare identity as an additional guard.
-        if [[ -r "$device/manufacturer" && -r "$device/product" ]]; then
-            [[ "$(<"$device/manufacturer")" == "WaveShare" ]] || continue
-            [[ "$(<"$device/product")" == "WS170120" ]] || continue
-        fi
-        return 0
-    done
-    return 1
-}
-
-hdmi_1024x600_present() {
-    local connector
-    for connector in "$MASJIDPI_DRM_SYSFS_ROOT"/card*-HDMI-A-*; do
-        [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
-        [[ "$(<"$connector/status")" == "connected" ]] || continue
-        grep -Fxq '1024x600' "$connector/modes" && return 0
-    done
-    return 1
-}
-
 dsi_720x1280_present() {
     local connector
     for connector in "$MASJIDPI_DRM_SYSFS_ROOT"/card*-DSI-*; do
@@ -67,8 +37,6 @@ dsi_720x1280_present() {
 display_profile() {
     if dsi_720x1280_present; then
         printf 'appliance-720\n'
-    elif waveshare_touch_present && hdmi_1024x600_present; then
-        printf 'appliance\n'
     else
         printf 'standard\n'
     fi
@@ -85,7 +53,7 @@ display_url() {
         return
     fi
 
-    if [[ "$profile" == appliance* ]]; then
+    if [[ "$profile" == "appliance-720" ]]; then
         if [[ "$MASJIDBOARD_BASE_URL" == *\?* ]]; then
             printf '%s&profile=%s\n' "$MASJIDBOARD_BASE_URL" "$profile"
         else
@@ -100,7 +68,7 @@ uses_startup_screen() {
     local profile="$1"
 
     [[ -z "${MASJIDBOARD_URL:-}" ]] || return 1
-    [[ "$profile" == appliance* ]] && return 0
+    [[ "$profile" == "appliance-720" ]] && return 0
     is_raspberry_pi_runtime
 }
 
@@ -136,10 +104,6 @@ main() {
 
     platform_params="renderer=gles"
     cog_args=(--platform=drm --bg-color='#050f0d')
-
-    if [[ "$profile" == "appliance" ]]; then
-        platform_params+=",rotation=1"
-    fi
 
     cog_args+=(--platform-params="$platform_params")
 

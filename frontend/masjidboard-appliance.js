@@ -3,7 +3,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const profile = params.get("profile");
-    if (profile !== "appliance" && profile !== "appliance-720") return;
+    if (profile !== "appliance-720") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";

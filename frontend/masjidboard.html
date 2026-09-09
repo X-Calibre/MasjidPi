@@ -86,37 +86,6 @@
             <div id="applianceDots" class="appliance-dots"></div>
             <span class="appliance-listen-hint">↑ Swipe up for controls</span>
         </footer>
-
-        <aside id="applianceQuickPanel" class="appliance-quick-panel hidden" aria-label="Quick settings" aria-modal="true" role="dialog">
-            <button class="appliance-quick-backdrop" type="button" data-quick-close aria-label="Close quick settings"></button>
-            <section class="appliance-quick-sheet">
-                <div class="appliance-quick-handle" aria-hidden="true"></div>
-                <header class="appliance-quick-heading">
-                    <div><small>QUICK SETTINGS</small><h2>Display &amp; Volume</h2></div>
-                    <button class="appliance-listen-close" type="button" data-quick-close aria-label="Close quick settings"></button>
-                </header>
-                <div id="applianceQuickConnection" class="appliance-listen-connection hidden" role="status"></div>
-                <div class="appliance-quick-controls">
-                    <div class="appliance-volume-control">
-                        <div class="appliance-control-label"><label for="applianceBrightness">Display Brightness</label><output id="applianceBrightnessValue">--%</output></div>
-                        <input id="applianceBrightness" type="range" min="10" max="100" step="5" value="100">
-                        <p id="applianceBrightnessUnavailable" class="hidden">Backlight control is unavailable on this display.</p>
-                    </div>
-                    <div class="appliance-volume-control appliance-master-volume">
-                        <div class="appliance-control-label"><label for="applianceMasterVolume">Master Volume</label><output id="applianceMasterVolumeValue">--%</output></div>
-                        <div class="appliance-volume-row"><button type="button" data-volume-step="master:-5">−</button><input id="applianceMasterVolume" type="range" min="0" max="100" step="1" value="100"><button type="button" data-volume-step="master:5">+</button></div>
-                    </div>
-                    <div class="appliance-volume-control">
-                        <div class="appliance-control-label"><label for="applianceMasjidVolume">Masjid Volume</label><output id="applianceMasjidVolumeValue">--%</output></div>
-                        <div class="appliance-volume-row"><button type="button" data-volume-step="masjid:-5">−</button><input id="applianceMasjidVolume" type="range" min="0" max="150" step="1" value="100"><button type="button" data-volume-step="masjid:5">+</button></div>
-                    </div>
-                    <div class="appliance-volume-control">
-                        <div class="appliance-control-label"><label for="applianceRadioVolume">Radio Volume</label><output id="applianceRadioVolumeValue">--%</output></div>
-                        <div class="appliance-volume-row"><button type="button" data-volume-step="radio:-5">−</button><input id="applianceRadioVolume" type="range" min="0" max="150" step="1" value="70"><button type="button" data-volume-step="radio:5">+</button></div>
-                    </div>
-                </div>
-            </section>
-        </aside>
         <aside id="applianceListenPanel" class="appliance-listen-panel hidden" aria-label="Listen controls" aria-modal="true" role="dialog">
             <button class="appliance-listen-backdrop" type="button" data-listen-close aria-label="Close Listen controls"></button>
             <section class="appliance-listen-sheet">
@@ -136,14 +105,31 @@
                         <span id="applianceListenDetail"></span>
                     </div>
                 </div>
+                <div class="appliance-volume-control appliance-master-volume">
+                    <div class="appliance-control-label"><label for="applianceMasterVolume">Master Volume</label><output id="applianceMasterVolumeValue">--%</output></div>
+                    <div class="appliance-volume-row">
+                        <button type="button" data-volume-step="master:-5" aria-label="Decrease master volume">−</button>
+                        <input id="applianceMasterVolume" type="range" min="0" max="100" step="1" value="100">
+                        <button type="button" data-volume-step="master:5" aria-label="Increase master volume">+</button>
+                    </div>
+                </div>
                 <nav class="appliance-listen-tabs" aria-label="Listen source" role="tablist">
                     <button id="applianceMasjidTab" class="active" type="button" role="tab" data-touch-tab="masjid" aria-controls="applianceMasjidPanel" aria-selected="true">Masjid</button>
                     <button id="applianceRadioTab" type="button" role="tab" data-touch-tab="radio" aria-controls="applianceRadioPanel" aria-selected="false">Radio</button>
                     <button id="applianceThemeTab" type="button" role="tab" data-touch-tab="theme" aria-controls="applianceThemePanel" aria-selected="false">Theme</button>
                     <button id="applianceNetworkTab" type="button" role="tab" data-touch-tab="network" aria-controls="applianceNetworkPanel" aria-selected="false">Network</button>
+                    <button id="applianceDisplayTab" class="hidden" type="button" role="tab" data-touch-tab="display" aria-controls="applianceDisplayPanel" aria-selected="false">Display</button>
                 </nav>
                 <div class="appliance-listen-content">
                     <section id="applianceMasjidPanel" data-touch-panel="masjid" role="tabpanel" aria-labelledby="applianceMasjidTab">
+                        <div class="appliance-volume-control">
+                            <div class="appliance-control-label"><label for="applianceMasjidVolume">Masjid Volume</label><output id="applianceMasjidVolumeValue">--%</output></div>
+                            <div class="appliance-volume-row">
+                                <button type="button" data-volume-step="masjid:-5" aria-label="Decrease Masjid volume">−</button>
+                                <input id="applianceMasjidVolume" type="range" min="0" max="150" step="1" value="100">
+                                <button type="button" data-volume-step="masjid:5" aria-label="Increase Masjid volume">+</button>
+                            </div>
+                        </div>
                         <div class="appliance-source-heading"><strong>Favourite Masjids</strong><span id="applianceMasjidSelection"></span></div>
                         <div id="applianceFavouriteMasjids" class="appliance-source-list" role="listbox" aria-label="Favourite Masjids"></div>
                         <div class="appliance-listen-actions appliance-masjid-actions">
@@ -152,6 +138,14 @@
                         </div>
                     </section>
                     <section id="applianceRadioPanel" class="hidden" data-touch-panel="radio" role="tabpanel" aria-labelledby="applianceRadioTab">
+                        <div class="appliance-volume-control">
+                            <div class="appliance-control-label"><label for="applianceRadioVolume">Radio Volume</label><output id="applianceRadioVolumeValue">--%</output></div>
+                            <div class="appliance-volume-row">
+                                <button type="button" data-volume-step="radio:-5" aria-label="Decrease Radio volume">−</button>
+                                <input id="applianceRadioVolume" type="range" min="0" max="150" step="1" value="70">
+                                <button type="button" data-volume-step="radio:5" aria-label="Increase Radio volume">+</button>
+                            </div>
+                        </div>
                         <div class="appliance-source-heading"><strong>Radio Station</strong><span id="applianceRadioSelection"></span></div>
                         <div id="applianceRadioStations" class="appliance-source-list appliance-radio-list" role="listbox" aria-label="Radio stations"></div>
                         <div id="applianceRadioModeDetail" class="appliance-radio-mode-detail"></div>
@@ -190,12 +184,33 @@
                             <a id="applianceChangeWiFi" href="/setup.html?return=board">Change Wi-Fi network</a>
                         </div>
                     </section>
+                    <section id="applianceDisplayPanel" class="hidden" data-touch-panel="display" role="tabpanel" aria-labelledby="applianceDisplayTab">
+                        <div class="appliance-display-settings">
+                            <div class="appliance-display-heading">
+                                <strong>Screen brightness</strong>
+                                <output id="applianceBrightnessValue">--%</output>
+                            </div>
+                            <input id="applianceBrightness" type="range" min="10" max="100" step="5" value="100">
+                            <p id="applianceBrightnessUnavailable" class="hidden">Backlight control is unavailable on this display.</p>
+                            <div class="appliance-temperature-settings">
+                                <strong>White balance</strong>
+                                <span>Apply a cooler colour correction to compensate for a warm panel.</span>
+                                <div id="applianceTemperatureChoices" class="appliance-temperature-grid" role="radiogroup" aria-label="White balance correction">
+                                    <button type="button" data-temperature="off">Off</button>
+                                    <button type="button" data-temperature="mild">Mild</button>
+                                    <button type="button" data-temperature="medium">Medium</button>
+                                    <button type="button" data-temperature="strong">Strong</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </section>
         </aside>
     </section>
 </main>
 
+<script src="display-adjustments.js?v=20260908-display-controls"></script>
 <script src="masjidboard-theme.js?v=20260906-light-themes"></script>
 <script src="masjidboard-date-utils.js?v=20260905-day-first-date"></script>
 <script src="masjidboard-warning-utils.js?v=20260905-zawaal-fallbacks"></script>
@@ -204,6 +219,6 @@
 <script src="masjidboard-detailed.js?v=20260908-touch-display-2"></script>
 <script src="masjidboard-appliance.js?v=20260909-date-alternation"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
-<script src="masjidboard-touch-controls.js?v=20260909-split-panels"></script>
+<script src="masjidboard-touch-controls.js?v=20260908-display-controls"></script>
 </body>
 </html>

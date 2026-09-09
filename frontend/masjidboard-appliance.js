@@ -407,7 +407,10 @@
         latestView = view;
         const boards = view && Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (!view || !view.configured || boards.length === 0) return;
-        primaryName.textContent = boards[0].name;
+        const displayName = plainText(boards[0].name);
+        primaryName.textContent = displayName;
+        primaryName.classList.toggle("name-long", displayName.length > 22);
+        primaryName.classList.toggle("name-very-long", displayName.length > 32);
         renderSlides(boards, view.economic_indicators, view.daily_islamic_content, view.show_dua_after_adhan);
         updateHeader();
         state.classList.remove("hidden");

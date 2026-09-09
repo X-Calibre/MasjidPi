@@ -4,17 +4,13 @@
     const params = new URLSearchParams(window.location.search);
     const profile = params.get("profile");
     if (profile !== "appliance-720") return;
-    const visualDemoTab = params.get("visual-demo-controls");
-    const visualDemoTabs = new Set(["masjid", "radio", "theme", "network", "display"]);
 
     const state = document.getElementById("applianceState");
     const panel = document.getElementById("applianceListenPanel");
     if (!state || !panel) return;
 
     const changeWiFi = document.getElementById("applianceChangeWiFi");
-    if (changeWiFi) changeWiFi.href = visualDemoTab
-        ? "/setup.html?visual-demo-step=network"
-        : `/setup.html?return=board&profile=${profile}`;
+    if (changeWiFi) changeWiFi.href = `/setup.html?return=board&profile=${profile}`;
     const displayTab = document.getElementById("applianceDisplayTab");
     displayTab?.classList.remove("hidden");
 
@@ -89,54 +85,7 @@
         return {method, headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
     }
 
-    function visualDemoResponse(url, options = {}) {
-        const demoStatus = {
-            listening:true,
-            active_source:"masjid",
-            active_stream_id:"demo-masjid",
-            active_stream_name:"Masjid us Salaam",
-            masjid_id:"demo-masjid",
-            masjid_name:"Masjid us Salaam",
-            radio_id:"demo-radio",
-            radio_name:"Radio Islam International",
-            radio_enabled:true,
-            radio_mode:"schedule",
-            radio_schedule_enabled:true,
-            radio_schedule_start:"08:00",
-            radio_schedule_stop:"20:00",
-            master_volume:65,
-            masjid_volume:100,
-            radio_volume:85,
-            master_volume_supported:true
-        };
-        if (url === "/api/listen/status") return demoStatus;
-        if (url === "/api/streams?kind=masjid") return [
-            {id:"demo-masjid", name:"Masjid us Salaam", location:"Laudium"},
-            {id:"demo-hamza", name:"Masjid Hamza RA", location:"Erasmia"}
-        ];
-        if (url === "/api/streams?kind=radio") return [
-            {id:"demo-radio", name:"Radio Islam International", location:"South Africa"},
-            {id:"demo-cii", name:"Channel Islam International", location:"South Africa"}
-        ];
-        if (url === "/api/favourites") return {ids:["demo-masjid", "demo-hamza"]};
-        if (url === "/api/masjidboard/layout") {
-            const requested = options.body ? JSON.parse(options.body) : {};
-            return {theme:requested.theme || "emerald"};
-        }
-        if (url === "/api/setup/device-access") return {
-            fqdn:"masjidframe.example.test",
-            ip_address:"192.0.2.25"
-        };
-        if (url === "/api/display/settings") return {
-            brightness_percent:50,
-            color_temperature:"off",
-            brightness_available:true
-        };
-        return demoStatus;
-    }
-
     async function requestJSON(url, options = {}) {
-        if (visualDemoTab) return visualDemoResponse(url, options);
         const response = await fetch(url, options);
         if (!response.ok) {
             let message = `Request failed (${response.status})`;
@@ -198,7 +147,7 @@
 
     function resetInactivityTimer() {
         window.clearTimeout(inactivityTimer);
-        if (open && !visualDemoTab) inactivityTimer = window.setTimeout(() => setOpen(false), inactivityTimeout);
+        if (open) inactivityTimer = window.setTimeout(() => setOpen(false), inactivityTimeout);
     }
 
     function setOpen(value) {
@@ -480,7 +429,6 @@
         }, false);
     });
     temperatureHost?.addEventListener("click", event => {
-        if (visualDemoTab) return;
         const button = event.target.closest("button[data-temperature]");
         if (!button) return;
         runAction(async () => {
@@ -490,7 +438,6 @@
     });
     brightness?.addEventListener("input", () => {
         brightnessValue.textContent = `${brightness.value}%`;
-        if (visualDemoTab) return;
         window.clearTimeout(brightnessSaveTimer);
         brightnessSaveTimer = window.setTimeout(async () => {
             try {
@@ -619,9 +566,5 @@
             event.stopPropagation();
         });
     }
-    document.addEventListener("keydown", event => { if (open && event.key === "Escape" && !visualDemoTab) setOpen(false); });
-    if (visualDemoTabs.has(visualDemoTab)) {
-        activateTab(visualDemoTab);
-        setOpen(true);
-    }
+    document.addEventListener("keydown", event => { if (open && event.key === "Escape") setOpen(false); });
 })();

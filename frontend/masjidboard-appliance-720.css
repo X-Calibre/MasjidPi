@@ -1,5 +1,5 @@
-/* Native portrait layout for the 7-inch Raspberry Pi Touch Display 2.
-   The original appliance rules remain the 600x1024 Waveshare contract. */
+/* Native portrait layout for the supported 7-inch Raspberry Pi Touch Display 2.
+   masjidboard-appliance.css provides the shared structural foundation. */
 body.appliance-720-layout {
     min-width:720px;
     min-height:1280px;

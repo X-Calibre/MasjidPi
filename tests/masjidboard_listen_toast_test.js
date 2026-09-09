@@ -7,7 +7,7 @@ const {remainingText, sourceState} = require("../frontend/masjidboard-listen-toa
 
 const html = fs.readFileSync(path.resolve(__dirname, "../frontend/masjidboard.html"), "utf8");
 assert.equal((html.match(/data-board-source-toast/g) || []).length, 2);
-assert.match(html, /masjidboard-listen-toast\.js\?v=20260909-visual-demo/);
+assert.match(html, /masjidboard-listen-toast\.js\?v=20260829-source-transition-toast/);
 
 assert.deepEqual(sourceState(null), {kind: "none", key: "none"});
 assert.deepEqual(sourceState({listening: false}), {kind: "none", key: "none"});

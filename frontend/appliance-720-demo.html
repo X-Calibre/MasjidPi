@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Touch Display 2 visual review</title>
+    <style>
+        :root { color-scheme:dark; font-family:system-ui,sans-serif; }
+        * { box-sizing:border-box; }
+        body { margin:0; min-height:100vh; display:grid; grid-template-columns:340px minmax(0,1fr); background:#07100d; color:#f4f8f5; }
+        aside { height:100vh; overflow:auto; padding:22px; border-right:1px solid #34453e; background:#101a16; }
+        h1 { margin:0 0 8px; font-size:24px; }
+        p { color:#bdcbc4; line-height:1.4; }
+        h2 { margin:24px 0 8px; color:#8ff0c3; font-size:15px; letter-spacing:.08em; text-transform:uppercase; }
+        button,a.action { width:100%; min-height:42px; margin:5px 0; padding:9px 12px; border:1px solid #526058; border-radius:9px; display:flex; align-items:center; color:#f4f8f5; background:#1a2922; font:inherit; font-weight:700; text-align:left; text-decoration:none; cursor:pointer; }
+        button:hover,button.active,a.action:hover { border-color:#55d69e; background:#173d2f; }
+        .toolbar { position:sticky; bottom:0; margin:22px -22px -22px; padding:14px 22px 18px; border-top:1px solid #34453e; background:#101a16; }
+        main { min-width:0; min-height:100vh; display:grid; place-items:center; overflow:hidden; padding:18px; background:#020504; }
+        #frameShell { position:relative; width:720px; height:1280px; transform-origin:center; }
+        iframe { width:720px; height:1280px; border:1px solid #526058; border-radius:8px; display:block; background:#050f0d; }
+        .note { font-size:13px; }
+        @media (max-width:900px) {
+            body { grid-template-columns:1fr; }
+            aside { height:auto; max-height:48vh; border-right:0; border-bottom:1px solid #34453e; }
+            main { min-height:52vh; }
+        }
+    </style>
+</head>
+<body>
+<aside>
+    <h1>Touch Display 2 visual review</h1>
+    <p class="note">Read-only fixtures for inspecting the supported 720 × 1280 presentation. Setup and control fixtures do not save changes.</p>
+
+    <h2>Board and cards</h2>
+    <button data-path="masjidboard.html?profile=appliance-720">Live slideshow</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo=cards">All community card fixtures</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;dua-fixture=1">Dua after Adhan</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;jumuah-fixture=khateeb&amp;date=2026-09-11">Detailed Jumu'ah</button>
+
+    <h2>Touch-control panels</h2>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-controls=masjid">Masjid tab</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-controls=radio">Radio tab</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-controls=theme">Theme tab</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-controls=network">Network tab</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-controls=display">Display tab</button>
+
+    <h2>Playback notifications</h2>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-toast=masjid">Masjid now playing</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-toast=radio">Radio now playing</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-toast=waiting">Radio resume countdown</button>
+    <button data-path="masjidboard.html?profile=appliance-720&amp;visual-demo-toast=cycle">Cycle all notifications</button>
+
+    <h2>First-run and Wi-Fi</h2>
+    <button data-path="setup.html?visual-demo-step=network">Network list</button>
+    <button data-path="setup.html?visual-demo-step=password">Wi-Fi password</button>
+    <button data-path="setup.html?visual-demo-step=hidden">Hidden network</button>
+    <button data-path="setup.html?visual-demo-step=success">Connected screen</button>
+    <button data-path="setup.html?visual-demo-step=location">Location selection</button>
+    <button data-path="setup.html?visual-demo-step=picker">Location picker</button>
+    <button data-path="setup.html?visual-demo-step=masjid">Masjid selection</button>
+
+    <div class="toolbar">
+        <a id="openFullSize" class="action" href="masjidboard.html?profile=appliance-720" target="_blank" rel="noopener">Open current screen full size</a>
+    </div>
+</aside>
+<main>
+    <div id="frameShell">
+        <iframe id="preview" title="720 by 1280 Touch Display 2 preview" src="masjidboard.html?profile=appliance-720"></iframe>
+    </div>
+</main>
+<script>
+(() => {
+    const frame = document.getElementById("preview");
+    const shell = document.getElementById("frameShell");
+    const stage = document.querySelector("main");
+    const open = document.getElementById("openFullSize");
+    const buttons = Array.from(document.querySelectorAll("button[data-path]"));
+
+    function fit() {
+        const scale = Math.min((stage.clientWidth - 36) / 720, (stage.clientHeight - 36) / 1280, 1);
+        shell.style.transform = `scale(${scale})`;
+        shell.style.margin = `${(1280 * scale - 1280) / 2}px ${(720 * scale - 720) / 2}px`;
+    }
+
+    function select(button) {
+        for (const item of buttons) item.classList.toggle("active", item === button);
+        const path = button.dataset.path;
+        frame.src = path;
+        open.href = path;
+    }
+
+    for (const button of buttons) button.addEventListener("click", () => select(button));
+    window.addEventListener("resize", fit);
+    fit();
+})();
+</script>
+</body>
+</html>

@@ -108,29 +108,6 @@
         }
     }
 
-    const visualDemoToast = new URLSearchParams(window.location.search).get("visual-demo-toast");
-    const visualDemoStates = {
-        masjid:{kind:"masjid", key:"demo-masjid", name:"Masjid us Salaam"},
-        radio:{kind:"radio", key:"demo-radio", name:"Radio Islam International"},
-        waiting:{kind:"waiting", key:"demo-waiting", name:"Radio Islam International", resumeAt:new Date(Date.now() + 185_000).toISOString()}
-    };
-    if (visualDemoToast === "cycle") {
-        const states = [visualDemoStates.masjid, visualDemoStates.radio, visualDemoStates.waiting];
-        let index = 0;
-        show(states[index], true);
-        setInterval(() => {
-            index = (index + 1) % states.length;
-            if (states[index].kind === "waiting") states[index].resumeAt = new Date(Date.now() + 185_000).toISOString();
-            show(states[index], true);
-        }, 5_000);
-        return;
-    }
-    if (visualDemoStates[visualDemoToast]) {
-        show(visualDemoStates[visualDemoToast], true);
-        if (visualDemoToast === "waiting") setInterval(() => show(visualDemoStates.waiting, true), 1_000);
-        return;
-    }
-
     setInterval(() => {
         if (currentState.kind === "waiting") show(currentState, true);
     }, 1_000);

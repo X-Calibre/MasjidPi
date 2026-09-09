@@ -4,13 +4,14 @@
     const params = new URLSearchParams(window.location.search);
     const profile = params.get("profile");
     if (profile !== "appliance-720") return;
-    const communityFixtureMode = params.get("notice-fixtures");
-    const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
+    const visualDemoCards = params.get("visual-demo") === "cards";
+    const communityFixtureMode = visualDemoCards ? "1" : params.get("notice-fixtures");
+    const useCommunityFixtures = visualDemoCards || communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
     const useDuaAfterAdhanFixture = params.get("dua-fixture") === "1";
 
     document.body.classList.add("appliance-layout");
-    if (profile === "appliance-720") document.body.classList.add("appliance-720-layout");
+    document.body.classList.add("appliance-720-layout");
     const utils = window.MasjidBoardDisplayUtils;
     const dateUtils = window.MasjidBoardDate;
     const warningUtils = window.MasjidBoardWarningUtils;
@@ -333,7 +334,7 @@
 
     function startTimer() {
         window.clearInterval(slideTimer);
-        if (state.classList.contains("listen-panel-open")) return;
+        if (state.classList.contains("listen-panel-open") || visualDemoCards) return;
         if (slides.length < 2) return;
         slideTimer = window.setInterval(() => showSlide(activeSlide + 1, false), slideDurationSeconds * 1000);
     }

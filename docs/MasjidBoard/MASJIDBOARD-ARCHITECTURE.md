@@ -95,7 +95,6 @@ The administrative APIs remain separate from the display response.
 The common HTML page loads two presentation implementations:
 
 - **standard** — responsive landscape TV/Monitor comparison;
-- **appliance** — portrait 600 × 1024 Waveshare slideshow with touch controls;
 - **appliance-720** — native portrait 720 × 1280 Touch Display 2 slideshow with touch controls.
 
 The system launcher detects the local hardware profile. Remote browsers can explicitly request the appliance preview for testing.

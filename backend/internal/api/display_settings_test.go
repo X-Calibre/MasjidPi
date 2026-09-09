@@ -14,9 +14,13 @@ import (
 func TestDisplaySettingsHandlerUpdatesBrightness(t *testing.T) {
 	root := t.TempDir()
 	device := filepath.Join(root, "touch-display-2")
-	if err := os.Mkdir(device, 0755); err != nil { t.Fatal(err) }
-	for name, value := range map[string]string{"brightness":"31\n","max_brightness":"31\n"} {
-		if err := os.WriteFile(filepath.Join(device, name), []byte(value), 0644); err != nil { t.Fatal(err) }
+	if err := os.Mkdir(device, 0755); err != nil {
+		t.Fatal(err)
+	}
+	for name, value := range map[string]string{"brightness": "31\n", "max_brightness": "31\n"} {
+		if err := os.WriteFile(filepath.Join(device, name), []byte(value), 0644); err != nil {
+			t.Fatal(err)
+		}
 	}
 	server := &Server{displaySettings: display.NewController(filepath.Join(t.TempDir(), "display.json"), root)}
 	request := httptest.NewRequest(http.MethodPut, "/api/display/settings", strings.NewReader(`{"brightness_percent":50}`))

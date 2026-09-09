@@ -18,12 +18,10 @@ const (
 	DefaultBrightness = 100
 	MinBrightness     = 10
 	MaxBrightness     = 100
-	TemperatureOff    = "off"
 )
 
 type State struct {
-	BrightnessPercent int    `json:"brightness_percent"`
-	ColorTemperature  string `json:"color_temperature"`
+	BrightnessPercent int `json:"brightness_percent"`
 }
 
 type Settings struct {
@@ -44,22 +42,9 @@ func NewController(statePath, backlightRoot string) *Controller {
 	return &Controller{statePath: statePath, backlightRoot: backlightRoot}
 }
 
-func SupportedTemperature(value string) bool {
-	switch value {
-	case "off", "mild", "medium", "strong":
-		return true
-	default:
-		return false
-	}
-}
-
 func normalize(state State) State {
 	if state.BrightnessPercent < MinBrightness || state.BrightnessPercent > MaxBrightness {
 		state.BrightnessPercent = DefaultBrightness
-	}
-	state.ColorTemperature = strings.ToLower(strings.TrimSpace(state.ColorTemperature))
-	if !SupportedTemperature(state.ColorTemperature) {
-		state.ColorTemperature = TemperatureOff
 	}
 	return state
 }
@@ -70,7 +55,7 @@ func (c *Controller) Load() (Settings, error) {
 	return c.loadLocked()
 }
 
-func (c *Controller) Update(brightness *int, temperature *string) (Settings, error) {
+func (c *Controller) Update(brightness *int) (Settings, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	settings, err := c.loadLocked()
@@ -83,15 +68,6 @@ func (c *Controller) Update(brightness *int, temperature *string) (Settings, err
 			return Settings{}, fmt.Errorf("brightness must be between %d and %d percent", MinBrightness, MaxBrightness)
 		}
 		state.BrightnessPercent = *brightness
-	}
-	if temperature != nil {
-		value := strings.ToLower(strings.TrimSpace(*temperature))
-		if !SupportedTemperature(value) {
-			return Settings{}, errors.New("unsupported color temperature correction")
-		}
-		state.ColorTemperature = value
-	}
-	if brightness != nil {
 		if err := c.writeBrightness(state.BrightnessPercent); err != nil {
 			return Settings{}, err
 		}
@@ -116,7 +92,7 @@ func (c *Controller) Restore() error {
 }
 
 func (c *Controller) loadLocked() (Settings, error) {
-	state := State{BrightnessPercent: DefaultBrightness, ColorTemperature: TemperatureOff}
+	state := State{BrightnessPercent: DefaultBrightness}
 	data, err := os.ReadFile(c.statePath)
 	if err == nil {
 		if err := json.Unmarshal(data, &state); err != nil {

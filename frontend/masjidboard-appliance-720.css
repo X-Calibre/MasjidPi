@@ -270,7 +270,7 @@ body.appliance-720-layout {
     height:156px;
     display:grid;
     grid-template-columns:320px minmax(0,1fr);
-    grid-template-rows:108px 42px;
+    grid-template-rows:122px 28px;
     column-gap:24px;
     row-gap:6px;
     align-items:start;
@@ -284,11 +284,12 @@ body.appliance-720-layout {
 .appliance-720-layout .appliance-information {
     grid-column:2;
     grid-row:1;
-    height:auto;
+    height:122px;
     min-width:0;
-    align-self:center;
+    align-self:start;
     align-items:flex-end;
-    justify-content:center;
+    justify-content:flex-start;
+    gap:6px;
 }
 .appliance-720-layout .appliance-information strong {
     max-width:100%;
@@ -314,9 +315,15 @@ body.appliance-720-layout {
     line-height:1.15;
     white-space:nowrap;
 }
-.appliance-720-layout .appliance-date-line #applianceIslamicDate {
+.appliance-720-layout .appliance-information #applianceIslamicDate {
+    max-width:100%;
     color:var(--appliance-heading-accent);
+    font-size:22px;
     font-weight:800;
+    line-height:1.15;
+    text-align:right;
+    white-space:normal;
+    overflow-wrap:anywhere;
 }
 
 .appliance-720-layout .appliance-community-body {

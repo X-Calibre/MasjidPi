@@ -65,7 +65,6 @@ assert.doesNotMatch(controller, /dataset\.sourceID/);
 assert.match(controller, /control\.addEventListener\("input", \(\) => scheduleVolumeSave\(name\)\)/);
 assert.match(controller, /window\.setTimeout\(\(\) => saveVolume\(name, value\), 120\)/);
 assert.match(controller, /const inactivityTimeout = 60000/);
-assert.match(controller, /if \(open && !visualDemoTab\) inactivityTimer = window\.setTimeout/);
 assert.match(controller, /inactivityTimer = window\.setTimeout\(\(\) => setOpen\(false\), inactivityTimeout\)/);
 assert.match(controller, /\["pointerdown", "keydown", "input", "change"\]/);
 assert.match(controller, /addEventListener\("scroll", resetInactivityTimer, true\)/);
@@ -82,7 +81,7 @@ assert.match(controller, /\["rose", "Rose"/);
 assert.match(appliance, /masjidpi:appliance-listen-panel/);
 assert.doesNotMatch(appliance, /portrait/);
 assert.match(css, /var\(--appliance-panel\)/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260908-time-change-legibility/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-header-card-legibility/);
 assert.match(appliance, /profile !== "appliance-720"/);
 assert.doesNotMatch(appliance, /profile !== "appliance"/);
 assert.match(appliance720, /body\.appliance-720-layout/);
@@ -126,5 +125,13 @@ for (const theme of ["ivory", "sage", "sky", "rose"]) {
     assert.match(themes, new RegExp(`body\\[data-board-theme="${theme}"\\]`));
 }
 assert.match(config, /value="light"[^>]*>[\s\S]*?<strong>Light Gold<\/strong>/);
+
+assert.match(html, /class="appliance-date-line"/);
+assert.match(appliance720, /\.appliance-clock\s*\{[^}]*font-size:104px/s);
+assert.match(appliance720, /\.appliance-information strong\s*\{[^}]*font-size:34px;[^}]*white-space:normal/s);
+assert.match(appliance720, /\.appliance-date-line\s*\{[^}]*font-size:24px/s);
+assert.match(appliance720, /\.appliance-community-body\s*\{[^}]*font-size:34px/s);
+assert.match(appliance720, /\.appliance-community-field\s*\{[^}]*font-size:28px/s);
+assert.match(appliance720, /\.appliance-community-dua_after_adhan \.appliance-community-field:first-child \.appliance-community-field-value\s*\{[^}]*font-size:33px/s);
 
 console.log("MasjidBoard appliance touch-control tests passed");

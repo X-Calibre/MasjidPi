@@ -166,10 +166,7 @@ func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
-	profile := r.URL.Query().Get("profile")
-	if profile != "appliance-720" {
-		profile = "appliance"
-	}
+	const profile = "appliance-720"
 	if s.wifi != nil {
 		status, err := s.wifi.Status(r.Context())
 		if err == nil && status.Supported && !status.Configured {

@@ -65,7 +65,7 @@ assert.doesNotMatch(controller, /dataset\.sourceID/);
 assert.match(controller, /control\.addEventListener\("input", \(\) => scheduleVolumeSave\(name\)\)/);
 assert.match(controller, /window\.setTimeout\(\(\) => saveVolume\(name, value\), 120\)/);
 assert.match(controller, /const inactivityTimeout = 60000/);
-assert.match(controller, /if \\(open && !visualDemoTab\\) inactivityTimer = window\\.setTimeout/);
+assert.match(controller, /if \(open && !visualDemoTab\) inactivityTimer = window\.setTimeout/);
 assert.match(controller, /inactivityTimer = window\.setTimeout\(\(\) => setOpen\(false\), inactivityTimeout\)/);
 assert.match(controller, /\["pointerdown", "keydown", "input", "change"\]/);
 assert.match(controller, /addEventListener\("scroll", resetInactivityTimer, true\)/);

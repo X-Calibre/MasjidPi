@@ -31,6 +31,8 @@
     let activeSlide = 0;
     let slideDurationSeconds = 15;
     let slideTimer = 0;
+    let dateTimer = 0;
+    let showingGregorianDate = true;
     let transitionTimer = 0;
     let gestureStart = null;
     let duaAfterAdhanVisible = false;
@@ -331,6 +333,25 @@
         if (restart) startTimer();
     }
 
+    function updateDateVisibility() {
+        const hasIslamicDate = Boolean(islamicDate.textContent.trim());
+        const showGregorian = showingGregorianDate || !hasIslamicDate;
+        gregorianDate.classList.toggle("hidden", !showGregorian);
+        islamicDate.classList.toggle("hidden", showGregorian);
+    }
+
+    function startDateTimer(reset) {
+        window.clearInterval(dateTimer);
+        dateTimer = 0;
+        if (reset) showingGregorianDate = true;
+        updateDateVisibility();
+        if (!islamicDate.textContent.trim()) return;
+        dateTimer = window.setInterval(() => {
+            showingGregorianDate = !showingGregorianDate;
+            updateDateVisibility();
+        }, slideDurationSeconds * 1000);
+    }
+
     function startTimer() {
         window.clearInterval(slideTimer);
         if (state.classList.contains("listen-panel-open")) return;
@@ -418,9 +439,15 @@
 
     function refresh(view) {
         render(view);
+        const previousDuration = slideDurationSeconds;
         const duration = Number(view.slide_duration_seconds);
         slideDurationSeconds = duration >= 5 && duration <= 60 ? duration : 15;
         startTimer();
+        if (!dateTimer || slideDurationSeconds !== previousDuration) {
+            startDateTimer(slideDurationSeconds !== previousDuration);
+        } else {
+            updateDateVisibility();
+        }
     }
 
     state.addEventListener("pointerdown", (event) => { gestureStart = {x: event.clientX, y: event.clientY}; });

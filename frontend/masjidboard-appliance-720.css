@@ -263,3 +263,79 @@ body.appliance-720-layout {
     font-size:27px;
     line-height:1.2;
 }
+
+
+/* Header hierarchy and notice legibility for the physical Touch Display 2. */
+.appliance-720-layout .appliance-clock-row {
+    height:156px;
+    display:grid;
+    grid-template-columns:320px minmax(0,1fr);
+    grid-template-rows:108px 42px;
+    column-gap:24px;
+    row-gap:6px;
+    align-items:start;
+}
+.appliance-720-layout .appliance-clock {
+    grid-column:1;
+    grid-row:1;
+    align-self:center;
+    font-size:104px;
+}
+.appliance-720-layout .appliance-information {
+    grid-column:2;
+    grid-row:1;
+    height:auto;
+    min-width:0;
+    align-self:center;
+    align-items:flex-end;
+    justify-content:center;
+}
+.appliance-720-layout .appliance-information strong {
+    max-width:100%;
+    overflow:visible;
+    font-size:34px;
+    line-height:1.08;
+    text-align:right;
+    text-overflow:clip;
+    white-space:normal;
+    overflow-wrap:anywhere;
+}
+.appliance-720-layout .appliance-date-line {
+    grid-column:1 / -1;
+    grid-row:2;
+    min-width:0;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:16px;
+    color:var(--appliance-secondary-text);
+    font-size:24px;
+    font-weight:650;
+    line-height:1.15;
+    white-space:nowrap;
+}
+.appliance-720-layout .appliance-date-line #applianceIslamicDate {
+    color:var(--appliance-heading-accent);
+    font-weight:800;
+}
+
+.appliance-720-layout .appliance-community-body {
+    font-size:34px;
+    line-height:1.35;
+}
+.appliance-720-layout .appliance-community-field {
+    font-size:28px;
+    line-height:1.25;
+}
+.appliance-720-layout .appliance-community-card.compact .appliance-community-body {
+    font-size:21px;
+    line-height:1.3;
+}
+.appliance-720-layout .appliance-community-card.compact .appliance-community-field {
+    font-size:20px;
+    line-height:1.25;
+}
+.appliance-720-layout .appliance-community-dua_after_adhan .appliance-community-field:first-child .appliance-community-field-value {
+    font-size:33px;
+    line-height:1.55;
+}

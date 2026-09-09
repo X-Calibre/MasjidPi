@@ -36,7 +36,7 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 - Complete published-package validation of v1.6.0-rc.3 on Raspberry Pi 4 and confirm acceptable Pi 3B resource use.
 - Replace temporary splash artwork with final MasjidFrame branding.
 - Finalise the portrait enclosure, display, audio and power design.
-- Validate the selected Waveshare display's audio path and physical controls.
+- Validate the selected USB audio path, speakers and physical enclosure.
 - Investigate HDMI-CEC behavior on intended displays.
 - Build a repeatable Raspberry Pi appliance image.
 

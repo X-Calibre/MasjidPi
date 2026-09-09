@@ -69,4 +69,4 @@ USB audio hot-plug fallback and restoration have been validated with a Logitech 
 - Raspberry Pi Zero 2 W and Pi 3A+ memory validation;
 - HDMI disconnect/reconnect behavior;
 - physical HDMI-CEC support; and
-- Waveshare display audio and volume behavior.
+- the selected USB audio, speaker and enclosure design.

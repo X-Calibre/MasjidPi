@@ -13,7 +13,7 @@ MasjidPi currently provides:
 - priority masjid audio with optional secondary Islamic Radio;
 - saved favourites, scheduling, source volumes and audio-output recovery;
 - discovery and selection of up to three MasjidBoard Live masjids;
-- responsive TV/Monitor presentation and dedicated 600 × 1024 and 720 × 1280 portrait Appliance Display profiles;
+- responsive TV/Monitor presentation and a dedicated 720 × 1280 Raspberry Pi Touch Display 2 profile;
 - prayer, Jumu'ah, Daily Times and next-event information;
 - supported community notices and optional shared Islamic content;
 - last-known-good data during temporary upstream failures; and

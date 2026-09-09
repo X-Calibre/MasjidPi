@@ -62,29 +62,6 @@ The supported portrait presentation can be previewed from another computer:
 The query parameter changes only that browser view. It does not alter saved
 settings or rotate the remote display.
 
-### Visual-review gallery
-
-Open the dedicated review launcher to inspect every supported Touch Display 2
-state from one page:
-
-```text
-/appliance-720-demo.html
-```
-
-The launcher embeds an exact 720x1280 viewport and links to:
-
-- the live slideshow, all synthetic community-card types, Dua-after-Adhan and a
-  detailed Jumu'ah fixture;
-- each touch-control tab;
-- Masjid playback, Radio playback and Radio-resume notifications; and
-- network selection, password, hidden-network, success, location and Masjid
-  first-run screens.
-
-Card-fixture mode pauses automatic rotation; use the slide dots or swipe to
-inspect each card. Setup, control and notification fixtures are read-only and
-do not change Wi-Fi, playback, display settings or saved preferences. The live
-slideshow and non-community cards still use the configured device data.
-
 Normal browser access remains:
 
 ```text

@@ -350,8 +350,8 @@ Slide duration, theme and optional-content settings are saved automatically. **O
 
 On the 7-inch Appliance Display, swipe up to open the touch control sheet. A small on-screen hint identifies the gesture. Opening the sheet pauses slide rotation; swipe down from its handle/header, tap ×, or tap outside the sheet to close it and resume the slideshow.
 
-The first-run setup and Change Wi-Fi screens automatically use the matching
-600 × 1024 Waveshare or 720 × 1280 Raspberry Pi Touch Display 2 portrait layout.
+The first-run setup and Change Wi-Fi screens use the dedicated 720 × 1280
+Raspberry Pi Touch Display 2 portrait layout.
 
 The control sheet provides:
 
@@ -362,7 +362,7 @@ The control sheet provides:
 
 The **Network** tab shows the current IP address and any network-issued FQDN for accessing advanced configuration from another device. It also provides **Change Wi-Fi network**, which reopens the appliance network setup without deleting the current profile first.
 
-Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidPi starts. Colour correction affects the MasjidBoard and Wi-Fi setup interfaces only; it does not alter the boot splash. These controls are not shown on the 600 × 1024 Waveshare profile.
+Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidPi starts. Colour correction affects the MasjidBoard and Wi-Fi setup interfaces only; it does not alter the boot splash. These controls appear only on the supported Touch Display 2 profile.
 
 Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
 
@@ -519,7 +519,7 @@ curl -s http://127.0.0.1:8080/api/masjidboard/status
 
 ### Touch controls do not open
 
-The swipe-up controls are available on both **7-inch Appliance Display** profiles. Confirm that the display was detected as either the 600 × 1024 Waveshare panel or 720 × 1280 Raspberry Pi Touch Display 2 and that the small **Swipe up for controls** hint is visible.
+The swipe-up controls are available on the **7-inch Appliance Display** profile. Confirm that the 720 × 1280 Raspberry Pi Touch Display 2 was detected and that the small **Swipe up for controls** hint is visible.
 
 Swipe upward from the lower display area. The panel closes automatically after 60 seconds without activity.
 

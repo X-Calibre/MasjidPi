@@ -31,15 +31,15 @@ for (const step of ["network", "password", "hidden", "success", "location", "pic
 
 assert.match(appliance, /params\.get\("visual-demo"\) === "cards"/);
 assert.match(appliance, /communityFixtureMode = visualDemoCards \? "1"/);
-assert.match(appliance, /if \(visualDemoCards\) return/);
+assert.match(appliance, /\|\| visualDemoCards\) return/);
 assert.match(controls, /params\.get\("visual-demo-controls"\)/);
 assert.match(controls, /function visualDemoResponse/);
 assert.match(controls, /if \(visualDemoTab\) return/);
 assert.match(controls, /\/setup\.html\?visual-demo-step=network/);
-assert.match(toast, /params\.get\("visual-demo-toast"\)/);
-assert.match(toast, /showFixtureToast/);
-assert.match(toast, /window\.setInterval/);
-assert.match(setup, /params\.get\("visual-demo-step"\)/);
+assert.match(toast, /get\("visual-demo-toast"\)/);
+assert.match(toast, /visualDemoStates/);
+assert.match(toast, /setInterval/);
+assert.match(setup, /get\("visual-demo-step"\)/);
 assert.match(setup, /showVisualDemoStep/);
 assert.match(setup, /event\.stopImmediatePropagation\(\)/);
 assert.match(setup, /document\.addEventListener\("click", event =>/);

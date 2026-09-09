@@ -326,7 +326,7 @@ In TV / Monitor mode, the first selected masjid supplies the shared Daily Times 
 MasjidPi supports dedicated HDMI presentation including:
 
 - **TV / Monitor (responsive landscape)**
-- **7-inch Appliance Display** — purpose-built portrait layouts for the 600 × 1024 Waveshare display and 720 × 1280 Raspberry Pi Touch Display 2
+- **7-inch Appliance Display** — a purpose-built 720 × 1280 portrait layout for the Raspberry Pi Touch Display 2
 
 The presentation adapts to the number of configured masjids.
 

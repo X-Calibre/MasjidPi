@@ -12,7 +12,7 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 - [x] Touch gestures and directions operate correctly.
 - [x] First-run and Change Wi-Fi screens fit the display.
 - [x] The on-screen keyboard fits without horizontal clipping.
-- [x] The existing 600 × 1024 appliance profile remains separately routed and styled.
+- [x] The retired 600 × 1024 profile falls back to the standard layout and no longer enables rotation or touch controls.
 
 ### Screen controls
 

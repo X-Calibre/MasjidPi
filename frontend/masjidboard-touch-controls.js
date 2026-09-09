@@ -3,7 +3,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const profile = params.get("profile");
-    if (profile !== "appliance" && profile !== "appliance-720") return;
+    if (profile !== "appliance-720") return;
 
     const state = document.getElementById("applianceState");
     const panel = document.getElementById("applianceListenPanel");
@@ -12,7 +12,7 @@
     const changeWiFi = document.getElementById("applianceChangeWiFi");
     if (changeWiFi) changeWiFi.href = `/setup.html?return=board&profile=${profile}`;
     const displayTab = document.getElementById("applianceDisplayTab");
-    if (profile === "appliance-720") displayTab?.classList.remove("hidden");
+    displayTab?.classList.remove("hidden");
 
     const connection = document.getElementById("applianceListenConnection");
     const statusBadge = document.getElementById("applianceListenState");

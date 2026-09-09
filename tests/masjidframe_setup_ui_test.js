@@ -21,7 +21,7 @@ assert.match(html, /id="wifiSSID"[^>]*readonly/);
 assert.match(html, /id="hiddenSecurity"/);
 assert.match(html, /id="returnToBoard"[^>]*href="\/masjidboard\.html\?profile=appliance-720"[^>]*hidden/);
 assert.match(html, /setup-720\.css\?v=20260907-keyboard-width/);
-assert.match(html, /setup\.js\?v=20260909-visual-demo/);
+assert.match(html, /setup\.js\?v=20260909-retire-600x1024/);
 assert.match(html, /id="locationStep"/);
 assert.match(html, /id="countryButton"[^>]*class="picker-button"/);
 assert.match(html, /id="regionButton"[^>]*class="picker-button"/);

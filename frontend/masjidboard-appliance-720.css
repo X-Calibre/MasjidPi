@@ -35,8 +35,8 @@ body.appliance-720-layout {
 }
 
 .appliance-720-layout #applianceNextTime { font-size:58px; }
-.appliance-720-layout .appliance-next-name { font-size:28px; }
-.appliance-720-layout .appliance-countdown { font-size:26px; }
+.appliance-720-layout .appliance-next-name { font-size:32px; }
+.appliance-720-layout .appliance-countdown { font-size:30px; }
 
 .appliance-720-layout .appliance-slides {
     top:350px;

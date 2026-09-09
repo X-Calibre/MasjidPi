@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="masjidboard-detailed.css?v=20260905-daily-times-fit">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
     <link rel="stylesheet" href="masjidboard-appliance.css?v=20260907-economic-footer">
-    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260909-header-event-legibility">
+    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260909-date-alternation">
     <link rel="stylesheet" href="masjidboard-themes.css?v=20260906-light-themes">
 </head>
 <body data-board-theme="emerald">
@@ -65,10 +65,10 @@
                 <time id="applianceClock" class="appliance-clock">--:--</time>
                 <div class="appliance-information">
                     <strong id="appliancePrimaryName"></strong>
-                    <div id="applianceIslamicDate"></div>
                 </div>
                 <div class="appliance-date-line">
                     <time id="applianceGregorianDate"></time>
+                    <div id="applianceIslamicDate" class="hidden"></div>
                 </div>
             </div>
             <div class="board-source-toast hidden" data-board-source-toast role="status" aria-live="polite">
@@ -217,7 +217,7 @@
 <script src="masjidboard-display.js?v=20260905-zawaal-warning"></script>
 <script src="masjidboard-community-utils.js?v=20260907-economic-data"></script>
 <script src="masjidboard-detailed.js?v=20260908-touch-display-2"></script>
-<script src="masjidboard-appliance.js?v=20260909-name-scaling"></script>
+<script src="masjidboard-appliance.js?v=20260909-date-alternation"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
 <script src="masjidboard-touch-controls.js?v=20260908-display-controls"></script>
 </body>

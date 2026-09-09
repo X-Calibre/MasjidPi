@@ -30,7 +30,7 @@ for (const step of ["network", "password", "hidden", "success", "location", "pic
 }
 
 assert.match(appliance, /params\.get\("visual-demo"\) === "cards"/);
-assert.match(appliance, /communityFixtureMode = visualDemoCards \\? "1"/);
+assert.match(appliance, /communityFixtureMode = visualDemoCards \? "1"/);
 assert.match(appliance, /if \(visualDemoCards\) return/);
 assert.match(controls, /params\.get\("visual-demo-controls"\)/);
 assert.match(controls, /function visualDemoResponse/);

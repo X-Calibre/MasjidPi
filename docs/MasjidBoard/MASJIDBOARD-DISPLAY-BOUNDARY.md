@@ -71,13 +71,13 @@ POST /api/masjidboard/boards/refresh
 
 ## Profiles
 
-The local launcher chooses standard or appliance presentation from attached hardware. Profile is not persisted through the layout API.
+The local launcher chooses the standard or `appliance-720` presentation from attached hardware. Profile is not persisted through the layout API.
 
 A remote browser may open:
 
 ```text
 /masjidboard.html
-/masjidboard.html?profile=appliance
+/masjidboard.html?profile=appliance-720
 ```
 
 The query parameter changes only that browser view.

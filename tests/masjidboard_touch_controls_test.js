@@ -81,7 +81,7 @@ assert.match(controller, /\["rose", "Rose"/);
 assert.match(appliance, /masjidpi:appliance-listen-panel/);
 assert.doesNotMatch(appliance, /portrait/);
 assert.match(css, /var\(--appliance-panel\)/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-single-line-dates/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-overlay-toast/);
 assert.match(appliance, /profile !== "appliance-720"/);
 assert.doesNotMatch(appliance, /profile !== "appliance"/);
 assert.match(appliance720, /body\.appliance-720-layout/);
@@ -145,5 +145,9 @@ assert.match(appliance720, /\.appliance-community-dua_after_adhan \.appliance-co
 
 assert.match(appliance720, /\.appliance-next-name\s*\{[^}]*font-size:32px/s);
 assert.match(appliance720, /\.appliance-countdown\s*\{[^}]*font-size:30px/s);
+
+assert.match(appliance720, /\.appliance-header \.board-source-toast\s*\{[^}]*position:absolute;[^}]*top:14px;[^}]*min-height:76px/s);
+assert.match(appliance720, /\.appliance-header:has\(\.board-source-toast:not\(\.hidden\)\) \.appliance-clock-row\s*\{[^}]*height:174px/s);
+assert.match(appliance720, /@keyframes appliance-720-toast-drop/);
 
 console.log("MasjidBoard appliance touch-control tests passed");

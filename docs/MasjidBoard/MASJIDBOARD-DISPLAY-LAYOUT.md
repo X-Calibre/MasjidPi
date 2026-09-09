@@ -1,6 +1,6 @@
 # MasjidBoard Display Presentation
 
-**Status:** Responsive standard display and dedicated 7-inch Appliance profiles implemented
+**Status:** Responsive standard display and dedicated 7-inch Touch Display 2 profile implemented
 
 ## Purpose
 
@@ -15,7 +15,7 @@ GET /api/masjidboard/display
 Display profile is not persisted in the API. The local display runtime selects the profile from attached hardware, while a remote browser may explicitly request the Appliance presentation with:
 
 ```text
-/masjidboard.html?profile=appliance
+/masjidboard.html?profile=appliance-720
 ```
 
 Normal browser access uses the standard presentation:
@@ -34,13 +34,14 @@ frontend/masjidboard-warning-utils.js
 frontend/masjidboard-detailed.css
 frontend/masjidboard-detailed.js
 frontend/masjidboard-appliance.css
+frontend/masjidboard-appliance-720.css
 frontend/masjidboard-appliance.js
 frontend/masjidboard-touch-controls.js
 ```
 
-The old generic `portrait` presentation name is no longer used. The 600x1024
-Waveshare interface is the `appliance` profile, while the native 720x1280
-Raspberry Pi Touch Display 2 interface is the `appliance-720` profile.
+The old generic `portrait` presentation and 600x1024 Waveshare `appliance`
+profile are no longer used. The supported portrait interface is the native
+720x1280 Raspberry Pi Touch Display 2 `appliance-720` profile.
 
 ## Shared timetable semantics
 
@@ -109,10 +110,9 @@ The standard profile contains no appliance Listen controls.
 
 ## Appliance profile presentation
 
-The Appliance profiles target the validated 7-inch Waveshare display at an
-effective 600x1024 portrait viewport and the Raspberry Pi Touch Display 2 at its
-native 720x1280 portrait viewport. Both use the same timetable and notice data
-but adapt it to a slideshow-oriented compact interface.
+The Appliance profile targets the Raspberry Pi Touch Display 2 at its native
+720x1280 portrait viewport. It uses the same timetable and notice data as the
+standard presentation but adapts it to a slideshow-oriented compact interface.
 
 The top area includes the clock, Gregorian date, Islamic date, primary masjid name and next-event information. Slides include one salaah-times slide per selected masjid, Daily Times, community notices and optional Islamic Economic Indicators.
 
@@ -158,7 +158,7 @@ The display supports deterministic browser test overrides:
 ```text
 /masjidboard.html?date=2026-08-21
 /masjidboard.html?date=2026-08-21&time=12:10
-/masjidboard.html?profile=appliance&date=2026-08-21&time=12:10
+/masjidboard.html?profile=appliance-720&date=2026-08-21&time=12:10
 ```
 
 Invalid date/time overrides are ignored and browser-local time is used.
@@ -172,4 +172,4 @@ standard  -> responsive landscape presentation
 appliance -> dedicated 7-inch portrait presentation
 ```
 
-A future conventional portrait monitor/TV presentation may be added without redefining the Appliance profile. Hardware detection, Cog rotation and touchscreen calibration remain responsibilities of the local display runtime rather than the presentation API.
+A future conventional portrait monitor/TV presentation may be added without redefining the Appliance profile. Hardware detection remains a responsibility of the local display runtime rather than the presentation API.

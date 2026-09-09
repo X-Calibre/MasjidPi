@@ -81,7 +81,7 @@ assert.match(controller, /\["rose", "Rose"/);
 assert.match(appliance, /masjidpi:appliance-listen-panel/);
 assert.doesNotMatch(appliance, /portrait/);
 assert.match(css, /var\(--appliance-panel\)/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-islamic-date-wrap/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-header-event-legibility/);
 assert.match(appliance, /profile !== "appliance-720"/);
 assert.doesNotMatch(appliance, /profile !== "appliance"/);
 assert.match(appliance720, /body\.appliance-720-layout/);
@@ -139,4 +139,4 @@ assert.match(appliance720, /\.appliance-community-body\s*\{[^}]*font-size:34px/s
 assert.match(appliance720, /\.appliance-community-field\s*\{[^}]*font-size:28px/s);
 assert.match(appliance720, /\.appliance-community-dua_after_adhan \.appliance-community-field:first-child \.appliance-community-field-value\s*\{[^}]*font-size:33px/s);
 
-console.log("MasjidBoard appliance touch-control tests passed");
+assert.match(appliance720, /\.appliance-next-name\s*\{[^}]*font-size:32px/s);\nassert.match(appliance720, /\.appliance-countdown\s*\{[^}]*font-size:30px/s);\n\nconsole.log("MasjidBoard appliance touch-control tests passed");

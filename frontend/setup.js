@@ -2,6 +2,7 @@
 
 (() => {
     const boardURL = "/masjidboard.html?profile=appliance-720";
+    const visualDemoStep = new URLSearchParams(window.location.search).get("visual-demo-step");
     document.body.classList.add("setup-720-layout");
     const networkStep = document.getElementById("networkStep");
     const passwordStep = document.getElementById("passwordStep");
@@ -437,6 +438,104 @@
         }
     }
 
+    function showVisualDemoStep(step) {
+        document.body.classList.add("visual-demo");
+        document.body.classList.remove("masjid-step-open");
+        for (const section of [networkStep, passwordStep, successStep, locationStep, masjidStep]) section.hidden = true;
+        pickerSheet.hidden = true;
+        setKeyboardOpen(false);
+
+        if (step === "password") {
+            chooseNetwork({ssid:"MasjidFrame Demo Wi-Fi", security:"WPA2"});
+            password.value = "visual-demo-password";
+            return;
+        }
+        if (step === "hidden") {
+            addHiddenNetwork();
+            ssid.value = "Community Wi-Fi";
+            password.value = "visual-demo-password";
+            return;
+        }
+        if (step === "success") {
+            successStep.hidden = false;
+            document.getElementById("successHeading").textContent = "MasjidFrame is online";
+            document.getElementById("successNetwork").textContent = "Connected to MasjidFrame Demo Wi-Fi";
+            document.getElementById("fqdnURL").textContent = "http://masjidframe.example.test:8080";
+            document.getElementById("ipURL").textContent = "http://192.0.2.25:8080";
+            document.getElementById("fqdnAccess").hidden = false;
+            document.getElementById("ipAccess").hidden = false;
+            document.getElementById("advancedSetup").hidden = false;
+            return;
+        }
+        if (step === "location" || step === "picker") {
+            locationStep.hidden = false;
+            document.getElementById("locationStatus").textContent = "Select the location nearest to your masjid.";
+            countryButton.disabled = false;
+            regionButton.disabled = false;
+            cityButton.disabled = false;
+            countryButton.textContent = "South Africa";
+            regionButton.textContent = "Gauteng";
+            cityButton.textContent = "Laudium";
+            findMasjidsButton.disabled = false;
+            if (step === "picker") {
+                document.getElementById("pickerHeading").textContent = "Choose town or city";
+                pickerOptions.replaceChildren();
+                for (const name of ["Laudium", "Erasmia", "Centurion", "Pretoria"]) {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "picker-option";
+                    button.textContent = name;
+                    pickerOptions.append(button);
+                }
+                pickerSheet.hidden = false;
+            }
+            return;
+        }
+        if (step === "masjid") {
+            masjidStep.hidden = false;
+            document.body.classList.add("masjid-step-open");
+            document.getElementById("masjidLocation").textContent = "Laudium, Gauteng, South Africa";
+            document.getElementById("masjidStatus").textContent = "3 MasjidBoards found";
+            const records = [
+                {id:"demo-salaam", name:"Masjid us Salaam", city:"Laudium", region:"Gauteng", country:"South Africa"},
+                {id:"demo-noor", name:"Masjid Al Noor", city:"Laudium", region:"Gauteng", country:"South Africa"},
+                {id:"demo-hamza", name:"Masjid Hamza RA", city:"Erasmia", region:"Gauteng", country:"South Africa"}
+            ];
+            renderMasjids(records);
+            const first = masjidList.querySelector(".masjid-option");
+            first?.classList.add("selected");
+            if (first) first.querySelector("input").checked = true;
+            finishSetupButton.disabled = false;
+            return;
+        }
+
+        networkStep.hidden = false;
+        networkStatus.textContent = "3 networks found";
+        networkList.replaceChildren();
+        for (const network of [
+            {ssid:"MasjidFrame Demo Wi-Fi", meta:"Secured · WPA2", signal:"Excellent"},
+            {ssid:"Community Hall", meta:"Secured · WPA2", signal:"Good"},
+            {ssid:"Guest Network", meta:"Open network", signal:"Fair"}
+        ]) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "network-button";
+            const details = document.createElement("span");
+            const name = document.createElement("span");
+            name.className = "network-name";
+            name.textContent = network.ssid;
+            const meta = document.createElement("span");
+            meta.className = "network-meta";
+            meta.textContent = network.meta;
+            details.append(name, document.createElement("br"), meta);
+            const signal = document.createElement("span");
+            signal.className = "signal";
+            signal.textContent = network.signal;
+            button.append(details, signal);
+            networkList.append(button);
+        }
+    }
+
     keyboardRows.addEventListener("click", (event) => {
         const key = event.target.closest("[data-key]");
         if (key) pressKey(key.dataset.key);
@@ -517,6 +616,12 @@
         document.getElementById("networkHeading").textContent = "Change Wi-Fi network";
     }
     const requestedStep = setupParams.get("step");
-    if (requestedStep === "location") showLocationStep();
+    if (visualDemoStep) {
+        showVisualDemoStep(visualDemoStep);
+        document.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }, true);
+    } else if (requestedStep === "location") showLocationStep();
     else scanNetworks();
 })();

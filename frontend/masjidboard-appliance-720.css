@@ -324,8 +324,9 @@ body.appliance-720-layout {
     font-weight:700;
     line-height:1.15;
     text-align:left;
-    white-space:normal;
-    overflow-wrap:anywhere;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 .appliance-720-layout .appliance-date-line #applianceIslamicDate {
     color:var(--appliance-heading-accent);

@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` adds native Raspberry Pi Touch Display 2 support and on-device screen controls.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporates the physical-display legibility review, retires the older 600 × 1024 profile and refines the touch-control model.
 
 ## Release scope
 
@@ -139,9 +139,59 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Version metadata is set to `v1.6.0-rc.3`.
 - [x] RC3 scope and hardware results are documented.
 - [x] GitHub Actions passes on release-preparation `main` commit `eb7f998be51e54d3958aab65ba45ae68df34800c`.
-- [ ] Tag `v1.6.0-rc.3` is created from the accepted `main` commit.
-- [ ] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
-- [ ] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
+- [x] Tag `v1.6.0-rc.3` is created from the accepted `main` commit.
+- [x] The release workflow publishes ARM64 and AMD64 archives plus `SHA256SUMS` as a prerelease.
+- [x] The published ARM64 artifact is installed and validated on the Pi 4 test appliance.
+
+## RC4 scope
+
+- improve distance legibility throughout the native 720 × 1280 presentation;
+- rebalance the header with a larger Masjid name, larger alternating Gregorian/Islamic date and clearer upcoming-event text;
+- show source-switch notifications as top toast overlays without changing header geometry;
+- enlarge community and Dua-after-Adhan content while preserving title hierarchy;
+- make Detailed Jumu'ah schedules full-height cards with vertically stacked, enlarged event times;
+- improve Salaah Time Change and Islamic Economic Indicator spacing;
+- split touch controls into top-edge Quick Settings and a bottom-edge Appliance Controls sheet;
+- provide brightness and Master, Masjid and Radio volume sliders in Quick Settings;
+- duplicate Masjid and Radio playback actions in Quick Settings while retaining the full bottom controls;
+- size Quick Settings dynamically to its content and label its Masjid and Radio action groups;
+- remove the experimental software White Balance correction and retain only the kernel backlight control;
+- retire the former 600 × 1024 Waveshare profile, rotated splash and calibration path;
+- use the responsive standard presentation for unsupported displays; and
+- remove the temporary visual-demo feature used during development.
+
+## RC4 automated validation
+
+- [x] Go formatting and vet pass.
+- [x] The full race-enabled Go test suite passes.
+- [x] Frontend JavaScript syntax and regression tests pass.
+- [x] Installer, boot and display-profile shell tests pass.
+- [x] GitHub Actions run 535 passes on the final feature head.
+- [ ] GitHub Actions passes on the RC4 release-preparation pull request.
+- [ ] GitHub Actions passes on the integrated RC4 `main` commit.
+
+## RC4 Raspberry Pi 4 hardware validation
+
+- [x] The Touch Display 2 is automatically detected as `appliance-720`.
+- [x] The presentation fills the native portrait panel and touch directions are correct.
+- [x] Header, Salaah, community, Dua, economic and Detailed Jumu'ah layouts were reviewed on the physical panel.
+- [x] Kernel-backed brightness adjustment works and persists.
+- [x] Top and bottom touch sheets open from their respective display edges.
+- [x] Masjid and Radio actions operate from the touch controls.
+- [ ] Recheck the final dynamically sized Quick Settings panel on the physical display.
+- [ ] Recheck the final full-height Appliance Controls panel on all four tabs.
+- [ ] Complete a reboot check with the final RC4 source before tagging.
+
+## RC4 publication checklist
+
+- [x] Completed Touch Display 2 refinements are merged to `main`.
+- [x] Version metadata is set to `v1.6.0-rc.4`.
+- [x] RC4 release scope and completed validation are documented.
+- [ ] Merge the RC4 release-preparation pull request after CI passes.
+- [ ] Confirm CI passes on the resulting `main` commit.
+- [ ] Create immutable tag `v1.6.0-rc.4` from the accepted `main` commit.
+- [ ] Verify ARM64 and AMD64 archives plus `SHA256SUMS`.
+- [ ] Install and validate the published ARM64 archive on the Pi 4.
 
 ## Stable-release hardware follow-up
 

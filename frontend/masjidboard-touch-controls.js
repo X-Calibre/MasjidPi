@@ -114,6 +114,9 @@
         brightness.value = displaySettings?.brightness_percent ?? 100;
         brightnessValue.textContent = available ? `${brightness.value}%` : "Unavailable";
         brightnessUnavailable.classList.toggle("hidden", available);
+        quickPanel.querySelectorAll("[data-brightness-step]").forEach(button => {
+            button.disabled = busy || !available;
+        });
     }
 
     function resetInactivityTimer() {

@@ -380,3 +380,58 @@ body.appliance-720-layout {
     from { opacity:0; transform:translateY(-24px); }
     to { opacity:1; transform:translateY(0); }
 }
+
+
+/* Detailed Jumu'ah schedules use the full slide and present each event as a
+   large vertical row for comfortable reading on the seven-inch display. */
+.appliance-720-layout .appliance-community-card.appliance-community-jumuah_schedule {
+    padding:46px 42px 34px;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-community-title {
+    font-size:52px;
+    line-height:1.1;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-schedule {
+    flex:1 1 auto;
+    min-height:0;
+    margin:30px 0 22px;
+    grid-template-columns:1fr;
+    grid-auto-rows:minmax(0,1fr);
+    align-items:stretch;
+    gap:16px;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event {
+    min-height:0;
+    padding:18px 26px;
+    border-width:2px;
+    border-radius:16px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:24px;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event span {
+    font-size:29px;
+    line-height:1.15;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event strong {
+    font-size:52px;
+    line-height:1;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-community-body {
+    margin:0 0 18px;
+    font-size:32px;
+    line-height:1.25;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-community-source {
+    padding-top:18px;
+    font-size:27px;
+    line-height:1.2;
+    text-align:left;
+}

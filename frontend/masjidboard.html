@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="masjidboard-detailed.css?v=20260905-daily-times-fit">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
     <link rel="stylesheet" href="masjidboard-appliance.css?v=20260909-split-panels">
-    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260910-controls-full">
+    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260910-quick-actions">
     <link rel="stylesheet" href="masjidboard-themes.css?v=20260906-light-themes">
 </head>
 <body data-board-theme="emerald">
@@ -91,7 +91,6 @@
             <section class="appliance-quick-sheet">
                 <header class="appliance-quick-heading">
                     <div>
-                        <small>QUICK SETTINGS</small>
                         <h2>Display &amp; Audio</h2>
                     </div>
                     <button class="appliance-listen-close" type="button" data-quick-close aria-label="Close quick settings"></button>
@@ -100,7 +99,11 @@
                 <div class="appliance-quick-controls">
                     <div class="appliance-volume-control">
                         <div class="appliance-control-label"><label for="applianceBrightness">Display Brightness</label><output id="applianceBrightnessValue">--%</output></div>
-                        <input id="applianceBrightness" type="range" min="10" max="100" step="5" value="100">
+                        <div class="appliance-volume-row">
+                            <button type="button" data-brightness-step="-5" aria-label="Decrease display brightness">−</button>
+                            <input id="applianceBrightness" type="range" min="10" max="100" step="5" value="100">
+                            <button type="button" data-brightness-step="5" aria-label="Increase display brightness">+</button>
+                        </div>
                         <p id="applianceBrightnessUnavailable" class="hidden">Backlight control is unavailable on this display.</p>
                     </div>
                     <div class="appliance-volume-control">
@@ -127,6 +130,10 @@
                             <button type="button" data-volume-step="radio:5" aria-label="Increase Radio volume">+</button>
                         </div>
                     </div>
+                </div>
+                <div class="appliance-listen-actions appliance-quick-masjid-actions" role="group" aria-label="Masjid playback">
+                    <button class="primary" type="button" data-masjid-play>▶ Play Masjid</button>
+                    <button class="danger" type="button" data-listen-stop>■ Stop Listening</button>
                 </div>
                 <div class="appliance-radio-actions appliance-quick-radio-actions" role="group" aria-label="Radio operation mode">
                     <button type="button" data-radio-mode="schedule">Scheduled Play</button>
@@ -165,8 +172,8 @@
                         <div class="appliance-source-heading"><strong>Favourite Masjids</strong><span id="applianceMasjidSelection"></span></div>
                         <div id="applianceFavouriteMasjids" class="appliance-source-list" role="listbox" aria-label="Favourite Masjids"></div>
                         <div class="appliance-listen-actions appliance-masjid-actions">
-                            <button id="appliancePlayMasjid" class="primary" type="button">▶ Play Masjid</button>
-                            <button id="applianceStopListening" class="danger" type="button">■ Stop Listening</button>
+                            <button id="appliancePlayMasjid" class="primary" data-masjid-play type="button">▶ Play Masjid</button>
+                            <button id="applianceStopListening" class="danger" data-listen-stop type="button">■ Stop Listening</button>
                         </div>
                     </section>
                     <section id="applianceRadioPanel" class="hidden" data-touch-panel="radio" role="tabpanel" aria-labelledby="applianceRadioTab">
@@ -222,6 +229,6 @@
 <script src="masjidboard-detailed.js?v=20260908-touch-display-2"></script>
 <script src="masjidboard-appliance.js?v=20260910-jumuah-full"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
-<script src="masjidboard-touch-controls.js?v=20260910-quick-close"></script>
+<script src="masjidboard-touch-controls.js?v=20260910-quick-actions"></script>
 </body>
 </html>

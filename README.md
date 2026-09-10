@@ -101,9 +101,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Current stable release: v1.5.2**
 
-**Current release candidate: v1.6.0-rc.3**
+**Current release candidate: v1.6.0-rc.4**
 
-v1.6.0-rc.3 adds automatic support for the 720 × 1280 Raspberry Pi Touch Display 2, including a native portrait Board and setup flow, persistent backlight brightness and selectable cool-white correction. The former 600 × 1024 Waveshare profile is retired; other displays use the responsive standard layout. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
+v1.6.0-rc.4 refines the native 720 × 1280 Raspberry Pi Touch Display 2 presentation after physical review, improves card and header legibility, adds separate top and bottom touch-control panels, and retains kernel-backed brightness control. It removes the former 600 × 1024 profile and the experimental software White Balance correction. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
 
 v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 

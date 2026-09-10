@@ -183,6 +183,10 @@ func (m *Manager) InitializeVolume() error {
 	m.volumeSet = true
 	m.volumeDevice = status.AudioDevice
 	m.volumeSupported = status.VolumeSupported
+	m.status.Volume = volume
+	m.status.VolumeSupported = status.VolumeSupported
+	m.status.Paused = status.Paused
+	m.status.AudioDevice = status.AudioDevice
 	volumeStore := m.volumeStore
 	m.mu.Unlock()
 

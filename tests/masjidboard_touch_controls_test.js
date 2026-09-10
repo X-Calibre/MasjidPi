@@ -20,7 +20,7 @@ const setup = read("frontend/setup.html");
 assert.match(html, /id="applianceQuickPanel"/);
 assert.match(html, /id="applianceListenPanel"/);
 assert.match(html, /id="applianceQuickConnection"/);
-assert.match(html, /QUICK SETTINGS/);
+assert.match(html, /<h2>Display &amp; Audio<\/h2>/);
 assert.match(html, /Display Brightness/);
 for (const label of ["Master Volume", "Masjid Volume", "Radio Volume"]) assert.match(html, new RegExp(label));
 assert.equal((html.match(/data-radio-mode="schedule"/g) || []).length, 2);

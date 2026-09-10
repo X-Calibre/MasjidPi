@@ -31,8 +31,8 @@
         masjid: byID("applianceMasjidVolumeValue"),
         radio: byID("applianceRadioVolumeValue")
     };
-    const playMasjid = byID("appliancePlayMasjid");
-    const stopListening = byID("applianceStopListening");
+    const playMasjidButtons = [...state.querySelectorAll("[data-masjid-play]")];
+    const stopListeningButtons = [...state.querySelectorAll("[data-listen-stop]")];
     const radioModeButtons = [...state.querySelectorAll("[data-radio-mode]")];
     const radioModeDetail = byID("applianceRadioModeDetail");
     const themeHost = byID("applianceThemeChoices");
@@ -261,9 +261,11 @@
         }
 
         const selectedMasjidPlaying = status?.active_source === "masjid" && status.active_stream_id === selectedMasjidID;
-        playMasjid.disabled = busy || !selectedMasjidID || selectedMasjidPlaying;
-        playMasjid.textContent = selectedMasjidPlaying ? "Masjid Playing" : "▶ Play Masjid";
-        stopListening.disabled = busy || !status?.listening;
+        for (const button of playMasjidButtons) {
+            button.disabled = busy || !selectedMasjidID || selectedMasjidPlaying;
+            button.textContent = selectedMasjidPlaying ? "Masjid Playing" : "▶ Play Masjid";
+        }
+        for (const button of stopListeningButtons) button.disabled = busy || !status?.listening;
         for (const button of radioModeButtons) {
             const mode = button.dataset.radioMode;
             button.disabled = busy || !selectedRadioID || !status || (mode === "stopped" && !status.radio_enabled);
@@ -395,6 +397,16 @@
         },150);
     });
 
+    quickPanel.addEventListener("click", event => {
+        const button = event.target.closest("[data-brightness-step]");
+        if (!button || brightness.disabled) return;
+        brightness.value = Math.max(
+            Number(brightness.min),
+            Math.min(Number(brightness.max), Number(brightness.value) + Number(button.dataset.brightnessStep))
+        );
+        brightness.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+
     bottomPanel.querySelectorAll("[data-touch-tab]").forEach(button =>
         button.addEventListener("click",() => activateTab(button.dataset.touchTab)));
     bottomPanel.querySelectorAll("[data-listen-close]").forEach(button =>
@@ -445,12 +457,14 @@
         sheet.addEventListener("scroll",resetInactivityTimer,true);
     }
 
-    playMasjid.addEventListener("click",() => runAction(async () => {
+    for (const button of playMasjidButtons) button.addEventListener("click",() => runAction(async () => {
         await ensureSelection("masjid",selectedMasjidID);
         if (!status?.masjid_enabled) await requestJSON("/api/listen/power",jsonOptions("PUT",{module:"masjid",enabled:true}));
         await requestJSON("/api/listen/start",{method:"POST"});
     }));
-    stopListening.addEventListener("click",() => runAction(() => requestJSON("/api/listen/stop",{method:"POST"})));
+    for (const button of stopListeningButtons) {
+        button.addEventListener("click",() => runAction(() => requestJSON("/api/listen/stop",{method:"POST"})));
+    }
 
     for (const button of radioModeButtons) {
         button.addEventListener("click",() => runAction(async () => {

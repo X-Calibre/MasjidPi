@@ -561,6 +561,7 @@ body.appliance-layout {
     color:var(--appliance-text);
     display:flex;
     flex-direction:column;
+    touch-action:pan-x;
 }
 .appliance-quick-heading { height:68px; flex:0 0 68px; display:flex; align-items:center; justify-content:space-between; touch-action:none; }
 .appliance-quick-heading small { color:var(--appliance-heading-accent); font-size:13px; font-weight:800; letter-spacing:.12em; }

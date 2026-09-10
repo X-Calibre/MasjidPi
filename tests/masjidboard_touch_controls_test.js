@@ -31,7 +31,7 @@ assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
 assert.match(html, /masjidboard-touch-controls\.js\?v=20260910-quick-close/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260910-jumuah-full/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260910-controls-full/);
 assert.match(html, /masjidboard-appliance\.js\?v=20260910-jumuah-full/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260909-split-panels/);
 
@@ -62,8 +62,15 @@ assert.match(css, /\.appliance-quick-controls\s*\{[^}]*grid-template-columns:1fr
 assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
 assert.match(appliance720, /\.appliance-quick-sheet\s*\{[^}]*height:66\.667%/s);
 assert.match(appliance720, /\.appliance-quick-controls\s*\{[^}]*grid-template-columns:1fr/s);
-assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:790px/s);
+assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:930px/s);
 assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(4,1fr\)/s);
+assert.doesNotMatch(html, /<small>APPLIANCE CONTROLS<\/small>/);
+assert.match(appliance720, /\.appliance-listen-heading h2\s*\{[^}]*font-size:43px/s);
+assert.match(appliance720, /\.appliance-listen-status strong\s*\{[^}]*font-size:29px;[^}]*white-space:normal/s);
+assert.match(appliance720, /\.appliance-source-list\s*\{[^}]*max-height:365px/s);
+assert.match(appliance720, /\.appliance-source-list button\s*\{[^}]*min-height:68px;[^}]*font-size:21px/s);
+assert.match(appliance720, /\.appliance-theme-grid\s*\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/s);
+assert.match(appliance720, /\.appliance-network-settings span\s*\{[^}]*font-size:19px/s);
 assert.doesNotMatch(appliance720, /appliance-temperature|appliance-display-settings/);
 
 assert.match(appliance720, /body\.appliance-720-layout/);

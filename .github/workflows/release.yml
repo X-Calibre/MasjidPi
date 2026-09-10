@@ -55,7 +55,7 @@ jobs:
             mkdir -p "$package_dir"
 
             pushd backend >/dev/null
-            GOOS=linux GOARCH="$goarch" \
+            CGO_ENABLED=0 GOOS=linux GOARCH="$goarch" \
               go build -trimpath \
                 -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${VERSION}" \
                 -o "../$binary" ./cmd/masjidpi
@@ -103,7 +103,6 @@ jobs:
             test -f "$package_dir/scripts/masjidpi-boot-readonly.service"
             test -f "$package_dir/scripts/99-masjidpi-boot-firmware"
             test -f "$package_dir/scripts/masjidpi-splash.plymouth"
-            test -f "$package_dir/scripts/masjidpi-splash.script"
             test -f "$package_dir/scripts/masjidpi-splash-standard.script"
 
             tar -C dist -czf "dist/${PACKAGE_NAME}-linux-${arch}.tar.gz" \

@@ -30,7 +30,7 @@ for (const tab of ["masjid", "radio", "theme", "network"]) assert.match(html, ne
 assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
-assert.match(html, /masjidboard-touch-controls\.js\?v=20260909-split-panels/);
+assert.match(html, /masjidboard-touch-controls\.js\?v=20260910-quick-close/);
 assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-split-panels/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260909-split-panels/);
 
@@ -39,7 +39,7 @@ assert.match(controller, /start\.y <= 120 && dy > 70/);
 assert.match(controller, /start\.y >= start\.height - 120 && dy < -70/);
 assert.match(controller, /setOpenPanel\("quick"\)/);
 assert.match(controller, /setOpenPanel\("bottom"\)/);
-assert.match(controller, /wireCloseGesture\(quickPanel,[^\n]*,-1\)/);
+assert.match(controller, /wireCloseGesture\(quickPanel,"\.appliance-quick-sheet",-1\)/);
 assert.match(controller, /wireCloseGesture\(bottomPanel,[^\n]*,1\)/);
 assert.match(controller, /querySelectorAll\("\[data-radio-mode\]"\)/);
 assert.match(controller, /\/api\/listen\/radio-mode/);
@@ -56,6 +56,7 @@ assert.match(controller, /\{volume:value,persist:true\}/);
 assert.match(appliance, /masjidpi:appliance-listen-panel/);
 
 assert.match(css, /\.appliance-quick-sheet\s*\{[^}]*height:66\.667%/s);
+assert.match(css, /\.appliance-quick-sheet\s*\{[^}]*touch-action:pan-x/s);
 assert.match(css, /\.appliance-quick-controls\s*\{[^}]*grid-template-columns:1fr 1fr/s);
 assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
 assert.match(appliance720, /\.appliance-quick-sheet\s*\{[^}]*height:66\.667%/s);

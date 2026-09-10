@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="masjidboard-display.css?v=20260905-zawaal-warning">
     <link rel="stylesheet" href="masjidboard-detailed.css?v=20260905-daily-times-fit">
     <link rel="stylesheet" href="masjidboard-date-header.css?v=20260823-new-card-fixtures">
-    <link rel="stylesheet" href="masjidboard-appliance.css?v=20260909-split-panels">
-    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260910-quick-actions">
+    <link rel="stylesheet" href="masjidboard-appliance.css?v=20260910-dynamic-quick">
+    <link rel="stylesheet" href="masjidboard-appliance-720.css?v=20260910-dynamic-quick">
     <link rel="stylesheet" href="masjidboard-themes.css?v=20260906-light-themes">
 </head>
 <body data-board-theme="emerald">
@@ -131,15 +131,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="appliance-listen-actions appliance-quick-masjid-actions" role="group" aria-label="Masjid playback">
-                    <button class="primary" type="button" data-masjid-play>▶ Play Masjid</button>
-                    <button class="danger" type="button" data-listen-stop>■ Stop Listening</button>
-                </div>
-                <div class="appliance-radio-actions appliance-quick-radio-actions" role="group" aria-label="Radio operation mode">
-                    <button type="button" data-radio-mode="schedule">Scheduled Play</button>
-                    <button type="button" data-radio-mode="play_now">▶ Play Now</button>
-                    <button class="danger" type="button" data-radio-mode="stopped">■ Stop Radio</button>
-                </div>
+                <section class="appliance-quick-action-section">
+                    <h3>Masjid</h3>
+                    <div class="appliance-listen-actions appliance-quick-masjid-actions" role="group" aria-label="Masjid playback">
+                        <button class="primary" type="button" data-masjid-play>▶ Play Masjid</button>
+                        <button class="danger" type="button" data-listen-stop>■ Stop Listening</button>
+                    </div>
+                </section>
+                <section class="appliance-quick-action-section">
+                    <h3>Radio</h3>
+                    <div class="appliance-radio-actions appliance-quick-radio-actions" role="group" aria-label="Radio operation mode">
+                        <button type="button" data-radio-mode="schedule">Scheduled Play</button>
+                        <button type="button" data-radio-mode="play_now">▶ Play Now</button>
+                        <button class="danger" type="button" data-radio-mode="stopped">■ Stop Radio</button>
+                    </div>
+                </section>
                 <div class="appliance-quick-handle" aria-hidden="true"></div>
             </section>
         </aside>

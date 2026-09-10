@@ -505,6 +505,6 @@
         }));
     }
     wireCloseGesture(bottomPanel,".appliance-listen-handle,.appliance-listen-heading",1);
-    wireCloseGesture(quickPanel,".appliance-quick-handle,.appliance-quick-heading",-1);
+    wireCloseGesture(quickPanel,".appliance-quick-sheet",-1);
     document.addEventListener("keydown",event => { if (openPanel && event.key === "Escape") setOpenPanel(""); });
 })();

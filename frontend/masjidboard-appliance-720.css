@@ -594,3 +594,40 @@ body.appliance-720-layout {
     min-height:66px;
     font-size:20px;
 }
+
+
+/* Fit brightness steps and duplicated Masjid/Radio actions into the
+   two-thirds-height Quick Settings sheet. */
+.appliance-720-layout .appliance-quick-heading {
+    height:68px;
+    flex-basis:68px;
+}
+.appliance-720-layout .appliance-quick-heading h2 {
+    margin:0;
+    font-size:34px;
+}
+.appliance-720-layout .appliance-quick-controls {
+    gap:8px;
+}
+.appliance-720-layout .appliance-quick-controls .appliance-volume-control {
+    min-height:106px;
+    padding:9px 18px;
+}
+.appliance-720-layout .appliance-quick-controls #applianceBrightness {
+    width:100%;
+    margin:0;
+}
+.appliance-720-layout .appliance-quick-masjid-actions {
+    margin-top:12px;
+}
+.appliance-720-layout .appliance-quick-radio-actions {
+    margin-top:10px;
+}
+.appliance-720-layout .appliance-quick-masjid-actions button,
+.appliance-720-layout .appliance-quick-radio-actions button {
+    min-height:58px;
+    font-size:18px;
+}
+.appliance-720-layout .appliance-quick-handle {
+    margin-top:auto;
+}

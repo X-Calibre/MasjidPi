@@ -42,12 +42,9 @@ install_component_services() {
             rm -f /opt/masjidpi/bin/masjidboard-warmup
         fi
 
-        if [[ -f "$PROJECT_ROOT/scripts/99-masjidpi-appliance-touchscreen.rules" ]]; then
-            install -m 0644 "$PROJECT_ROOT/scripts/99-masjidpi-appliance-touchscreen.rules" \
-                /etc/udev/rules.d/99-masjidpi-appliance-touchscreen.rules
-            udevadm control --reload-rules
-            udevadm trigger --subsystem-match=input || true
-        fi
+        # Remove the calibration rule used by the retired rotated Waveshare profile.
+        rm -f /etc/udev/rules.d/99-masjidpi-appliance-touchscreen.rules
+        udevadm control --reload-rules 2>/dev/null || true
 
         systemctl daemon-reload
         systemctl enable masjidpi-display.service

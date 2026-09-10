@@ -53,7 +53,7 @@
     }
 
     function describe(theme) {
-        return `The ${themeNames[theme] || "Emerald"} theme is shared by the automatically selected standard and appliance display profiles.`;
+        return `The ${themeNames[theme] || "Emerald"} theme is shared by the automatically selected standard and Touch Display 2 profiles.`;
     }
 
     function updateDurationLabel() { slideDurationValue.textContent = `${slideDuration.value} seconds`; }

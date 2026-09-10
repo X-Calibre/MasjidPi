@@ -1,5 +1,5 @@
-/* Native portrait layout for the 7-inch Raspberry Pi Touch Display 2.
-   The original appliance rules remain the 600x1024 Waveshare contract. */
+/* Native portrait layout for the supported 7-inch Raspberry Pi Touch Display 2.
+   masjidboard-appliance.css provides the shared structural foundation. */
 body.appliance-720-layout {
     min-width:720px;
     min-height:1280px;
@@ -35,8 +35,8 @@ body.appliance-720-layout {
 }
 
 .appliance-720-layout #applianceNextTime { font-size:58px; }
-.appliance-720-layout .appliance-next-name { font-size:28px; }
-.appliance-720-layout .appliance-countdown { font-size:26px; }
+.appliance-720-layout .appliance-next-name { font-size:32px; }
+.appliance-720-layout .appliance-countdown { font-size:30px; }
 
 .appliance-720-layout .appliance-slides {
     top:350px;
@@ -114,32 +114,525 @@ body.appliance-720-layout {
 }
 
 .appliance-720-layout .appliance-listen-sheet {
-    height:930px;
+    height:790px;
     padding:20px 36px 24px;
 }
-
 .appliance-720-layout .appliance-listen-heading { height:76px; flex-basis:76px; }
 .appliance-720-layout .appliance-listen-heading h2 { font-size:34px; }
 .appliance-720-layout .appliance-listen-status { height:92px; flex-basis:92px; }
-.appliance-720-layout .appliance-master-volume { height:108px; flex-basis:108px; }
-.appliance-720-layout .appliance-listen-tabs { height:66px; flex-basis:66px; grid-template-columns:repeat(5,1fr); }
+.appliance-720-layout .appliance-listen-tabs { height:66px; flex-basis:66px; grid-template-columns:repeat(4,1fr); }
 .appliance-720-layout .appliance-listen-tabs button { font-size:21px; }
-.appliance-720-layout .appliance-source-list { max-height:230px; }
+.appliance-720-layout .appliance-source-list { max-height:245px; }
 
-.appliance-720-layout .appliance-display-settings {
-    margin-top:18px;
-    padding:24px;
-    border:1px solid var(--appliance-line);
-    border-radius:16px;
-    background:var(--appliance-panel);
+.appliance-720-layout .appliance-quick-sheet {
+    height:auto;
+    max-height:calc(100% - 20px);
+    padding:20px 36px 16px;
 }
-.appliance-720-layout .appliance-display-heading { display:flex; justify-content:space-between; align-items:center; font-size:22px; }
-.appliance-720-layout .appliance-display-heading output { color:var(--appliance-heading-accent); font-weight:800; }
-.appliance-720-layout #applianceBrightness { width:100%; height:52px; margin-top:12px; accent-color:var(--appliance-accent); }
-.appliance-720-layout #applianceBrightnessUnavailable { margin:6px 0 0; color:var(--appliance-muted); font-size:15px; }
-.appliance-720-layout .appliance-temperature-settings { margin-top:24px; padding-top:22px; border-top:1px solid var(--appliance-line); }
-.appliance-720-layout .appliance-temperature-settings > strong { display:block; font-size:22px; }
-.appliance-720-layout .appliance-temperature-settings > span { display:block; margin-top:6px; color:var(--appliance-muted); font-size:16px; line-height:1.3; }
-.appliance-720-layout .appliance-temperature-grid { margin-top:18px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-.appliance-720-layout .appliance-temperature-grid button { min-height:64px; border:2px solid var(--appliance-line); border-radius:12px; color:var(--appliance-text); background:var(--appliance-raised); font-size:19px; font-weight:800; }
-.appliance-720-layout .appliance-temperature-grid button.active { border-color:var(--appliance-accent); color:var(--appliance-highlight-text); background:var(--appliance-accent); }
+.appliance-720-layout .appliance-quick-heading { height:82px; flex-basis:82px; }
+.appliance-720-layout .appliance-quick-heading h2 { font-size:34px; }
+.appliance-720-layout .appliance-quick-controls { grid-template-columns:1fr; gap:10px; }
+.appliance-720-layout .appliance-quick-controls .appliance-volume-control { min-height:118px; padding:12px 18px; }
+.appliance-720-layout .appliance-quick-controls .appliance-control-label { margin-bottom:8px; font-size:21px; }
+.appliance-720-layout .appliance-quick-controls .appliance-volume-row { grid-template-columns:56px minmax(0,1fr) 56px; gap:14px; }
+.appliance-720-layout .appliance-quick-controls .appliance-volume-row button { width:56px; height:50px; font-size:31px; }
+.appliance-720-layout .appliance-quick-controls .appliance-volume-row input,
+.appliance-720-layout .appliance-quick-controls #applianceBrightness { height:48px; }
+.appliance-720-layout .appliance-quick-radio-actions { margin-top:14px; }
+.appliance-720-layout .appliance-quick-radio-actions button { min-height:62px; font-size:18px; }
+
+
+/* Distance-legibility refinements for the physical seven-inch panel.
+   Keep these overrides profile-scoped so the 600x1024 appliance is unchanged. */
+.appliance-720-layout .appliance-information {
+    color:var(--appliance-secondary-text);
+    font-size:22px;
+}
+.appliance-720-layout .appliance-information div { font-size:21px; }
+
+.appliance-720-layout .appliance-time-row {
+    border-top-color:var(--appliance-strong-line);
+    font-size:35px;
+}
+.appliance-720-layout .appliance-time-row strong {
+    font-size:40px;
+    font-weight:750;
+}
+.appliance-720-layout .appliance-time-head {
+    color:var(--appliance-secondary-text);
+    font-size:20px;
+}
+.appliance-720-layout .appliance-time-row.upcoming {
+    outline:2px solid var(--appliance-upcoming-line);
+    outline-offset:-2px;
+    box-shadow:inset 8px 0 var(--appliance-accent);
+}
+
+.appliance-720-layout .appliance-footer {
+    bottom:20px;
+    color:var(--appliance-secondary-text);
+    font-size:16px;
+}
+.appliance-720-layout .appliance-dots button {
+    width:12px;
+    height:12px;
+    border-width:2px;
+}
+.appliance-720-layout .appliance-dots button.active { width:32px; }
+.appliance-720-layout .appliance-listen-hint {
+    color:var(--appliance-secondary-text);
+    font-size:17px;
+}
+
+.appliance-720-layout .appliance-economic-date {
+    color:var(--appliance-secondary-text);
+    font-size:22px;
+    font-weight:700;
+}
+.appliance-720-layout .appliance-economic-value {
+    border-top-color:var(--appliance-strong-line);
+    font-size:23px;
+}
+.appliance-720-layout .appliance-economic-value strong {
+    font-size:28px;
+    font-weight:750;
+}
+.appliance-720-layout .appliance-economic-accounting {
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+}
+.appliance-720-layout .appliance-economic-currency,
+.appliance-720-layout .appliance-economic-amount {
+    justify-self:auto;
+}
+.appliance-720-layout .appliance-economic-footer {
+    color:var(--appliance-secondary-text);
+    font-size:19px;
+}
+.appliance-720-layout .appliance-economic-note {
+    color:var(--appliance-secondary-text);
+    font-size:19px;
+    display:-webkit-box;
+    overflow:hidden;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:3;
+}
+
+
+/* Give Salaah Time Change cards a clearer reading rhythm at arm's length.
+   Compact single cards get extra height; paired cards retain their two-row flow. */
+.appliance-720-layout .appliance-community-slide.compact-single {
+    grid-template-rows:minmax(0,340px);
+}
+.appliance-720-layout .appliance-community-card.appliance-community-salaah_change {
+    padding:38px 36px 32px;
+}
+.appliance-720-layout .appliance-community-card.compact.appliance-community-salaah_change {
+    padding:30px 30px 26px;
+}
+.appliance-720-layout .appliance-community-card.appliance-community-salaah_change .appliance-community-title {
+    margin-bottom:14px;
+    font-size:50px;
+    line-height:1.12;
+}
+.appliance-720-layout .appliance-community-card.compact.appliance-community-salaah_change .appliance-community-title {
+    margin-bottom:12px;
+    font-size:34px;
+    line-height:1.15;
+}
+.appliance-720-layout .appliance-community-salaah_change .appliance-salaah-change-main {
+    gap:18px;
+}
+.appliance-720-layout .appliance-community-salaah_change .appliance-salaah-change-effective {
+    color:var(--appliance-secondary-text);
+    font-size:25px;
+    font-weight:700;
+    line-height:1.4;
+}
+.appliance-720-layout .appliance-community-salaah_change .appliance-salaah-change-time {
+    font-size:68px;
+    line-height:1.05;
+}
+.appliance-720-layout .appliance-community-card.appliance-community-salaah_change .appliance-community-source {
+    padding-top:16px;
+    color:var(--appliance-secondary-text);
+    font-size:27px;
+    line-height:1.2;
+}
+
+
+/* Header hierarchy and notice legibility for the physical Touch Display 2. */
+.appliance-720-layout .appliance-clock-row {
+    height:174px;
+    display:grid;
+    grid-template-columns:320px minmax(0,1fr);
+    grid-template-rows:112px 56px;
+    column-gap:24px;
+    row-gap:6px;
+    align-items:start;
+}
+.appliance-720-layout .appliance-clock {
+    grid-column:1;
+    grid-row:1;
+    align-self:center;
+    font-size:104px;
+}
+.appliance-720-layout .appliance-information {
+    grid-column:2;
+    grid-row:1;
+    height:112px;
+    min-width:0;
+    align-self:start;
+    align-items:flex-end;
+    justify-content:center;
+}
+.appliance-720-layout .appliance-information strong {
+    max-width:100%;
+    overflow:visible;
+    font-size:40px;
+    line-height:1.05;
+    text-align:right;
+    text-overflow:clip;
+    white-space:normal;
+    overflow-wrap:anywhere;
+}
+.appliance-720-layout .appliance-date-line {
+    grid-column:1 / -1;
+    grid-row:2;
+    min-width:0;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:16px;
+    color:var(--appliance-secondary-text);
+    font-size:24px;
+    font-weight:650;
+    line-height:1.15;
+    white-space:nowrap;
+}
+.appliance-720-layout .appliance-information strong.name-long { font-size:34px; }
+.appliance-720-layout .appliance-information strong.name-very-long { font-size:29px; }
+
+.appliance-720-layout .appliance-date-line > * {
+    max-width:100%;
+    color:var(--appliance-secondary-text);
+    font-size:24px;
+    font-weight:700;
+    line-height:1.15;
+    text-align:left;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.appliance-720-layout .appliance-date-line #applianceIslamicDate {
+    color:var(--appliance-heading-accent);
+    font-weight:800;
+}
+
+.appliance-720-layout .appliance-community-body {
+    font-size:34px;
+    line-height:1.35;
+}
+.appliance-720-layout .appliance-community-field {
+    font-size:28px;
+    line-height:1.25;
+}
+.appliance-720-layout .appliance-community-card.compact .appliance-community-body {
+    font-size:21px;
+    line-height:1.3;
+}
+.appliance-720-layout .appliance-community-card.compact .appliance-community-field {
+    font-size:20px;
+    line-height:1.25;
+}
+.appliance-720-layout .appliance-community-dua_after_adhan .appliance-community-field:first-child .appliance-community-field-value {
+    font-size:33px;
+    line-height:1.55;
+}
+
+
+/* Listen source changes overlay the header instead of reflowing it. */
+.appliance-720-layout .appliance-header { position:relative; }
+.appliance-720-layout .appliance-header .board-source-toast {
+    position:absolute;
+    z-index:30;
+    top:14px;
+    left:36px;
+    right:36px;
+    width:auto;
+    min-height:76px;
+    padding:11px 18px;
+    border-radius:16px;
+    flex:none;
+    box-shadow:0 12px 30px rgba(0,0,0,.38);
+    animation:appliance-720-toast-drop 220ms ease-out;
+}
+.appliance-720-layout .appliance-header .board-source-toast-label { font-size:14px; }
+.appliance-720-layout .appliance-header .board-source-toast-message { font-size:22px; }
+.appliance-720-layout .appliance-header:has(.board-source-toast:not(.hidden)) .appliance-clock-row {
+    height:174px;
+}
+.appliance-720-layout .appliance-header:has(.board-source-toast:not(.hidden)) .appliance-next {
+    height:124px;
+    margin-top:12px;
+}
+@keyframes appliance-720-toast-drop {
+    from { opacity:0; transform:translateY(-24px); }
+    to { opacity:1; transform:translateY(0); }
+}
+
+
+/* Detailed Jumu'ah schedules use the full slide and present each event as a
+   large vertical row for comfortable reading on the seven-inch display. */
+.appliance-720-layout .appliance-community-card.appliance-community-jumuah_schedule {
+    padding:46px 42px 34px;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-community-title {
+    font-size:52px;
+    line-height:1.1;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-schedule {
+    flex:1 1 auto;
+    min-height:0;
+    margin:30px 0 22px;
+    grid-template-columns:1fr;
+    grid-auto-rows:minmax(0,1fr);
+    align-items:stretch;
+    gap:16px;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event {
+    min-height:0;
+    padding:18px 26px;
+    border-width:2px;
+    border-radius:16px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:24px;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event span {
+    font-size:29px;
+    line-height:1.15;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event strong {
+    font-size:52px;
+    line-height:1;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-community-body {
+    margin:0 0 18px;
+    font-size:32px;
+    line-height:1.25;
+    text-align:left;
+}
+.appliance-720-layout .appliance-community-jumuah_schedule .appliance-community-source {
+    padding-top:18px;
+    font-size:27px;
+    line-height:1.2;
+    text-align:left;
+}
+
+
+/* The bottom control sheet replaces the complete slideshow region while
+   retaining the fixed clock and upcoming-event header above it. */
+.appliance-720-layout .appliance-listen-sheet {
+    height:930px;
+    padding:18px 36px 22px;
+}
+.appliance-720-layout .appliance-listen-handle {
+    margin-bottom:6px;
+}
+.appliance-720-layout .appliance-listen-heading {
+    height:68px;
+    flex-basis:68px;
+}
+.appliance-720-layout .appliance-listen-heading h2 {
+    margin:0;
+    font-size:43px;
+    line-height:1;
+}
+.appliance-720-layout .appliance-listen-status {
+    height:124px;
+    flex-basis:124px;
+    padding:18px 20px;
+    gap:17px;
+    border-radius:17px;
+}
+.appliance-720-layout .appliance-listen-status strong {
+    font-size:29px;
+    line-height:1.12;
+    white-space:normal;
+}
+.appliance-720-layout .appliance-listen-status div span {
+    margin-top:7px;
+    font-size:20px;
+    line-height:1.22;
+}
+.appliance-720-layout .appliance-listen-badge {
+    min-width:108px;
+    padding:10px 14px;
+    font-size:18px;
+}
+.appliance-720-layout .appliance-listen-content section {
+    padding:4px 3px 4px;
+}
+.appliance-720-layout .appliance-source-heading {
+    margin:20px 4px 10px;
+}
+.appliance-720-layout .appliance-source-heading strong {
+    font-size:23px;
+}
+.appliance-720-layout .appliance-source-heading span {
+    font-size:17px;
+}
+.appliance-720-layout .appliance-source-list {
+    max-height:365px;
+    border-radius:17px;
+}
+.appliance-720-layout .appliance-source-list button {
+    min-height:68px;
+    padding:13px 17px;
+    font-size:21px;
+    line-height:1.2;
+}
+.appliance-720-layout .appliance-source-list button.selected:not(.playing)::after,
+.appliance-720-layout .appliance-source-list button.playing::after {
+    font-size:15px;
+}
+.appliance-720-layout .appliance-source-empty {
+    padding:24px 18px;
+    font-size:20px;
+}
+.appliance-720-layout .appliance-listen-actions {
+    margin-top:18px;
+    gap:12px;
+}
+.appliance-720-layout .appliance-listen-actions button,
+.appliance-720-layout .appliance-radio-actions button {
+    min-height:66px;
+    padding:12px 15px;
+    font-size:20px;
+}
+.appliance-720-layout .appliance-radio-actions {
+    margin-top:18px;
+    gap:11px;
+}
+.appliance-720-layout .appliance-radio-mode-detail {
+    min-height:25px;
+    margin-top:11px;
+    font-size:18px;
+    line-height:1.25;
+}
+.appliance-720-layout .appliance-theme-intro {
+    margin:18px 6px 15px;
+}
+.appliance-720-layout .appliance-theme-intro strong {
+    font-size:28px;
+}
+.appliance-720-layout .appliance-theme-intro span {
+    margin-top:7px;
+    font-size:19px;
+    line-height:1.3;
+}
+.appliance-720-layout .appliance-theme-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:11px;
+}
+.appliance-720-layout .appliance-theme-option {
+    height:78px;
+    padding:10px;
+    grid-template-columns:44px minmax(0,1fr);
+    gap:10px;
+}
+.appliance-720-layout .appliance-theme-swatch {
+    width:44px;
+    height:44px;
+}
+.appliance-720-layout .appliance-theme-option strong {
+    font-size:18px;
+}
+.appliance-720-layout .appliance-theme-description {
+    margin-top:3px;
+    font-size:14px;
+}
+.appliance-720-layout .appliance-network-settings {
+    margin-top:20px;
+    padding:24px;
+    gap:19px;
+    border-radius:17px;
+}
+.appliance-720-layout .appliance-network-settings strong {
+    font-size:27px;
+}
+.appliance-720-layout .appliance-network-settings span {
+    margin-top:8px;
+    font-size:19px;
+    line-height:1.35;
+}
+.appliance-720-layout .appliance-network-access {
+    gap:11px;
+}
+.appliance-720-layout .appliance-network-address {
+    padding:12px 16px;
+    border-radius:12px;
+}
+.appliance-720-layout .appliance-network-address small {
+    font-size:16px;
+}
+.appliance-720-layout .appliance-network-address b {
+    margin-top:4px;
+    font-size:19px;
+}
+.appliance-720-layout .appliance-network-change {
+    padding-top:15px;
+}
+.appliance-720-layout .appliance-network-settings a {
+    min-height:66px;
+    font-size:20px;
+}
+
+
+/* Fit brightness steps and duplicated Masjid/Radio actions into the
+   two-thirds-height Quick Settings sheet. */
+.appliance-720-layout .appliance-quick-heading {
+    height:68px;
+    flex-basis:68px;
+}
+.appliance-720-layout .appliance-quick-heading h2 {
+    margin:0;
+    font-size:34px;
+}
+.appliance-720-layout .appliance-quick-controls {
+    gap:8px;
+}
+.appliance-720-layout .appliance-quick-controls .appliance-volume-control {
+    min-height:106px;
+    padding:9px 18px;
+}
+.appliance-720-layout .appliance-quick-controls #applianceBrightness {
+    width:100%;
+    margin:0;
+}
+.appliance-720-layout .appliance-quick-action-section {
+    margin-top:10px;
+}
+.appliance-720-layout .appliance-quick-action-section h3 {
+    font-size:21px;
+}
+.appliance-720-layout .appliance-quick-action-section .appliance-listen-actions,
+.appliance-720-layout .appliance-quick-action-section .appliance-radio-actions {
+    margin-top:6px;
+}
+.appliance-720-layout .appliance-quick-masjid-actions button,
+.appliance-720-layout .appliance-quick-radio-actions button {
+    min-height:58px;
+    font-size:18px;
+}
+.appliance-720-layout .appliance-quick-handle {
+    margin-top:auto;
+}

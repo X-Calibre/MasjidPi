@@ -6,8 +6,7 @@ import (
 )
 
 type displaySettingsRequest struct {
-	BrightnessPercent *int    `json:"brightness_percent"`
-	ColorTemperature  *string `json:"color_temperature"`
+	BrightnessPercent *int `json:"brightness_percent"`
 }
 
 func (s *Server) displaySettingsHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,11 +30,11 @@ func (s *Server) displaySettingsHandler(w http.ResponseWriter, r *http.Request) 
 			writeError(w, http.StatusBadRequest, "invalid request body")
 			return
 		}
-		if request.BrightnessPercent == nil && request.ColorTemperature == nil {
-			writeError(w, http.StatusBadRequest, "brightness or color temperature is required")
+		if request.BrightnessPercent == nil {
+			writeError(w, http.StatusBadRequest, "brightness is required")
 			return
 		}
-		settings, err := s.displaySettings.Update(request.BrightnessPercent, request.ColorTemperature)
+		settings, err := s.displaySettings.Update(request.BrightnessPercent)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return

@@ -3,7 +3,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const profile = params.get("profile");
-    if (profile !== "appliance" && profile !== "appliance-720") return;
+    if (profile !== "appliance-720") return;
     const communityFixtureMode = params.get("notice-fixtures");
     const useCommunityFixtures = communityFixtureMode === "1" || communityFixtureMode === "new";
     const useJumuahKhateebFixture = params.get("jumuah-fixture") === "khateeb";
@@ -31,6 +31,8 @@
     let activeSlide = 0;
     let slideDurationSeconds = 15;
     let slideTimer = 0;
+    let dateTimer = 0;
+    let showingGregorianDate = true;
     let transitionTimer = 0;
     let gestureStart = null;
     let duaAfterAdhanVisible = false;
@@ -87,6 +89,7 @@
     }
 
     function isCompactCommunityItem(item) {
+        if (item.type === "jumuah_schedule") return false;
         return plainText(item.body).length <= 80 && orderedFields(item).length <= 2;
     }
 
@@ -331,6 +334,25 @@
         if (restart) startTimer();
     }
 
+    function updateDateVisibility() {
+        const hasIslamicDate = Boolean(islamicDate.textContent.trim());
+        const showGregorian = showingGregorianDate || !hasIslamicDate;
+        gregorianDate.classList.toggle("hidden", !showGregorian);
+        islamicDate.classList.toggle("hidden", showGregorian);
+    }
+
+    function startDateTimer(reset) {
+        window.clearInterval(dateTimer);
+        dateTimer = 0;
+        if (reset) showingGregorianDate = true;
+        updateDateVisibility();
+        if (!islamicDate.textContent.trim()) return;
+        dateTimer = window.setInterval(() => {
+            showingGregorianDate = !showingGregorianDate;
+            updateDateVisibility();
+        }, slideDurationSeconds * 1000);
+    }
+
     function startTimer() {
         window.clearInterval(slideTimer);
         if (state.classList.contains("listen-panel-open")) return;
@@ -407,7 +429,10 @@
         latestView = view;
         const boards = view && Array.isArray(view.boards) ? view.boards.slice(0, 3) : [];
         if (!view || !view.configured || boards.length === 0) return;
-        primaryName.textContent = boards[0].name;
+        const displayName = plainText(boards[0].name);
+        primaryName.textContent = displayName;
+        primaryName.classList.toggle("name-long", displayName.length > 22);
+        primaryName.classList.toggle("name-very-long", displayName.length > 32);
         renderSlides(boards, view.economic_indicators, view.daily_islamic_content, view.show_dua_after_adhan);
         updateHeader();
         state.classList.remove("hidden");
@@ -415,9 +440,15 @@
 
     function refresh(view) {
         render(view);
+        const previousDuration = slideDurationSeconds;
         const duration = Number(view.slide_duration_seconds);
         slideDurationSeconds = duration >= 5 && duration <= 60 ? duration : 15;
         startTimer();
+        if (!dateTimer || slideDurationSeconds !== previousDuration) {
+            startDateTimer(slideDurationSeconds !== previousDuration);
+        } else {
+            updateDateVisibility();
+        }
     }
 
     state.addEventListener("pointerdown", (event) => { gestureStart = {x: event.clientX, y: event.clientY}; });

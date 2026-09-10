@@ -12,7 +12,7 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 - [x] Touch gestures and directions operate correctly.
 - [x] First-run and Change Wi-Fi screens fit the display.
 - [x] The on-screen keyboard fits without horizontal clipping.
-- [x] The existing 600 × 1024 appliance profile remains separately routed and styled.
+- [x] The retired 600 × 1024 profile falls back to the standard layout and no longer enables rotation or touch controls.
 
 ### Screen controls
 
@@ -21,7 +21,7 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 - [x] Brightness persists and is restored when MasjidPi starts.
 - [x] Off, Mild, Medium and Strong cool-white corrections apply correctly.
 - [x] Colour correction also applies to the 720 × 1280 Wi-Fi setup flow.
-- [x] Display controls remain hidden from the 600 × 1024 profile.
+- [x] Display controls remain unavailable outside the `appliance-720` profile.
 
 ## Completed for v1.6.0-rc.2
 
@@ -124,7 +124,6 @@ For every stable release:
 - [ ] Validate Listen and Board memory headroom on Raspberry Pi 3A+.
 - [ ] Test HDMI disconnect/reconnect behavior.
 - [ ] Test HDMI-CEC behavior on intended displays.
-- [ ] Validate the Waveshare display audio path and physical volume controls.
 
 The original ARMv6 Raspberry Pi Zero W and Raspberry Pi 1 are not current release targets and should not be listed as pending stable-release validation.
 

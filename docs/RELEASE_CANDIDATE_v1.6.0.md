@@ -103,9 +103,9 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 
 - detect a connected 7-inch Raspberry Pi Touch Display 2 from its DRM DSI connector and exact 720 × 1280 mode;
 - launch a dedicated `appliance-720` profile in the panel's native portrait orientation without Cog rotation;
-- preserve the established rotated 600 × 1024 Waveshare appliance profile unchanged;
+- retire the rotated 600 × 1024 Waveshare appliance profile and its hardware-detection path;
 - provide a purpose-built 720 × 1280 Board, touch-control sheet, first-run setup and Change Wi-Fi layout;
-- select an upright boot splash for native portrait DSI while retaining the pre-rotated Waveshare splash;
+- select an upright boot splash for the native portrait DSI panel;
 - expose persistent Touch Display 2 backlight brightness through the standard Linux kernel backlight interface;
 - provide Off, Mild, Medium and Strong cool-white correction for the Board and Wi-Fi setup interfaces;
 - correct keyboard width, economic-indicator vertical use and economic heading spacing at 720 × 1280; and

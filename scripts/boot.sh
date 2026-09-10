@@ -8,8 +8,6 @@ PLYMOUTH_THEME_DIR="${MASJIDPI_PLYMOUTH_THEME_DIR:-/usr/share/plymouth/themes/ma
 PLYMOUTH_QUIT_DROPIN_DIR="${MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR:-/etc/systemd/system/plymouth-quit.service.d}"
 BOOT_READONLY_SERVICE_FILE="${MASJIDPI_BOOT_READONLY_SERVICE_FILE:-/etc/systemd/system/masjidpi-boot-readonly.service}"
 BOOT_APT_HOOK_FILE="${MASJIDPI_BOOT_APT_HOOK_FILE:-/etc/apt/apt.conf.d/99-masjidpi-boot-firmware}"
-APPLIANCE_USB_SYSFS_ROOT="${MASJIDPI_USB_SYSFS_ROOT:-/sys/bus/usb/devices}"
-APPLIANCE_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
 BOOT_FIRMWARE_UPDATE_ACTIVE=false
 
 is_raspberry_pi() {
@@ -24,54 +22,6 @@ is_raspberry_pi() {
 is_raspberry_pi_board() {
     $INSTALL_BOARD || return 1
     is_raspberry_pi
-}
-
-waveshare_appliance_touch_present() {
-    local device
-
-    for device in "$APPLIANCE_USB_SYSFS_ROOT"/*; do
-        [[ -r "$device/idVendor" && -r "$device/idProduct" ]] || continue
-        [[ "$(<"$device/idVendor")" == "0eef" ]] || continue
-        [[ "$(<"$device/idProduct")" == "0005" ]] || continue
-
-        if [[ -r "$device/manufacturer" && -r "$device/product" ]]; then
-            [[ "$(<"$device/manufacturer")" == "WaveShare" ]] || continue
-            [[ "$(<"$device/product")" == "WS170120" ]] || continue
-        fi
-
-        return 0
-    done
-
-    return 1
-}
-
-appliance_hdmi_mode_present() {
-    local connector
-
-    for connector in "$APPLIANCE_DRM_SYSFS_ROOT"/card*-HDMI-A-*; do
-        [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
-        [[ "$(<"$connector/status")" == "connected" ]] || continue
-        grep -Fxq '1024x600' "$connector/modes" && return 0
-    done
-
-    return 1
-}
-
-touch_display_2_present() {
-    local connector
-
-    for connector in "$APPLIANCE_DRM_SYSFS_ROOT"/card*-DSI-*; do
-        [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
-        [[ "$(<"$connector/status")" == "connected" ]] || continue
-        grep -Fxq '720x1280' "$connector/modes" && return 0
-    done
-
-    return 1
-}
-
-is_appliance_display_hardware() {
-    is_raspberry_pi_board || return 1
-    touch_display_2_present || { waveshare_appliance_touch_present && appliance_hdmi_mode_present; }
 }
 
 prepare_boot_firmware_update() {
@@ -163,15 +113,6 @@ configure_boot_splash() {
     local theme_file="$PROJECT_ROOT/scripts/masjidpi-splash.plymouth"
     local script_file="$PROJECT_ROOT/scripts/masjidpi-splash-standard.script"
     local logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo.png"
-    local appliance_logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo-appliance.png"
-
-    # The Waveshare panel exposes a landscape framebuffer while being mounted
-    # in portrait, so it needs the pre-rotated asset. Touch Display 2 exposes a
-    # native portrait framebuffer and uses the normal upright asset.
-    if waveshare_appliance_touch_present && appliance_hdmi_mode_present; then
-        script_file="$PROJECT_ROOT/scripts/masjidpi-splash.script"
-        logo_file="$appliance_logo_file"
-    fi
 
     if [[ ! -f "$theme_file" || ! -f "$script_file" || ! -f "$logo_file" ]]; then
         warn "MasjidPi Plymouth splash assets are missing; skipping branded boot splash."
@@ -189,6 +130,7 @@ configure_boot_splash() {
     install -m 0644 "$theme_file" "$PLYMOUTH_THEME_DIR/masjidpi.plymouth"
     install -m 0644 "$script_file" "$PLYMOUTH_THEME_DIR/masjidpi-splash.script"
     install -m 0644 "$logo_file" "$PLYMOUTH_THEME_DIR/$(basename "$logo_file")"
+    rm -f "$PLYMOUTH_THEME_DIR/masjidpi-splash-logo-appliance.png"
 
     append_cmdline_parameter splash
     append_cmdline_parameter plymouth.ignore-serial-consoles

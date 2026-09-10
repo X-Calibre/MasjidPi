@@ -52,8 +52,8 @@ These measurements show comfortable headroom on the Pi 3B. They do not replace r
 Board supports:
 
 - a responsive landscape TV/Monitor profile; and
-- portrait Appliance Display profiles with touch controls for the 600 × 1024
-  Waveshare panel and 720 × 1280 Raspberry Pi Touch Display 2.
+- a portrait Appliance Display profile with touch controls for the 720 × 1280
+  Raspberry Pi Touch Display 2.
 
 The local display service uses Cog/WPE directly on DRM/KMS. Display detection, orientation and touchscreen calibration are handled by the appliance runtime rather than saved as Board layout preferences.
 
@@ -69,4 +69,4 @@ USB audio hot-plug fallback and restoration have been validated with a Logitech 
 - Raspberry Pi Zero 2 W and Pi 3A+ memory validation;
 - HDMI disconnect/reconnect behavior;
 - physical HDMI-CEC support; and
-- Waveshare display audio and volume behavior.
+- the selected USB audio, speaker and enclosure design.

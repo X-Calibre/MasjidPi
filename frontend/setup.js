@@ -1,10 +1,8 @@
 "use strict";
 
 (() => {
-    const requestedProfile = new URLSearchParams(window.location.search).get("profile");
-    const applianceProfile = requestedProfile === "appliance-720" ? "appliance-720" : "appliance";
-    const boardURL = `/masjidboard.html?profile=${applianceProfile}`;
-    if (applianceProfile === "appliance-720") document.body.classList.add("setup-720-layout");
+    const boardURL = "/masjidboard.html?profile=appliance-720";
+    document.body.classList.add("setup-720-layout");
     const networkStep = document.getElementById("networkStep");
     const passwordStep = document.getElementById("passwordStep");
     const successStep = document.getElementById("successStep");

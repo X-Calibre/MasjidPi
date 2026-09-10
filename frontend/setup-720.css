@@ -1,5 +1,5 @@
 /* Native portrait setup layout for the 7-inch Raspberry Pi Touch Display 2.
-   The base setup.css remains the 600x1024 appliance contract. */
+   setup.css provides the shared structural foundation. */
 body.setup-720-layout { min-width:720px; min-height:1280px; }
 
 .setup-720-layout .setup-shell {

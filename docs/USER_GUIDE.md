@@ -326,7 +326,7 @@ In TV / Monitor mode, the first selected masjid supplies the shared Daily Times 
 MasjidPi supports dedicated HDMI presentation including:
 
 - **TV / Monitor (responsive landscape)**
-- **7-inch Appliance Display** — purpose-built portrait layouts for the 600 × 1024 Waveshare display and 720 × 1280 Raspberry Pi Touch Display 2
+- **7-inch Appliance Display** — a purpose-built 720 × 1280 portrait layout for the Raspberry Pi Touch Display 2
 
 The presentation adapts to the number of configured masjids.
 
@@ -348,25 +348,26 @@ Slide duration, theme and optional-content settings are saved automatically. **O
 
 #### 7-inch touch controls
 
-On the 7-inch Appliance Display, swipe up to open the touch control sheet. A small on-screen hint identifies the gesture. Opening the sheet pauses slide rotation; swipe down from its handle/header, tap ×, or tap outside the sheet to close it and resume the slideshow.
+On the 7-inch Appliance Display, the screen has two touch-control sheets. Opening either sheet pauses slide rotation, and both close automatically after 60 seconds without activity.
 
-The first-run setup and Change Wi-Fi screens automatically use the matching
-600 × 1024 Waveshare or 720 × 1280 Raspberry Pi Touch Display 2 portrait layout.
+Swipe down from the top edge to open **Quick Settings**. This panel occupies approximately two-thirds of the screen and provides:
 
-The control sheet provides:
+- persistent display brightness;
+- Master, Masjid and Radio volume sliders; and
+- Scheduled Play, Play Now and Stop Radio controls.
 
-- a **Masjid** tab for choosing a favourited masjid, adjusting Masjid and Master volume, starting playback and stopping Listen;
-- a **Radio** tab for choosing a station, adjusting Radio and Master volume, and selecting Scheduled Play, Play Now or Stop Radio; and
-- a **Theme** tab for immediately applying and saving any supported Board colour theme; and
-- on Raspberry Pi Touch Display 2, a **Display** tab for persistent backlight brightness and Off, Mild, Medium or Strong cool-white correction.
+Swipe up from the bottom edge to open the main control sheet. It retains:
 
-The **Network** tab shows the current IP address and any network-issued FQDN for accessing advanced configuration from another device. It also provides **Change Wi-Fi network**, which reopens the appliance network setup without deleting the current profile first.
+- a **Masjid** tab for choosing a favourited masjid, starting playback and stopping Listen;
+- a **Radio** tab for choosing a station and selecting Scheduled Play, Play Now or Stop Radio;
+- a **Theme** tab for immediately applying and saving a Board colour theme; and
+- a **Network** tab showing access addresses and the Change Wi-Fi network action.
 
-Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidPi starts. Colour correction affects the MasjidBoard and Wi-Fi setup interfaces only; it does not alter the boot splash. These controls are not shown on the 600 × 1024 Waveshare profile.
+Close Quick Settings by swiping upward from its header or lower handle, tapping ×, or tapping outside it. Close the main sheet by swiping downward from its handle/header, tapping ×, or tapping outside it.
 
-Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the touch panel does not start it until the corresponding playback action is selected.
+The first-run setup and Change Wi-Fi screens use the dedicated 720 × 1280 Raspberry Pi Touch Display 2 portrait layout. Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidPi starts.
 
-The panel closes automatically after 60 seconds without user activity. Tapping, scrolling, swiping, using the keyboard or adjusting a control restarts that timer. The time and upcoming-event section remains visible while the panel is open.
+Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the main panel does not start it until the corresponding playback action is selected.
 
 ![7-inch touch controls showing the Masjid tab](images/user-guide/board-touch-masjid-tab.png)
 
@@ -519,7 +520,7 @@ curl -s http://127.0.0.1:8080/api/masjidboard/status
 
 ### Touch controls do not open
 
-The swipe-up controls are available on both **7-inch Appliance Display** profiles. Confirm that the display was detected as either the 600 × 1024 Waveshare panel or 720 × 1280 Raspberry Pi Touch Display 2 and that the small **Swipe up for controls** hint is visible.
+The swipe-up controls are available on the **7-inch Appliance Display** profile. Confirm that the 720 × 1280 Raspberry Pi Touch Display 2 was detected and that the small **Swipe up for controls** hint is visible.
 
 Swipe upward from the lower display area. The panel closes automatically after 60 seconds without activity.
 

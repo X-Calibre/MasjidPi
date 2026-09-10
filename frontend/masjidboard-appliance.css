@@ -539,3 +539,42 @@ body.appliance-layout {
         will-change:auto;
     }
 }
+
+
+/* Top-edge quick settings sheet. */
+.appliance-quick-panel { position:absolute; z-index:21; inset:0; }
+.appliance-quick-panel.hidden { display:none; }
+.appliance-quick-backdrop { position:absolute; inset:0; width:100%; border:0; background:rgba(0,0,0,.24); }
+.appliance-quick-sheet {
+    position:absolute;
+    top:0;
+    right:0;
+    left:0;
+    height:auto;
+    max-height:calc(100% - 20px);
+    padding:22px 24px 18px;
+    overflow-y:auto;
+    border:2px solid var(--appliance-strong-line);
+    border-top:0;
+    border-radius:0 0 24px 24px;
+    background:var(--appliance-header-bg);
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+    color:var(--appliance-text);
+    display:flex;
+    flex-direction:column;
+    touch-action:pan-x;
+}
+.appliance-quick-heading { height:68px; flex:0 0 68px; display:flex; align-items:center; justify-content:space-between; touch-action:none; }
+.appliance-quick-heading small { color:var(--appliance-heading-accent); font-size:13px; font-weight:800; letter-spacing:.12em; }
+.appliance-quick-heading h2 { margin:2px 0 0; font-size:28px; line-height:1; }
+.appliance-quick-controls { display:grid; grid-template-columns:1fr 1fr; gap:12px 18px; }
+.appliance-quick-controls .appliance-volume-control { margin:0; padding:13px 14px; border:1px solid var(--appliance-line); border-radius:14px; background:var(--appliance-panel); }
+.appliance-quick-controls #applianceBrightness { width:100%; height:42px; accent-color:var(--appliance-accent); }
+.appliance-quick-controls #applianceBrightnessUnavailable { margin:2px 0 0; color:var(--appliance-muted); font-size:13px; }
+.appliance-quick-action-section { margin-top:14px; }
+.appliance-quick-action-section h3 { margin:0; color:var(--appliance-heading-accent); font-size:18px; line-height:1.2; }
+.appliance-quick-action-section .appliance-listen-actions,
+.appliance-quick-action-section .appliance-radio-actions { margin-top:7px; }
+.appliance-quick-handle { width:76px; height:6px; margin:auto auto 0; border-radius:10px; background:var(--appliance-strong-line); touch-action:none; }
+.appliance-quick-sheet button:disabled,.appliance-quick-sheet input:disabled { opacity:.42; }
+.appliance-quick-sheet button:focus-visible,.appliance-quick-sheet input:focus-visible { outline:3px solid var(--appliance-heading-accent); outline-offset:2px; }

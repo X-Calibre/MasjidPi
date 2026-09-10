@@ -92,7 +92,6 @@ jobs:
             test -f "$package_dir/frontend/setup.css"
             test -f "$package_dir/frontend/setup-720.css"
             test -f "$package_dir/frontend/setup.js"
-            test -f "$package_dir/frontend/display-adjustments.js"
             test -f "$package_dir/frontend/masjidboard-appliance-720.css"
             test -f "$package_dir/frontend/masjidpi-splash-logo.png"
             test -f "$package_dir/scripts/install.sh"

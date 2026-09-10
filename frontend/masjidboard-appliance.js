@@ -89,6 +89,7 @@
     }
 
     function isCompactCommunityItem(item) {
+        if (item.type === "jumuah_schedule") return false;
         return plainText(item.body).length <= 80 && orderedFields(item).length <= 2;
     }
 

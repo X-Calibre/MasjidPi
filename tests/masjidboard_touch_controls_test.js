@@ -31,7 +31,8 @@ assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
 assert.match(html, /masjidboard-touch-controls\.js\?v=20260910-quick-close/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260909-split-panels/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260910-jumuah-full/);
+assert.match(html, /masjidboard-appliance\.js\?v=20260910-jumuah-full/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260909-split-panels/);
 
 assert.match(controller, /profile !== "appliance-720"/);
@@ -77,6 +78,12 @@ assert.match(appliance720, /\.appliance-community-field\s*\{[^}]*font-size:28px/
 assert.match(appliance720, /\.appliance-next-name\s*\{[^}]*font-size:32px/s);
 assert.match(appliance720, /\.appliance-countdown\s*\{[^}]*font-size:30px/s);
 assert.match(appliance720, /@keyframes appliance-720-toast-drop/);
+assert.match(appliance, /item\.type === "jumuah_schedule"\) return false/);
+assert.match(appliance720, /\.appliance-community-card\.appliance-community-jumuah_schedule\s*\{[^}]*padding:46px 42px 34px/s);
+assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-community-title\s*\{[^}]*font-size:52px/s);
+assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-schedule\s*\{[^}]*grid-template-columns:1fr;[^}]*grid-auto-rows:minmax\(0,1fr\)/s);
+assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-event strong\s*\{[^}]*font-size:52px/s);
+assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-community-body\s*\{[^}]*font-size:32px/s);
 
 for (const theme of ["ivory", "sage", "sky", "rose"]) {
     assert.match(themeController, new RegExp(`"${theme}"`));

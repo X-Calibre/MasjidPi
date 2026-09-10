@@ -125,8 +125,9 @@ body.appliance-720-layout {
 .appliance-720-layout .appliance-source-list { max-height:245px; }
 
 .appliance-720-layout .appliance-quick-sheet {
-    height:66.667%;
-    padding:22px 36px 18px;
+    height:auto;
+    max-height:calc(100% - 20px);
+    padding:20px 36px 16px;
 }
 .appliance-720-layout .appliance-quick-heading { height:82px; flex-basis:82px; }
 .appliance-720-layout .appliance-quick-heading h2 { font-size:34px; }
@@ -617,11 +618,15 @@ body.appliance-720-layout {
     width:100%;
     margin:0;
 }
-.appliance-720-layout .appliance-quick-masjid-actions {
-    margin-top:12px;
-}
-.appliance-720-layout .appliance-quick-radio-actions {
+.appliance-720-layout .appliance-quick-action-section {
     margin-top:10px;
+}
+.appliance-720-layout .appliance-quick-action-section h3 {
+    font-size:21px;
+}
+.appliance-720-layout .appliance-quick-action-section .appliance-listen-actions,
+.appliance-720-layout .appliance-quick-action-section .appliance-radio-actions {
+    margin-top:6px;
 }
 .appliance-720-layout .appliance-quick-masjid-actions button,
 .appliance-720-layout .appliance-quick-radio-actions button {

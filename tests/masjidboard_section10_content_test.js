@@ -83,6 +83,6 @@ assert.match(applianceJS, /item\.type !== "dua_after_adhan"/, "Appliance must om
 assert.match(displayJS, /window\.MasjidBoardCurrentView = view/, "the base renderer must retain the latest view for late layout modules");
 assert.match(landscapeJS, /if \(window\.MasjidBoardCurrentView\) refresh\(window\.MasjidBoardCurrentView\)/, "Landscape must replay an already-fetched view");
 assert.match(html, /masjidboard-community-utils\.js\?v=20260907-economic-data/, "special-Dhuhr assets must use a new cache key");
-assert.match(html, /masjidboard-appliance\.js\?v=20260911-daily-scale-2/, "the Appliance controller must use the Touch Display 2 cache key");
+assert.match(html, /masjidboard-appliance\.js\?v=20260911-daily-scale-3/, "the Appliance controller must use the Touch Display 2 cache key");
 
 console.log("MasjidBoard Section 10 community-content tests passed");

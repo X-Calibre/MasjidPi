@@ -318,9 +318,9 @@
         if (results[6].status === "fulfilled") displaySettings = results[6].value;
         if (results.slice(0,4).every(result => result.status === "fulfilled")) {
             const [newStatus,masjids,radioItems,favourites] = results.map(result => result.value);
-            const favouriteIDs = new Set(favourites.ids || []);
+            const masjidsByID = new Map(masjids.map(item => [item.id,item]));
             status = newStatus;
-            favouriteMasjids = masjids.filter(item => favouriteIDs.has(item.id));
+            favouriteMasjids = (favourites.ids || []).map(id => masjidsByID.get(id)).filter(Boolean);
             radios = radioItems;
             selectedMasjidID = status.masjid_id || favouriteMasjids[0]?.id || "";
             selectedRadioID = status.radio_id || radios[0]?.id || "";

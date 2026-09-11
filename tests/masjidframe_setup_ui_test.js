@@ -37,6 +37,8 @@ assert.match(css, /\.key\s*\{[^}]*height: 54px/s);
 assert.match(css, /\.masjid-option\s*\{[^}]*margin: 0/s);
 assert.match(css, /body\.masjid-step-open #masjidStep\s*\{[^}]*display: flex;[^}]*min-height: 0;[^}]*flex: 1 1 auto/s);
 assert.match(css, /body\.masjid-step-open #finishSetupButton\s*\{[^}]*flex: 0 0 auto/s);
+assert.match(js, /\/api\/masjidboard\/layout/);
+assert.match(js, /dataset\.boardTheme/);
 assert.match(js, /\/api\/setup\/wifi\/networks/);
 assert.match(js, /\/api\/setup\/wifi\/connect/);
 assert.match(js, /hidden: currentNetwork\.hidden/);

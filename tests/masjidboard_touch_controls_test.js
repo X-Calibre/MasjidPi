@@ -97,6 +97,7 @@ assert.match(appliance720, /strong\.name-very-long\s*\{[^}]*font-size:29px/s);
 assert.match(appliance720, /\.appliance-community-body\s*\{[^}]*font-size:34px/s);
 assert.match(appliance720, /\.appliance-community-field\s*\{[^}]*font-size:28px/s);
 assert.match(appliance720, /\.appliance-next-name\s*\{[^}]*font-size:32px/s);
+assert.match(appliance720, /\.appliance-next\s*\{[^}]*margin-top:4px/s);
 assert.match(appliance720, /\.appliance-countdown\s*\{[^}]*font-size:30px/s);
 assert.match(appliance720, /@keyframes appliance-720-toast-drop/);
 assert.match(appliance, /\["jumuah_schedule", "daily_ayah", "daily_hadith", "daily_sunnah"\]\.includes\(item\.type\)\) return false/);

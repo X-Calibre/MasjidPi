@@ -102,7 +102,9 @@ Masjid selection is saved immediately. Selecting a masjid does not require it to
 
 Frequently used masajid can be added to **Favourites** for quicker selection.
 
-Select a masjid and use **Add to Favourites** or **Remove from Favourites**. Favourites are also the only masjids offered by the simplified touch controls on the 7-inch Appliance Display.
+Select a masjid and use **Add to Favourites** or **Remove from Favourites**. Use the up and down controls beside each favourite to choose their order. That saved order is also used by the simplified touch controls on the 7-inch Appliance Display.
+
+The main Masjid catalogue is alphabetical. Qur’aan Recitation, Takbeer and Sautun Noor remain pinned at the top for quick access.
 
 ### Masjid Volume
 

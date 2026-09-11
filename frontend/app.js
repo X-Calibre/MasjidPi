@@ -32,6 +32,14 @@ function sortMasjidCatalogue(items) {
     });
 }
 
+function sortStreamsAlphabetically(items) {
+    return [...items].sort((left, right) => {
+        const nameDifference = String(left.name || "").localeCompare(String(right.name || ""), undefined, {sensitivity: "base", numeric: true});
+        if (nameDifference) return nameDifference;
+        return String(left.location || "").localeCompare(String(right.location || ""), undefined, {sensitivity: "base", numeric: true});
+    });
+}
+
 function orderedFavouriteStreams() {
     const streamsByID = new Map(masjidCatalogue.map(item => [item.id, item]));
     return [...favouriteIds].map(id => streamsByID.get(id)).filter(Boolean);
@@ -252,7 +260,7 @@ async function loadStreams() {
         getStreams("radio")
     ]);
     masjidCatalogue = sortMasjidCatalogue(masjids);
-    radioCatalogue = radios;
+    radioCatalogue = sortStreamsAlphabetically(radios);
     publishMasjidCatalogue(masjidCatalogue);
     renderMasjids();
     renderRadios();

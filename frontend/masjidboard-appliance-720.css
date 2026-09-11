@@ -352,14 +352,16 @@ body.appliance-720-layout {
 }
 
 
-/* Daily Qur'an and Hadith content always receives the complete card area.
+/* Daily Qur'an, Hadith, and Sunnah content always receives the complete card area.
    JavaScript chooses the largest body size that fits the available height. */
 .appliance-720-layout .appliance-community-daily_ayah,
-.appliance-720-layout .appliance-community-daily_hadith {
+.appliance-720-layout .appliance-community-daily_hadith,
+.appliance-720-layout .appliance-community-daily_sunnah {
     padding:44px 34px 30px;
 }
 .appliance-720-layout .appliance-community-daily_ayah .appliance-community-title,
-.appliance-720-layout .appliance-community-daily_hadith .appliance-community-title {
+.appliance-720-layout .appliance-community-daily_hadith .appliance-community-title,
+.appliance-720-layout .appliance-community-daily_sunnah .appliance-community-title {
     font-size:48px;
     line-height:1.08;
 }
@@ -368,12 +370,14 @@ body.appliance-720-layout {
     font-size:23px;
 }
 .appliance-720-layout .appliance-community-daily_ayah .appliance-community-body,
-.appliance-720-layout .appliance-community-daily_hadith .appliance-community-body {
+.appliance-720-layout .appliance-community-daily_hadith .appliance-community-body,
+.appliance-720-layout .appliance-community-daily_sunnah .appliance-community-body {
     min-height:0;
     margin-top:20px;
     font-size:34px;
 }
-.appliance-720-layout .appliance-community-daily_hadith .appliance-community-fields {
+.appliance-720-layout .appliance-community-daily_hadith .appliance-community-fields,
+.appliance-720-layout .appliance-community-daily_sunnah .appliance-community-fields {
     margin-top:16px;
 }
 

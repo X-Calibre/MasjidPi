@@ -37,7 +37,7 @@ for (const tab of ["masjid", "radio", "theme", "network"]) assert.match(html, ne
 assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
-assert.match(html, /masjidboard-touch-controls\.js\?v=20260911-favourites-order/);
+assert.match(html, /masjidboard-touch-controls\.js\?v=20260911-stream-sorting/);
 assert.match(html, /masjidboard-appliance-720\.css\?v=20260911-quick-handle/);
 assert.match(html, /masjidboard-appliance\.js\?v=20260911-daily-scale-3/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260910-dynamic-quick/);
@@ -62,6 +62,7 @@ assert.match(controller, /setOpenPanel\(""\)/);
 assert.match(controller, /return=board&profile=\$\{profile\}/);
 assert.match(controller, /\/api\/favourites/);
 assert.match(controller, /\(favourites\.ids \|\| \[\]\)\.map\(id => masjidsByID\.get\(id\)\)/);
+assert.match(controller, /radios = sortStreamsAlphabetically\(radioItems\)/);
 assert.match(controller, /\/api\/masjidboard\/layout/);
 assert.match(controller, /\/api\/setup\/device-access/);
 assert.match(controller, /pendingVolumes\[name\] \?\? values\[name\]/);

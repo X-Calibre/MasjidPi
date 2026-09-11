@@ -38,7 +38,7 @@ assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
 assert.match(html, /masjidboard-touch-controls\.js\?v=20260910-quick-actions/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260911-header-spacing/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260911-quick-handle/);
 assert.match(html, /masjidboard-appliance\.js\?v=20260911-daily-scale-3/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260910-dynamic-quick/);
 
@@ -76,6 +76,7 @@ assert.match(appliance720, /\.appliance-quick-controls\s*\{[^}]*grid-template-co
 assert.match(appliance720, /\.appliance-quick-controls \.appliance-volume-control\s*\{[^}]*min-height:106px/s);
 assert.match(appliance720, /\.appliance-quick-masjid-actions button,[\s\S]*?min-height:58px/s);
 assert.match(appliance720, /\.appliance-quick-action-section h3\s*\{[^}]*font-size:21px/s);
+assert.match(appliance720, /\.appliance-quick-handle\s*\{[^}]*flex:0 0 34px;[^}]*height:34px/s);
 assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:930px/s);
 assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(4,1fr\)/s);
 assert.doesNotMatch(html, /<small>APPLIANCE CONTROLS<\/small>/);

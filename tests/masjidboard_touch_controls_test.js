@@ -80,7 +80,7 @@ assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:930px/s);
 assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(4,1fr\)/s);
 assert.doesNotMatch(html, /<small>APPLIANCE CONTROLS<\/small>/);
 assert.match(appliance720, /\.appliance-listen-heading h2\s*\{[^}]*font-size:43px/s);
-assert.match(appliance720, /\.appliance-listen-status strong\s*\{[^}]*font-size:29px;[^}]*white-space:normal/s);
+assert.match(appliance720, /\.appliance-listen-status strong\s*\{[^}]*font-size:52px;[^}]*white-space:normal/s);
 assert.match(appliance720, /\.appliance-source-list\s*\{[^}]*max-height:365px/s);
 assert.match(appliance720, /\.appliance-source-list button\s*\{[^}]*min-height:68px;[^}]*font-size:21px/s);
 assert.match(appliance720, /\.appliance-theme-grid\s*\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/s);

@@ -80,7 +80,7 @@ assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:930px/s);
 assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(4,1fr\)/s);
 assert.doesNotMatch(html, /<small>APPLIANCE CONTROLS<\/small>/);
 assert.match(appliance720, /\.appliance-listen-heading h2\s*\{[^}]*font-size:43px/s);
-assert.match(appliance720, /\.appliance-listen-status strong\s*\{[^}]*font-size:52px;[^}]*white-space:normal/s);
+assert.match(appliance720, /\.appliance-listen-status strong\s*\{[^}]*font-size:29px;[^}]*white-space:normal/s);
 assert.match(appliance720, /\.appliance-source-list\s*\{[^}]*max-height:365px/s);
 assert.match(appliance720, /\.appliance-source-list button\s*\{[^}]*min-height:68px;[^}]*font-size:21px/s);
 assert.match(appliance720, /\.appliance-theme-grid\s*\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/s);
@@ -103,6 +103,7 @@ assert.match(appliance, /\["jumuah_schedule", "daily_ayah", "daily_hadith", "dai
 assert.match(appliance720, /\.appliance-community-card\.appliance-community-jumuah_schedule\s*\{[^}]*padding:46px 42px 34px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-community-title\s*\{[^}]*font-size:52px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-schedule\s*\{[^}]*grid-template-columns:1fr;[^}]*grid-auto-rows:minmax\(0,1fr\)/s);
+assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-event span\s*\{[^}]*font-size:52px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-event strong\s*\{[^}]*font-size:52px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-community-body\s*\{[^}]*font-size:32px/s);
 

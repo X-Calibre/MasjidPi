@@ -131,6 +131,17 @@
         return payload;
     }
 
+    const supportedBoardThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "ivory", "sage", "sky", "rose", "black-white"]);
+
+    async function loadBoardTheme() {
+        try {
+            const layout = await jsonRequest("/api/masjidboard/layout");
+            document.body.dataset.boardTheme = supportedBoardThemes.has(layout?.theme) ? layout.theme : "emerald";
+        } catch (_) {
+            document.body.dataset.boardTheme = "emerald";
+        }
+    }
+
     async function scanNetworks() {
         networkStatus.textContent = "Looking for nearby networks…";
         networkList.replaceChildren();
@@ -508,6 +519,8 @@
     finishSetupButton.addEventListener("click", finishSetup);
     document.getElementById("backToLocation").addEventListener("click", showLocationStep);
     document.getElementById("continueButton").addEventListener("click", () => continueAction());
+
+    void loadBoardTheme();
 
     const setupParams = new URLSearchParams(window.location.search);
     if (setupParams.get("return") === "board") {

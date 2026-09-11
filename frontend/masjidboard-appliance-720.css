@@ -27,7 +27,7 @@ body.appliance-720-layout {
 
 .appliance-720-layout .appliance-next {
     height:124px;
-    margin-top:12px;
+    margin-top:4px;
     padding:13px 21px;
     border-radius:21px;
     grid-template-columns:174px minmax(0,1fr) 168px;
@@ -405,7 +405,7 @@ body.appliance-720-layout {
 }
 .appliance-720-layout .appliance-header:has(.board-source-toast:not(.hidden)) .appliance-next {
     height:124px;
-    margin-top:12px;
+    margin-top:4px;
 }
 @keyframes appliance-720-toast-drop {
     from { opacity:0; transform:translateY(-24px); }

@@ -89,12 +89,12 @@
     }
 
     function isCompactCommunityItem(item) {
-        if (["jumuah_schedule", "daily_ayah", "daily_hadith"].includes(item.type)) return false;
+        if (["jumuah_schedule", "daily_ayah", "daily_hadith", "daily_sunnah"].includes(item.type)) return false;
         return plainText(item.body).length <= 80 && orderedFields(item).length <= 2;
     }
 
     function fitDailyContentText(slide) {
-        const card = slide?.querySelector(".appliance-community-daily_ayah,.appliance-community-daily_hadith");
+        const card = slide?.querySelector(".appliance-community-daily_ayah,.appliance-community-daily_hadith,.appliance-community-daily_sunnah");
         const body = card?.querySelector(".appliance-community-body");
         if (!body || body.clientHeight <= 0 || body.clientWidth <= 0) return;
 

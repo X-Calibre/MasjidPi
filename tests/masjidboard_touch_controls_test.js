@@ -61,6 +61,7 @@ assert.match(controller, /const inactivityTimeout = 60000/);
 assert.match(controller, /setOpenPanel\(""\)/);
 assert.match(controller, /return=board&profile=\$\{profile\}/);
 assert.match(controller, /\/api\/favourites/);
+assert.match(controller, /\(favourites\.ids \|\| \[\]\)\.map\(id => masjidsByID\.get\(id\)\)/);
 assert.match(controller, /\/api\/masjidboard\/layout/);
 assert.match(controller, /\/api\/setup\/device-access/);
 assert.match(controller, /pendingVolumes\[name\] \?\? values\[name\]/);

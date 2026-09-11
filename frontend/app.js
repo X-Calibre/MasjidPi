@@ -3,6 +3,40 @@ let radioCatalogue = [];
 let backendOnline = true;
 let listenStatus = null;
 let favouriteIds = new Set();
+
+function normaliseMasjidName(value) {
+    return String(value || "")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/['’`]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+}
+
+function featuredMasjidRank(item) {
+    const name = normaliseMasjidName(item?.name);
+    if (name.includes("quraan recitation") || name.includes("quran recitation")) return 0;
+    if (name.includes("takbeer")) return 1;
+    if (name.includes("sautun noor")) return 2;
+    return 3;
+}
+
+function sortMasjidCatalogue(items) {
+    return [...items].sort((left, right) => {
+        const rankDifference = featuredMasjidRank(left) - featuredMasjidRank(right);
+        if (rankDifference) return rankDifference;
+        const nameDifference = String(left.name || "").localeCompare(String(right.name || ""), undefined, {sensitivity: "base", numeric: true});
+        if (nameDifference) return nameDifference;
+        return String(left.location || "").localeCompare(String(right.location || ""), undefined, {sensitivity: "base", numeric: true});
+    });
+}
+
+function orderedFavouriteStreams() {
+    const streamsByID = new Map(masjidCatalogue.map(item => [item.id, item]));
+    return [...favouriteIds].map(id => streamsByID.get(id)).filter(Boolean);
+}
+
 let renderedMasjidID = null;
 let renderedRadioID = null;
 
@@ -162,28 +196,47 @@ function renderRadios(preferredId = listenStatus?.radio_id || radioInput.value) 
 }
 
 function renderFavourites() {
-    favourites.innerHTML = "";
-    const favouriteStreams = masjidCatalogue.filter(item => favouriteIds.has(item.id));
+    favourites.replaceChildren();
+    const favouriteStreams = orderedFavouriteStreams();
     favouritesSection.classList.toggle("hidden", favouriteStreams.length === 0);
 
-    for (const item of favouriteStreams) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "favourite-item";
-        button.dataset.id = item.id;
+    favouriteStreams.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "favourite-item";
+        row.dataset.id = item.id;
 
-        const label = document.createElement("span");
-        label.textContent = `★ ${streamLabel(item)}`;
+        const select = document.createElement("button");
+        select.type = "button";
+        select.className = "favourite-select";
+        select.textContent = `★ ${streamLabel(item)}`;
+        select.title = `Select ${item.name}`;
 
-        const remove = document.createElement("span");
+        const controls = document.createElement("div");
+        controls.className = "favourite-order-controls";
+
+        for (const [direction, symbol, action] of [[-1, "↑", "Move up"], [1, "↓", "Move down"]]) {
+            const move = document.createElement("button");
+            move.type = "button";
+            move.className = "favourite-move";
+            move.dataset.direction = String(direction);
+            move.textContent = symbol;
+            move.title = `${action}: ${item.name}`;
+            move.setAttribute("aria-label", `${action} ${item.name}`);
+            move.disabled = direction < 0 ? index === 0 : index === favouriteStreams.length - 1;
+            controls.appendChild(move);
+        }
+
+        const remove = document.createElement("button");
+        remove.type = "button";
         remove.className = "favourite-remove";
         remove.textContent = "×";
         remove.title = "Remove from favourites";
         remove.setAttribute("aria-label", `Remove ${item.name} from favourites`);
 
-        button.append(label, remove);
-        favourites.appendChild(button);
-    }
+        controls.appendChild(remove);
+        row.append(select, controls);
+        favourites.appendChild(row);
+    });
 }
 
 function updateFavouriteButton() {
@@ -198,9 +251,9 @@ async function loadStreams() {
         getStreams("masjid"),
         getStreams("radio")
     ]);
-    masjidCatalogue = masjids;
+    masjidCatalogue = sortMasjidCatalogue(masjids);
     radioCatalogue = radios;
-    publishMasjidCatalogue(masjids);
+    publishMasjidCatalogue(masjidCatalogue);
     renderMasjids();
     renderRadios();
 }
@@ -445,6 +498,27 @@ favourites.addEventListener("click", async event => {
     const item = event.target.closest(".favourite-item");
     if (!item) return;
     const id = item.dataset.id;
+
+    const move = event.target.closest(".favourite-move");
+    if (move) {
+        const previousIds = [...favouriteIds];
+        const index = previousIds.indexOf(id);
+        const targetIndex = index + Number(move.dataset.direction);
+        if (index < 0 || targetIndex < 0 || targetIndex >= previousIds.length) return;
+        [previousIds[index], previousIds[targetIndex]] = [previousIds[targetIndex], previousIds[index]];
+        const originalIds = [...favouriteIds];
+        favouriteIds = new Set(previousIds);
+        renderFavourites();
+        try {
+            await saveFavourites();
+            showToast("Favourite order saved.", "success");
+        } catch (err) {
+            favouriteIds = new Set(originalIds);
+            renderFavourites();
+            showToast(err.message, "error");
+        }
+        return;
+    }
 
     if (event.target.closest(".favourite-remove")) {
         favouriteIds.delete(id);

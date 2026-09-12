@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporates the physical-display legibility review, retires the older 600 × 1024 profile and refines the touch-control model.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release.
 
 ## Release scope
 
@@ -167,8 +167,8 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Frontend JavaScript syntax and regression tests pass.
 - [x] Installer, boot and display-profile shell tests pass.
 - [x] GitHub Actions run 535 passes on the final feature head.
-- [ ] GitHub Actions passes on the RC4 release-preparation pull request.
-- [ ] GitHub Actions passes on the integrated RC4 `main` commit.
+- [x] GitHub Actions passes on the RC4 release-preparation pull request.
+- [x] GitHub Actions passes on the integrated RC4 `main` commit.
 
 ## RC4 Raspberry Pi 4 hardware validation
 
@@ -187,11 +187,44 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Completed Touch Display 2 refinements are merged to `main`.
 - [x] Version metadata is set to `v1.6.0-rc.4`.
 - [x] RC4 release scope and completed validation are documented.
-- [ ] Merge the RC4 release-preparation pull request after CI passes.
-- [ ] Confirm CI passes on the resulting `main` commit.
-- [ ] Create immutable tag `v1.6.0-rc.4` from the accepted `main` commit.
-- [ ] Verify ARM64 and AMD64 archives plus `SHA256SUMS`.
+- [x] Merge the RC4 release-preparation pull request after CI passes.
+- [x] Confirm CI passes on the resulting `main` commit.
+- [x] Create immutable tag `v1.6.0-rc.4` from the accepted `main` commit.
+- [x] Verify ARM64 and AMD64 archives plus `SHA256SUMS`.
 - [ ] Install and validate the published ARM64 archive on the Pi 4.
+
+## RC5 scope
+
+- make Daily Ayah, Daily Hadith and Daily Sunnah full-height cards on the native 720 × 1280 Appliance Display;
+- dynamically fit daily-content text to the largest size that does not overflow the visible card;
+- enlarge Detailed Jumu'ah labels to match the associated times;
+- rebalance the upcoming-event block and top control-panel handle spacing;
+- apply the selected Board theme to first-run and Change Wi-Fi setup;
+- allow saved Listen favourites to be reordered and preserve that order in Appliance touch controls;
+- sort the main Masjid catalogue alphabetically while pinning Qur'aan Recitation, Takbeer and Sautun Noor at the top;
+- sort Radio choices alphabetically in both the main interface and Appliance controls; and
+- exclude the automatic-updater and Pi 3 A/B appliance-image prototype from this release.
+
+## RC5 automated validation
+
+- [x] The full GitHub Actions test job passes on feature head `1adc3ec77dddf407cdafca904bbcc2f6f3819025`.
+- [x] CodeQL reports no new alert in the pull request.
+- [x] Go, JavaScript/TypeScript and Actions code analysis pass.
+- [x] Pull request #83 is merged to `main` as `385371f6a6ce35a4459768abc481caa0a9e1ab67`.
+- [ ] GitHub Actions passes on the RC5 release-preparation pull request.
+- [ ] GitHub Actions passes on the integrated RC5 `main` commit.
+
+## RC5 publication checklist
+
+- [x] All completed non-updater branches are accounted for.
+- [x] Automatic-updater and A/B image work remains isolated on `prototype/pi3-ab-image`.
+- [x] Version metadata is set to `v1.6.0-rc.5`.
+- [x] RC5 scope and validation status are documented.
+- [ ] Merge the RC5 release-preparation pull request after CI passes.
+- [ ] Confirm CI passes on the resulting `main` commit.
+- [ ] Create immutable tag `v1.6.0-rc.5` from the accepted `main` commit.
+- [ ] Verify ARM64 and AMD64 archives plus `SHA256SUMS`.
+- [ ] Install and validate the published ARM64 archive on the Pi 4 daily-use appliance.
 
 ## Stable-release hardware follow-up
 
@@ -201,4 +234,4 @@ The first-run and RC2 enhancement flows have been functionally accepted on Raspb
 - review Pi 3B memory headroom during setup and normal Board operation; and
 - complete any fixes discovered during the RC soak period.
 
-Release-candidate tags are immutable and must not be moved or reused. Any code change after RC2 requires a new release-candidate tag.
+Release-candidate tags are immutable and must not be moved or reused. Any code change after RC5 requires a new release-candidate tag.

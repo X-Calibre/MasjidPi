@@ -1,0 +1,16 @@
+device:
+  layer: rpi3
+  hostname: masjidpi-ab-test
+#device:
+#  layer: rpi3
+#  hostname: masjidpi-ab-test
+
+image:
+  layer: masjidpi-pi3-ab-prototype
+  boot_part_size: 256M
+  system_part_size: 3G
+  data_part_size: 2G
+  name: masjidpi-pi3-ab-prototype
+
+layer:
+  base: trixie-minbase

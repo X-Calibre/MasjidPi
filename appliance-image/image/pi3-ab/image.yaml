@@ -1,0 +1,49 @@
+# METABEGIN
+# X-Env-Layer-Name: masjidpi-pi3-ab-prototype
+# X-Env-Layer-Category: image
+# X-Env-Layer-Desc: Pi 3 MBR image with two system slots and persistent data
+# X-Env-Layer-Version: 0.1.0
+# X-Env-Layer-Requires: image-base,rpi-storage-binder
+# X-Env-Layer-Provides: image
+#
+# X-Env-VarPrefix: image
+#
+# X-Env-Var-boot_part_size: 256M
+# X-Env-Var-boot_part_size-Desc: Shared Raspberry Pi boot partition size
+# X-Env-Var-boot_part_size-Required: n
+# X-Env-Var-boot_part_size-Valid: size
+# X-Env-Var-boot_part_size-Set: y
+#
+# X-Env-Var-system_part_size: 3G
+# X-Env-Var-system_part_size-Desc: Size of each system slot
+# X-Env-Var-system_part_size-Required: n
+# X-Env-Var-system_part_size-Valid: size
+# X-Env-Var-system_part_size-Set: y
+#
+# X-Env-Var-data_part_size: 2G
+# X-Env-Var-data_part_size-Desc: Persistent data partition size
+# X-Env-Var-data_part_size-Required: n
+# X-Env-Var-data_part_size-Valid: size
+# X-Env-Var-data_part_size-Set: y
+#
+# X-Env-Var-assetdir: ${DIRECTORY}
+# X-Env-Var-assetdir-Desc: Image-specific asset directory
+# X-Env-Var-assetdir-Required: n
+# X-Env-Var-assetdir-Valid: dir
+# X-Env-Var-assetdir-Set: y
+#
+# X-Env-Var-disksig: random
+# X-Env-Var-disksig-Desc: MBR disk signature or random
+# X-Env-Var-disksig-Required: n
+# X-Env-Var-disksig-Valid: regex:^(random|0x[0-9a-fA-F]{8})$
+# X-Env-Var-disksig-Set: lazy
+# METAEND
+---
+mmdebstrap:
+  packages:
+    - dosfstools
+    - e2fsprogs
+    - initramfs-tools
+    - rsync
+  customize-hooks:
+    - mkdir -p $1/persistent

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -eu
+
+BOOT_LABEL=$(uuidgen | sed 's/-.*//' | tr 'a-f' 'A-F')
+BOOT_UUID=$(echo "$BOOT_LABEL" | sed 's/^\(....\)\(....\)$/\1-\2/')
+SYSTEM_A_UUID=$(uuidgen)
+SYSTEM_B_UUID=$(uuidgen)
+DATA_UUID=$(uuidgen)
+
+rm -f "${IGconf_image_outputdir}/img_uuids"
+for variable_name in BOOT_LABEL BOOT_UUID SYSTEM_A_UUID SYSTEM_B_UUID DATA_UUID; do
+   eval "variable_value=\$$variable_name"
+   echo "$variable_name=$variable_value" >> "${IGconf_image_outputdir}/img_uuids"
+done
+
+cp "$LAYER_DIR/image.d/device/provisionmap-clear.json" \
+   "${IGconf_image_outputdir}/provisionmap.json"

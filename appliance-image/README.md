@@ -4,31 +4,32 @@ This directory contains the Raspberry Pi 3 image prototype built with
 [`rpi-image-gen`](https://github.com/raspberrypi/rpi-image-gen).
 
 This prototype uses a four-partition MBR layout that fits comfortably on a
-nominal 16 GB microSD card. It currently boots only system slot A through
-U-Boot; slot switching, update installation, and automatic rollback remain
-separate milestones.
+nominal 16 GB microSD card. Both system slots have been booted successfully on
+a Raspberry Pi 3 Model B through U-Boot. System A remains the default;
+automatic slot selection and rollback remain separate milestones.
 
-Prototype layout
+## Prototype layout
 
 | Partition | Label | Prototype size | Purpose |
 |---|---|---:|---|
 | 1 | `BOOT` | 256 MiB | Raspberry Pi firmware, U-Boot, kernels, initramfs, and boot configuration |
-| 2 | `SYSTEM_A` | 3 GiB | Initially active operating-system slot |
-| 3 | `SYSTEM_B` | 3 GiB | Inactive operating-system slot |
+| 2 | `SYSTEM_A` | 3 GiB | Default operating-system slot |
+| 3 | `SYSTEM_B` | 3 GiB | Secondary operating-system slot |
 | 4 | `PERSISTENT` | 2 GiB | State shared across system slots |
 
-Both system partitions initially contain the same filesystem image. The boot
-command line explicitly selects partition 2. The second prototype milestone
-loads Debian's packaged Pi 3 U-Boot binary and uses a standard
-`extlinux.conf` entry to boot system A. Do not treat this milestone as a
-working updater or rollback implementation.
+Both system partitions initially contain the same slot-neutral filesystem
+image. The shared `extlinux.conf` contains entries for both slots: system A
+uses partition 2 and system B uses partition 3. Debian's packaged U-Boot
+bootflow uses the `DEFAULT` entry without presenting an interactive slot menu
+on the tested Pi 3, so manual testing selected B by temporarily changing the
+default. Do not treat this milestone as a working updater or rollback
+implementation.
 
 The image deliberately does not create a `uboot.env` file. The packaged kernel
 is gzip-compressed, so the build also creates an uncompressed
 `kernel8-uboot.img` for U-Boot to load through `extlinux.conf`. This avoids
-depending on U-Boot's single, non-redundant FAT environment for the system-A
-boot milestone. Reliable slot selection and boot-attempt tracking remain
-separate work.
+depending on U-Boot's single, non-redundant FAT environment. Reliable automatic
+slot selection and boot-attempt tracking remain separate work.
 
 ## Reproducible input
 
@@ -72,14 +73,15 @@ The compressed image and its associated metadata are written under the
 
 ## Acceptance criteria
 
-Before adding slot selection, the image must:
+Before adding automatic slot selection, the image must:
 
 1. Build without modifying the `rpi-image-gen` checkout.
 2. Contain exactly four MBR partitions with the labels above.
-3. Boot a Raspberry Pi 3 Model B from system slot A.
-4. Mount `PERSISTENT` at `/persistent`.
-5. Leave enough unused card capacity to support the nominal 16 GB target.
+3. Boot a Raspberry Pi 3 Model B from both `SYSTEM_A` and `SYSTEM_B`.
+4. Use a slot-neutral root filesystem and keep `SYSTEM_A` as the default.
+5. Mount `PERSISTENT` at `/persistent` from either system slot.
+6. Leave enough unused card capacity to support the nominal 16 GB target.
 
 The prototype has no production provisioning flow and creates no login
 password. Serial console and local boot diagnostics should be used for this
-first smoke test.
+smoke test.

@@ -7,6 +7,39 @@ genimage_input=$2
 
 test -d "$filesystem"
 
+for required_boot_file in \
+   u-boot.bin \
+   kernel8.img \
+   kernel8-uboot.img \
+   initramfs8 \
+   bcm2710-rpi-3-b.dtb \
+   extlinux/extlinux.conf; do
+   if [[ ! -f "$filesystem/boot/firmware/$required_boot_file" ]]; then
+      echo "Missing U-Boot input: /boot/firmware/$required_boot_file" >&2
+      exit 1
+   fi
+done
+
+# Later built-in customization hooks may alter config.txt after the U-Boot
+# files are installed. Normalize the final firmware settings immediately
+# before genimage copies the boot filesystem.
+boot_config="$filesystem/boot/firmware/config.txt"
+sed -i \
+   -e '/^auto_initramfs=/d' \
+   -e '/^arm_64bit=/d' \
+   -e '/^kernel=/d' \
+   -e '/^enable_uart=/d' \
+   "$boot_config"
+
+cat >> "$boot_config" <<'EOF'
+
+# MasjidPi Pi 3 A/B boot prototype
+auto_initramfs=0
+arm_64bit=1
+kernel=u-boot.bin
+enable_uart=1
+EOF
+
 # shellcheck disable=SC1090
 source "${IGconf_image_outputdir}/img_uuids"
 

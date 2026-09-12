@@ -42,3 +42,4 @@ backend/data/masjidboard_scope.json
 backend/data/masjidboard_selection.json
 
 /work/
+/appliance-image/config/*-local.yaml

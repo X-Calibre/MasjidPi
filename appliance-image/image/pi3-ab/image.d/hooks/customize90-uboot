@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -eu
+
+filesystem=$1
+boot_dir="$filesystem/boot/firmware"
+uboot_source="$filesystem/usr/lib/u-boot/rpi_3/u-boot.bin"
+
+test -f "$uboot_source"
+test -f "$boot_dir/kernel8.img"
+test -f "$boot_dir/bcm2710-rpi-3-b.dtb"
+
+install -m 0644 "$uboot_source" "$boot_dir/u-boot.bin"
+gzip -cd "$boot_dir/kernel8.img" > "$boot_dir/kernel8-uboot.img"
+chmod 0644 "$boot_dir/kernel8-uboot.img"
+install -d -m 0755 "$boot_dir/extlinux"
+
+cat > "$boot_dir/extlinux/extlinux.conf" <<'EOF'
+DEFAULT system_a
+TIMEOUT 20
+
+LABEL system_a
+   MENU LABEL MasjidPi system A
+   LINUX /kernel8-uboot.img
+   INITRD /initramfs8
+   FDT /bcm2710-rpi-3-b.dtb
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rw fsck.repair=yes rootwait
+EOF

@@ -3,23 +3,32 @@
 This directory contains the Raspberry Pi 3 image prototype built with
 [`rpi-image-gen`](https://github.com/raspberrypi/rpi-image-gen).
 
-The first milestone deliberately boots only system slot A. It proves that a
-Raspberry Pi 3 can boot from a four-partition MBR image and that the proposed
-layout fits comfortably on a nominal 16 GB microSD card before U-Boot, RAUC,
-and automatic rollback are introduced.
+This prototype uses a four-partition MBR layout that fits comfortably on a
+nominal 16 GB microSD card. It currently boots only system slot A through
+U-Boot; slot switching, update installation, and automatic rollback remain
+separate milestones.
 
-## Prototype layout
+Prototype layout
 
 | Partition | Label | Prototype size | Purpose |
 |---|---|---:|---|
-| 1 | `BOOT` | 256 MiB | Raspberry Pi firmware, kernel, and later U-Boot |
+| 1 | `BOOT` | 256 MiB | Raspberry Pi firmware, U-Boot, kernels, initramfs, and boot configuration |
 | 2 | `SYSTEM_A` | 3 GiB | Initially active operating-system slot |
 | 3 | `SYSTEM_B` | 3 GiB | Inactive operating-system slot |
 | 4 | `PERSISTENT` | 2 GiB | State shared across system slots |
 
 Both system partitions initially contain the same filesystem image. The boot
-command line explicitly selects partition 2. Do not treat this milestone as a
+command line explicitly selects partition 2. The second prototype milestone
+loads Debian's packaged Pi 3 U-Boot binary and uses a standard
+`extlinux.conf` entry to boot system A. Do not treat this milestone as a
 working updater or rollback implementation.
+
+The image deliberately does not create a `uboot.env` file. The packaged kernel
+is gzip-compressed, so the build also creates an uncompressed
+`kernel8-uboot.img` for U-Boot to load through `extlinux.conf`. This avoids
+depending on U-Boot's single, non-redundant FAT environment for the system-A
+boot milestone. Reliable slot selection and boot-attempt tracking remain
+separate work.
 
 ## Reproducible input
 
@@ -40,8 +49,26 @@ From the MasjidPi repository root:
 ./appliance-image/build-pi3-ab-prototype.sh "$HOME/rpi-image-gen"
 ```
 
+For a local hardware test that needs a login, create the ignored file
+`config/pi3-ab-local.yaml` with the production configuration as its base and
+pass it as the second argument. Never commit a test password:
+
+```yaml
+include:
+  file: pi3-ab-prototype.yaml
+
+device:
+  user1pass: "choose-a-valid-temporary-password"
+```
+
+```bash
+./appliance-image/build-pi3-ab-prototype.sh \
+  "$HOME/rpi-image-gen" \
+  "$PWD/appliance-image/config/pi3-ab-local.yaml"
+```
+
 The compressed image and its associated metadata are written under the
-`rpi-image-gen/work/deploy-*` directory reported at the end of the build.
+`MasjidPi/work/deploy-*` directory reported at the end of the build.
 
 ## Acceptance criteria
 

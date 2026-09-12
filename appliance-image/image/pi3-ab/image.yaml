@@ -45,5 +45,6 @@ mmdebstrap:
     - e2fsprogs
     - initramfs-tools
     - rsync
+    - u-boot-rpi
   customize-hooks:
     - mkdir -p $1/persistent

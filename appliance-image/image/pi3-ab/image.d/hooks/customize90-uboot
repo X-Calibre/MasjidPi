@@ -17,12 +17,19 @@ install -d -m 0755 "$boot_dir/extlinux"
 
 cat > "$boot_dir/extlinux/extlinux.conf" <<'EOF'
 DEFAULT system_a
-TIMEOUT 20
+TIMEOUT 50
 
 LABEL system_a
    MENU LABEL MasjidPi system A
    LINUX /kernel8-uboot.img
    INITRD /initramfs8
    FDT /bcm2710-rpi-3-b.dtb
-   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rw fsck.repair=yes rootwait
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait
+
+LABEL system_b
+   MENU LABEL MasjidPi system B
+   LINUX /kernel8-uboot.img
+   INITRD /initramfs8
+   FDT /bcm2710-rpi-3-b.dtb
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p3 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait
 EOF

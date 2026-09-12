@@ -77,11 +77,16 @@ select:focus, input[type="search"]:focus { outline: 2px solid var(--focus); outl
 .stream-actions button { flex: 1; }
 .favourites-section { margin-top: 4px; }
 .favourites { display: flex; flex-direction: column; gap: 8px; }
-.favourite-item { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--field); color: var(--text); text-align: left; font-size: 14px; }
+.favourite-item { width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: 8px; padding: 5px; border: 1px solid var(--border); border-radius: 8px; background: var(--field); color: var(--text); }
 .favourite-item:hover { background: var(--field-hover); }
-.favourite-item > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.favourite-remove { flex: 0 0 auto; color: var(--muted); font-size: 20px; line-height: 1; }
-.favourite-remove:hover { color: #ff8a8a; }
+.favourite-select { min-width: 0; padding: 7px; background: transparent; color: var(--text); overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.favourite-order-controls { display: flex; align-items: center; gap: 4px; }
+.favourite-move,
+.favourite-remove { width: 34px; min-width: 34px; height: 34px; flex: 0 0 34px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--muted); font-size: 18px; line-height: 1; }
+.favourite-move:disabled { opacity: .3; cursor: default; }
+.favourite-move:not(:disabled):hover { color: var(--text); background: var(--field-hover); }
+.favourite-remove { font-size: 20px; }
+.favourite-remove:hover { color: #ff8a8a; background: var(--field-hover); }
 .buttons { display: flex; gap: 12px; margin-top: 20px; }
 button { flex: 1; border: none; border-radius: 8px; padding: 14px; cursor: pointer; font-size: 16px; font-weight: bold; transition: .2s; }
 button.secondary { background: var(--field); color: var(--text); border: 1px solid var(--border); }

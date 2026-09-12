@@ -27,7 +27,7 @@ body.appliance-720-layout {
 
 .appliance-720-layout .appliance-next {
     height:124px;
-    margin-top:12px;
+    margin-top:4px;
     padding:13px 21px;
     border-radius:21px;
     grid-template-columns:174px minmax(0,1fr) 168px;
@@ -127,7 +127,7 @@ body.appliance-720-layout {
 .appliance-720-layout .appliance-quick-sheet {
     height:auto;
     max-height:calc(100% - 20px);
-    padding:20px 36px 16px;
+    padding:20px 36px 0;
 }
 .appliance-720-layout .appliance-quick-heading { height:82px; flex-basis:82px; }
 .appliance-720-layout .appliance-quick-heading h2 { font-size:34px; }
@@ -352,6 +352,36 @@ body.appliance-720-layout {
 }
 
 
+/* Daily Qur'an, Hadith, and Sunnah content always receives the complete card area.
+   JavaScript chooses the largest body size that fits the available height. */
+.appliance-720-layout .appliance-community-daily_ayah,
+.appliance-720-layout .appliance-community-daily_hadith,
+.appliance-720-layout .appliance-community-daily_sunnah {
+    padding:44px 34px 30px;
+}
+.appliance-720-layout .appliance-community-daily_ayah .appliance-community-title,
+.appliance-720-layout .appliance-community-daily_hadith .appliance-community-title,
+.appliance-720-layout .appliance-community-daily_sunnah .appliance-community-title {
+    font-size:48px;
+    line-height:1.08;
+}
+.appliance-720-layout .appliance-community-daily_ayah .appliance-daily-ayah-number {
+    margin-top:7px;
+    font-size:23px;
+}
+.appliance-720-layout .appliance-community-daily_ayah .appliance-community-body,
+.appliance-720-layout .appliance-community-daily_hadith .appliance-community-body,
+.appliance-720-layout .appliance-community-daily_sunnah .appliance-community-body {
+    min-height:0;
+    margin-top:20px;
+    font-size:34px;
+}
+.appliance-720-layout .appliance-community-daily_hadith .appliance-community-fields,
+.appliance-720-layout .appliance-community-daily_sunnah .appliance-community-fields {
+    margin-top:16px;
+}
+
+
 /* Listen source changes overlay the header instead of reflowing it. */
 .appliance-720-layout .appliance-header { position:relative; }
 .appliance-720-layout .appliance-header .board-source-toast {
@@ -375,7 +405,7 @@ body.appliance-720-layout {
 }
 .appliance-720-layout .appliance-header:has(.board-source-toast:not(.hidden)) .appliance-next {
     height:124px;
-    margin-top:12px;
+    margin-top:4px;
 }
 @keyframes appliance-720-toast-drop {
     from { opacity:0; transform:translateY(-24px); }
@@ -414,8 +444,8 @@ body.appliance-720-layout {
     gap:24px;
 }
 .appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event span {
-    font-size:29px;
-    line-height:1.15;
+    font-size:52px;
+    line-height:1;
     text-align:left;
 }
 .appliance-720-layout .appliance-community-jumuah_schedule .appliance-jumuah-event strong {
@@ -634,5 +664,19 @@ body.appliance-720-layout {
     font-size:18px;
 }
 .appliance-720-layout .appliance-quick-handle {
-    margin-top:auto;
+    flex:0 0 34px;
+    width:76px;
+    height:34px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+}
+.appliance-720-layout .appliance-quick-handle::after {
+    content:"";
+    width:76px;
+    height:6px;
+    border-radius:10px;
+    background:var(--appliance-strong-line);
 }

@@ -89,8 +89,31 @@
     }
 
     function isCompactCommunityItem(item) {
-        if (item.type === "jumuah_schedule") return false;
+        if (["jumuah_schedule", "daily_ayah", "daily_hadith", "daily_sunnah"].includes(item.type)) return false;
         return plainText(item.body).length <= 80 && orderedFields(item).length <= 2;
+    }
+
+    function fitDailyContentText(slide) {
+        const card = slide?.querySelector(".appliance-community-daily_ayah,.appliance-community-daily_hadith,.appliance-community-daily_sunnah");
+        const body = card?.querySelector(".appliance-community-body");
+        if (!body || body.clientHeight <= 0 || body.clientWidth <= 0) return;
+
+        let smallest = 22;
+        let largest = 48;
+        let fitted = smallest;
+        while (smallest <= largest) {
+            const candidate = Math.floor((smallest + largest) / 2);
+            body.style.fontSize = `${candidate}px`;
+            body.style.lineHeight = candidate >= 38 ? "1.28" : "1.34";
+            if (body.scrollHeight <= body.clientHeight && body.scrollWidth <= body.clientWidth) {
+                fitted = candidate;
+                smallest = candidate + 1;
+            } else {
+                largest = candidate - 1;
+            }
+        }
+        body.style.fontSize = `${fitted}px`;
+        body.style.lineHeight = fitted >= 38 ? "1.28" : "1.34";
     }
 
     function salaahSlide(board) {
@@ -330,6 +353,7 @@
         }
 
         activeSlide = nextIndex;
+        window.requestAnimationFrame(() => fitDailyContentText(nextSlide));
         Array.from(dotsHost.children).forEach((dot, itemIndex) => dot.classList.toggle("active", itemIndex === activeSlide));
         if (restart) startTimer();
     }

@@ -11,6 +11,10 @@ test -f "$fw_env_source"
 test -x "$ab_tool_source"
 test -f "$confirm_service_source"
 
+install -d -m 0700 \
+    "$filesystem/persistent/iwd" \
+    "$filesystem/var/lib/iwd"
+
 install -d -m 0755 \
     "$filesystem/etc" \
     "$filesystem/usr/local/sbin" \

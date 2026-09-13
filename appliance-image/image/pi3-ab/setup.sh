@@ -6,10 +6,11 @@ component=$1
 
 case "$component" in
    SYSTEM)
-      cat > "$IMAGEMOUNTPATH/etc/fstab" <<'EOF'
+      cat > "$IMAGEMOUNTPATH/etc/fstab" <<'EOF_FSTAB'
 /dev/mmcblk0p1  /boot/firmware  vfat  defaults,rw,noatime,errors=remount-ro     0  2
 /dev/mmcblk0p4  /persistent     ext4  defaults,rw,noatime                       0  2
-EOF
+/persistent/iwd /var/lib/iwd    none  bind,x-systemd.requires-mounts-for=/persistent 0 0
+EOF_FSTAB
       ;;
    BOOT)
       sed -i 's|root=[^ ]*|root=/dev/mmcblk0p2|' "$IMAGEMOUNTPATH/cmdline.txt"

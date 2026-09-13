@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -eu
+
+filesystem=$1
+fw_env_source="$LAYER_DIR/../../u-boot/fw_env.config"
+ab_tool_source="$LAYER_DIR/../../u-boot/masjidpi-ab"
+
+test -f "$fw_env_source"
+test -x "$ab_tool_source"
+
+install -d -m 0755 \
+    "$filesystem/etc" \
+    "$filesystem/usr/local/sbin"
+
+install -m 0644 \
+    "$fw_env_source" \
+    "$filesystem/etc/fw_env.config"
+
+install -m 0755 \
+    "$ab_tool_source" \
+    "$filesystem/usr/local/sbin/masjidpi-ab"

@@ -7,12 +7,37 @@ genimage_input=$2
 
 test -d "$filesystem"
 
+mkenvimage="$LAYER_DIR/../../u-boot/build/tools/mkenvimage"
+environment_file="$LAYER_DIR/../../u-boot/masjidpi.env"
+primary_environment="$genimage_input/uboot-env-primary.bin"
+redundant_environment="$genimage_input/uboot-env-redundant.bin"
+
+test -x "$mkenvimage"
+test -f "$environment_file"
+
+# Start with one valid redundant-format environment and one erased copy.
+# The next environment update writes the alternate copy atomically.
+"$mkenvimage" \
+   -r \
+   -s 0x00004000 \
+   -o "$primary_environment" \
+   "$environment_file"
+
+dd \
+   if=/dev/zero \
+   of="$redundant_environment" \
+   bs=16384 \
+   count=1 \
+   status=none
+
 for required_boot_file in \
    u-boot.bin \
    kernel8.img \
    kernel8-uboot.img \
    initramfs8 \
    bcm2710-rpi-3-b.dtb \
+   extlinux/system_a.conf \
+   extlinux/system_b.conf \
    extlinux/extlinux.conf; do
    if [[ ! -f "$filesystem/boot/firmware/$required_boot_file" ]]; then
       echo "Missing U-Boot input: /boot/firmware/$required_boot_file" >&2

@@ -1,0 +1,129 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ "$EUID" -ne 0 ]]; then
+    echo "Run this command with sudo." >&2
+    exit 1
+fi
+
+show_environment()
+{
+    fw_printenv |
+        grep -E \
+            '^(active_slot|rollback_slot|upgrade_available|bootcount|bootlimit|bootcmd|altbootcmd)=' ||
+        true
+}
+
+running_slot()
+{
+    case "$(findmnt -no SOURCE /)" in
+        /dev/mmcblk0p2) echo a ;;
+        /dev/mmcblk0p3) echo b ;;
+        *)
+            echo "Unable to determine the running system slot." >&2
+            return 1
+            ;;
+    esac
+}
+
+case "${1:-}" in
+    status)
+        echo "=== RUNNING SLOT ==="
+        echo "system_$(running_slot)"
+        findmnt -no SOURCE,FSTYPE,OPTIONS /
+
+        echo
+        echo "=== U-BOOT ENVIRONMENT ==="
+        show_environment
+        ;;
+
+    diagnostics)
+        echo "=== HARDWARE ==="
+        tr -d '\0' </proc/device-tree/model
+        echo
+
+        echo
+        echo "=== KERNEL COMMAND LINE ==="
+        cat /proc/cmdline
+
+        echo
+        echo "=== ROOT FILESYSTEM ==="
+        findmnt -no SOURCE,FSTYPE,OPTIONS /
+
+        echo
+        echo "=== STORAGE ==="
+        lsblk -o NAME,PATH,SIZE,FSTYPE,LABEL,MOUNTPOINTS
+
+        echo
+        echo "=== FW_ENV CONFIGURATION ==="
+        cat /etc/fw_env.config
+
+        echo
+        echo "=== U-BOOT ENVIRONMENT ==="
+        show_environment
+
+        echo
+        echo "=== FAILED SERVICES ==="
+        systemctl --failed --no-pager
+
+        echo
+        echo "=== POWER STATUS ==="
+        if command -v vcgencmd >/dev/null; then
+            vcgencmd get_throttled
+        else
+            echo "vcgencmd is unavailable"
+        fi
+        ;;
+
+    trial)
+        target_slot=${2:-}
+
+        if [[ "$target_slot" != a && "$target_slot" != b ]]; then
+            echo "Usage: sudo masjidpi-ab trial a|b" >&2
+            exit 1
+        fi
+
+        current_slot=$(running_slot)
+
+        if [[ "$target_slot" = "$current_slot" ]]; then
+            echo "System $target_slot is already running." >&2
+            exit 1
+        fi
+
+        # active_slot is written last. An interrupted preparation therefore
+        # continues booting the currently confirmed slot.
+        fw_setenv rollback_slot "$current_slot"
+        fw_setenv upgrade_available 1
+        fw_setenv bootcount 0
+        fw_setenv bootlimit 2
+        fw_setenv active_slot "$target_slot"
+
+        echo "=== ARMED TRIAL ==="
+        show_environment
+        echo
+        echo "Reboot to test system $target_slot."
+        ;;
+
+    confirm)
+        current_slot=$(running_slot)
+
+        fw_setenv active_slot "$current_slot"
+        fw_setenv rollback_slot "$current_slot"
+        fw_setenv upgrade_available 0
+        fw_setenv bootcount 0
+        fw_setenv bootlimit
+
+        echo "=== CONFIRMED SYSTEM $current_slot ==="
+        show_environment
+        ;;
+
+    *)
+        echo "Usage:"
+        echo "  sudo masjidpi-ab status"
+        echo "  sudo masjidpi-ab diagnostics"
+        echo "  sudo masjidpi-ab trial a|b"
+        echo "  sudo masjidpi-ab confirm"
+        exit 1
+        ;;
+esac

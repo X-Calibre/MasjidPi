@@ -28,12 +28,48 @@ image persistent.ext4.sparse {
    }
 }
 
+image uboot-env-primary.bin.sparse {
+   android-sparse {
+      image = uboot-env-primary.bin
+   }
+}
+
+image uboot-env-redundant.bin.sparse {
+   android-sparse {
+      image = uboot-env-redundant.bin
+   }
+}
+
+image uboot-env-primary.bin {
+   file {
+      holes = {}
+   }
+}
+
+image uboot-env-redundant.bin {
+   file {
+      holes = {}
+   }
+}
+
 image <IMAGE_NAME>.<IMAGE_SUFFIX> {
    hdimage {
       align = 8M
       partition-table-type = "mbr"
       fill = true
       disk-signature = "<DISK_SIGNATURE>"
+   }
+
+   partition uboot_env_primary {
+      in-partition-table = false
+      offset = 1M
+      image = "uboot-env-primary.bin"
+   }
+
+   partition uboot_env_redundant {
+      in-partition-table = false
+      offset = 4M
+      image = "uboot-env-redundant.bin"
    }
 
    partition boot {

@@ -1,58 +1,130 @@
-# MasjidPi Raspberry Pi 3 appliance image
+# MasjidPi Raspberry Pi 3 A/B appliance image
 
-This directory contains the Raspberry Pi 3 image prototype built with
+This directory builds a Raspberry Pi 3 Model B appliance image using
 [`rpi-image-gen`](https://github.com/raspberrypi/rpi-image-gen).
 
-This prototype uses a four-partition MBR layout that fits comfortably on a
-nominal 16 GB microSD card. Both system slots have been booted successfully on
-a Raspberry Pi 3 Model B through U-Boot. System A remains the default;
-automatic slot selection and rollback remain separate milestones.
+The image provides two bootable system slots, persistent shared storage,
+redundant U-Boot environment storage, boot-attempt counting, and automatic
+rollback to the last confirmed slot.
 
-## Prototype layout
+## Disk layout
 
-| Partition | Label | Prototype size | Purpose |
-|---|---|---:|---|
-| 1 | `BOOT` | 256 MiB | Raspberry Pi firmware, U-Boot, kernels, initramfs, and boot configuration |
-| 2 | `SYSTEM_A` | 3 GiB | Default operating-system slot |
-| 3 | `SYSTEM_B` | 3 GiB | Secondary operating-system slot |
-| 4 | `PERSISTENT` | 2 GiB | State shared across system slots |
+| Region | Location | Size | Purpose |
+|---|---:|---:|---|
+| Primary U-Boot environment | 1 MiB offset | 16 KiB | Active redundant environment record |
+| Redundant U-Boot environment | 4 MiB offset | 16 KiB | Alternate environment record |
+| `BOOT` | Partition 1 | 256 MiB | Firmware, U-Boot, kernel, initramfs and extlinux configuration |
+| `SYSTEM_A` | Partition 2 | 3 GiB | System slot A |
+| `SYSTEM_B` | Partition 3 | 3 GiB | System slot B |
+| `PERSISTENT` | Partition 4 | 2 GiB | State shared between system slots |
 
-Both system partitions initially contain the same slot-neutral filesystem
-image. The shared `extlinux.conf` contains entries for both slots: system A
-uses partition 2 and system B uses partition 3. Debian's packaged U-Boot
-bootflow uses the `DEFAULT` entry without presenting an interactive slot menu
-on the tested Pi 3, so manual testing selected B by temporarily changing the
-default. Do not treat this milestone as a working updater or rollback
-implementation.
+The two environment records are stored in the unpartitioned 8 MiB gap before
+`BOOT`. The four visible partitions use an MBR partition table and fit on a
+nominal 16 GB microSD card.
 
-The image deliberately does not create a `uboot.env` file. The packaged kernel
-is gzip-compressed, so the build also creates an uncompressed
-`kernel8-uboot.img` for U-Boot to load through `extlinux.conf`. This avoids
-depending on U-Boot's single, non-redundant FAT environment. Reliable automatic
-slot selection and boot-attempt tracking remain separate work.
+Both system partitions initially contain the same slot-neutral filesystem.
+U-Boot selects the root partition using separate
+`extlinux/system_a.conf` and `extlinux/system_b.conf` entries.
 
-## Reproducible input
+## U-Boot
 
-The prototype was developed against `rpi-image-gen` commit:
+The image uses a reproducible custom build of Debian U-Boot source version:
+
+```text
+2025.01-3+deb13u1
+```
+
+The custom configuration provides:
+
+- Redundant raw MMC environment storage.
+- System-slot selection through `active_slot`.
+- A remembered confirmed slot through `rollback_slot`.
+- Persistent boot counting during trial boots.
+- A two-attempt trial boot limit.
+- Automatic rollback after the trial limit is exceeded.
+- An uncompressed `kernel8-uboot.img` for ARM64 U-Boot booting.
+
+A stable confirmed system has no `bootlimit`. An updater must create
+`bootlimit=2` only when arming a trial boot. Successful confirmation and
+automatic rollback both remove it.
+
+The U-Boot source tree is not modified. MasjidPi's configuration and compiled
+default environment are stored under `appliance-image/u-boot/`.
+
+## A/B management command
+
+The image installs `/usr/local/sbin/masjidpi-ab` in both system slots.
+
+Display the running slot and boot state:
+
+```bash
+sudo masjidpi-ab status
+```
+
+Collect detailed boot diagnostics:
+
+```bash
+sudo masjidpi-ab diagnostics
+```
+
+Arm the other slot for a trial boot:
+
+```bash
+sudo masjidpi-ab trial b
+sudo reboot
+```
+
+After verifying that the trial system is healthy, confirm it:
+
+```bash
+sudo masjidpi-ab confirm
+```
+
+Confirmation makes the running slot the new rollback target and clears
+`upgrade_available`, `bootcount`, and `bootlimit`.
+
+These commands provide the boot-control foundation for an updater. Downloading,
+installing and verifying update bundles, plus automatic health confirmation,
+remain separate work.
+
+## Reproducible inputs
+
+The image build is pinned to `rpi-image-gen` commit:
 
 ```text
 d1021e82dd578b588cc3b4d45cd7b4b86e57b796
 ```
 
-The build helper rejects a different revision unless
-`ALLOW_UNPINNED_RPI_IMAGE_GEN=1` is set.
+The build rejects another revision unless
+`ALLOW_UNPINNED_RPI_IMAGE_GEN=1` is explicitly set.
+
+The U-Boot helper verifies the Debian source version and SHA-256 checksum of
+the hardware-tested default environment before building.
 
 ## Build
 
-From the MasjidPi repository root:
+The default locations are:
+
+- `rpi-image-gen`: `$HOME/rpi-image-gen`
+- U-Boot source: `$HOME/masjidpi-u-boot-source/u-boot-2025.01`
+
+From the repository root:
 
 ```bash
-./appliance-image/build-pi3-ab-prototype.sh "$HOME/rpi-image-gen"
+./appliance-image/build-pi3-ab-prototype.sh
 ```
 
-For a local hardware test that needs a login, create the ignored file
-`config/pi3-ab-local.yaml` with the production configuration as its base and
-pass it as the second argument. Never commit a test password:
+Explicit paths can be supplied as follows:
+
+```bash
+./appliance-image/build-pi3-ab-prototype.sh \
+    "$HOME/rpi-image-gen" \
+    "$PWD/appliance-image/config/pi3-ab-prototype.yaml" \
+    "$HOME/masjidpi-u-boot-source/u-boot-2025.01"
+```
+
+For a hardware test requiring a login, create the ignored file
+`appliance-image/config/pi3-ab-local.yaml`:
 
 ```yaml
 include:
@@ -62,26 +134,31 @@ device:
   user1pass: "choose-a-valid-temporary-password"
 ```
 
+Then build with that configuration:
+
 ```bash
 ./appliance-image/build-pi3-ab-prototype.sh \
-  "$HOME/rpi-image-gen" \
-  "$PWD/appliance-image/config/pi3-ab-local.yaml"
+    "$HOME/rpi-image-gen" \
+    "$PWD/appliance-image/config/pi3-ab-local.yaml" \
+    "$HOME/masjidpi-u-boot-source/u-boot-2025.01"
 ```
 
-The compressed image and its associated metadata are written under the
-`MasjidPi/work/deploy-*` directory reported at the end of the build.
+Never commit a test password.
 
-## Acceptance criteria
+Generated images, compressed deployment artefacts, SBOM data and IDP metadata
+are written below `work/`.
 
-Before adding automatic slot selection, the image must:
+## Hardware validation
 
-1. Build without modifying the `rpi-image-gen` checkout.
-2. Contain exactly four MBR partitions with the labels above.
-3. Boot a Raspberry Pi 3 Model B from both `SYSTEM_A` and `SYSTEM_B`.
-4. Use a slot-neutral root filesystem and keep `SYSTEM_A` as the default.
-5. Mount `PERSISTENT` at `/persistent` from either system slot.
-6. Leave enough unused card capacity to support the nominal 16 GB target.
+The integrated image has been tested on a Raspberry Pi 3 Model B Rev 1.2.
 
-The prototype has no production provisioning flow and creates no login
-password. Serial console and local boot diagnostics should be used for this
-smoke test.
+Validated behaviour:
+
+1. An untouched image boots system A from `/dev/mmcblk0p2`.
+2. A trial system B boots from `/dev/mmcblk0p3`.
+3. Confirmed system B remains selected through repeated warm reboots.
+4. A deliberately broken candidate is attempted twice.
+5. U-Boot then automatically restores the confirmed rollback slot.
+6. Rollback clears `upgrade_available`, `bootcount`, and `bootlimit`.
+7. Both system slots mount `PERSISTENT` at `/persistent`.
+8. No failed systemd units or power-throttling flags were observed.

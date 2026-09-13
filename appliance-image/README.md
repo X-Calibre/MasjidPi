@@ -5,7 +5,7 @@ This directory builds a Raspberry Pi 3 Model B appliance image using
 
 The image provides two bootable system slots, persistent shared storage,
 redundant U-Boot environment storage, boot-attempt counting, automatic health
-confirmation, and rollback to the last confirmed slot.
+confirmation, shared Wi-Fi profiles, and rollback to the last confirmed slot.
 
 ## Disk layout
 
@@ -25,6 +25,16 @@ nominal 16 GB microSD card.
 Both system partitions initially contain the same slot-neutral filesystem.
 U-Boot selects the root partition using separate
 `extlinux/system_a.conf` and `extlinux/system_b.conf` entries.
+
+## Shared Wi-Fi profiles
+
+Both slots bind-mount `/persistent/iwd` at `/var/lib/iwd`. A Wi-Fi network
+configured while either slot is running is therefore available to both slots.
+The bind mount explicitly depends on `/persistent`, and all IWD profile
+directories are root-owned with mode `0700`.
+
+A newly built image contains an empty shared profile directory; Wi-Fi
+credentials and test network names are not embedded in the image.
 
 ## U-Boot
 
@@ -173,4 +183,8 @@ Validated behaviour:
 7. U-Boot then automatically restores the confirmed rollback slot.
 8. Rollback clears `upgrade_available`, `bootcount`, and `bootlimit`.
 9. Both system slots mount `PERSISTENT` at `/persistent`.
-10. No power-throttling flags were observed during successful boots.
+10. Both slots reconnect to a hidden WPA2 network using the same profile stored
+    under `/persistent/iwd`.
+11. A newly built image contains an empty shared IWD directory with mode
+    `0700`.
+12. No power-throttling flags were observed during successful boots.

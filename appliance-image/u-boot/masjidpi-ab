@@ -27,6 +27,22 @@ running_slot()
     esac
 }
 
+confirm_running_slot()
+{
+    current_slot=$(running_slot)
+
+    fw_setenv active_slot "$current_slot"
+    fw_setenv rollback_slot "$current_slot"
+    fw_setenv bootcount 0
+    fw_setenv bootlimit
+
+    # Clear the trial marker last. An interrupted confirmation remains a trial.
+    fw_setenv upgrade_available 0
+
+    echo "=== CONFIRMED SYSTEM $current_slot ==="
+    show_environment
+}
+
 case "${1:-}" in
     status)
         echo "=== RUNNING SLOT ==="
@@ -62,6 +78,22 @@ case "${1:-}" in
         echo
         echo "=== U-BOOT ENVIRONMENT ==="
         show_environment
+
+        echo
+        echo "=== AUTOMATIC CONFIRMATION SERVICE ==="
+        systemctl status \
+            masjidpi-ab-confirm.service \
+            --no-pager -l ||
+            true
+
+        echo
+        echo "=== AUTOMATIC CONFIRMATION LOG ==="
+        journalctl \
+            -u masjidpi-ab-confirm.service \
+            -b \
+            -n 20 \
+            --no-pager ||
+            true
 
         echo
         echo "=== FAILED SERVICES ==="
@@ -105,17 +137,70 @@ case "${1:-}" in
         echo "Reboot to test system $target_slot."
         ;;
 
-    confirm)
+    auto-confirm)
+        upgrade_available=$(
+            fw_printenv -n upgrade_available 2>/dev/null ||
+                true
+        )
+
+        if [[ "$upgrade_available" != 1 ]]; then
+            echo "No pending A/B trial; confirmation is not required."
+            exit 0
+        fi
+
+        echo "Pending A/B trial detected; waiting 60 seconds."
+        sleep 60
+
         current_slot=$(running_slot)
+        active_slot=$(
+            fw_printenv -n active_slot 2>/dev/null ||
+                true
+        )
 
-        fw_setenv active_slot "$current_slot"
-        fw_setenv rollback_slot "$current_slot"
-        fw_setenv upgrade_available 0
-        fw_setenv bootcount 0
-        fw_setenv bootlimit
+        if [[ "$active_slot" != "$current_slot" ]]; then
+            echo "Refusing confirmation: running system $current_slot but active_slot=$active_slot." >&2
+            exit 1
+        fi
 
-        echo "=== CONFIRMED SYSTEM $current_slot ==="
-        show_environment
+        root_options=$(findmnt -no OPTIONS /)
+        if ! tr ',' '\n' <<<"$root_options" | grep -Fqx rw; then
+            echo "Refusing confirmation: root filesystem is not read-write." >&2
+            exit 1
+        fi
+
+        if ! persistent_source=$(findmnt -no SOURCE /persistent); then
+            echo "Refusing confirmation: /persistent is not mounted." >&2
+            exit 1
+        fi
+
+        persistent_options=$(findmnt -no OPTIONS /persistent)
+
+        if [[ "$persistent_source" != /dev/mmcblk0p4 ]]; then
+            echo "Refusing confirmation: unexpected persistent source $persistent_source." >&2
+            exit 1
+        fi
+
+        if ! tr ',' '\n' <<<"$persistent_options" | grep -Fqx rw; then
+            echo "Refusing confirmation: persistent filesystem is not read-write." >&2
+            exit 1
+        fi
+
+        failed_services=$(
+            systemctl --failed --type=service --no-legend --plain ||
+                true
+        )
+
+        if [[ -n "$failed_services" ]]; then
+            echo "Refusing confirmation: one or more system services failed." >&2
+            printf '%s\n' "$failed_services" >&2
+            exit 1
+        fi
+
+        confirm_running_slot
+        ;;
+
+    confirm)
+        confirm_running_slot
         ;;
 
     *)
@@ -124,6 +209,7 @@ case "${1:-}" in
         echo "  sudo masjidpi-ab diagnostics"
         echo "  sudo masjidpi-ab trial a|b"
         echo "  sudo masjidpi-ab confirm"
+        echo "  sudo masjidpi-ab auto-confirm"
         exit 1
         ;;
 esac

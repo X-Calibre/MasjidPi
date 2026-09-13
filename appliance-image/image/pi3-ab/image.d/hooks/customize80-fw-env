@@ -5,13 +5,17 @@ set -eu
 filesystem=$1
 fw_env_source="$LAYER_DIR/../../u-boot/fw_env.config"
 ab_tool_source="$LAYER_DIR/../../u-boot/masjidpi-ab"
+confirm_service_source="$LAYER_DIR/../../u-boot/masjidpi-ab-confirm.service"
 
 test -f "$fw_env_source"
 test -x "$ab_tool_source"
+test -f "$confirm_service_source"
 
 install -d -m 0755 \
     "$filesystem/etc" \
-    "$filesystem/usr/local/sbin"
+    "$filesystem/usr/local/sbin" \
+    "$filesystem/usr/lib/systemd/system" \
+    "$filesystem/etc/systemd/system/multi-user.target.wants"
 
 install -m 0644 \
     "$fw_env_source" \
@@ -20,3 +24,11 @@ install -m 0644 \
 install -m 0755 \
     "$ab_tool_source" \
     "$filesystem/usr/local/sbin/masjidpi-ab"
+
+install -m 0644 \
+    "$confirm_service_source" \
+    "$filesystem/usr/lib/systemd/system/masjidpi-ab-confirm.service"
+
+ln -sfn \
+    /usr/lib/systemd/system/masjidpi-ab-confirm.service \
+    "$filesystem/etc/systemd/system/multi-user.target.wants/masjidpi-ab-confirm.service"

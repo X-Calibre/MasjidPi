@@ -4,8 +4,8 @@ This directory builds a Raspberry Pi 3 Model B appliance image using
 [`rpi-image-gen`](https://github.com/raspberrypi/rpi-image-gen).
 
 The image provides two bootable system slots, persistent shared storage,
-redundant U-Boot environment storage, boot-attempt counting, and automatic
-rollback to the last confirmed slot.
+redundant U-Boot environment storage, boot-attempt counting, automatic health
+confirmation, and rollback to the last confirmed slot.
 
 ## Disk layout
 
@@ -74,18 +74,27 @@ sudo masjidpi-ab trial b
 sudo reboot
 ```
 
-After verifying that the trial system is healthy, confirm it:
+A systemd one-shot service automatically evaluates a pending trial after a
+60-second settling period. It confirms the running slot only when:
+
+- The running root partition agrees with `active_slot`.
+- The root filesystem is mounted read-write.
+- `PERSISTENT` is mounted read-write from `/dev/mmcblk0p4`.
+- No systemd service has failed.
+
+Successful automatic confirmation makes the running slot the new rollback
+target and clears `upgrade_available`, `bootcount`, and `bootlimit`.
+Ordinary stable boots exit immediately without changing the environment.
+
+Manual confirmation remains available for diagnostics and recovery:
 
 ```bash
 sudo masjidpi-ab confirm
 ```
 
-Confirmation makes the running slot the new rollback target and clears
-`upgrade_available`, `bootcount`, and `bootlimit`.
-
-These commands provide the boot-control foundation for an updater. Downloading,
-installing and verifying update bundles, plus automatic health confirmation,
-remain separate work.
+These commands and the confirmation service provide the boot-control foundation
+for an updater. Downloading, installing and verifying update bundles remain
+separate work.
 
 ## Reproducible inputs
 
@@ -155,10 +164,13 @@ The integrated image has been tested on a Raspberry Pi 3 Model B Rev 1.2.
 Validated behaviour:
 
 1. An untouched image boots system A from `/dev/mmcblk0p2`.
-2. A trial system B boots from `/dev/mmcblk0p3`.
-3. Confirmed system B remains selected through repeated warm reboots.
-4. A deliberately broken candidate is attempted twice.
-5. U-Boot then automatically restores the confirmed rollback slot.
-6. Rollback clears `upgrade_available`, `bootcount`, and `bootlimit`.
-7. Both system slots mount `PERSISTENT` at `/persistent`.
-8. No failed systemd units or power-throttling flags were observed.
+2. A healthy trial system boots from the alternate root partition.
+3. The confirmation service waits 60 seconds and automatically confirms the
+   healthy running slot.
+4. Stable boots leave the confirmed environment unchanged.
+5. A deliberately failed systemd service prevents automatic confirmation.
+6. The unhealthy candidate receives exactly two permitted boot attempts.
+7. U-Boot then automatically restores the confirmed rollback slot.
+8. Rollback clears `upgrade_available`, `bootcount`, and `bootlimit`.
+9. Both system slots mount `PERSISTENT` at `/persistent`.
+10. No power-throttling flags were observed during successful boots.

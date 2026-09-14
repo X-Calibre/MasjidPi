@@ -11,9 +11,17 @@ test -f "$fw_env_source"
 test -x "$ab_tool_source"
 test -f "$confirm_service_source"
 
-install -d -m 0700 \
+install -d -o root -g root -m 0700 \
     "$filesystem/persistent/iwd" \
     "$filesystem/var/lib/iwd"
+
+if [[ -n "${IGconf_iwd_profile:-}" ]]; then
+    test -f "$IGconf_iwd_profile"
+
+    install -o root -g root -m 0600 \
+        "$IGconf_iwd_profile" \
+        "$filesystem/persistent/iwd/$(basename "$IGconf_iwd_profile")"
+fi
 
 install -d -m 0755 \
     "$filesystem/etc" \

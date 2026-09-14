@@ -1,0 +1,191 @@
+#!/bin/bash
+
+set -euo pipefail
+
+readonly public_key=$(
+    realpath "${MASJIDPI_UPDATE_PUBLIC_KEY:-/usr/share/masjidpi/update/masjidpi-update.pub}"
+)
+
+usage()
+{
+    echo "Usage: masjidpi-update verify BUNDLE SIGNATURE" >&2
+    exit 1
+}
+
+verify_payload()
+{
+    local relative_path=$1
+    local expected_size=$2
+    local expected_sha256=$3
+    local pathname="$extraction_dir/$relative_path"
+    local actual_size
+    local actual_sha256
+
+    if [[ ! -f "$pathname" ]]; then
+        echo "Missing payload: $relative_path" >&2
+        return 1
+    fi
+
+    actual_size=$(stat -c '%s' "$pathname")
+    actual_sha256=$(sha256sum "$pathname" | awk '{print $1}')
+
+    if [[ "$actual_size" != "$expected_size" ]]; then
+        echo "Size mismatch: $relative_path" >&2
+        return 1
+    fi
+
+    if [[ "$actual_sha256" != "$expected_sha256" ]]; then
+        echo "SHA-256 mismatch: $relative_path" >&2
+        return 1
+    fi
+
+    echo "PASS  $relative_path"
+}
+
+if [[ "${1:-}" != verify || $# -ne 3 ]]; then
+    usage
+fi
+
+readonly bundle=$(realpath "$2")
+readonly signature=$(realpath "$3")
+
+for command_name in \
+    jq \
+    minisign \
+    realpath \
+    sha256sum \
+    stat \
+    tar \
+    zstd
+do
+    if ! command -v "$command_name" >/dev/null; then
+        echo "Required command not found: $command_name" >&2
+        exit 1
+    fi
+done
+
+for required_file in \
+    "$public_key" \
+    "$bundle" \
+    "$signature"
+do
+    if [[ ! -f "$required_file" ]]; then
+        echo "Required file not found: $required_file" >&2
+        exit 1
+    fi
+done
+
+echo "=== SIGNATURE ==="
+minisign \
+    -Vm "$bundle" \
+    -x "$signature" \
+    -p "$public_key"
+
+readonly expected_contents=$(
+    printf '%s\n' \
+        boot/ \
+        boot/bcm2710-rpi-3-b.dtb \
+        boot/initramfs8 \
+        boot/kernel8-uboot.img \
+        manifest.json \
+        rootfs.ext4.zst |
+    sort
+)
+
+actual_contents=$(
+    zstd -dc "$bundle" |
+    tar -tf - |
+    sort
+)
+
+if [[ "$actual_contents" != "$expected_contents" ]]; then
+    echo "Unexpected bundle contents:" >&2
+    diff -u \
+        <(printf '%s\n' "$expected_contents") \
+        <(printf '%s\n' "$actual_contents") >&2 ||
+        true
+    exit 1
+fi
+
+echo "PASS  bundle contents"
+
+extraction_dir=$(mktemp -d)
+
+cleanup()
+{
+    rm -rf "$extraction_dir"
+}
+trap cleanup EXIT
+
+zstd -dc "$bundle" |
+tar -xf - -C "$extraction_dir"
+
+readonly manifest="$extraction_dir/manifest.json"
+
+if ! jq -e '
+    .schema_version == 1 and
+    .product == "masjidpi" and
+    .device_class == "pi3" and
+    .rootfs.file == "rootfs.ext4.zst" and
+    .rootfs.compression == "zstd" and
+    .boot.kernel.file == "boot/kernel8-uboot.img" and
+    .boot.initramfs.file == "boot/initramfs8" and
+    .boot.dtb.file == "boot/bcm2710-rpi-3-b.dtb"
+' "$manifest" >/dev/null; then
+    echo "Invalid or unsupported update manifest." >&2
+    exit 1
+fi
+
+echo "PASS  manifest schema"
+
+echo
+echo "=== PAYLOADS ==="
+
+verify_payload \
+    "$(jq -r '.rootfs.file' "$manifest")" \
+    "$(jq -r '.rootfs.archive_size' "$manifest")" \
+    "$(jq -r '.rootfs.archive_sha256' "$manifest")"
+
+for component in kernel initramfs dtb
+do
+    verify_payload \
+        "$(jq -r ".boot.$component.file" "$manifest")" \
+        "$(jq -r ".boot.$component.size" "$manifest")" \
+        "$(jq -r ".boot.$component.sha256" "$manifest")"
+done
+
+echo
+echo "=== ROOT FILESYSTEM ==="
+
+actual_rootfs_size=$(
+    zstd -dc "$extraction_dir/rootfs.ext4.zst" |
+    wc -c
+)
+actual_rootfs_sha256=$(
+    zstd -dc "$extraction_dir/rootfs.ext4.zst" |
+    sha256sum |
+    awk '{print $1}'
+)
+
+expected_rootfs_size=$(
+    jq -r '.rootfs.uncompressed_size' "$manifest"
+)
+expected_rootfs_sha256=$(
+    jq -r '.rootfs.uncompressed_sha256' "$manifest"
+)
+
+if [[ "$actual_rootfs_size" != "$expected_rootfs_size" ]]; then
+    echo "Decompressed root filesystem size mismatch." >&2
+    exit 1
+fi
+
+if [[ "$actual_rootfs_sha256" != "$expected_rootfs_sha256" ]]; then
+    echo "Decompressed root filesystem SHA-256 mismatch." >&2
+    exit 1
+fi
+
+echo "PASS  decompressed root filesystem"
+echo
+echo "RESULT: PASS — trusted MasjidPi update bundle"
+echo "Version: $(jq -r '.release_version' "$manifest")"
+echo "Commit:  $(jq -r '.source_commit' "$manifest")"

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -eu
+
+filesystem=$1
+public_key_source="$LAYER_DIR/../../update/masjidpi-update.pub"
+update_tool_source="$LAYER_DIR/../../update/masjidpi-update"
+public_key_target="$filesystem/usr/share/masjidpi/update/masjidpi-update.pub"
+update_tool_target="$filesystem/usr/local/sbin/masjidpi-update"
+
+test -f "$public_key_source"
+test -x "$update_tool_source"
+
+install -d -o root -g root -m 0755 \
+    "$filesystem/usr/share/masjidpi/update" \
+    "$filesystem/usr/local/sbin"
+
+install -o root -g root -m 0644 \
+    "$public_key_source" \
+    "$public_key_target"
+
+install -o root -g root -m 0755 \
+    "$update_tool_source" \
+    "$update_tool_target"

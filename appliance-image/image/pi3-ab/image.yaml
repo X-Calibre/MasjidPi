@@ -45,6 +45,9 @@ mmdebstrap:
     - e2fsprogs
     - initramfs-tools
     - libubootenv-tool
+    - jq
+    - minisign
+    - zstd
     - rsync
   customize-hooks:
     - mkdir -p $1/persistent

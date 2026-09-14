@@ -45,6 +45,42 @@ for required_boot_file in \
    fi
 done
 
+boot_dir="$filesystem/boot/firmware"
+
+# Keep the boot artefacts for each system slot independent. An updater can
+# replace the inactive set without changing the confirmed slot's boot files.
+for slot in a b; do
+   slot_dir="$boot_dir/slots/$slot"
+
+   install -d -m 0755 "$slot_dir"
+   install -m 0644 \
+      "$boot_dir/kernel8-uboot.img" \
+      "$slot_dir/kernel8-uboot.img"
+   install -m 0644 \
+      "$boot_dir/initramfs8" \
+      "$slot_dir/initramfs8"
+   install -m 0644 \
+      "$boot_dir/bcm2710-rpi-3-b.dtb" \
+      "$slot_dir/bcm2710-rpi-3-b.dtb"
+done
+
+rm -f \
+   "$boot_dir/kernel8-uboot.img" \
+   "$boot_dir/initramfs8"
+
+for required_slot_file in \
+   slots/a/kernel8-uboot.img \
+   slots/a/initramfs8 \
+   slots/a/bcm2710-rpi-3-b.dtb \
+   slots/b/kernel8-uboot.img \
+   slots/b/initramfs8 \
+   slots/b/bcm2710-rpi-3-b.dtb; do
+   if [[ ! -f "$boot_dir/$required_slot_file" ]]; then
+      echo "Missing slot boot file: /boot/firmware/$required_slot_file" >&2
+      exit 1
+   fi
+done
+
 # Later built-in customization hooks may alter config.txt after the U-Boot
 # files are installed. Normalize the final firmware settings immediately
 # before genimage copies the boot filesystem.

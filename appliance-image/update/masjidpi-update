@@ -8,7 +8,9 @@ readonly public_key=$(
 
 usage()
 {
-    echo "Usage: masjidpi-update verify BUNDLE SIGNATURE" >&2
+    echo "Usage:" >&2
+    echo "  masjidpi-update verify BUNDLE SIGNATURE" >&2
+    echo "  sudo masjidpi-update plan BUNDLE SIGNATURE" >&2
     exit 1
 }
 
@@ -41,6 +43,138 @@ verify_payload()
 
     echo "PASS  $relative_path"
 }
+
+if [[ "${1:-}" = plan ]]; then
+    if [[ $# -ne 3 ]]; then
+        usage
+    fi
+
+    if [[ "$EUID" -ne 0 ]]; then
+        echo "Run the plan command with sudo." >&2
+        exit 1
+    fi
+
+    bundle=$(realpath "$2")
+    signature=$(realpath "$3")
+
+    echo "=== VERIFY UPDATE BUNDLE ==="
+    "$0" verify "$bundle" "$signature"
+
+    manifest_json=$(
+        zstd -dc "$bundle" |
+        tar -xOf - manifest.json
+    )
+
+    running_source=$(findmnt -no SOURCE /)
+
+    case "$running_source" in
+        /dev/mmcblk0p2)
+            running_slot=a
+            target_slot=b
+            target_partition=/dev/mmcblk0p3
+            ;;
+        /dev/mmcblk0p3)
+            running_slot=b
+            target_slot=a
+            target_partition=/dev/mmcblk0p2
+            ;;
+        *)
+            echo "Unsupported running root: $running_source" >&2
+            exit 1
+            ;;
+    esac
+
+    if [[ ! -b "$target_partition" ]]; then
+        echo "Inactive partition not found: $target_partition" >&2
+        exit 1
+    fi
+
+    if findmnt -rn -S "$target_partition" >/dev/null; then
+        echo "Inactive partition is mounted: $target_partition" >&2
+        exit 1
+    fi
+
+    expected_rootfs_size=$(
+        jq -r '.rootfs.uncompressed_size' <<<"$manifest_json"
+    )
+    target_partition_size=$(
+        blockdev --getsize64 "$target_partition"
+    )
+
+    if [[ "$target_partition_size" != "$expected_rootfs_size" ]]; then
+        echo "Inactive partition size does not match the update image." >&2
+        echo "Expected: $expected_rootfs_size" >&2
+        echo "Found:    $target_partition_size" >&2
+        exit 1
+    fi
+
+    persistent_source=$(findmnt -no SOURCE /persistent)
+    persistent_options=$(findmnt -no OPTIONS /persistent)
+
+    if [[ "$persistent_source" != /dev/mmcblk0p4 ]]; then
+        echo "Unexpected persistent partition: $persistent_source" >&2
+        exit 1
+    fi
+
+    if ! tr ',' '\n' <<<"$persistent_options" |
+        grep -Fqx rw; then
+        echo "Persistent storage is not read-write." >&2
+        exit 1
+    fi
+
+    upgrade_available=$(
+        fw_printenv -n upgrade_available 2>/dev/null ||
+        true
+    )
+
+    if [[ "$upgrade_available" != 0 ]]; then
+        echo "Another A/B trial is already pending." >&2
+        exit 1
+    fi
+
+    bootlimit=$(
+        fw_printenv -n bootlimit 2>/dev/null ||
+        true
+    )
+
+    if [[ -n "$bootlimit" ]]; then
+        echo "Unexpected bootlimit exists in stable state." >&2
+        exit 1
+    fi
+
+    boot_required=$(
+        jq '
+            .boot.kernel.size +
+            .boot.initramfs.size +
+            .boot.dtb.size
+        ' <<<"$manifest_json"
+    )
+    boot_available=$(
+        df -B1 --output=avail /boot/firmware |
+        tail -n 1 |
+        tr -d ' '
+    )
+
+    if (( boot_available < boot_required )); then
+        echo "Insufficient BOOT free space for atomic replacement." >&2
+        echo "Required:  $boot_required" >&2
+        echo "Available: $boot_available" >&2
+        exit 1
+    fi
+
+    echo
+    echo "=== UPDATE PLAN ==="
+    echo "Version:          $(jq -r '.release_version' <<<"$manifest_json")"
+    echo "Running slot:     system_$running_slot"
+    echo "Target slot:      system_$target_slot"
+    echo "Target partition: $target_partition"
+    echo "Rootfs bytes:     $expected_rootfs_size"
+    echo "BOOT required:    $boot_required"
+    echo "BOOT available:   $boot_available"
+    echo
+    echo "RESULT: PASS — update can be safely staged"
+    exit 0
+fi
 
 if [[ "${1:-}" != verify || $# -ne 3 ]]; then
     usage

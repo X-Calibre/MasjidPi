@@ -2,15 +2,17 @@
 
 set -euo pipefail
 
-readonly public_key=$(
+public_key=$(
     realpath "${MASJIDPI_UPDATE_PUBLIC_KEY:-/usr/share/masjidpi/update/masjidpi-update.pub}"
 )
+readonly public_key
 
 usage()
 {
     echo "Usage:" >&2
     echo "  masjidpi-update verify BUNDLE SIGNATURE" >&2
     echo "  sudo masjidpi-update plan BUNDLE SIGNATURE" >&2
+    echo "  sudo masjidpi-update install BUNDLE SIGNATURE" >&2
     exit 1
 }
 
@@ -43,6 +45,213 @@ verify_payload()
 
     echo "PASS  $relative_path"
 }
+
+if [[ "${1:-}" = install ]]; then
+    if [[ $# -ne 3 ]]; then
+        usage
+    fi
+
+    if [[ "$EUID" -ne 0 ]]; then
+        echo "Run the install command with sudo." >&2
+        exit 1
+    fi
+
+    bundle=$(realpath "$2")
+    signature=$(realpath "$3")
+
+    # Verification and all read-only targeting checks must pass before any
+    # filesystem or boot data is changed.
+    "$0" plan "$bundle" "$signature"
+
+    running_source=$(findmnt -no SOURCE /)
+
+    case "$running_source" in
+        /dev/mmcblk0p2)
+            running_slot=a
+            target_slot=b
+            target_partition=/dev/mmcblk0p3
+            target_label=SYSTEM_B
+            ;;
+        /dev/mmcblk0p3)
+            running_slot=b
+            target_slot=a
+            target_partition=/dev/mmcblk0p2
+            target_label=SYSTEM_A
+            ;;
+        *)
+            echo "Unsupported running root: $running_source" >&2
+            exit 1
+            ;;
+    esac
+
+    staging_parent=/persistent/updates
+    install -d -o root -g root -m 0700 "$staging_parent"
+    staging_dir=$(mktemp -d "$staging_parent/install.XXXXXX")
+
+    boot_was_read_only=0
+    boot_dir="/boot/firmware/slots/$target_slot"
+
+    # shellcheck disable=SC2317
+    cleanup_install()
+    {
+        rm -rf "$staging_dir"
+
+        if [[ "$boot_was_read_only" -eq 1 ]]; then
+            mount -o remount,ro /boot/firmware 2>/dev/null ||
+                true
+        fi
+    }
+    trap cleanup_install EXIT
+
+    echo
+    echo "=== EXTRACT VERIFIED PAYLOAD ==="
+    zstd -dc "$bundle" |
+    tar -xf - -C "$staging_dir"
+
+    manifest="$staging_dir/manifest.json"
+    release_version=$(
+        jq -r '.release_version' "$manifest"
+    )
+    expected_rootfs_size=$(
+        jq -r '.rootfs.uncompressed_size' "$manifest"
+    )
+    expected_rootfs_sha256=$(
+        jq -r '.rootfs.uncompressed_sha256' "$manifest"
+    )
+
+    boot_options=$(findmnt -no OPTIONS /boot/firmware)
+
+    if ! tr ',' '\n' <<<"$boot_options" |
+        grep -Fqx rw; then
+        mount -o remount,rw /boot/firmware
+        boot_was_read_only=1
+    fi
+
+    install -d -o root -g root -m 0755 "$boot_dir"
+
+    echo
+    echo "=== STAGE TARGET BOOT FILES ==="
+
+    for boot_file in \
+        kernel8-uboot.img \
+        initramfs8 \
+        bcm2710-rpi-3-b.dtb
+    do
+        source_file="$staging_dir/boot/$boot_file"
+        staged_file="$boot_dir/.$boot_file.masjidpi-update"
+
+        install -o root -g root -m 0644 \
+            "$source_file" \
+            "$staged_file"
+
+        expected_sha256=$(
+            case "$boot_file" in
+                kernel8-uboot.img)
+                    jq -r '.boot.kernel.sha256' "$manifest"
+                    ;;
+                initramfs8)
+                    jq -r '.boot.initramfs.sha256' "$manifest"
+                    ;;
+                bcm2710-rpi-3-b.dtb)
+                    jq -r '.boot.dtb.sha256' "$manifest"
+                    ;;
+            esac
+        )
+        actual_sha256=$(
+            sha256sum "$staged_file" |
+            awk '{print $1}'
+        )
+
+        if [[ "$actual_sha256" != "$expected_sha256" ]]; then
+            echo "Staged boot-file verification failed: $boot_file" >&2
+            exit 1
+        fi
+
+        echo "PASS  $boot_file"
+    done
+
+    sync
+
+    echo
+    echo "=== WRITE INACTIVE ROOT FILESYSTEM ==="
+    echo "Running slot: system_$running_slot"
+    echo "Target slot:  system_$target_slot"
+    echo "Target:       $target_partition"
+
+    zstd -dc "$staging_dir/rootfs.ext4.zst" |
+    dd \
+        of="$target_partition" \
+        bs=4M \
+        conv=fsync \
+        status=progress
+
+    blockdev --flushbufs "$target_partition"
+
+    echo
+    echo "=== VERIFY WRITTEN ROOT FILESYSTEM ==="
+
+    actual_rootfs_sha256=$(
+        dd \
+            if="$target_partition" \
+            bs=16M \
+            count="$expected_rootfs_size" \
+            iflag=count_bytes \
+            status=progress |
+        sha256sum |
+        awk '{print $1}'
+    )
+
+    if [[ "$actual_rootfs_sha256" != "$expected_rootfs_sha256" ]]; then
+        echo "Written root filesystem SHA-256 mismatch." >&2
+        exit 1
+    fi
+
+    echo "PASS  inactive root filesystem"
+
+    # Ensure the two slots never retain duplicate filesystem UUIDs and restore
+    # the correct human-readable label for the target partition.
+    tune2fs -U random "$target_partition"
+    e2label "$target_partition" "$target_label"
+
+    if [[ "$(e2label "$target_partition")" != "$target_label" ]]; then
+        echo "Unable to set target filesystem label." >&2
+        exit 1
+    fi
+
+    echo "PASS  target label $target_label"
+
+    echo
+    echo "=== ACTIVATE TARGET BOOT FILES ==="
+
+    for boot_file in \
+        kernel8-uboot.img \
+        initramfs8 \
+        bcm2710-rpi-3-b.dtb
+    do
+        mv -f \
+            "$boot_dir/.$boot_file.masjidpi-update" \
+            "$boot_dir/$boot_file"
+        echo "PASS  $boot_file"
+    done
+
+    sync
+
+    install -o root -g root -m 0644 \
+        "$manifest" \
+        "$staging_parent/installed-${release_version}.json"
+
+    echo
+    echo "=== ARM TRIAL BOOT ==="
+
+    # This is deliberately last. Any interruption before this point leaves
+    # U-Boot selecting the currently confirmed system.
+    masjidpi-ab trial "$target_slot"
+
+    echo
+    echo "RESULT: PASS — update installed into system_$target_slot"
+    echo "Reboot when ready to begin the trial."
+    exit 0
+fi
 
 if [[ "${1:-}" = plan ]]; then
     if [[ $# -ne 3 ]]; then
@@ -180,8 +389,10 @@ if [[ "${1:-}" != verify || $# -ne 3 ]]; then
     usage
 fi
 
-readonly bundle=$(realpath "$2")
-readonly signature=$(realpath "$3")
+bundle=$(realpath "$2")
+signature=$(realpath "$3")
+readonly bundle
+readonly signature
 
 for command_name in \
     jq \
@@ -215,7 +426,7 @@ minisign \
     -x "$signature" \
     -p "$public_key"
 
-readonly expected_contents=$(
+expected_contents=$(
     printf '%s\n' \
         boot/ \
         boot/bcm2710-rpi-3-b.dtb \
@@ -225,6 +436,7 @@ readonly expected_contents=$(
         rootfs.ext4.zst |
     sort
 )
+readonly expected_contents
 
 actual_contents=$(
     zstd -dc "$bundle" |

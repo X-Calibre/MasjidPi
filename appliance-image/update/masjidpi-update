@@ -90,10 +90,21 @@ if [[ "${1:-}" = install ]]; then
 
     boot_was_read_only=0
     boot_dir="/boot/firmware/slots/$target_slot"
+    target_root=""
 
     # shellcheck disable=SC2317
     cleanup_install()
     {
+        if [[ -n "$target_root" ]]; then
+            if mountpoint -q "$target_root"; then
+                umount "$target_root" 2>/dev/null ||
+                    true
+            fi
+
+            rmdir "$target_root" 2>/dev/null ||
+                true
+        fi
+
         rm -rf "$staging_dir"
 
         if [[ "$boot_was_read_only" -eq 1 ]]; then
@@ -219,6 +230,71 @@ if [[ "${1:-}" = install ]]; then
     fi
 
     echo "PASS  target label $target_label"
+
+    echo
+    echo "=== PRESERVE APPLIANCE IDENTITY ==="
+
+    if ! grep -Eq '^[0-9a-f]{32}$' /etc/machine-id; then
+        echo "Running system has an invalid machine ID." >&2
+        exit 1
+    fi
+
+    shopt -s nullglob
+    host_keys=(
+        /etc/ssh/ssh_host_*_key
+        /etc/ssh/ssh_host_*_key.pub
+    )
+    shopt -u nullglob
+
+    if (( ${#host_keys[@]} == 0 )); then
+        echo "Running system has no SSH host keys." >&2
+        exit 1
+    fi
+
+    target_root=$(mktemp -d "$staging_parent/target-root.XXXXXX")
+    mount "$target_partition" "$target_root"
+
+    install -o root -g root -m 0444 \
+        /etc/machine-id \
+        "$target_root/etc/machine-id"
+
+    install -d -o root -g root -m 0755 \
+        "$target_root/etc/ssh"
+
+    cp -a \
+        "${host_keys[@]}" \
+        "$target_root/etc/ssh/"
+
+    chown root:root \
+        "$target_root"/etc/ssh/ssh_host_*_key \
+        "$target_root"/etc/ssh/ssh_host_*_key.pub
+
+    if ! cmp -s \
+        /etc/machine-id \
+        "$target_root/etc/machine-id"; then
+        echo "Unable to preserve the machine ID." >&2
+        exit 1
+    fi
+
+    for host_key in "${host_keys[@]}"
+    do
+        key_name=$(basename "$host_key")
+
+        if ! cmp -s \
+            "$host_key" \
+            "$target_root/etc/ssh/$key_name"; then
+            echo "Unable to preserve SSH host key: $key_name" >&2
+            exit 1
+        fi
+    done
+
+    sync
+    umount "$target_root"
+    rmdir "$target_root"
+    target_root=""
+
+    echo "PASS  machine ID"
+    echo "PASS  SSH host keys"
 
     echo
     echo "=== ACTIVATE TARGET BOOT FILES ==="

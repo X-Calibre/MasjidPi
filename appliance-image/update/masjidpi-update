@@ -16,6 +16,20 @@ usage()
     exit 1
 }
 
+stable_version_key()
+{
+    local version=${1#v}
+
+    if [[ ! "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+        return 1
+    fi
+
+    printf '%010d%010d%010d\n' \
+        "$((10#${BASH_REMATCH[1]}))" \
+        "$((10#${BASH_REMATCH[2]}))" \
+        "$((10#${BASH_REMATCH[3]}))"
+}
+
 verify_payload()
 {
     local relative_path=$1
@@ -288,6 +302,20 @@ if [[ "${1:-}" = install ]]; then
         fi
     done
 
+    install -d -o root -g root -m 0755 \
+        "$target_root/usr/share/masjidpi/update"
+
+    install -o root -g root -m 0644 \
+        "$manifest" \
+        "$target_root/usr/share/masjidpi/update/release.json"
+
+    if ! cmp -s \
+        "$manifest" \
+        "$target_root/usr/share/masjidpi/update/release.json"; then
+        echo "Unable to record the target release identity." >&2
+        exit 1
+    fi
+
     sync
     umount "$target_root"
     rmdir "$target_root"
@@ -295,6 +323,7 @@ if [[ "${1:-}" = install ]]; then
 
     echo "PASS  machine ID"
     echo "PASS  SSH host keys"
+    echo "PASS  release identity"
 
     echo
     echo "=== ACTIVATE TARGET BOOT FILES ==="
@@ -349,6 +378,68 @@ if [[ "${1:-}" = plan ]]; then
         zstd -dc "$bundle" |
         tar -xOf - manifest.json
     )
+
+    candidate_version=$(
+        jq -r '.release_version' <<<"$manifest_json"
+    )
+    candidate_commit=$(
+        jq -r '.source_commit' <<<"$manifest_json"
+    )
+
+    current_release=/usr/share/masjidpi/update/release.json
+    current_version=unrecorded
+
+    if [[ -f "$current_release" ]]; then
+        if ! jq -e '
+            .schema_version == 1 and
+            .product == "masjidpi" and
+            .device_class == "pi3" and
+            (.release_version | type == "string" and
+                test("^[A-Za-z0-9][A-Za-z0-9._+-]*$")) and
+            (.source_commit | type == "string" and
+                test("^[0-9a-f]{40}$"))
+        ' "$current_release" >/dev/null; then
+            echo "Running release record is invalid." >&2
+            exit 1
+        fi
+
+        current_version=$(
+            jq -r '.release_version' "$current_release"
+        )
+        current_commit=$(
+            jq -r '.source_commit' "$current_release"
+        )
+
+        if [[ "$candidate_version" == "$current_version" ]]; then
+            echo "Release $candidate_version is already running." >&2
+            exit 1
+        fi
+
+        if [[ "$candidate_commit" == "$current_commit" ]]; then
+            echo "The bundle contains the currently running build." >&2
+            echo "Current version:   $current_version" >&2
+            echo "Candidate version: $candidate_version" >&2
+            exit 1
+        fi
+
+        candidate_stable_key=$(
+            stable_version_key "$candidate_version" ||
+            true
+        )
+        current_stable_key=$(
+            stable_version_key "$current_version" ||
+            true
+        )
+
+        if [[ -n "$candidate_stable_key" &&
+              -n "$current_stable_key" &&
+              "$candidate_stable_key" < "$current_stable_key" ]]; then
+            echo "Refusing release downgrade." >&2
+            echo "Current version:   $current_version" >&2
+            echo "Candidate version: $candidate_version" >&2
+            exit 1
+        fi
+    fi
 
     running_source=$(findmnt -no SOURCE /)
 
@@ -449,7 +540,8 @@ if [[ "${1:-}" = plan ]]; then
 
     echo
     echo "=== UPDATE PLAN ==="
-    echo "Version:          $(jq -r '.release_version' <<<"$manifest_json")"
+    echo "Current version:  $current_version"
+    echo "Target version:   $candidate_version"
     echo "Running slot:     system_$running_slot"
     echo "Target slot:      system_$target_slot"
     echo "Target partition: $target_partition"
@@ -548,6 +640,10 @@ if ! jq -e '
     .schema_version == 1 and
     .product == "masjidpi" and
     .device_class == "pi3" and
+    (.release_version | type == "string" and
+        test("^[A-Za-z0-9][A-Za-z0-9._+-]*$")) and
+    (.source_commit | type == "string" and
+        test("^[0-9a-f]{40}$")) and
     .rootfs.file == "rootfs.ext4.zst" and
     .rootfs.compression == "zstd" and
     .boot.kernel.file == "boot/kernel8-uboot.img" and

@@ -235,7 +235,7 @@ if [[ "${1:-}" = install ]]; then
 
     # Ensure the two slots never retain duplicate filesystem UUIDs and restore
     # the correct human-readable label for the target partition.
-    tune2fs -U random "$target_partition"
+    tune2fs -f -U random "$target_partition"
     e2label "$target_partition" "$target_label"
 
     if [[ "$(e2label "$target_partition")" != "$target_label" ]]; then

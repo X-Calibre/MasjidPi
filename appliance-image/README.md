@@ -226,5 +226,6 @@ state.
 A reversible system-B boot test also validated quieter console settings:
 routine kernel and systemd output was substantially reduced while critical
 messages, the login prompt, startup image, Board, touch, Wi-Fi, and USB audio
-continued to work. A clean image rebuild of these quiet-boot settings remains
-to be validated.
+continued to work. A subsequent clean image build confirmed that all generated
+system-A, system-B, and diagnostic extlinux entries contain the validated
+settings with serial recovery retained.

@@ -217,5 +217,14 @@ touchscreen first-run flow: an unconfigured MasjidBoard opened location setup
 instead of a blank display, South Africa automatically selected
 `Africa/Johannesburg`, the time zone was applied and persisted, the board clock
 updated correctly, and the original selection was restored successfully.
-A clean rebuilt image and time-zone restoration after an A/B slot switch remain
+The clean expanded-layout image subsequently validated the complete first-run
+flow and automatic time-zone selection. After switching to system B, Wi-Fi,
+MasjidBoard selection, time zone, touch operation, and USB audio persisted;
+system B automatically confirmed and restored `Africa/Johannesburg` from shared
+state.
+
+A reversible system-B boot test also validated quieter console settings:
+routine kernel and systemd output was substantially reduced while critical
+messages, the login prompt, startup image, Board, touch, Wi-Fi, and USB audio
+continued to work. A clean image rebuild of these quiet-boot settings remains
 to be validated.

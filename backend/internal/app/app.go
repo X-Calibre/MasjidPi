@@ -87,6 +87,7 @@ func Run() error {
 	}()
 
 	audioDeviceState := storage.NewAudioDeviceState(paths.AudioDeviceState)
+	selectFirstRunAudioDevice := false
 	if name, ok, err := audioDeviceState.Load(); err != nil {
 		log.Warn("Could not load saved audio device", "error", err)
 	} else if ok {
@@ -95,6 +96,8 @@ func Run() error {
 		} else {
 			log.Info("Restored audio device", "audio_device", name)
 		}
+	} else {
+		selectFirstRunAudioDevice = true
 	}
 
 	playbackConfig, err := newPlaybackConfig(cfg)
@@ -105,6 +108,20 @@ func Run() error {
 
 	playbackManager := playback.New(mpv, playbackConfig)
 	playbackManager.SetAudioDeviceProvider(player.NewALSAAudioDevices("/sys/class/sound", mpv))
+	if selectFirstRunAudioDevice {
+		devices, err := playbackManager.AudioDevices()
+		if err != nil {
+			log.Warn("Could not discover first-run audio devices", "error", err)
+		} else if name, ok := preferredFirstRunAudioDevice(devices); ok {
+			if err := playbackManager.AudioDevice(name); err != nil {
+				log.Warn("Could not select first-run USB audio device", "audio_device", name, "error", err)
+			} else if err := audioDeviceState.Save(name); err != nil {
+				log.Warn("Could not save first-run USB audio device", "audio_device", name, "error", err)
+			} else {
+				log.Info("Selected first-run USB audio device", "audio_device", name)
+			}
+		}
+	}
 	volumeState := storage.NewVolume(paths.VolumeState)
 	playbackManager.SetVolumePersistence(volumeState)
 	if err := playbackManager.InitializeVolume(); err != nil {
@@ -272,6 +289,15 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()), "radio_stations", len(radio.Catalogue()))
 		}
 	}
+}
+
+func preferredFirstRunAudioDevice(devices []player.AudioDevice) (string, bool) {
+	for _, device := range devices {
+		if device.Name != "" && device.Description == "USB Audio" && !device.Unavailable {
+			return device.Name, true
+		}
+	}
+	return "", false
 }
 
 func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *player.MPV, state *storage.AudioDeviceState, log interface {

@@ -46,6 +46,7 @@ mmdebstrap:
     - initramfs-tools
     - libubootenv-tool
     - jq
+    - iproute2
     - minisign
     - zstd
     - rsync

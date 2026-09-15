@@ -13,4 +13,4 @@ image:
   name: masjidpi-pi3-ab-prototype
 
 layer:
-  base: trixie-minbase
+  base: masjidpi-trixie-minbase

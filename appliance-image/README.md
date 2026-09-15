@@ -26,15 +26,22 @@ Both system partitions initially contain the same slot-neutral filesystem.
 U-Boot selects the root partition using separate
 `extlinux/system_a.conf` and `extlinux/system_b.conf` entries.
 
-## Shared Wi-Fi profiles
+## Shared networking state
 
-Both slots bind-mount `/persistent/iwd` at `/var/lib/iwd`. A Wi-Fi network
-configured while either slot is running is therefore available to both slots.
-The bind mount explicitly depends on `/persistent`, and all IWD profile
-directories are root-owned with mode `0700`.
+The appliance uses NetworkManager with `wpa_supplicant`, matching the networking
+interface used by current Raspberry Pi OS. Both slots share NetworkManager
+connection profiles and runtime state through these bind mounts:
 
-A newly built image contains an empty shared profile directory; Wi-Fi
-credentials and test network names are not embedded in the image.
+- `/persistent/network-manager/system-connections` at
+  `/etc/NetworkManager/system-connections`
+- `/persistent/network-manager/state` at `/var/lib/NetworkManager`
+
+The mounts explicitly depend on `/persistent`. Connection-profile files use
+mode `0600`, and their parent directories use mode `0700`.
+
+The tracked build configuration contains no Wi-Fi credentials or network names.
+A developer may use an ignored local configuration and `nm.cmds` file to
+preconfigure a test network.
 
 ## U-Boot
 
@@ -151,7 +158,16 @@ include:
 
 device:
   user1pass: "choose-a-valid-temporary-password"
+
+nm:
+  cmds: ${@SRCROOT}/config/local/network-manager.cmds
 ```
+
+The optional `nm.cmds` file contains one `nmcli --offline` command per line.
+Keep that file under `appliance-image/config/local/`; the directory is ignored
+by Git because connection commands can contain Wi-Fi credentials. Builds
+without `nm.cmds` start with no saved Wi-Fi network and use MasjidPi's first-run
+network setup.
 
 Then build with that configuration:
 
@@ -183,8 +199,9 @@ Validated behaviour:
 7. U-Boot then automatically restores the confirmed rollback slot.
 8. Rollback clears `upgrade_available`, `bootcount`, and `bootlimit`.
 9. Both system slots mount `PERSISTENT` at `/persistent`.
-10. Both slots reconnect to a hidden WPA2 network using the same profile stored
-    under `/persistent/iwd`.
-11. A newly built image contains an empty shared IWD directory with mode
-    `0700`.
-12. No power-throttling flags were observed during successful boots.
+10. No power-throttling flags were observed during successful boots.
+
+The NetworkManager-based replacement for the earlier direct-IWD configuration
+has passed layer-resolution and filesystem-image validation. Reconnection,
+first-run setup, and cross-slot persistence still require validation on the
+Raspberry Pi before they are added to the hardware-validated list.

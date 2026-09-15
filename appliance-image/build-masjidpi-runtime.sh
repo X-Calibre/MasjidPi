@@ -1,13 +1,16 @@
 #!/bin/bash
 
 set -euo pipefail
+umask 022
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 project_root=$(cd "$script_dir/.." && pwd)
 output_dir=${1:-"$project_root/work/masjidpi-runtime-arm64"}
 
 for command_name in \
+    date \
     file \
+    git \
     go \
     jq \
     qemu-aarch64
@@ -29,6 +32,14 @@ source_version=$(
 )
 
 runtime_version=${MASJIDPI_IMAGE_VERSION:-"${source_version}-image"}
+source_commit=$(git -C "$project_root" rev-parse HEAD)
+build_version=$(git -C "$project_root" describe --tags --always --dirty)
+source_date_epoch=$(git -C "$project_root" show -s --format=%ct "$source_commit")
+created_at=$(
+    date -u \
+        --date="@$source_date_epoch" \
+        '+%Y-%m-%dT%H:%M:%SZ'
+)
 staging_dir=$(mktemp -d "$project_root/work/masjidpi-runtime.XXXXXX")
 
 cleanup()
@@ -70,6 +81,23 @@ install -m 0644 \
     "$staging_dir/catalogue.json"
 
 printf '%s\n' "$runtime_version" > "$staging_dir/VERSION"
+
+jq -n \
+    --arg release_version "$build_version" \
+    --arg build_version "$build_version" \
+    --arg runtime_version "$runtime_version" \
+    --arg source_commit "$source_commit" \
+    --arg created_at "$created_at" \
+    '{
+        schema_version: 1,
+        product: "masjidpi",
+        device_class: "pi3",
+        release_version: $release_version,
+        build_version: $build_version,
+        runtime_version: $runtime_version,
+        source_commit: $source_commit,
+        created_at: $created_at
+    }' > "$staging_dir/release.json"
 
 for runtime_script in \
     masjidboard-display.sh \
@@ -130,6 +158,7 @@ for required_file in \
     default.yaml \
     catalogue.json \
     VERSION \
+    release.json \
     scripts/masjidboard-display.sh \
     scripts/masjidboard-warmup.sh \
     scripts/masjidpi.service \

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
+umask 022
 
 usage()
 {
@@ -19,13 +20,15 @@ fi
 
 readonly rootfs_image="$image_output_dir/system_a.ext4"
 readonly boot_image="$image_output_dir/boot.vfat"
+readonly image_metadata="$image_output_dir/image.json"
 readonly output_dir="$PWD/work/update-bundles"
 readonly bundle_name="masjidpi-update-${version}-pi3.tar.zst"
 readonly bundle="$output_dir/$bundle_name"
 readonly signature="$bundle.minisig"
-readonly source_commit=$(git rev-parse HEAD)
+readonly current_source_commit=$(git rev-parse HEAD)
+readonly current_build_version=$(git describe --tags --always --dirty)
 readonly source_date_epoch=$(
-    git show -s --format=%ct "$source_commit"
+    git show -s --format=%ct "$current_source_commit"
 )
 readonly created_at=$(
     date -u \
@@ -35,6 +38,8 @@ readonly created_at=$(
 
 for command_name in \
     date \
+    debugfs \
+    git \
     jq \
     mcopy \
     minisign \
@@ -52,6 +57,7 @@ done
 for required_file in \
     "$rootfs_image" \
     "$boot_image" \
+    "$image_metadata" \
     "$private_key"
 do
     if [[ ! -f "$required_file" ]]; then
@@ -59,6 +65,93 @@ do
         exit 1
     fi
 done
+
+if [[ -n "$(git status --porcelain)" ]]; then
+    echo "Refusing to sign from a dirty source tree." >&2
+    git status --short >&2
+    exit 1
+fi
+
+embedded_release=$(
+    debugfs \
+        -R 'cat /usr/share/masjidpi/update/release.json' \
+        "$rootfs_image" \
+        2>/dev/null
+)
+
+if ! jq -e '
+    .schema_version == 1 and
+    .product == "masjidpi" and
+    .device_class == "pi3" and
+    (.release_version | type == "string") and
+    (.build_version | type == "string") and
+    (.runtime_version | type == "string") and
+    (.source_commit | type == "string" and
+        test("^[0-9a-f]{40}$")) and
+    (.created_at | type == "string")
+' <<<"$embedded_release" >/dev/null; then
+    echo "The root filesystem has no valid embedded release record." >&2
+    echo "Rebuild the image before signing an update." >&2
+    exit 1
+fi
+
+embedded_source_commit=$(
+    jq -r '.source_commit' <<<"$embedded_release"
+)
+embedded_build_version=$(
+    jq -r '.build_version' <<<"$embedded_release"
+)
+embedded_runtime_version=$(
+    jq -r '.runtime_version' <<<"$embedded_release"
+)
+image_build_version=$(
+    jq -er '.IGmeta.IGconf_image_version' "$image_metadata"
+)
+
+if [[ "$embedded_source_commit" != "$current_source_commit" ]]; then
+    echo "Root filesystem source commit does not match HEAD." >&2
+    echo "Embedded: $embedded_source_commit" >&2
+    echo "HEAD:     $current_source_commit" >&2
+    exit 1
+fi
+
+if [[ "$embedded_build_version" != "$current_build_version" ]]; then
+    echo "Root filesystem build version does not match the source tree." >&2
+    echo "Embedded: $embedded_build_version" >&2
+    echo "Source:   $current_build_version" >&2
+    exit 1
+fi
+
+if [[ "$image_build_version" != "$embedded_build_version" ]]; then
+    echo "Image metadata does not match the root filesystem." >&2
+    echo "Image:    $image_build_version" >&2
+    echo "Rootfs:   $embedded_build_version" >&2
+    exit 1
+fi
+
+embedded_version_file=$(
+    debugfs \
+        -R 'cat /opt/masjidpi/VERSION' \
+        "$rootfs_image" \
+        2>/dev/null |
+    tr -d '\r\n'
+)
+
+if [[ "$embedded_version_file" != "$embedded_runtime_version" ]]; then
+    echo "Embedded runtime VERSION does not match release provenance." >&2
+    echo "VERSION: $embedded_version_file" >&2
+    echo "Record:  $embedded_runtime_version" >&2
+    exit 1
+fi
+
+readonly source_commit="$embedded_source_commit"
+readonly build_version="$embedded_build_version"
+readonly runtime_version="$embedded_runtime_version"
+
+echo "=== VERIFIED IMAGE PROVENANCE ==="
+echo "Build version:   $build_version"
+echo "Runtime version: $runtime_version"
+echo "Source commit:   $source_commit"
 
 mkdir -p "$output_dir"
 staging_dir=$(mktemp -d)
@@ -129,6 +222,8 @@ dtb_sha256=$(
 
 jq -n \
     --arg version "$version" \
+    --arg build_version "$build_version" \
+    --arg runtime_version "$runtime_version" \
     --arg commit "$source_commit" \
     --arg created "$created_at" \
     --arg rootfs_sha "$rootfs_sha256" \
@@ -146,6 +241,8 @@ jq -n \
         product: "masjidpi",
         device_class: "pi3",
         release_version: $version,
+        build_version: $build_version,
+        runtime_version: $runtime_version,
         source_commit: $commit,
         created_at: $created,
         rootfs: {

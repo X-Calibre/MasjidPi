@@ -174,6 +174,10 @@ func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if s.masjidBoardService == nil || !s.masjidBoardService.Configured() {
+		http.Redirect(w, r, "/setup.html?profile="+profile+"&step=location", http.StatusTemporaryRedirect)
+		return
+	}
 	http.Redirect(w, r, "/masjidboard.html?profile="+profile, http.StatusTemporaryRedirect)
 }
 

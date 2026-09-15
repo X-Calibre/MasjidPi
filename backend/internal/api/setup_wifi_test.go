@@ -80,6 +80,7 @@ func TestApplianceEntryRoutesUnconfiguredDeviceToTouchDisplaySetup(t *testing.T)
 
 func TestApplianceEntryRoutesConfiguredDeviceToTouchDisplayBoard(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: true}
 	request := httptest.NewRequest(http.MethodGet, "/appliance", nil)
 	response := httptest.NewRecorder()
 
@@ -90,8 +91,27 @@ func TestApplianceEntryRoutesConfiguredDeviceToTouchDisplayBoard(t *testing.T) {
 	}
 }
 
+func TestApplianceEntryRoutesConnectedUnconfiguredBoardToLocationSetup(t *testing.T) {
+	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{
+		Supported:  true,
+		Configured: true,
+		Connected:  true,
+	}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{}
+	request := httptest.NewRequest(http.MethodGet, "/appliance", nil)
+	response := httptest.NewRecorder()
+
+	server.applianceEntry(response, request)
+
+	const want = "/setup.html?profile=appliance-720&step=location"
+	if response.Code != http.StatusTemporaryRedirect || response.Header().Get("Location") != want {
+		t.Fatalf("unexpected redirect: %d %q", response.Code, response.Header().Get("Location"))
+	}
+}
+
 func TestApplianceEntryDoesNotRestoreRetiredProfile(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: true}
 	request := httptest.NewRequest(http.MethodGet, "/appliance?profile=appliance", nil)
 	response := httptest.NewRecorder()
 
@@ -104,6 +124,7 @@ func TestApplianceEntryDoesNotRestoreRetiredProfile(t *testing.T) {
 
 func TestApplianceEntryPreservesTouchDisplay2Profile(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: true}
 	request := httptest.NewRequest(http.MethodGet, "/appliance?profile=appliance-720", nil)
 	response := httptest.NewRecorder()
 

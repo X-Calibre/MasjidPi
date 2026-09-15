@@ -49,5 +49,15 @@ mmdebstrap:
     - minisign
     - zstd
     - rsync
+    - curl
+    - ca-certificates
+    - tar
+    - mpv
+    - ffmpeg
+    - alsa-utils
+    - cog
+    - libwpewebkit-2.0-1
+    - plymouth
+    - plymouth-themes
   customize-hooks:
     - mkdir -p $1/persistent

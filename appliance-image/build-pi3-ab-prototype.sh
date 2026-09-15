@@ -4,7 +4,8 @@ set -euo pipefail
 export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
 
 readonly expected_revision=d1021e82dd578b588cc3b4d45cd7b4b86e57b796
-readonly script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+readonly script_dir
 readonly image_gen_dir=${1:-"$HOME/rpi-image-gen"}
 readonly config_file=${2:-"$script_dir/config/pi3-ab-prototype.yaml"}
 readonly uboot_source_dir=${3:-"$HOME/masjidpi-u-boot-source/u-boot-2025.01"}
@@ -31,6 +32,8 @@ fi
 
 "$script_dir/u-boot/build-pi3-uboot.sh" \
    "$uboot_source_dir"
+
+"$script_dir/build-masjidpi-runtime.sh"
 
 "$image_gen_dir/rpi-image-gen" build \
    -S "$script_dir" \

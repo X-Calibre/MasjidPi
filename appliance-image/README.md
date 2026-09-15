@@ -223,12 +223,16 @@ MasjidBoard selection, time zone, touch operation, and USB audio persisted;
 system B automatically confirmed and restored `Africa/Johannesburg` from shared
 state.
 
-A reversible system-B boot test first validated quieter console settings. The
-appliance integration was then extended to use MasjidPi's branded Plymouth
-theme throughout early Linux startup. Hardware validation confirmed that no
-firmware or kernel text was exposed, the logo was correctly scaled and
-oriented, the touchscreen login prompt was suppressed, and the WebKit startup
-image and Board followed normally. Touch, Wi-Fi, USB audio, and all required
-services remained healthy. A filesystem build confirmed that the theme,
-script, and logo are embedded in `initramfs8`, all A/B extlinux entries enable
-the splash, and serial recovery remains available.
+The appliance uses MasjidPi's branded Plymouth theme throughout early Linux
+startup. A clean image built without saved Wi-Fi or application state passed
+the complete touchscreen first-run flow: the branded splash appeared without
+firmware, kernel, systemd, or login-console text; Wi-Fi was configured on the
+device; South Africa selected `Africa/Johannesburg`; and location and
+MasjidBoard selection completed successfully. The Board then displayed the
+correct local time with working touch and automatically selected USB audio.
+
+After switching to system B, the branded splash appeared again, system B
+automatically confirmed, and the touchscreen-created Wi-Fi profile, time zone,
+three selected Masjids, and USB audio setting all persisted. Both slots use the
+same themed `initramfs8`, suppress the touchscreen getty, retain serial
+recovery, and completed validation without failed systemd units.

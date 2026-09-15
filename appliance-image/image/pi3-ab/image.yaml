@@ -57,6 +57,7 @@ mmdebstrap:
     - alsa-utils
     - cog
     - libwpewebkit-2.0-1
+    - libgles2
     - plymouth
     - plymouth-themes
   customize-hooks:

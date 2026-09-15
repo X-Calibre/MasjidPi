@@ -8,8 +8,8 @@ device:
 image:
   layer: masjidpi-pi3-ab-prototype
   boot_part_size: 256M
-  system_part_size: 3G
-  data_part_size: 2G
+  system_part_size: 4G
+  data_part_size: 5G
   name: masjidpi-pi3-ab-prototype
 
 layer:

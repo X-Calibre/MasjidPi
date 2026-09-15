@@ -14,13 +14,15 @@ confirmation, shared Wi-Fi profiles, and rollback to the last confirmed slot.
 | Primary U-Boot environment | 1 MiB offset | 16 KiB | Active redundant environment record |
 | Redundant U-Boot environment | 4 MiB offset | 16 KiB | Alternate environment record |
 | `BOOT` | Partition 1 | 256 MiB | Firmware, U-Boot, kernel, initramfs and extlinux configuration |
-| `SYSTEM_A` | Partition 2 | 3 GiB | System slot A |
-| `SYSTEM_B` | Partition 3 | 3 GiB | System slot B |
-| `PERSISTENT` | Partition 4 | 2 GiB | State shared between system slots |
+| `SYSTEM_A` | Partition 2 | 4 GiB | System slot A |
+| `SYSTEM_B` | Partition 3 | 4 GiB | System slot B |
+| `PERSISTENT` | Partition 4 | 5 GiB | State shared between system slots |
 
 The two environment records are stored in the unpartitioned 8 MiB gap before
-`BOOT`. The four visible partitions use an MBR partition table and fit on a
-nominal 16 GB microSD card.
+`BOOT`. The four visible partitions use an MBR partition table. The resulting
+image is 14,235,467,776 bytes (approximately 13.26 GiB), requires a nominal
+16 GB or larger microSD card, and leaves approximately 1.5 GiB unused on the
+validated 14.8 GiB card.
 
 Both system partitions initially contain the same slot-neutral filesystem.
 U-Boot selects the root partition using separate

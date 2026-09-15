@@ -210,5 +210,10 @@ has passed layer-resolution, filesystem-image, and Raspberry Pi hardware
 validation. Automatic Wi-Fi reconnection retained the same DHCP address across
 both slots, and NetworkManager state, MasjidBoard selection, audio selection,
 and display operation persisted after switching to and confirming system B.
-The revised touchscreen first-run routing and time-zone selection still require
-hardware validation.
+A temporary ARM64 runtime deployed to system B also validated the revised
+touchscreen first-run flow: an unconfigured MasjidBoard opened location setup
+instead of a blank display, South Africa automatically selected
+`Africa/Johannesburg`, the time zone was applied and persisted, the board clock
+updated correctly, and the original selection was restored successfully.
+A clean rebuilt image and time-zone restoration after an A/B slot switch remain
+to be validated.

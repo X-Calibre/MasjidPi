@@ -43,6 +43,10 @@ The tracked build configuration contains no Wi-Fi credentials or network names.
 A developer may use an ignored local configuration and `nm.cmds` file to
 preconfigure a test network.
 
+During first-run setup, the selected IANA time zone is applied to the system and
+saved as `/var/lib/masjidpi/timezone.json`. Because `/var/lib/masjidpi` is
+shared, either system slot restores the same time zone at application startup.
+
 ## U-Boot
 
 The image uses a reproducible custom build of Debian U-Boot source version:
@@ -202,6 +206,9 @@ Validated behaviour:
 10. No power-throttling flags were observed during successful boots.
 
 The NetworkManager-based replacement for the earlier direct-IWD configuration
-has passed layer-resolution and filesystem-image validation. Reconnection,
-first-run setup, and cross-slot persistence still require validation on the
-Raspberry Pi before they are added to the hardware-validated list.
+has passed layer-resolution, filesystem-image, and Raspberry Pi hardware
+validation. Automatic Wi-Fi reconnection retained the same DHCP address across
+both slots, and NetworkManager state, MasjidBoard selection, audio selection,
+and display operation persisted after switching to and confirming system B.
+The revised touchscreen first-run routing and time-zone selection still require
+hardware validation.

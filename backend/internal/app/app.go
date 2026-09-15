@@ -22,6 +22,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -50,6 +51,13 @@ func Run() error {
 	if !installed.Listen && !installed.Board {
 		return fmt.Errorf("no MasjidPi components are installed")
 	}
+	timezoneController := masjidtimezone.NewController(paths.TimezoneState)
+	if restored, err := timezoneController.Restore(context.Background()); err != nil {
+		log.Warn("Could not restore saved timezone", "error", err)
+	} else if restored {
+		log.Info("Restored saved timezone")
+	}
+
 	displaySettings := display.NewController(paths.DisplaySettingsState, "")
 	if err := displaySettings.Restore(); err != nil {
 		log.Warn("Could not restore display brightness", "error", err)
@@ -66,6 +74,7 @@ func Run() error {
 			MasjidBoardService:     masjidBoardService,
 			MasjidBoardMaintenance: masjidBoardMaintenance,
 			DisplaySettings:        displaySettings,
+			Timezone:               timezoneController,
 		})
 		return runHTTPServer(ctx, server, log)
 	}
@@ -217,6 +226,7 @@ func Run() error {
 		Preferences:      preferences,
 		AudioDeviceState: audioDeviceState,
 		DisplaySettings:  displaySettings,
+		Timezone:         timezoneController,
 	}
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)

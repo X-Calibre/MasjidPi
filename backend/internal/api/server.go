@@ -16,6 +16,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -26,6 +27,12 @@ type masjidBoardStatusProvider interface {
 }
 type masjidBoardEconomicProvider interface{ EconomicIndicators() *economic.Indicators }
 type masjidBoardDailyContentProvider interface{ DailyIslamicContent() *dailycontent.Content }
+
+type timezoneController interface {
+	Zones(string) ([]masjidtimezone.Zone, error)
+	Current() (string, bool, error)
+	Set(context.Context, string) error
+}
 
 type Server struct {
 	httpServer                  *http.Server
@@ -47,6 +54,7 @@ type Server struct {
 	installed                   components.Installed
 	wifi                        masjidnetwork.WiFiManager
 	displaySettings             *display.Controller
+	timezoneController          timezoneController
 }
 
 type Config struct {
@@ -71,6 +79,7 @@ type Dependencies struct {
 	AudioDeviceState       *storage.AudioDeviceState
 	WiFi                   masjidnetwork.WiFiManager
 	DisplaySettings        *display.Controller
+	Timezone               timezoneController
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
 }
@@ -100,6 +109,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		installed:                config.Installed,
 		wifi:                     dependencies.WiFi,
 		displaySettings:          dependencies.DisplaySettings,
+		timezoneController:       dependencies.Timezone,
 		httpServer:               &http.Server{Addr: config.Address, Handler: mux},
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
@@ -131,6 +141,8 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/setup/wifi/networks", server.wifiNetworks)
 		mux.HandleFunc("/api/setup/wifi/connect", server.wifiConnect)
 		mux.HandleFunc("/api/setup/device-access", server.deviceAccess)
+		mux.HandleFunc("/api/setup/timezones", server.timezones)
+		mux.HandleFunc("/api/setup/timezone", server.timezone)
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
 		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)

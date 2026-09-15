@@ -16,7 +16,9 @@ for required_file in \
     scripts/masjidboard-warmup.sh \
     scripts/masjidpi.service \
     scripts/masjidpi-display.service \
-    scripts/masjidpi-display-warmup.service
+    scripts/masjidpi-display-warmup.service \
+    scripts/masjidpi-splash.plymouth \
+    scripts/masjidpi-splash-standard.script
 do
     test -f "$runtime_source/$required_file"
 done
@@ -29,7 +31,9 @@ install -d -o root -g root -m 0755 \
     "$filesystem/etc/masjidpi" \
     "$filesystem/var/lib/masjidpi" \
     "$filesystem/usr/lib/systemd/system" \
-    "$filesystem/etc/systemd/system/multi-user.target.wants"
+    "$filesystem/etc/systemd/system/multi-user.target.wants" \
+    "$filesystem/etc/systemd/system/plymouth-quit.service.d" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi"
 
 install -o root -g root -m 0755 \
     "$runtime_source/bin/masjidpi" \
@@ -85,3 +89,33 @@ do
         "/usr/lib/systemd/system/$service_file" \
         "$filesystem/etc/systemd/system/multi-user.target.wants/$service_file"
 done
+
+install -o root -g root -m 0644 \
+    "$runtime_source/scripts/masjidpi-splash.plymouth" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi/masjidpi.plymouth"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/scripts/masjidpi-splash-standard.script" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi/masjidpi-splash.script"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/frontend/masjidpi-splash-logo.png" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi/masjidpi-splash-logo.png"
+
+cat > "$filesystem/etc/systemd/system/plymouth-quit.service.d/masjidpi.conf" <<'EOF_PLYMOUTH'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/plymouth quit --retain-splash
+EOF_PLYMOUTH
+
+# Keep console=tty1 for reliable KMS initialization, but do not expose a login
+# prompt on the dedicated appliance display.
+systemctl \
+    --root="$filesystem" \
+    disable getty@tty1.service \
+    >/dev/null 2>&1 || true
+
+# Rebuild the initramfs and allow raspi-firmware's post-update hook to copy the
+# themed result to /boot/firmware/initramfs8.
+chroot "$filesystem" \
+    plymouth-set-default-theme -R masjidpi

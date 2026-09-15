@@ -90,6 +90,7 @@ sed -i \
    -e '/^arm_64bit=/d' \
    -e '/^kernel=/d' \
    -e '/^enable_uart=/d' \
+   -e '/^disable_splash=/d' \
    "$boot_config"
 
 cat >> "$boot_config" <<'EOF'
@@ -99,6 +100,7 @@ auto_initramfs=0
 arm_64bit=1
 kernel=u-boot.bin
 enable_uart=1
+disable_splash=1
 EOF
 
 # shellcheck disable=SC1090

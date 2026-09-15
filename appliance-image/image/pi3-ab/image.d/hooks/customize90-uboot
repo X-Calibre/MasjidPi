@@ -23,7 +23,7 @@ LABEL system_a
    MENU LABEL MasjidPi system A
    LINUX /slots/a/kernel8-uboot.img
    INITRD /slots/a/initramfs8
-   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
 EOF_SYSTEM_A
 
 cat > "$boot_dir/extlinux/system_b.conf" <<'EOF_SYSTEM_B'
@@ -34,7 +34,7 @@ LABEL system_b
    MENU LABEL MasjidPi system B
    LINUX /slots/b/kernel8-uboot.img
    INITRD /slots/b/initramfs8
-   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p3 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p3 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
 EOF_SYSTEM_B
 
 # Retain an ordinary dual-slot configuration for manual diagnostics.
@@ -46,11 +46,11 @@ LABEL system_a
    MENU LABEL MasjidPi system A
    LINUX /slots/a/kernel8-uboot.img
    INITRD /slots/a/initramfs8
-   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
 
 LABEL system_b
    MENU LABEL MasjidPi system B
    LINUX /slots/b/kernel8-uboot.img
    INITRD /slots/b/initramfs8
-   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p3 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
+   APPEND console=serial0,115200 console=tty1 root=/dev/mmcblk0p3 rootfstype=ext4 rootflags=errors=remount-ro,commit=30 rw fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles loglevel=3 systemd.show_status=auto vt.global_cursor_default=0
 EOF_EXTLINUX

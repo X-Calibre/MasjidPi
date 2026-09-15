@@ -90,6 +90,15 @@ do
         "$staging_dir/scripts/$service_file"
 done
 
+for theme_file in \
+    masjidpi-splash.plymouth \
+    masjidpi-splash-standard.script
+do
+    install -m 0644 \
+        "$project_root/scripts/$theme_file" \
+        "$staging_dir/scripts/$theme_file"
+done
+
 if ! file "$staging_dir/bin/masjidpi" |
     grep -Fq 'ARM aarch64'; then
     echo "Built backend is not an ARM64 executable." >&2
@@ -125,7 +134,9 @@ for required_file in \
     scripts/masjidboard-warmup.sh \
     scripts/masjidpi.service \
     scripts/masjidpi-display.service \
-    scripts/masjidpi-display-warmup.service
+    scripts/masjidpi-display-warmup.service \
+    scripts/masjidpi-splash.plymouth \
+    scripts/masjidpi-splash-standard.script
 do
     if [[ ! -f "$staging_dir/$required_file" ]]; then
         echo "Missing runtime file: $required_file" >&2

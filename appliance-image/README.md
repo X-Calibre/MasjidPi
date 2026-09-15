@@ -223,9 +223,12 @@ MasjidBoard selection, time zone, touch operation, and USB audio persisted;
 system B automatically confirmed and restored `Africa/Johannesburg` from shared
 state.
 
-A reversible system-B boot test also validated quieter console settings:
-routine kernel and systemd output was substantially reduced while critical
-messages, the login prompt, startup image, Board, touch, Wi-Fi, and USB audio
-continued to work. A subsequent clean image build confirmed that all generated
-system-A, system-B, and diagnostic extlinux entries contain the validated
-settings with serial recovery retained.
+A reversible system-B boot test first validated quieter console settings. The
+appliance integration was then extended to use MasjidPi's branded Plymouth
+theme throughout early Linux startup. Hardware validation confirmed that no
+firmware or kernel text was exposed, the logo was correctly scaled and
+oriented, the touchscreen login prompt was suppressed, and the WebKit startup
+image and Board followed normally. Touch, Wi-Fi, USB audio, and all required
+services remained healthy. A filesystem build confirmed that the theme,
+script, and logo are embedded in `initramfs8`, all A/B extlinux entries enable
+the splash, and serial recovery remains available.

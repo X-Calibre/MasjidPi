@@ -43,6 +43,15 @@ func EvaluateInstall(
 		state.Download.Status != DownloadStatusVerified {
 		return blockedInstall("the update is not downloaded and verified")
 	}
+	if state.Installation != nil {
+		switch state.Installation.Status {
+		case InstallStatusInstalling, InstallStatusRebootPending,
+			InstallStatusProbation, InstallStatusInstalled:
+			return blockedInstall(
+				"installation state is " + state.Installation.Status,
+			)
+		}
+	}
 
 	automaticApproval := state.ApprovalDeadline != nil &&
 		!now.Before(*state.ApprovalDeadline)

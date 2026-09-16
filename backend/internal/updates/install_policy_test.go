@@ -127,3 +127,27 @@ func TestEvaluateInstallRequiresVerifiedBundle(t *testing.T) {
 		t.Fatalf("decision = %+v", decision)
 	}
 }
+
+func TestEvaluateInstallBlocksActiveTrialAndConfirmedRelease(t *testing.T) {
+	now := time.Date(2026, 9, 16, 23, 30, 0, 0, time.UTC)
+	for _, status := range []string{
+		InstallStatusInstalling,
+		InstallStatusRebootPending,
+		InstallStatusProbation,
+		InstallStatusInstalled,
+	} {
+		t.Run(status, func(t *testing.T) {
+			state := installableState(now)
+			state.Installation = &InstallationState{Status: status}
+			decision := EvaluateInstall(state, InstallConditions{
+				Now:               now,
+				Immediate:         true,
+				PlaybackActive:    true,
+				InterruptPlayback: true,
+			})
+			if decision.Allowed || !strings.Contains(decision.Reason, status) {
+				t.Fatalf("decision = %+v", decision)
+			}
+		})
+	}
+}

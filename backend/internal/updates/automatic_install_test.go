@@ -47,6 +47,14 @@ func TestAutomaticInstallDueLimitsRetriesByNight(t *testing.T) {
 			name:         "reboot pending",
 			installation: &InstallationState{Status: InstallStatusRebootPending},
 		},
+		{
+			name:         "probation",
+			installation: &InstallationState{Status: InstallStatusProbation},
+		},
+		{
+			name:         "installed",
+			installation: &InstallationState{Status: InstallStatusInstalled},
+		},
 	}
 
 	for _, test := range tests {

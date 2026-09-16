@@ -12,7 +12,9 @@ func AutomaticInstallDue(state State, now time.Time) bool {
 		return true
 	}
 	if state.Installation.Status == InstallStatusInstalling ||
-		state.Installation.Status == InstallStatusRebootPending {
+		state.Installation.Status == InstallStatusRebootPending ||
+		state.Installation.Status == InstallStatusProbation ||
+		state.Installation.Status == InstallStatusInstalled {
 		return false
 	}
 

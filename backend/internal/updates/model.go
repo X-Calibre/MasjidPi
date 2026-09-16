@@ -16,6 +16,9 @@ const (
 const (
 	InstallStatusInstalling    = "installing"
 	InstallStatusRebootPending = "reboot_pending"
+	InstallStatusProbation     = "probation"
+	InstallStatusInstalled     = "installed"
+	InstallStatusRolledBack    = "rolled_back"
 	InstallStatusFailed        = "failed"
 	FailureHistoryRetention    = 90 * 24 * time.Hour
 )
@@ -49,12 +52,14 @@ type InstallAttempt struct {
 }
 
 type InstallationState struct {
-	Version   string           `json:"version"`
-	Status    string           `json:"status"`
-	StartedAt *time.Time       `json:"started_at,omitempty"`
-	StagedAt  *time.Time       `json:"staged_at,omitempty"`
-	LastError string           `json:"last_error,omitempty"`
-	Attempts  []InstallAttempt `json:"attempts,omitempty"`
+	Version      string           `json:"version"`
+	Status       string           `json:"status"`
+	StartedAt    *time.Time       `json:"started_at,omitempty"`
+	StagedAt     *time.Time       `json:"staged_at,omitempty"`
+	ConfirmedAt  *time.Time       `json:"confirmed_at,omitempty"`
+	RolledBackAt *time.Time       `json:"rolled_back_at,omitempty"`
+	LastError    string           `json:"last_error,omitempty"`
+	Attempts     []InstallAttempt `json:"attempts,omitempty"`
 }
 
 // State is persisted in shared appliance storage. Later orchestration stages
@@ -178,7 +183,9 @@ func (s State) Validate() error {
 			return fmt.Errorf("updates: installation version does not match available release")
 		}
 		switch installation.Status {
-		case InstallStatusInstalling, InstallStatusRebootPending, InstallStatusFailed:
+		case InstallStatusInstalling, InstallStatusRebootPending,
+			InstallStatusProbation, InstallStatusInstalled,
+			InstallStatusRolledBack, InstallStatusFailed:
 		default:
 			return fmt.Errorf("updates: invalid installation status %q", installation.Status)
 		}
@@ -190,6 +197,12 @@ func (s State) Validate() error {
 		}
 		if installation.Status == InstallStatusRebootPending && installation.StagedAt == nil {
 			return fmt.Errorf("updates: staged installation time is required")
+		}
+		if installation.Status == InstallStatusInstalled && installation.ConfirmedAt == nil {
+			return fmt.Errorf("updates: installed update requires confirmation time")
+		}
+		if installation.Status == InstallStatusRolledBack && installation.RolledBackAt == nil {
+			return fmt.Errorf("updates: rolled-back update requires rollback time")
 		}
 	}
 
@@ -246,6 +259,14 @@ func cloneState(state State) State {
 		if state.Installation.StagedAt != nil {
 			value := *state.Installation.StagedAt
 			cloned.Installation.StagedAt = &value
+		}
+		if state.Installation.ConfirmedAt != nil {
+			value := *state.Installation.ConfirmedAt
+			cloned.Installation.ConfirmedAt = &value
+		}
+		if state.Installation.RolledBackAt != nil {
+			value := *state.Installation.RolledBackAt
+			cloned.Installation.RolledBackAt = &value
 		}
 		for index := range cloned.Installation.Attempts {
 			if state.Installation.Attempts[index].FinishedAt != nil {

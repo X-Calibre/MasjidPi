@@ -70,7 +70,9 @@ func (c *Controller) Install(
 	state.CurrentVersion = c.currentVersion
 	if state.Installation != nil &&
 		(state.Installation.Status == InstallStatusInstalling ||
-			state.Installation.Status == InstallStatusRebootPending) {
+			state.Installation.Status == InstallStatusRebootPending ||
+			state.Installation.Status == InstallStatusProbation ||
+			state.Installation.Status == InstallStatusInstalled) {
 		c.mu.Unlock()
 		return cloneState(state), fmt.Errorf(
 			"updates: installation state is %s",

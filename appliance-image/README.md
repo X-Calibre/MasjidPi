@@ -98,11 +98,12 @@ sudo reboot
 ```
 
 A systemd one-shot service automatically evaluates a pending trial after a
-60-second settling period. It confirms the running slot only when:
+10-minute probation period. It confirms the running slot only when:
 
 - The running root partition agrees with `active_slot`.
 - The root filesystem is mounted read-write.
 - `PERSISTENT` is mounted read-write from `/dev/mmcblk0p4`.
+- The local MasjidPi version endpoint responds successfully.
 - No systemd service has failed.
 
 Successful automatic confirmation makes the running slot the new rollback
@@ -197,8 +198,8 @@ Validated behaviour:
 
 1. An untouched image boots system A from `/dev/mmcblk0p2`.
 2. A healthy trial system boots from the alternate root partition.
-3. The confirmation service waits 60 seconds and automatically confirms the
-   healthy running slot.
+3. The confirmation service waits for its probation period and automatically
+   confirms the healthy running slot.
 4. Stable boots leave the confirmed environment unchanged.
 5. A deliberately failed systemd service prevents automatic confirmation.
 6. The unhealthy candidate receives exactly two permitted boot attempts.
@@ -245,10 +246,11 @@ slot. A full 4 GiB readback passed before the new boot files were activated.
 
 Hardware validation installed `v1.6.0-lab.6882b88.1` from system B into system
 A. The trial retained system B as rollback, booted successfully, completed the
-60-second probation period, and automatically confirmed system A. The machine
-ID, SSH host keys, touchscreen-configured Wi-Fi, `Africa/Johannesburg` time
-zone, three selected Masjids, USB audio, splash, touch operation, and shared
-state all persisted without failed systemd units.
+60-second probation period used by that laboratory image, and automatically
+confirmed system A. The production policy now uses a 10-minute probation. The
+machine ID, SSH host keys, touchscreen-configured Wi-Fi,
+`Africa/Johannesburg` time zone, three selected Masjids, USB audio, splash,
+touch operation, and shared state all persisted without failed systemd units.
 
 A second signed update, `v1.6.0-lab.98de917.2`, was installed from system A
 into system B for rollback validation. A deliberately failing systemd service

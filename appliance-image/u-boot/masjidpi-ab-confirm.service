@@ -1,12 +1,12 @@
 [Unit]
 Description=Confirm a healthy MasjidPi A/B trial
-After=local-fs.target
+After=local-fs.target masjidpi.service
 ConditionPathExists=/etc/fw_env.config
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/sbin/masjidpi-ab auto-confirm
-TimeoutStartSec=90
+TimeoutStartSec=660
 RemainAfterExit=yes
 
 [Install]

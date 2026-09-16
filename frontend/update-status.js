@@ -42,6 +42,9 @@
         let installationText = "Not started";
         if (installation?.status === "installing") installationText = "Installing…";
         if (installation?.status === "reboot_pending") installationText = "Restart pending";
+        if (installation?.status === "probation") installationText = "Health probation in progress";
+        if (installation?.status === "installed") installationText = "Installed and confirmed";
+        if (installation?.status === "rolled_back") installationText = "Rolled back safely";
         if (installation?.status === "failed") installationText = "Installation failed";
         setText(widget, "[data-update-installation]", release ? installationText : "Not applicable");
 
@@ -64,7 +67,8 @@
             if (approve) approve.disabled = Boolean(state.approved_at);
             const install = widget.querySelector("[data-update-install]");
             if (install) {
-                const ready = download?.status === "verified" && !["installing", "reboot_pending"].includes(installation?.status);
+                const ready = download?.status === "verified" &&
+                    !["installing", "reboot_pending", "probation", "installed"].includes(installation?.status);
                 install.classList.toggle("hidden", !ready);
             }
         } else {
@@ -81,7 +85,7 @@
 
         const error = widget.querySelector("[data-update-error]");
         if (error) {
-            const message = state?.last_check_error || download?.last_error || "";
+            const message = state?.last_check_error || download?.last_error || installation?.last_error || "";
             error.textContent = message;
             error.classList.toggle("hidden", !message);
         }

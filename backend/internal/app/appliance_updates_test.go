@@ -140,3 +140,23 @@ func TestImmediateInstallDoesNotStopPlaybackWhenAdhanGuardBlocks(t *testing.T) {
 		)
 	}
 }
+
+func TestCheckDoesNotDiscardPendingTrialState(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	appliance, _, _ := installReadyController(t, now)
+	if _, err := appliance.Controller.Install(
+		t.Context(),
+		updates.InstallConditions{Now: now, Immediate: true},
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	state, err := appliance.Check(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation == nil ||
+		state.Installation.Status != updates.InstallStatusRebootPending {
+		t.Fatalf("installation = %+v", state.Installation)
+	}
+}

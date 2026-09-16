@@ -16,7 +16,46 @@ type applianceUpdates struct {
 	mu       sync.RWMutex
 	playback updatePlaybackProvider
 	board    updateBoardProvider
+	trial    updates.TrialStatusSource
 	now      func() time.Time
+}
+
+func (a *applianceUpdates) SetTrialStatusSource(source updates.TrialStatusSource) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.trial = source
+}
+
+func (a *applianceUpdates) Status() (updates.State, error) {
+	a.mu.RLock()
+	source := a.trial
+	a.mu.RUnlock()
+	if source == nil {
+		return a.Controller.Status()
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	status, err := source.Status(ctx)
+	if err != nil {
+		return a.Controller.Status()
+	}
+	return a.Controller.ReconcileTrial(status)
+}
+
+func (a *applianceUpdates) Check(ctx context.Context) (updates.State, error) {
+	state, err := a.Status()
+	if err != nil {
+		return state, err
+	}
+	if state.Installation != nil {
+		switch state.Installation.Status {
+		case updates.InstallStatusInstalling,
+			updates.InstallStatusRebootPending,
+			updates.InstallStatusProbation:
+			return state, nil
+		}
+	}
+	return a.Controller.Check(ctx)
 }
 
 func newApplianceUpdates(controller *updates.Controller) *applianceUpdates {

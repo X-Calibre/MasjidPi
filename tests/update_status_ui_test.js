@@ -18,6 +18,9 @@ assert.match(script, /\/api\/update\/install/);
 assert.match(script, /interrupt_playback:\s*true/);
 assert.match(script, /window\.confirm/);
 assert.match(script, /reboot_pending/);
+assert.match(script, /probation/);
+assert.match(script, /installed/);
+assert.match(script, /rolled_back/);
 assert.match(script, /download\?\.status === "verified"/);
 
 console.log("Update installation UI tests passed");

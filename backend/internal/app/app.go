@@ -78,6 +78,7 @@ func Run() error {
 		updates.CommandRebooter{},
 	)
 	applianceUpdateController := newApplianceUpdates(updateController)
+	applianceUpdateController.SetTrialStatusSource(updates.CommandTrialStatus{})
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

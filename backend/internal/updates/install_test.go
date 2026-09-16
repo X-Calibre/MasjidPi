@@ -226,6 +226,47 @@ func TestInstallDoesNotRestageRebootPendingUpdate(t *testing.T) {
 	}
 }
 
+func TestInstallDoesNotRestageTrialOrConfirmedUpdate(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	for _, status := range []string{InstallStatusProbation, InstallStatusInstalled} {
+		t.Run(status, func(t *testing.T) {
+			calls := 0
+			controller, store := newInstallController(
+				t,
+				now,
+				installerFunc(func(context.Context, string) error { calls++; return nil }),
+				rebooterFunc(func(context.Context) error { calls++; return nil }),
+			)
+			state, err := store.Load()
+			if err != nil {
+				t.Fatal(err)
+			}
+			state.Installation = &InstallationState{
+				Version:   state.AvailableRelease.Version,
+				Status:    status,
+				StartedAt: &now,
+				StagedAt:  &now,
+				Attempts: []InstallAttempt{{
+					StartedAt: now,
+				}},
+			}
+			if status == InstallStatusInstalled {
+				state.Installation.ConfirmedAt = &now
+			}
+			if err := store.Save(state); err != nil {
+				t.Fatal(err)
+			}
+
+			if _, err := controller.Install(t.Context(), immediateInstall(now)); err == nil || !strings.Contains(err.Error(), status) {
+				t.Fatalf("Install() error = %v", err)
+			}
+			if calls != 0 {
+				t.Fatalf("command calls = %d", calls)
+			}
+		})
+	}
+}
+
 func TestRetainedAttemptsDropsHistoryOlderThanNinetyDays(t *testing.T) {
 	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
 	old := now.Add(-FailureHistoryRetention - time.Second)

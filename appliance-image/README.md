@@ -236,3 +236,16 @@ automatically confirmed, and the touchscreen-created Wi-Fi profile, time zone,
 three selected Masjids, and USB audio setting all persisted. Both slots use the
 same themed `initramfs8`, suppress the touchscreen getty, retain serial
 recovery, and completed validation without failed systemd units.
+
+The first signed laboratory A/B update was built from a clean source tree and
+cryptographically bound to provenance embedded in both image slots. The
+appliance verified the detached Minisign signature, manifest, payload sizes,
+payload hashes, and decompressed root filesystem before writing the inactive
+slot. A full 4 GiB readback passed before the new boot files were activated.
+
+Hardware validation installed `v1.6.0-lab.6882b88.1` from system B into system
+A. The trial retained system B as rollback, booted successfully, completed the
+60-second probation period, and automatically confirmed system A. The machine
+ID, SSH host keys, touchscreen-configured Wi-Fi, `Africa/Johannesburg` time
+zone, three selected Masjids, USB audio, splash, touch operation, and shared
+state all persisted without failed systemd units.

@@ -2,6 +2,7 @@
 
 set -euo pipefail
 umask 022
+export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
 
 usage()
 {

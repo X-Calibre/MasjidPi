@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
+export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
 
 public_key=$(
     realpath "${MASJIDPI_UPDATE_PUBLIC_KEY:-/usr/share/masjidpi/update/masjidpi-update.pub}"

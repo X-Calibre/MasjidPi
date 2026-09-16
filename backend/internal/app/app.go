@@ -73,6 +73,10 @@ func Run() error {
 		Directory: paths.UpdateDownloads,
 		Verifier:  updates.CommandVerifier{},
 	})
+	updateController.SetInstaller(
+		updates.CommandInstaller{Directory: paths.UpdateDownloads},
+		updates.CommandRebooter{},
+	)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

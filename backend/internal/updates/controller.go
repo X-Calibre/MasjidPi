@@ -24,6 +24,14 @@ type BundlePreparer interface {
 	Prepare(context.Context, Release) (PreparedArtifact, error)
 }
 
+type UpdateInstaller interface {
+	Install(context.Context, string) error
+}
+
+type DeviceRebooter interface {
+	Reboot(context.Context) error
+}
+
 type Controller struct {
 	mu             sync.Mutex
 	store          StateStore
@@ -32,6 +40,19 @@ type Controller struct {
 	now            func() time.Time
 	preparer       BundlePreparer
 	preparing      bool
+	installer      UpdateInstaller
+	rebooter       DeviceRebooter
+	installing     bool
+}
+
+func (c *Controller) SetInstaller(
+	installer UpdateInstaller,
+	rebooter DeviceRebooter,
+) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.installer = installer
+	c.rebooter = rebooter
 }
 
 func (c *Controller) SetBundlePreparer(preparer BundlePreparer) {
@@ -146,6 +167,7 @@ func (c *Controller) Check(
 		state.ApprovedAt = nil
 		state.PostponedUntil = nil
 		state.Download = nil
+		state.Installation = nil
 	}
 
 	releaseCopy := release
@@ -314,6 +336,7 @@ func clearAvailableRelease(state *State) {
 	state.ApprovedAt = nil
 	state.PostponedUntil = nil
 	state.Download = nil
+	state.Installation = nil
 }
 
 func timePointer(value time.Time) *time.Time {

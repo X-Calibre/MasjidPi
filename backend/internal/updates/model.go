@@ -13,6 +13,13 @@ const (
 	DownloadStatusFailed      = "failed"
 )
 
+const (
+	InstallStatusInstalling    = "installing"
+	InstallStatusRebootPending = "reboot_pending"
+	InstallStatusFailed        = "failed"
+	FailureHistoryRetention    = 90 * 24 * time.Hour
+)
+
 // Release identifies a complete signed appliance update and its detached
 // signature.
 type Release struct {
@@ -33,19 +40,37 @@ type DownloadState struct {
 	LastError      string     `json:"last_error,omitempty"`
 }
 
+type InstallAttempt struct {
+	StartedAt  time.Time  `json:"started_at"`
+	FinishedAt *time.Time `json:"finished_at,omitempty"`
+	Immediate  bool       `json:"immediate,omitempty"`
+	Succeeded  bool       `json:"succeeded,omitempty"`
+	Error      string     `json:"error,omitempty"`
+}
+
+type InstallationState struct {
+	Version   string           `json:"version"`
+	Status    string           `json:"status"`
+	StartedAt *time.Time       `json:"started_at,omitempty"`
+	StagedAt  *time.Time       `json:"staged_at,omitempty"`
+	LastError string           `json:"last_error,omitempty"`
+	Attempts  []InstallAttempt `json:"attempts,omitempty"`
+}
+
 // State is persisted in shared appliance storage. Later orchestration stages
 // can extend this versioned schema with download and installation state.
 type State struct {
-	SchemaVersion    int            `json:"schema_version"`
-	CurrentVersion   string         `json:"current_version,omitempty"`
-	AvailableRelease *Release       `json:"available_release,omitempty"`
-	FirstDetectedAt  *time.Time     `json:"first_detected_at,omitempty"`
-	ApprovalDeadline *time.Time     `json:"approval_deadline,omitempty"`
-	ApprovedAt       *time.Time     `json:"approved_at,omitempty"`
-	PostponedUntil   *time.Time     `json:"postponed_until,omitempty"`
-	Download         *DownloadState `json:"download,omitempty"`
-	LastCheckedAt    *time.Time     `json:"last_checked_at,omitempty"`
-	LastCheckError   string         `json:"last_check_error,omitempty"`
+	SchemaVersion    int                `json:"schema_version"`
+	CurrentVersion   string             `json:"current_version,omitempty"`
+	AvailableRelease *Release           `json:"available_release,omitempty"`
+	FirstDetectedAt  *time.Time         `json:"first_detected_at,omitempty"`
+	ApprovalDeadline *time.Time         `json:"approval_deadline,omitempty"`
+	ApprovedAt       *time.Time         `json:"approved_at,omitempty"`
+	PostponedUntil   *time.Time         `json:"postponed_until,omitempty"`
+	Download         *DownloadState     `json:"download,omitempty"`
+	Installation     *InstallationState `json:"installation,omitempty"`
+	LastCheckedAt    *time.Time         `json:"last_checked_at,omitempty"`
+	LastCheckError   string             `json:"last_check_error,omitempty"`
 }
 
 func DefaultState(currentVersion string) State {
@@ -79,6 +104,9 @@ func (s State) Validate() error {
 		}
 		if s.Download != nil {
 			return fmt.Errorf("updates: download requires an available release")
+		}
+		if s.Installation != nil {
+			return fmt.Errorf("updates: installation requires an available release")
 		}
 		return nil
 	}
@@ -144,6 +172,26 @@ func (s State) Validate() error {
 			return fmt.Errorf("updates: verified download requires verification time")
 		}
 	}
+	if s.Installation != nil {
+		installation := s.Installation
+		if installation.Version != release.Version {
+			return fmt.Errorf("updates: installation version does not match available release")
+		}
+		switch installation.Status {
+		case InstallStatusInstalling, InstallStatusRebootPending, InstallStatusFailed:
+		default:
+			return fmt.Errorf("updates: invalid installation status %q", installation.Status)
+		}
+		if installation.StartedAt == nil {
+			return fmt.Errorf("updates: installation start time is required")
+		}
+		if len(installation.Attempts) == 0 {
+			return fmt.Errorf("updates: installation attempt is required")
+		}
+		if installation.Status == InstallStatusRebootPending && installation.StagedAt == nil {
+			return fmt.Errorf("updates: staged installation time is required")
+		}
+	}
 
 	return nil
 }
@@ -185,6 +233,25 @@ func cloneState(state State) State {
 		if state.Download.VerifiedAt != nil {
 			value := *state.Download.VerifiedAt
 			cloned.Download.VerifiedAt = &value
+		}
+	}
+	if state.Installation != nil {
+		installation := *state.Installation
+		cloned.Installation = &installation
+		cloned.Installation.Attempts = append([]InstallAttempt(nil), state.Installation.Attempts...)
+		if state.Installation.StartedAt != nil {
+			value := *state.Installation.StartedAt
+			cloned.Installation.StartedAt = &value
+		}
+		if state.Installation.StagedAt != nil {
+			value := *state.Installation.StagedAt
+			cloned.Installation.StagedAt = &value
+		}
+		for index := range cloned.Installation.Attempts {
+			if state.Installation.Attempts[index].FinishedAt != nil {
+				value := *state.Installation.Attempts[index].FinishedAt
+				cloned.Installation.Attempts[index].FinishedAt = &value
+			}
 		}
 	}
 

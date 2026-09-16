@@ -63,7 +63,11 @@ func TestDeviceAccessReturnsDHCPNetworkDetails(t *testing.T) {
 }
 
 func setupTestServer(wifi masjidnetwork.WiFiManager) *Server {
-	return &Server{wifi: wifi, logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	return &Server{
+		wifi:               wifi,
+		logger:             slog.New(slog.NewTextHandler(io.Discard, nil)),
+		masjidBoardService: fakeMasjidBoardStatusProvider{configured: true},
+	}
 }
 
 func TestApplianceEntryRoutesUnconfiguredDeviceToTouchDisplaySetup(t *testing.T) {
@@ -87,6 +91,54 @@ func TestApplianceEntryRoutesConfiguredDeviceToTouchDisplayBoard(t *testing.T) {
 
 	if response.Code != http.StatusTemporaryRedirect || response.Header().Get("Location") != "/masjidboard.html?profile=appliance-720" {
 		t.Fatalf("unexpected redirect: %d %q", response.Code, response.Header().Get("Location"))
+	}
+}
+
+func TestApplianceEntryRoutesConfiguredWiFiAndUnconfiguredBoardToLocationSetup(
+	t *testing.T,
+) {
+	server := setupTestServer(&fakeWiFiManager{
+		status: masjidnetwork.WiFiStatus{
+			Supported:  true,
+			Configured: true,
+			Connected:  true,
+		},
+	})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: false}
+	request := httptest.NewRequest(http.MethodGet, "/appliance", nil)
+	response := httptest.NewRecorder()
+
+	server.applianceEntry(response, request)
+
+	want := "/setup.html?profile=appliance-720&step=location"
+	if response.Code != http.StatusTemporaryRedirect ||
+		response.Header().Get("Location") != want {
+		t.Fatalf(
+			"unexpected redirect: %d %q",
+			response.Code,
+			response.Header().Get("Location"),
+		)
+	}
+}
+
+func TestApplianceEntryRoutesMissingBoardServiceToLocationSetup(t *testing.T) {
+	server := setupTestServer(&fakeWiFiManager{
+		status: masjidnetwork.WiFiStatus{Supported: true, Configured: true},
+	})
+	server.masjidBoardService = nil
+	request := httptest.NewRequest(http.MethodGet, "/appliance", nil)
+	response := httptest.NewRecorder()
+
+	server.applianceEntry(response, request)
+
+	want := "/setup.html?profile=appliance-720&step=location"
+	if response.Code != http.StatusTemporaryRedirect ||
+		response.Header().Get("Location") != want {
+		t.Fatalf(
+			"unexpected redirect: %d %q",
+			response.Code,
+			response.Header().Get("Location"),
+		)
 	}
 }
 

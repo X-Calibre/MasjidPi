@@ -25,6 +25,8 @@ type State struct {
 	AvailableRelease *Release   `json:"available_release,omitempty"`
 	FirstDetectedAt  *time.Time `json:"first_detected_at,omitempty"`
 	ApprovalDeadline *time.Time `json:"approval_deadline,omitempty"`
+	ApprovedAt       *time.Time `json:"approved_at,omitempty"`
+	PostponedUntil   *time.Time `json:"postponed_until,omitempty"`
 	LastCheckedAt    *time.Time `json:"last_checked_at,omitempty"`
 	LastCheckError   string     `json:"last_check_error,omitempty"`
 }
@@ -52,7 +54,8 @@ func (s State) Validate() error {
 	}
 
 	if s.AvailableRelease == nil {
-		if s.FirstDetectedAt != nil || s.ApprovalDeadline != nil {
+		if s.FirstDetectedAt != nil || s.ApprovalDeadline != nil ||
+			s.ApprovedAt != nil || s.PostponedUntil != nil {
 			return fmt.Errorf(
 				"updates: detection dates require an available release",
 			)
@@ -93,6 +96,20 @@ func (s State) Validate() error {
 			"updates: approval deadline precedes detection time",
 		)
 	}
+	if s.ApprovedAt != nil && s.PostponedUntil != nil {
+		return fmt.Errorf("updates: release cannot be approved and postponed")
+	}
+	if s.ApprovedAt != nil && s.ApprovedAt.Before(*s.FirstDetectedAt) {
+		return fmt.Errorf("updates: approval precedes detection time")
+	}
+	if s.PostponedUntil != nil {
+		if s.PostponedUntil.Before(*s.FirstDetectedAt) {
+			return fmt.Errorf("updates: postponement precedes detection time")
+		}
+		if s.PostponedUntil.After(*s.ApprovalDeadline) {
+			return fmt.Errorf("updates: postponement exceeds approval deadline")
+		}
+	}
 
 	return nil
 }
@@ -115,6 +132,14 @@ func cloneState(state State) State {
 	if state.LastCheckedAt != nil {
 		value := *state.LastCheckedAt
 		cloned.LastCheckedAt = &value
+	}
+	if state.ApprovedAt != nil {
+		value := *state.ApprovedAt
+		cloned.ApprovedAt = &value
+	}
+	if state.PostponedUntil != nil {
+		value := *state.PostponedUntil
+		cloned.PostponedUntil = &value
 	}
 
 	return cloned

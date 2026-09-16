@@ -23,22 +23,33 @@
     }
 
     function render(widget, state) {
+		widget.updateState = state;
         const release = state?.available_release || null;
         const status = widget.querySelector("[data-update-state]");
         const link = widget.querySelector("[data-update-link]");
+        const actions = widget.querySelector("[data-update-actions]");
 
         setText(widget, "[data-update-current]", state?.current_version || "Unknown");
         setText(widget, "[data-update-last-checked]", formatDate(state?.last_checked_at));
         setText(widget, "[data-update-deadline]", release ? formatDate(state?.approval_deadline) : "Not applicable");
 
         if (release) {
-            status.textContent = `${release.version} is available`;
+            if (state.approved_at) {
+                status.textContent = `${release.version} is approved`;
+            } else if (state.postponed_until) {
+                status.textContent = `${release.version} postponed until ${formatDate(state.postponed_until)}`;
+            } else {
+                status.textContent = `${release.version} is available`;
+            }
             status.className = "update-state update-state-available";
             setText(widget, "[data-update-published]", formatDate(release.published_at));
             if (link) {
                 link.href = release.page_url;
                 link.classList.remove("hidden");
             }
+            actions?.classList.remove("hidden");
+            const approve = widget.querySelector("[data-update-approve]");
+            if (approve) approve.disabled = Boolean(state.approved_at);
         } else {
             status.textContent = "No stable update available";
             status.className = "update-state update-state-current";
@@ -47,6 +58,7 @@
                 link.removeAttribute("href");
                 link.classList.add("hidden");
             }
+            actions?.classList.add("hidden");
         }
 
         const error = widget.querySelector("[data-update-error]");
@@ -80,6 +92,38 @@
         return {state, ok: response.ok};
     }
 
+    async function requestDecision(path, body) {
+        const response = await fetch(path, {
+            method: "POST",
+            headers: body ? {"Content-Type": "application/json"} : undefined,
+            body: body ? JSON.stringify(body) : undefined
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error || `Request failed (${response.status})`);
+        return payload;
+    }
+
+    async function decide(widget, action) {
+        const buttons = [...widget.querySelectorAll("[data-update-actions] button")];
+        buttons.forEach(button => { button.disabled = true; });
+        try {
+            const sevenDays = Date.now() + 7 * 24 * 60 * 60 * 1000;
+            const deadline = new Date(widget.updateState?.approval_deadline || sevenDays).getTime();
+            const state = action === "approve"
+                ? await requestDecision("/api/update/approve")
+                : await requestDecision("/api/update/postpone", {
+                    until: new Date(Math.min(sevenDays, deadline)).toISOString()
+                });
+            render(widget, state);
+        } catch (error) {
+            renderFailure(widget, error.message);
+        } finally {
+            buttons.forEach(button => { button.disabled = false; });
+			const approve = widget.querySelector("[data-update-approve]");
+			if (approve) approve.disabled = Boolean(widget.updateState?.approved_at);
+        }
+    }
+
     async function refresh(widget, checkNow = false) {
         const button = widget.querySelector("[data-update-check]");
         if (button) {
@@ -101,6 +145,8 @@
 
     for (const widget of widgets) {
         widget.querySelector("[data-update-check]")?.addEventListener("click", () => refresh(widget, true));
+        widget.querySelector("[data-update-approve]")?.addEventListener("click", () => decide(widget, "approve"));
+        widget.querySelector("[data-update-postpone]")?.addEventListener("click", () => decide(widget, "postpone"));
         refresh(widget);
     }
 })();

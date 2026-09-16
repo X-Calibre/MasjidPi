@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -15,12 +16,19 @@ import (
 )
 
 type fakeUpdateController struct {
-	statusState updates.State
-	statusErr   error
-	checkState  updates.State
-	checkErr    error
-	statusCalls int
-	checkCalls  int
+	statusState    updates.State
+	statusErr      error
+	checkState     updates.State
+	checkErr       error
+	approveState   updates.State
+	approveErr     error
+	postponeState  updates.State
+	postponeErr    error
+	statusCalls    int
+	checkCalls     int
+	approveCalls   int
+	postponeCalls  int
+	postponedUntil time.Time
 }
 
 func (f *fakeUpdateController) Status() (
@@ -36,6 +44,19 @@ func (f *fakeUpdateController) Check(
 ) (updates.State, error) {
 	f.checkCalls++
 	return f.checkState, f.checkErr
+}
+
+func (f *fakeUpdateController) Approve() (updates.State, error) {
+	f.approveCalls++
+	return f.approveState, f.approveErr
+}
+
+func (f *fakeUpdateController) Postpone(
+	until time.Time,
+) (updates.State, error) {
+	f.postponeCalls++
+	f.postponedUntil = until
+	return f.postponeState, f.postponeErr
 }
 
 func newUpdateTestServer(
@@ -248,6 +269,73 @@ func TestUpdateCheckReturnsRecordedStateOnDiscoveryFailure(
 	}
 }
 
+func TestUpdateApprove(t *testing.T) {
+	approved := time.Date(2026, time.September, 16, 9, 0, 0, 0, time.UTC)
+	controller := &fakeUpdateController{
+		approveState: updates.State{
+			SchemaVersion: updates.StateSchemaVersion,
+			ApprovedAt:    &approved,
+		},
+	}
+	server := newUpdateTestServer(t, controller)
+	recorder := performUpdateRequest(t, server, http.MethodPost, "/api/update/approve")
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	state := decodeUpdateState(t, recorder)
+	if state.ApprovedAt == nil || !state.ApprovedAt.Equal(approved) {
+		t.Fatalf("approved at = %v, want %v", state.ApprovedAt, approved)
+	}
+	if controller.approveCalls != 1 {
+		t.Fatalf("approve calls = %d, want 1", controller.approveCalls)
+	}
+}
+
+func TestUpdatePostpone(t *testing.T) {
+	until := time.Date(2026, time.September, 23, 9, 0, 0, 0, time.UTC)
+	controller := &fakeUpdateController{
+		postponeState: updates.State{
+			SchemaVersion:  updates.StateSchemaVersion,
+			PostponedUntil: &until,
+		},
+	}
+	server := newUpdateTestServer(t, controller)
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/api/update/postpone",
+		strings.NewReader(`{"until":"2026-09-23T09:00:00Z"}`),
+	)
+	recorder := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	if !controller.postponedUntil.Equal(until) {
+		t.Fatalf("postponed until = %v, want %v", controller.postponedUntil, until)
+	}
+}
+
+func TestUpdatePostponeRejectsInvalidRequest(t *testing.T) {
+	controller := &fakeUpdateController{}
+	server := newUpdateTestServer(t, controller)
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/api/update/postpone",
+		strings.NewReader(`{"until":"not-a-date"}`),
+	)
+	recorder := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	if controller.postponeCalls != 0 {
+		t.Fatalf("postpone calls = %d, want 0", controller.postponeCalls)
+	}
+}
+
 func TestUpdateEndpointsRejectWrongMethods(t *testing.T) {
 	controller := &fakeUpdateController{}
 	server := newUpdateTestServer(t, controller)
@@ -266,6 +354,16 @@ func TestUpdateEndpointsRejectWrongMethods(t *testing.T) {
 			name:   "check get",
 			method: http.MethodGet,
 			path:   "/api/update/check",
+		},
+		{
+			name:   "approve get",
+			method: http.MethodGet,
+			path:   "/api/update/approve",
+		},
+		{
+			name:   "postpone get",
+			method: http.MethodGet,
+			path:   "/api/update/postpone",
 		},
 	}
 
@@ -312,6 +410,14 @@ func TestUpdateEndpointsRequireController(t *testing.T) {
 		{
 			method: http.MethodPost,
 			path:   "/api/update/check",
+		},
+		{
+			method: http.MethodPost,
+			path:   "/api/update/approve",
+		},
+		{
+			method: http.MethodPost,
+			path:   "/api/update/postpone",
 		},
 	}
 

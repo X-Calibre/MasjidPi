@@ -116,12 +116,62 @@ func (c *Controller) Check(
 		deadline := now.Add(ApprovalPeriod)
 		state.FirstDetectedAt = &detected
 		state.ApprovalDeadline = &deadline
+		state.ApprovedAt = nil
+		state.PostponedUntil = nil
 	}
 
 	releaseCopy := release
 	state.AvailableRelease = &releaseCopy
 	state.LastCheckError = ""
 
+	return c.saveState(state)
+}
+
+// Approve records consent to install the currently available release.
+func (c *Controller) Approve() (State, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	state, err := c.store.Load()
+	if err != nil {
+		return State{}, err
+	}
+	state.CurrentVersion = c.currentVersion
+	if state.AvailableRelease == nil {
+		return cloneState(state), fmt.Errorf("updates: no release is available for approval")
+	}
+
+	now := c.now().UTC()
+	state.ApprovedAt = &now
+	state.PostponedUntil = nil
+	return c.saveState(state)
+}
+
+// Postpone defers approval until a time no later than the original deadline.
+func (c *Controller) Postpone(until time.Time) (State, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	state, err := c.store.Load()
+	if err != nil {
+		return State{}, err
+	}
+	state.CurrentVersion = c.currentVersion
+	if state.AvailableRelease == nil || state.ApprovalDeadline == nil {
+		return cloneState(state), fmt.Errorf("updates: no release is available to postpone")
+	}
+
+	now := c.now().UTC()
+	until = until.UTC()
+	if !until.After(now) {
+		return cloneState(state), fmt.Errorf("updates: postponement must be in the future")
+	}
+	if until.After(*state.ApprovalDeadline) {
+		return cloneState(state), fmt.Errorf("updates: postponement exceeds approval deadline")
+	}
+
+	state.ApprovedAt = nil
+	state.PostponedUntil = &until
 	return c.saveState(state)
 }
 
@@ -151,6 +201,8 @@ func clearAvailableRelease(state *State) {
 	state.AvailableRelease = nil
 	state.FirstDetectedAt = nil
 	state.ApprovalDeadline = nil
+	state.ApprovedAt = nil
+	state.PostponedUntil = nil
 }
 
 func timePointer(value time.Time) *time.Time {

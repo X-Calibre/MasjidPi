@@ -106,6 +106,8 @@ button.secondary:hover { background: var(--field-hover); }
 .update-details dd { margin-top:5px; overflow-wrap:anywhere; color:var(--text); font-size:14px; font-weight:600; }
 .update-error { margin-top:14px; line-height:1.4; }
 .update-release-link { display:inline-block; margin-top:14px; color:var(--accent); font-weight:700; }
+.update-actions { margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; }
+.update-actions.hidden { display:none; }
 .theme-toggle, .nav-button { flex: 0 0 auto; padding: 9px 12px; background: var(--field); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: bold; line-height: normal; text-decoration: none; }
 .theme-toggle:hover, .nav-button:hover { background: var(--field-hover); }
 

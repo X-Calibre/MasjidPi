@@ -11,6 +11,7 @@ const utilitySource = fs.readFileSync(path.join(root, "frontend/masjidboard-comm
 const appliance = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.js"), "utf8");
 const landscape = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.js"), "utf8");
 const applianceCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance.css"), "utf8");
+const appliance720CSS = fs.readFileSync(path.join(root, "frontend/masjidboard-appliance-720.css"), "utf8");
 const landscapeCSS = fs.readFileSync(path.join(root, "frontend/masjidboard-detailed.css"), "utf8");
 
 
@@ -52,6 +53,11 @@ assert.match(landscape, /title\.dir = "auto"/);
 assert.match(applianceCSS, /\.appliance-community-daily_ayah/);
 assert.match(applianceCSS, /\.appliance-daily-ayah-number/);
 assert.match(applianceCSS, /\.content-very-long/);
+assert.match(appliance, /\["jumuah_schedule", "daily_ayah", "daily_hadith", "daily_sunnah"\]\.includes\(item\.type\)/, "Ayah, Hadith, and Sunnah cards must always use a full slide");
+assert.match(appliance, /function fitDailyContentText\(slide\)/, "daily content must use measured text fitting");
+assert.match(appliance, /body\.scrollHeight <= body\.clientHeight/, "text fitting must respect the available card height");
+assert.match(appliance, /requestAnimationFrame\(\(\) => fitDailyContentText\(nextSlide\)\)/, "daily text must be fitted after its slide becomes visible");
+assert.match(appliance720CSS, /\.appliance-community-daily_ayah[\s\S]*?padding:44px 34px 30px/, "720 Ayah must use the full-card presentation");
 assert.match(landscapeCSS, /\.detailed-community-daily_ayah/);
 assert.match(landscapeCSS, /\.detailed-daily-ayah-number/);
 assert.match(landscapeCSS, /\.content-very-long/);

@@ -84,6 +84,11 @@
     }
 
     const label = stream => stream?.location ? `${stream.name} — ${stream.location}` : stream?.name || "Unknown source";
+    const sortStreamsAlphabetically = items => [...items].sort((left,right) => {
+        const nameDifference = String(left.name || "").localeCompare(String(right.name || ""),undefined,{sensitivity:"base",numeric:true});
+        if (nameDifference) return nameDifference;
+        return String(left.location || "").localeCompare(String(right.location || ""),undefined,{sensitivity:"base",numeric:true});
+    });
     function formatResumeCountdown(resumeAt) {
         if (!resumeAt) return "";
         const seconds = Math.max(0, Math.ceil((new Date(resumeAt).getTime() - Date.now()) / 1000));
@@ -318,10 +323,10 @@
         if (results[6].status === "fulfilled") displaySettings = results[6].value;
         if (results.slice(0,4).every(result => result.status === "fulfilled")) {
             const [newStatus,masjids,radioItems,favourites] = results.map(result => result.value);
-            const favouriteIDs = new Set(favourites.ids || []);
+            const masjidsByID = new Map(masjids.map(item => [item.id,item]));
             status = newStatus;
-            favouriteMasjids = masjids.filter(item => favouriteIDs.has(item.id));
-            radios = radioItems;
+            favouriteMasjids = (favourites.ids || []).map(id => masjidsByID.get(id)).filter(Boolean);
+            radios = sortStreamsAlphabetically(radioItems);
             selectedMasjidID = status.masjid_id || favouriteMasjids[0]?.id || "";
             selectedRadioID = status.radio_id || radios[0]?.id || "";
             setConnectionError();

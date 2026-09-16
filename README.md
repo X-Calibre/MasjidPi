@@ -101,9 +101,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Current stable release: v1.5.2**
 
-**Current release candidate: v1.6.0-rc.4**
+**Current release candidate: v1.6.0-rc.5**
 
-v1.6.0-rc.4 refines the native 720 × 1280 Raspberry Pi Touch Display 2 presentation after physical review, improves card and header legibility, adds separate top and bottom touch-control panels, and retains kernel-backed brightness control. It removes the former 600 × 1024 profile and the experimental software White Balance correction. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
+v1.6.0-rc.5 completes the post-RC4 interface refinements: Daily Ayah, Hadith and Sunnah cards now scale to fill the native 720 × 1280 display, Detailed Jumu'ah labels match their times, header and control-panel spacing are rebalanced, setup follows the selected Board theme, favourites can be reordered, and Masjid and Radio catalogues use predictable sorting. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
 
 v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 

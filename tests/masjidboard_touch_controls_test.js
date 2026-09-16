@@ -37,9 +37,9 @@ for (const tab of ["masjid", "radio", "theme", "network"]) assert.match(html, ne
 assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
-assert.match(html, /masjidboard-touch-controls\.js\?v=20260910-quick-actions/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20260910-dynamic-quick/);
-assert.match(html, /masjidboard-appliance\.js\?v=20260910-jumuah-full/);
+assert.match(html, /masjidboard-touch-controls\.js\?v=20260911-stream-sorting/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20260911-quick-handle/);
+assert.match(html, /masjidboard-appliance\.js\?v=20260911-daily-scale-3/);
 assert.match(html, /masjidboard-appliance\.css\?v=20260910-dynamic-quick/);
 
 assert.match(controller, /profile !== "appliance-720"/);
@@ -61,6 +61,8 @@ assert.match(controller, /const inactivityTimeout = 60000/);
 assert.match(controller, /setOpenPanel\(""\)/);
 assert.match(controller, /return=board&profile=\$\{profile\}/);
 assert.match(controller, /\/api\/favourites/);
+assert.match(controller, /\(favourites\.ids \|\| \[\]\)\.map\(id => masjidsByID\.get\(id\)\)/);
+assert.match(controller, /radios = sortStreamsAlphabetically\(radioItems\)/);
 assert.match(controller, /\/api\/masjidboard\/layout/);
 assert.match(controller, /\/api\/setup\/device-access/);
 assert.match(controller, /pendingVolumes\[name\] \?\? values\[name\]/);
@@ -76,6 +78,7 @@ assert.match(appliance720, /\.appliance-quick-controls\s*\{[^}]*grid-template-co
 assert.match(appliance720, /\.appliance-quick-controls \.appliance-volume-control\s*\{[^}]*min-height:106px/s);
 assert.match(appliance720, /\.appliance-quick-masjid-actions button,[\s\S]*?min-height:58px/s);
 assert.match(appliance720, /\.appliance-quick-action-section h3\s*\{[^}]*font-size:21px/s);
+assert.match(appliance720, /\.appliance-quick-handle\s*\{[^}]*flex:0 0 34px;[^}]*height:34px/s);
 assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:930px/s);
 assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(4,1fr\)/s);
 assert.doesNotMatch(html, /<small>APPLIANCE CONTROLS<\/small>/);
@@ -97,12 +100,14 @@ assert.match(appliance720, /strong\.name-very-long\s*\{[^}]*font-size:29px/s);
 assert.match(appliance720, /\.appliance-community-body\s*\{[^}]*font-size:34px/s);
 assert.match(appliance720, /\.appliance-community-field\s*\{[^}]*font-size:28px/s);
 assert.match(appliance720, /\.appliance-next-name\s*\{[^}]*font-size:32px/s);
+assert.match(appliance720, /\.appliance-next\s*\{[^}]*margin-top:4px/s);
 assert.match(appliance720, /\.appliance-countdown\s*\{[^}]*font-size:30px/s);
 assert.match(appliance720, /@keyframes appliance-720-toast-drop/);
-assert.match(appliance, /item\.type === "jumuah_schedule"\) return false/);
+assert.match(appliance, /\["jumuah_schedule", "daily_ayah", "daily_hadith", "daily_sunnah"\]\.includes\(item\.type\)\) return false/);
 assert.match(appliance720, /\.appliance-community-card\.appliance-community-jumuah_schedule\s*\{[^}]*padding:46px 42px 34px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-community-title\s*\{[^}]*font-size:52px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-schedule\s*\{[^}]*grid-template-columns:1fr;[^}]*grid-auto-rows:minmax\(0,1fr\)/s);
+assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-event span\s*\{[^}]*font-size:52px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-jumuah-event strong\s*\{[^}]*font-size:52px/s);
 assert.match(appliance720, /\.appliance-community-jumuah_schedule \.appliance-community-body\s*\{[^}]*font-size:32px/s);
 

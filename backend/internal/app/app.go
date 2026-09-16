@@ -79,6 +79,7 @@ func Run() error {
 	)
 	applianceUpdateController := newApplianceUpdates(updateController)
 	applianceUpdateController.SetTrialStatusSource(updates.CommandTrialStatus{})
+	applianceUpdateController.SetReleaseRecordPath(updates.DefaultReleaseRecordPath)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

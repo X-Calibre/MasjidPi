@@ -58,7 +58,7 @@ func TestReconcileTrialLifecycle(t *testing.T) {
 		ActiveSlot:       "b",
 		RollbackSlot:     "a",
 		UpgradeAvailable: true,
-	})
+	}, "v1.7.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestReconcileTrialLifecycle(t *testing.T) {
 		RunningSlot:  "b",
 		ActiveSlot:   "b",
 		RollbackSlot: "b",
-	})
+	}, "v1.7.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,6 +88,86 @@ func TestReconcileTrialLifecycle(t *testing.T) {
 	}
 }
 
+func TestReconcileTrialUsesSignedInstalledReleaseIdentity(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	controller, store := trialTestController(t, now, "v1.6.0-rc.5-image")
+	installedRelease := "v1.6.0-lab.65a1fc6.3"
+	persisted, err := store.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	release := testRelease(installedRelease)
+	persisted.AvailableRelease = &release
+	persisted.Installation.Version = installedRelease
+	if err := store.Save(persisted); err != nil {
+		t.Fatal(err)
+	}
+
+	state, err := controller.ReconcileTrial(TrialStatus{
+		RunningSlot:      "b",
+		ActiveSlot:       "b",
+		RollbackSlot:     "a",
+		UpgradeAvailable: true,
+	}, installedRelease)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation.Status != InstallStatusProbation {
+		t.Fatalf("status = %q", state.Installation.Status)
+	}
+	if state.CurrentVersion != "v1.6.0-rc.5-image" {
+		t.Fatalf("current version = %q", state.CurrentVersion)
+	}
+
+	state, err = controller.ReconcileTrial(TrialStatus{
+		RunningSlot:  "b",
+		ActiveSlot:   "b",
+		RollbackSlot: "b",
+	}, installedRelease)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation.Status != InstallStatusInstalled {
+		t.Fatalf("status = %q", state.Installation.Status)
+	}
+}
+
+func TestReadInstalledReleaseVersion(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "release.json")
+	if err := os.WriteFile(path, []byte(`{"release_version":"v1.7.0"}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	version, err := ReadInstalledReleaseVersion(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version != "v1.7.0" {
+		t.Fatalf("version = %q", version)
+	}
+}
+
+func TestReadInstalledReleaseVersionRejectsInvalidRecords(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+	}{
+		{name: "malformed", content: `{`},
+		{name: "missing version", content: `{}`},
+		{name: "blank version", content: `{"release_version":" "}`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "release.json")
+			if err := os.WriteFile(path, []byte(test.content), 0644); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := ReadInstalledReleaseVersion(path); err == nil {
+				t.Fatal("ReadInstalledReleaseVersion() error = nil")
+			}
+		})
+	}
+}
+
 func TestReconcileTrialRecordsRollbackFailure(t *testing.T) {
 	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
 	controller, _ := trialTestController(t, now, "v1.6.0")
@@ -95,7 +175,7 @@ func TestReconcileTrialRecordsRollbackFailure(t *testing.T) {
 		RunningSlot:  "a",
 		ActiveSlot:   "a",
 		RollbackSlot: "a",
-	})
+	}, "v1.6.0")
 	if err != nil {
 		t.Fatal(err)
 	}

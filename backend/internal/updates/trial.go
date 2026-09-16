@@ -3,10 +3,14 @@ package updates
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
+
+const DefaultReleaseRecordPath = "/usr/share/masjidpi/update/release.json"
 
 type TrialStatus struct {
 	RunningSlot      string
@@ -68,7 +72,28 @@ func parseTrialStatus(output string) (TrialStatus, error) {
 
 func validSlot(slot string) bool { return slot == "a" || slot == "b" }
 
-func (c *Controller) ReconcileTrial(status TrialStatus) (State, error) {
+func ReadInstalledReleaseVersion(path string) (string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("updates: read installed release: %w", err)
+	}
+	var record struct {
+		ReleaseVersion string `json:"release_version"`
+	}
+	if err := json.Unmarshal(data, &record); err != nil {
+		return "", fmt.Errorf("updates: decode installed release: %w", err)
+	}
+	version := strings.TrimSpace(record.ReleaseVersion)
+	if version == "" {
+		return "", fmt.Errorf("updates: installed release version is required")
+	}
+	return version, nil
+}
+
+func (c *Controller) ReconcileTrial(
+	status TrialStatus,
+	runningReleaseVersion string,
+) (State, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -77,6 +102,9 @@ func (c *Controller) ReconcileTrial(status TrialStatus) (State, error) {
 		return State{}, err
 	}
 	state.CurrentVersion = c.currentVersion
+	if runningReleaseVersion == "" {
+		runningReleaseVersion = c.currentVersion
+	}
 	installation := state.Installation
 	if installation == nil ||
 		(installation.Status != InstallStatusRebootPending &&
@@ -86,7 +114,7 @@ func (c *Controller) ReconcileTrial(status TrialStatus) (State, error) {
 
 	now := c.now().UTC()
 	if status.UpgradeAvailable {
-		if c.currentVersion == installation.Version &&
+		if runningReleaseVersion == installation.Version &&
 			status.RunningSlot == status.ActiveSlot {
 			installation.Status = InstallStatusProbation
 			return c.saveState(state)
@@ -99,7 +127,7 @@ func (c *Controller) ReconcileTrial(status TrialStatus) (State, error) {
 	if !stableSlot {
 		return cloneState(state), nil
 	}
-	if c.currentVersion == installation.Version {
+	if runningReleaseVersion == installation.Version {
 		installation.Status = InstallStatusInstalled
 		installation.ConfirmedAt = &now
 		installation.LastError = ""

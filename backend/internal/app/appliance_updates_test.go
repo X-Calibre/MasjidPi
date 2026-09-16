@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -32,6 +33,14 @@ type recordingRebooter struct{ calls int }
 func (r *recordingRebooter) Reboot(context.Context) error {
 	r.calls++
 	return nil
+}
+
+type fixedTrialStatusSource struct {
+	status updates.TrialStatus
+}
+
+func (s fixedTrialStatusSource) Status(context.Context) (updates.TrialStatus, error) {
+	return s.status, nil
 }
 
 func boardAtAdhan(now time.Time) fakeUpdateBoardProvider {
@@ -158,5 +167,98 @@ func TestCheckDoesNotDiscardPendingTrialState(t *testing.T) {
 	if state.Installation == nil ||
 		state.Installation.Status != updates.InstallStatusRebootPending {
 		t.Fatalf("installation = %+v", state.Installation)
+	}
+}
+
+func TestStatusReconcilesTrialWithSignedReleaseRecord(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	store := updates.NewStore(filepath.Join(t.TempDir(), "update_state.json"))
+	release := updates.Release{
+		Version:      "v1.6.0-lab.65a1fc6.3",
+		PublishedAt:  now.Add(-time.Hour),
+		PageURL:      "https://example.test/release",
+		BundleURL:    "https://example.test/update.tar.zst",
+		SignatureURL: "https://example.test/update.tar.zst.minisig",
+	}
+	detected := now.Add(-time.Hour)
+	deadline := detected.Add(updates.ApprovalPeriod)
+	if err := store.Save(updates.State{
+		SchemaVersion:    updates.StateSchemaVersion,
+		CurrentVersion:   "v1.6.0-rc.5-image",
+		AvailableRelease: &release,
+		FirstDetectedAt:  &detected,
+		ApprovalDeadline: &deadline,
+		Installation: &updates.InstallationState{
+			Version:   release.Version,
+			Status:    updates.InstallStatusRebootPending,
+			StartedAt: &detected,
+			StagedAt:  &detected,
+			Attempts: []updates.InstallAttempt{{
+				StartedAt: detected,
+			}},
+		},
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	releaseRecord := filepath.Join(t.TempDir(), "release.json")
+	if err := os.WriteFile(
+		releaseRecord,
+		[]byte(`{"release_version":"v1.6.0-lab.65a1fc6.3"}`),
+		0644,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	appliance := newApplianceUpdates(
+		updates.NewController(store, nil, "v1.6.0-rc.5-image"),
+	)
+	appliance.SetTrialStatusSource(fixedTrialStatusSource{status: updates.TrialStatus{
+		RunningSlot:      "b",
+		ActiveSlot:       "b",
+		RollbackSlot:     "a",
+		UpgradeAvailable: true,
+	}})
+	appliance.SetReleaseRecordPath(releaseRecord)
+
+	state, err := appliance.Status()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation.Status != updates.InstallStatusProbation {
+		t.Fatalf("installation status = %q", state.Installation.Status)
+	}
+	if state.CurrentVersion != "v1.6.0-rc.5-image" {
+		t.Fatalf("current version = %q", state.CurrentVersion)
+	}
+}
+
+func TestStatusDoesNotReconcileWithoutValidReleaseRecord(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	appliance, _, _ := installReadyController(t, now)
+	state, err := appliance.Controller.Install(
+		t.Context(),
+		updates.InstallConditions{Now: now, Immediate: true},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation.Status != updates.InstallStatusRebootPending {
+		t.Fatalf("initial status = %q", state.Installation.Status)
+	}
+
+	appliance.SetTrialStatusSource(fixedTrialStatusSource{status: updates.TrialStatus{
+		RunningSlot:  "a",
+		ActiveSlot:   "a",
+		RollbackSlot: "a",
+	}})
+	appliance.SetReleaseRecordPath(filepath.Join(t.TempDir(), "missing-release.json"))
+
+	state, err = appliance.Status()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation.Status != updates.InstallStatusRebootPending {
+		t.Fatalf("status = %q", state.Installation.Status)
 	}
 }

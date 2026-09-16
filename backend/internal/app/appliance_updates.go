@@ -13,11 +13,12 @@ import (
 // into the updates package.
 type applianceUpdates struct {
 	*updates.Controller
-	mu       sync.RWMutex
-	playback updatePlaybackProvider
-	board    updateBoardProvider
-	trial    updates.TrialStatusSource
-	now      func() time.Time
+	mu                sync.RWMutex
+	playback          updatePlaybackProvider
+	board             updateBoardProvider
+	trial             updates.TrialStatusSource
+	releaseRecordPath string
+	now               func() time.Time
 }
 
 func (a *applianceUpdates) SetTrialStatusSource(source updates.TrialStatusSource) {
@@ -26,9 +27,16 @@ func (a *applianceUpdates) SetTrialStatusSource(source updates.TrialStatusSource
 	a.trial = source
 }
 
+func (a *applianceUpdates) SetReleaseRecordPath(path string) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.releaseRecordPath = path
+}
+
 func (a *applianceUpdates) Status() (updates.State, error) {
 	a.mu.RLock()
 	source := a.trial
+	releaseRecordPath := a.releaseRecordPath
 	a.mu.RUnlock()
 	if source == nil {
 		return a.Controller.Status()
@@ -39,7 +47,17 @@ func (a *applianceUpdates) Status() (updates.State, error) {
 	if err != nil {
 		return a.Controller.Status()
 	}
-	return a.Controller.ReconcileTrial(status)
+	runningReleaseVersion := ""
+	if releaseRecordPath != "" {
+		version, readErr := updates.ReadInstalledReleaseVersion(
+			releaseRecordPath,
+		)
+		if readErr != nil {
+			return a.Controller.Status()
+		}
+		runningReleaseVersion = version
+	}
+	return a.Controller.ReconcileTrial(status, runningReleaseVersion)
 }
 
 func (a *applianceUpdates) Check(ctx context.Context) (updates.State, error) {

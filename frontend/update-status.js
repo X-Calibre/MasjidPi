@@ -26,6 +26,7 @@
         widget.updateState = state;
         const release = state?.available_release || null;
         const download = state?.download || null;
+        const installation = state?.installation || null;
         const status = widget.querySelector("[data-update-state]");
         const link = widget.querySelector("[data-update-link]");
         const actions = widget.querySelector("[data-update-actions]");
@@ -38,6 +39,11 @@
         if (download?.status === "failed") downloadText = "Download failed; retry pending";
         if (download?.status === "verified") downloadText = "Downloaded and verified";
         setText(widget, "[data-update-download]", release ? downloadText : "Not applicable");
+        let installationText = "Not started";
+        if (installation?.status === "installing") installationText = "Installing…";
+        if (installation?.status === "reboot_pending") installationText = "Restart pending";
+        if (installation?.status === "failed") installationText = "Installation failed";
+        setText(widget, "[data-update-installation]", release ? installationText : "Not applicable");
 
         if (release) {
             if (state.approved_at) {
@@ -56,6 +62,11 @@
             actions?.classList.remove("hidden");
             const approve = widget.querySelector("[data-update-approve]");
             if (approve) approve.disabled = Boolean(state.approved_at);
+            const install = widget.querySelector("[data-update-install]");
+            if (install) {
+                const ready = download?.status === "verified" && !["installing", "reboot_pending"].includes(installation?.status);
+                install.classList.toggle("hidden", !ready);
+            }
         } else {
             status.textContent = "No stable update available";
             status.className = "update-state update-state-current";
@@ -65,6 +76,7 @@
                 link.classList.add("hidden");
             }
             actions?.classList.add("hidden");
+            widget.querySelector("[data-update-install]")?.classList.add("hidden");
         }
 
         const error = widget.querySelector("[data-update-error]");
@@ -131,6 +143,27 @@
         }
     }
 
+    async function installNow(widget) {
+        const button = widget.querySelector("[data-update-install]");
+        const confirmed = window.confirm(
+            "Install this verified update now? MasjidPi may stop active audio and will restart automatically."
+        );
+        if (!confirmed) return;
+        button.disabled = true;
+        button.textContent = "Installing…";
+        try {
+            const state = await requestDecision("/api/update/install", {
+                interrupt_playback: true
+            });
+            render(widget, state);
+        } catch (error) {
+            renderFailure(widget, error.message);
+        } finally {
+            button.disabled = false;
+            button.textContent = "Install now";
+        }
+    }
+
     async function refresh(widget, checkNow = false) {
         const button = widget.querySelector("[data-update-check]");
         if (button) {
@@ -154,6 +187,7 @@
         widget.querySelector("[data-update-check]")?.addEventListener("click", () => refresh(widget, true));
         widget.querySelector("[data-update-approve]")?.addEventListener("click", () => decide(widget, "approve"));
         widget.querySelector("[data-update-postpone]")?.addEventListener("click", () => decide(widget, "postpone"));
+        widget.querySelector("[data-update-install]")?.addEventListener("click", () => installNow(widget));
         refresh(widget);
     }
 })();

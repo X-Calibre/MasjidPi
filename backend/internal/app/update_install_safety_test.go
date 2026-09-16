@@ -17,6 +17,8 @@ func (p fakeUpdatePlaybackProvider) Status() playback.Status {
 	return p.status
 }
 
+func (p fakeUpdatePlaybackProvider) Stop() {}
+
 type fakeUpdateBoardProvider struct {
 	results []masjidboardruntime.Result
 }

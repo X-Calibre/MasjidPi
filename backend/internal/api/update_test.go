@@ -16,19 +16,24 @@ import (
 )
 
 type fakeUpdateController struct {
-	statusState    updates.State
-	statusErr      error
-	checkState     updates.State
-	checkErr       error
-	approveState   updates.State
-	approveErr     error
-	postponeState  updates.State
-	postponeErr    error
-	statusCalls    int
-	checkCalls     int
-	approveCalls   int
-	postponeCalls  int
-	postponedUntil time.Time
+	statusState       updates.State
+	statusErr         error
+	checkState        updates.State
+	checkErr          error
+	approveState      updates.State
+	approveErr        error
+	postponeState     updates.State
+	postponeErr       error
+	installState      updates.State
+	installErr        error
+	statusCalls       int
+	checkCalls        int
+	approveCalls      int
+	postponeCalls     int
+	installCalls      int
+	postponedUntil    time.Time
+	installImmediate  bool
+	interruptPlayback bool
 }
 
 func (f *fakeUpdateController) Status() (
@@ -57,6 +62,17 @@ func (f *fakeUpdateController) Postpone(
 	f.postponeCalls++
 	f.postponedUntil = until
 	return f.postponeState, f.postponeErr
+}
+
+func (f *fakeUpdateController) Install(
+	_ context.Context,
+	immediate bool,
+	interruptPlayback bool,
+) (updates.State, error) {
+	f.installCalls++
+	f.installImmediate = immediate
+	f.interruptPlayback = interruptPlayback
+	return f.installState, f.installErr
 }
 
 func newUpdateTestServer(
@@ -336,6 +352,58 @@ func TestUpdatePostponeRejectsInvalidRequest(t *testing.T) {
 	}
 }
 
+func TestUpdateInstallRequiresExplicitPlaybackInterruption(t *testing.T) {
+	controller := &fakeUpdateController{installState: updates.State{
+		SchemaVersion: updates.StateSchemaVersion,
+		Installation: &updates.InstallationState{
+			Status: updates.InstallStatusRebootPending,
+		},
+	}}
+	server := newUpdateTestServer(t, controller)
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/api/update/install",
+		strings.NewReader(`{"interrupt_playback":true}`),
+	)
+	recorder := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	if controller.installCalls != 1 || !controller.installImmediate ||
+		!controller.interruptPlayback {
+		t.Fatalf(
+			"install calls=%d immediate=%t interrupt=%t",
+			controller.installCalls,
+			controller.installImmediate,
+			controller.interruptPlayback,
+		)
+	}
+}
+
+func TestUpdateInstallReturnsConflictReason(t *testing.T) {
+	controller := &fakeUpdateController{
+		installState: updates.State{SchemaVersion: updates.StateSchemaVersion},
+		installErr:   errors.New("audio playback is active"),
+	}
+	server := newUpdateTestServer(t, controller)
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/api/update/install",
+		strings.NewReader(`{"interrupt_playback":false}`),
+	)
+	recorder := httptest.NewRecorder()
+	server.httpServer.Handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusConflict {
+		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), "audio playback is active") {
+		t.Fatalf("body = %s", recorder.Body.String())
+	}
+}
+
 func TestUpdateEndpointsRejectWrongMethods(t *testing.T) {
 	controller := &fakeUpdateController{}
 	server := newUpdateTestServer(t, controller)
@@ -364,6 +432,11 @@ func TestUpdateEndpointsRejectWrongMethods(t *testing.T) {
 			name:   "postpone get",
 			method: http.MethodGet,
 			path:   "/api/update/postpone",
+		},
+		{
+			name:   "install get",
+			method: http.MethodGet,
+			path:   "/api/update/install",
 		},
 	}
 
@@ -418,6 +491,10 @@ func TestUpdateEndpointsRequireController(t *testing.T) {
 		{
 			method: http.MethodPost,
 			path:   "/api/update/postpone",
+		},
+		{
+			method: http.MethodPost,
+			path:   "/api/update/install",
 		},
 	}
 

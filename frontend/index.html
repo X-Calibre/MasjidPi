@@ -189,12 +189,14 @@
                 <div><dt>Published</dt><dd data-update-published>Loading…</dd></div>
                 <div><dt>Approval deadline</dt><dd data-update-deadline>Loading…</dd></div>
                 <div><dt>Download</dt><dd data-update-download>Loading…</dd></div>
+                <div><dt>Installation</dt><dd data-update-installation>Not started</dd></div>
             </dl>
             <p class="update-error hidden" data-update-error role="alert"></p>
             <a class="update-release-link hidden" data-update-link target="_blank" rel="noopener">View release notes</a>
             <div class="update-actions hidden" data-update-actions>
                 <button class="primary compact-action" type="button" data-update-approve>Approve update</button>
                 <button class="secondary compact-action" type="button" data-update-postpone>Remind me in 7 days</button>
+                <button class="primary compact-action hidden" type="button" data-update-install>Install now</button>
             </div>
         </section>
     </main>
@@ -212,7 +214,7 @@
 <script src="radio-mode.js"></script>
 <script src="module-power.js"></script>
 <script src="selected-masjid.js"></script>
-<script src="update-status.js?v=20260916-discovery"></script>
+<script src="update-status.js?v=20260916-install"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

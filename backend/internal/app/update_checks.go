@@ -13,6 +13,7 @@ type updateChecker interface {
 	Status() (updates.State, error)
 	Check(context.Context) (updates.State, error)
 	Prepare(context.Context) (updates.State, error)
+	InstallAutomatic(context.Context, time.Time) (updates.State, bool, error)
 }
 
 type updateCheckLogger interface {
@@ -28,7 +29,7 @@ func monitorUpdateChecks(
 	checkUpdatesIfDue(
 		ctx,
 		checker,
-		time.Now().UTC(),
+		time.Now(),
 		log,
 	)
 
@@ -45,7 +46,7 @@ func monitorUpdateChecks(
 			checkUpdatesIfDue(
 				ctx,
 				checker,
-				now.UTC(),
+				now,
 				log,
 			)
 		}
@@ -104,6 +105,25 @@ func checkUpdatesIfDue(
 				"version",
 				state.AvailableRelease.Version,
 			)
+		}
+		if state.Download != nil &&
+			state.Download.Status == updates.DownloadStatusVerified {
+			state, attempted, installErr := checker.InstallAutomatic(ctx, now)
+			if installErr != nil {
+				log.Warn(
+					"Automatic update installation failed",
+					"error",
+					installErr,
+				)
+				return
+			}
+			if attempted {
+				log.Info(
+					"Automatic update installation staged",
+					"version",
+					state.AvailableRelease.Version,
+				)
+			}
 		}
 		return
 	}

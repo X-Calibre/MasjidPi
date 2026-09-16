@@ -12,15 +12,19 @@ import (
 )
 
 type fakeScheduledUpdateChecker struct {
-	status        updates.State
-	statusErr     error
-	checkResult   updates.State
-	checkErr      error
-	prepareResult updates.State
-	prepareErr    error
-	statusCalls   int
-	checkCalls    int
-	prepareCalls  int
+	status           updates.State
+	statusErr        error
+	checkResult      updates.State
+	checkErr         error
+	prepareResult    updates.State
+	prepareErr       error
+	statusCalls      int
+	checkCalls       int
+	prepareCalls     int
+	installResult    updates.State
+	installErr       error
+	installAttempted bool
+	installCalls     int
 }
 
 func (f *fakeScheduledUpdateChecker) Status() (
@@ -43,6 +47,14 @@ func (f *fakeScheduledUpdateChecker) Prepare(
 ) (updates.State, error) {
 	f.prepareCalls++
 	return f.prepareResult, f.prepareErr
+}
+
+func (f *fakeScheduledUpdateChecker) InstallAutomatic(
+	context.Context,
+	time.Time,
+) (updates.State, bool, error) {
+	f.installCalls++
+	return f.installResult, f.installAttempted, f.installErr
 }
 
 func updateCheckTestLogger() *slog.Logger {
@@ -207,5 +219,33 @@ func TestCheckUpdatesIfDuePreparesAvailableRelease(t *testing.T) {
 			checker.checkCalls,
 			checker.prepareCalls,
 		)
+	}
+}
+
+func TestCheckUpdatesIfDueStagesEligibleVerifiedRelease(t *testing.T) {
+	now := time.Date(2026, 9, 16, 23, 0, 0, 0, time.UTC)
+	lastChecked := now
+	release := updates.Release{Version: "v1.7.0"}
+	checker := &fakeScheduledUpdateChecker{
+		status: updates.State{
+			SchemaVersion:    updates.StateSchemaVersion,
+			AvailableRelease: &release,
+			LastCheckedAt:    &lastChecked,
+			Download: &updates.DownloadState{
+				Version: release.Version,
+				Status:  updates.DownloadStatusVerified,
+			},
+		},
+		installResult: updates.State{
+			SchemaVersion:    updates.StateSchemaVersion,
+			AvailableRelease: &release,
+		},
+		installAttempted: true,
+	}
+
+	checkUpdatesIfDue(t.Context(), checker, now, updateCheckTestLogger())
+
+	if checker.installCalls != 1 {
+		t.Fatalf("install calls = %d, want 1", checker.installCalls)
 	}
 }

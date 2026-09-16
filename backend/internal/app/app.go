@@ -77,18 +77,15 @@ func Run() error {
 		updates.CommandInstaller{Directory: paths.UpdateDownloads},
 		updates.CommandRebooter{},
 	)
+	applianceUpdateController := newApplianceUpdates(updateController)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	go monitorUpdateChecks(
-		ctx,
-		updateController,
-		log,
-	)
-
 	if !installed.Listen {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
+		applianceUpdateController.SetSafetyProviders(nil, masjidBoardService)
+		go monitorUpdateChecks(ctx, applianceUpdateController, log)
 		server := newAPIServer(cfg, paths, installed, api.Dependencies{
 			Logger:                 log,
 			WiFi:                   masjidnetwork.NewNetworkManager(),
@@ -96,7 +93,7 @@ func Run() error {
 			MasjidBoardMaintenance: masjidBoardMaintenance,
 			DisplaySettings:        displaySettings,
 			Timezone:               timezoneController,
-			Updates:                updateController,
+			Updates:                applianceUpdateController,
 		})
 		return runHTTPServer(ctx, server, log)
 	}
@@ -249,13 +246,20 @@ func Run() error {
 		AudioDeviceState: audioDeviceState,
 		DisplaySettings:  displaySettings,
 		Timezone:         timezoneController,
-		Updates:          updateController,
+		Updates:          applianceUpdateController,
 	}
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		dependencies.MasjidBoardService = masjidBoardService
 		dependencies.MasjidBoardMaintenance = masjidBoardMaintenance
+		applianceUpdateController.SetSafetyProviders(
+			playbackManager,
+			masjidBoardService,
+		)
+	} else {
+		applianceUpdateController.SetSafetyProviders(playbackManager, nil)
 	}
+	go monitorUpdateChecks(ctx, applianceUpdateController, log)
 	server := newAPIServer(cfg, paths, installed, dependencies)
 
 	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)

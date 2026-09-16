@@ -11,6 +11,7 @@ import (
 
 type updatePlaybackProvider interface {
 	Status() playback.Status
+	Stop()
 }
 
 type updateBoardProvider interface {

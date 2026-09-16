@@ -133,6 +133,37 @@ func (s *Server) updatePostpone(
 	writeJSON(w, http.StatusOK, state)
 }
 
+func (s *Server) updateInstall(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if !s.requireUpdatePost(w, r) {
+		return
+	}
+
+	var request struct {
+		InterruptPlayback bool `json:"interrupt_playback"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "valid installation request is required")
+		return
+	}
+
+	state, err := s.updateController.Install(
+		r.Context(),
+		true,
+		request.InterruptPlayback,
+	)
+	if err != nil {
+		writeError(w, http.StatusConflict, err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, state)
+}
+
 func (s *Server) requireUpdatePost(
 	w http.ResponseWriter,
 	r *http.Request,

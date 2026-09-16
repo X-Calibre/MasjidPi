@@ -41,6 +41,7 @@ type updateController interface {
 	Check(context.Context) (updates.State, error)
 	Approve() (updates.State, error)
 	Postpone(time.Time) (updates.State, error)
+	Install(context.Context, bool, bool) (updates.State, error)
 }
 
 type Server struct {
@@ -132,6 +133,7 @@ func New(config Config, dependencies Dependencies) *Server {
 	mux.HandleFunc("/api/update/check", server.updateCheck)
 	mux.HandleFunc("/api/update/approve", server.updateApprove)
 	mux.HandleFunc("/api/update/postpone", server.updatePostpone)
+	mux.HandleFunc("/api/update/install", server.updateInstall)
 	if config.Installed.Listen {
 		mux.HandleFunc("/api/player/play", server.play)
 		mux.HandleFunc("/api/player/stop", server.stop)

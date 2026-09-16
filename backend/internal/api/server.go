@@ -17,6 +17,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
+	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -32,6 +33,11 @@ type timezoneController interface {
 	Zones(string) ([]masjidtimezone.Zone, error)
 	Current() (string, bool, error)
 	Set(context.Context, string) error
+}
+
+type updateController interface {
+	Status() (updates.State, error)
+	Check(context.Context) (updates.State, error)
 }
 
 type Server struct {
@@ -55,6 +61,7 @@ type Server struct {
 	wifi                        masjidnetwork.WiFiManager
 	displaySettings             *display.Controller
 	timezoneController          timezoneController
+	updateController            updateController
 }
 
 type Config struct {
@@ -80,6 +87,7 @@ type Dependencies struct {
 	WiFi                   masjidnetwork.WiFiManager
 	DisplaySettings        *display.Controller
 	Timezone               timezoneController
+	Updates                updateController
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
 }
@@ -110,12 +118,15 @@ func New(config Config, dependencies Dependencies) *Server {
 		wifi:                     dependencies.WiFi,
 		displaySettings:          dependencies.DisplaySettings,
 		timezoneController:       dependencies.Timezone,
+		updateController:         dependencies.Updates,
 		httpServer:               &http.Server{Addr: config.Address, Handler: mux},
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
 
 	mux.HandleFunc("/api/components", server.components)
 	mux.HandleFunc("/api/version", server.version)
+	mux.HandleFunc("/api/update/status", server.updateStatus)
+	mux.HandleFunc("/api/update/check", server.updateCheck)
 	if config.Installed.Listen {
 		mux.HandleFunc("/api/player/play", server.play)
 		mux.HandleFunc("/api/player/stop", server.stop)

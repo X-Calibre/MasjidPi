@@ -23,6 +23,7 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
 	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
+	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -63,6 +64,12 @@ func Run() error {
 		log.Warn("Could not restore display brightness", "error", err)
 	}
 
+	updateController := updates.NewController(
+		updates.NewStore(paths.UpdateState),
+		updates.GitHubClient{},
+		version.Version,
+	)
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -75,6 +82,7 @@ func Run() error {
 			MasjidBoardMaintenance: masjidBoardMaintenance,
 			DisplaySettings:        displaySettings,
 			Timezone:               timezoneController,
+			Updates:                updateController,
 		})
 		return runHTTPServer(ctx, server, log)
 	}
@@ -227,6 +235,7 @@ func Run() error {
 		AudioDeviceState: audioDeviceState,
 		DisplaySettings:  displaySettings,
 		Timezone:         timezoneController,
+		Updates:          updateController,
 	}
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)

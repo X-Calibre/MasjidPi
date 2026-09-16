@@ -1,0 +1,158 @@
+package updates
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+	"time"
+)
+
+const ApprovalPeriod = 30 * 24 * time.Hour
+
+type ReleaseSource interface {
+	Latest(context.Context) (Release, bool, error)
+}
+
+type StateStore interface {
+	Load() (State, error)
+	Save(State) error
+}
+
+type Controller struct {
+	mu             sync.Mutex
+	store          StateStore
+	source         ReleaseSource
+	currentVersion string
+	now            func() time.Time
+}
+
+func NewController(
+	store StateStore,
+	source ReleaseSource,
+	currentVersion string,
+) *Controller {
+	return &Controller{
+		store:          store,
+		source:         source,
+		currentVersion: currentVersion,
+		now:            time.Now,
+	}
+}
+
+// Status returns the persisted state with the running version refreshed from
+// the current binary. It performs no network request and no disk write.
+func (c *Controller) Status() (State, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	state, err := c.store.Load()
+	if err != nil {
+		return State{}, err
+	}
+	state.CurrentVersion = c.currentVersion
+	return cloneState(state), nil
+}
+
+// Check discovers the latest complete stable release and atomically records
+// the result. The first detection time and approval deadline remain unchanged
+// while the same release stays available.
+func (c *Controller) Check(
+	ctx context.Context,
+) (State, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	state, err := c.store.Load()
+	if err != nil {
+		return State{}, err
+	}
+
+	now := c.now().UTC()
+	state.CurrentVersion = c.currentVersion
+	state.LastCheckedAt = timePointer(now)
+
+	release, found, checkErr := c.source.Latest(ctx)
+	if checkErr != nil {
+		return c.recordCheckError(
+			state,
+			fmt.Errorf(
+				"updates: discover latest release: %w",
+				checkErr,
+			),
+		)
+	}
+
+	if !found {
+		clearAvailableRelease(&state)
+		state.LastCheckError = ""
+		return c.saveState(state)
+	}
+
+	candidateVersion, err := ParseStableVersion(
+		release.Version,
+	)
+	if err != nil {
+		return c.recordCheckError(state, err)
+	}
+
+	newer, err := IsNewerThanInstalled(
+		candidateVersion,
+		c.currentVersion,
+	)
+	if err != nil {
+		return c.recordCheckError(state, err)
+	}
+
+	if !newer {
+		clearAvailableRelease(&state)
+		state.LastCheckError = ""
+		return c.saveState(state)
+	}
+
+	if state.AvailableRelease == nil ||
+		state.AvailableRelease.Version != release.Version {
+		detected := now
+		deadline := now.Add(ApprovalPeriod)
+		state.FirstDetectedAt = &detected
+		state.ApprovalDeadline = &deadline
+	}
+
+	releaseCopy := release
+	state.AvailableRelease = &releaseCopy
+	state.LastCheckError = ""
+
+	return c.saveState(state)
+}
+
+func (c *Controller) recordCheckError(
+	state State,
+	checkErr error,
+) (State, error) {
+	state.LastCheckError = checkErr.Error()
+
+	saved, saveErr := c.saveState(state)
+	if saveErr != nil {
+		return saved, errors.Join(checkErr, saveErr)
+	}
+	return saved, checkErr
+}
+
+func (c *Controller) saveState(
+	state State,
+) (State, error) {
+	if err := c.store.Save(state); err != nil {
+		return cloneState(state), err
+	}
+	return cloneState(state), nil
+}
+
+func clearAvailableRelease(state *State) {
+	state.AvailableRelease = nil
+	state.FirstDetectedAt = nil
+	state.ApprovalDeadline = nil
+}
+
+func timePointer(value time.Time) *time.Time {
+	return &value
+}

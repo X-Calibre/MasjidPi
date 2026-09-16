@@ -173,6 +173,25 @@
                 <small id="volumeNote" class="volume-note">Controls the selected audio device's hardware volume.</small>
             </div>
         </section>
+
+        <section class="card update-card" data-update-widget>
+            <div class="section-heading-row">
+                <div>
+                    <h2>Software Updates</h2>
+                    <p class="section-intro">MasjidPi checks weekly for complete, signed stable appliance releases.</p>
+                </div>
+                <button class="secondary compact-action" type="button" data-update-check>Check now</button>
+            </div>
+            <strong class="update-state" data-update-state>Loading update status…</strong>
+            <dl class="update-details">
+                <div><dt>Installed</dt><dd data-update-current>Loading…</dd></div>
+                <div><dt>Last checked</dt><dd data-update-last-checked>Loading…</dd></div>
+                <div><dt>Published</dt><dd data-update-published>Loading…</dd></div>
+                <div><dt>Approval deadline</dt><dd data-update-deadline>Loading…</dd></div>
+            </dl>
+            <p class="update-error hidden" data-update-error role="alert"></p>
+            <a class="update-release-link hidden" data-update-link target="_blank" rel="noopener">View release notes</a>
+        </section>
     </main>
 
     <footer class="footer"><span id="version">MasjidPi</span></footer>
@@ -188,6 +207,7 @@
 <script src="radio-mode.js"></script>
 <script src="module-power.js"></script>
 <script src="selected-masjid.js"></script>
+<script src="update-status.js?v=20260916-discovery"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

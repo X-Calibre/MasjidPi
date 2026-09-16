@@ -120,8 +120,8 @@ body.appliance-720-layout {
 .appliance-720-layout .appliance-listen-heading { height:76px; flex-basis:76px; }
 .appliance-720-layout .appliance-listen-heading h2 { font-size:34px; }
 .appliance-720-layout .appliance-listen-status { height:92px; flex-basis:92px; }
-.appliance-720-layout .appliance-listen-tabs { height:66px; flex-basis:66px; grid-template-columns:repeat(4,1fr); }
-.appliance-720-layout .appliance-listen-tabs button { font-size:21px; }
+.appliance-720-layout .appliance-listen-tabs { height:66px; flex-basis:66px; grid-template-columns:repeat(5,1fr); }
+.appliance-720-layout .appliance-listen-tabs button { font-size:18px; }
 .appliance-720-layout .appliance-source-list { max-height:245px; }
 
 .appliance-720-layout .appliance-quick-sheet {
@@ -595,6 +595,15 @@ body.appliance-720-layout {
     min-height:66px;
     font-size:20px;
 }
+.appliance-720-layout .appliance-update-settings { margin-top:20px; padding:24px; border-radius:17px; }
+.appliance-720-layout .appliance-update-settings .update-state { margin-bottom:18px; font-size:27px; }
+.appliance-720-layout .appliance-update-settings .update-details { gap:11px; }
+.appliance-720-layout .appliance-update-settings .update-details div { padding:13px 15px; border-radius:12px; }
+.appliance-720-layout .appliance-update-settings .update-details dt { font-size:15px; }
+.appliance-720-layout .appliance-update-settings .update-details dd { margin-top:6px; font-size:18px; }
+.appliance-720-layout .appliance-update-settings .update-error { margin-top:15px; font-size:17px; }
+.appliance-720-layout .appliance-update-settings .update-release-link { margin-top:15px; font-size:18px; }
+.appliance-720-layout .appliance-update-settings button { min-height:66px; margin-top:18px; font-size:20px; }
 
 
 /* Fit brightness steps and duplicated Masjid/Radio actions into the

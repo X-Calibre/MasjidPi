@@ -96,6 +96,16 @@ button.secondary:hover { background: var(--field-hover); }
 .checkbox { display: flex; align-items: center; gap: 10px; margin-top: 18px; margin-bottom: 18px; color: var(--muted); }
 .checkbox input { width: auto; }
 .footer { margin-top: 30px; padding: 20px 0; text-align: center; color: var(--subtle); font-size: 0.9rem; }
+.update-state { display:block; margin:4px 0 16px; color:var(--text); font-size:18px; }
+.update-state-current { color:var(--accent); }
+.update-state-available { color:var(--warning); }
+.update-state-error,.update-error { color:var(--danger); }
+.update-details { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.update-details div { min-width:0; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--field); }
+.update-details dt { color:var(--subtle); font-size:12px; font-weight:700; text-transform:uppercase; }
+.update-details dd { margin-top:5px; overflow-wrap:anywhere; color:var(--text); font-size:14px; font-weight:600; }
+.update-error { margin-top:14px; line-height:1.4; }
+.update-release-link { display:inline-block; margin-top:14px; color:var(--accent); font-weight:700; }
 .theme-toggle, .nav-button { flex: 0 0 auto; padding: 9px 12px; background: var(--field); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: bold; line-height: normal; text-decoration: none; }
 .theme-toggle:hover, .nav-button:hover { background: var(--field-hover); }
 
@@ -201,4 +211,5 @@ button:disabled, select:disabled, input:disabled { opacity: .55; cursor: not-all
     .app-tabs { width: 100%; }
     .section-heading-row { flex-direction: column; }
     .now-playing-card .status-badge { align-self: flex-start; }
+    .update-details { grid-template-columns:1fr; }
 }

@@ -73,6 +73,12 @@ func Run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	go monitorUpdateChecks(
+		ctx,
+		updateController,
+		log,
+	)
+
 	if !installed.Listen {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		server := newAPIServer(cfg, paths, installed, api.Dependencies{

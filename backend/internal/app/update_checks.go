@@ -12,6 +12,7 @@ const updateCheckPollInterval = time.Hour
 type updateChecker interface {
 	Status() (updates.State, error)
 	Check(context.Context) (updates.State, error)
+	Prepare(context.Context) (updates.State, error)
 }
 
 type updateCheckLogger interface {
@@ -67,18 +68,16 @@ func checkUpdatesIfDue(
 		return
 	}
 
-	if !updates.CheckDue(state, now) {
-		return
-	}
-
-	state, err = checker.Check(ctx)
-	if err != nil {
-		log.Warn(
-			"Automatic update check failed",
-			"error",
-			err,
-		)
-		return
+	if updates.CheckDue(state, now) {
+		state, err = checker.Check(ctx)
+		if err != nil {
+			log.Warn(
+				"Automatic update check failed",
+				"error",
+				err,
+			)
+			return
+		}
 	}
 
 	if state.AvailableRelease != nil {
@@ -89,6 +88,23 @@ func checkUpdatesIfDue(
 			"approval_deadline",
 			state.ApprovalDeadline,
 		)
+		if state.Download == nil ||
+			state.Download.Status != updates.DownloadStatusVerified {
+			state, err = checker.Prepare(ctx)
+			if err != nil {
+				log.Warn(
+					"Automatic update preparation failed",
+					"error",
+					err,
+				)
+				return
+			}
+			log.Info(
+				"Signed appliance update is ready",
+				"version",
+				state.AvailableRelease.Version,
+			)
+		}
 		return
 	}
 

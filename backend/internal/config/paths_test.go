@@ -32,6 +32,9 @@ func TestNewPathsUpdateStateUsesDevelopmentDataRoot(
 			paths.DataRoot,
 		)
 	}
+	if paths.UpdateDownloads != filepath.Join(paths.DataRoot, "update-downloads") {
+		t.Fatalf("UpdateDownloads = %q", paths.UpdateDownloads)
+	}
 }
 
 func TestRuntimePathsUpdateStateUsesPersistentDataRoot(
@@ -59,5 +62,8 @@ func TestRuntimePathsUpdateStateUsesPersistentDataRoot(
 			filepath.Dir(paths.UpdateState),
 			paths.DataRoot,
 		)
+	}
+	if paths.UpdateDownloads != "/var/lib/masjidpi/update-downloads" {
+		t.Fatalf("UpdateDownloads = %q", paths.UpdateDownloads)
 	}
 }

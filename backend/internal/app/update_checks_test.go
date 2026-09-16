@@ -12,12 +12,15 @@ import (
 )
 
 type fakeScheduledUpdateChecker struct {
-	status      updates.State
-	statusErr   error
-	checkResult updates.State
-	checkErr    error
-	statusCalls int
-	checkCalls  int
+	status        updates.State
+	statusErr     error
+	checkResult   updates.State
+	checkErr      error
+	prepareResult updates.State
+	prepareErr    error
+	statusCalls   int
+	checkCalls    int
+	prepareCalls  int
 }
 
 func (f *fakeScheduledUpdateChecker) Status() (
@@ -33,6 +36,13 @@ func (f *fakeScheduledUpdateChecker) Check(
 ) (updates.State, error) {
 	f.checkCalls++
 	return f.checkResult, f.checkErr
+}
+
+func (f *fakeScheduledUpdateChecker) Prepare(
+	context.Context,
+) (updates.State, error) {
+	f.prepareCalls++
+	return f.prepareResult, f.prepareErr
 }
 
 func updateCheckTestLogger() *slog.Logger {
@@ -164,6 +174,38 @@ func TestCheckUpdatesIfDueHandlesDiscoveryFailure(
 			"calls: status=%d check=%d, want 1 each",
 			checker.statusCalls,
 			checker.checkCalls,
+		)
+	}
+}
+
+func TestCheckUpdatesIfDuePreparesAvailableRelease(t *testing.T) {
+	now := time.Date(2026, time.September, 16, 12, 0, 0, 0, time.UTC)
+	release := updates.Release{Version: "v1.7.0"}
+	checker := &fakeScheduledUpdateChecker{
+		status: updates.DefaultState("v1.6.0"),
+		checkResult: updates.State{
+			SchemaVersion:    updates.StateSchemaVersion,
+			CurrentVersion:   "v1.6.0",
+			AvailableRelease: &release,
+		},
+		prepareResult: updates.State{
+			SchemaVersion:    updates.StateSchemaVersion,
+			CurrentVersion:   "v1.6.0",
+			AvailableRelease: &release,
+			Download: &updates.DownloadState{
+				Version: "v1.7.0",
+				Status:  updates.DownloadStatusVerified,
+			},
+		},
+	}
+
+	checkUpdatesIfDue(t.Context(), checker, now, updateCheckTestLogger())
+
+	if checker.checkCalls != 1 || checker.prepareCalls != 1 {
+		t.Fatalf(
+			"calls: check=%d prepare=%d, want 1 each",
+			checker.checkCalls,
+			checker.prepareCalls,
 		)
 	}
 }

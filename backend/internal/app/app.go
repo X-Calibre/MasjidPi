@@ -69,6 +69,10 @@ func Run() error {
 		updates.GitHubClient{},
 		version.Version,
 	)
+	updateController.SetBundlePreparer(updates.Downloader{
+		Directory: paths.UpdateDownloads,
+		Verifier:  updates.CommandVerifier{},
+	})
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

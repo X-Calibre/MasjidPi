@@ -7,6 +7,12 @@ import (
 
 const StateSchemaVersion = 1
 
+const (
+	DownloadStatusDownloading = "downloading"
+	DownloadStatusVerified    = "verified"
+	DownloadStatusFailed      = "failed"
+)
+
 // Release identifies a complete signed appliance update and its detached
 // signature.
 type Release struct {
@@ -17,18 +23,29 @@ type Release struct {
 	SignatureURL string    `json:"signature_url"`
 }
 
+type DownloadState struct {
+	Version        string     `json:"version"`
+	Status         string     `json:"status"`
+	BundleBytes    int64      `json:"bundle_bytes,omitempty"`
+	SignatureBytes int64      `json:"signature_bytes,omitempty"`
+	StartedAt      *time.Time `json:"started_at,omitempty"`
+	VerifiedAt     *time.Time `json:"verified_at,omitempty"`
+	LastError      string     `json:"last_error,omitempty"`
+}
+
 // State is persisted in shared appliance storage. Later orchestration stages
 // can extend this versioned schema with download and installation state.
 type State struct {
-	SchemaVersion    int        `json:"schema_version"`
-	CurrentVersion   string     `json:"current_version,omitempty"`
-	AvailableRelease *Release   `json:"available_release,omitempty"`
-	FirstDetectedAt  *time.Time `json:"first_detected_at,omitempty"`
-	ApprovalDeadline *time.Time `json:"approval_deadline,omitempty"`
-	ApprovedAt       *time.Time `json:"approved_at,omitempty"`
-	PostponedUntil   *time.Time `json:"postponed_until,omitempty"`
-	LastCheckedAt    *time.Time `json:"last_checked_at,omitempty"`
-	LastCheckError   string     `json:"last_check_error,omitempty"`
+	SchemaVersion    int            `json:"schema_version"`
+	CurrentVersion   string         `json:"current_version,omitempty"`
+	AvailableRelease *Release       `json:"available_release,omitempty"`
+	FirstDetectedAt  *time.Time     `json:"first_detected_at,omitempty"`
+	ApprovalDeadline *time.Time     `json:"approval_deadline,omitempty"`
+	ApprovedAt       *time.Time     `json:"approved_at,omitempty"`
+	PostponedUntil   *time.Time     `json:"postponed_until,omitempty"`
+	Download         *DownloadState `json:"download,omitempty"`
+	LastCheckedAt    *time.Time     `json:"last_checked_at,omitempty"`
+	LastCheckError   string         `json:"last_check_error,omitempty"`
 }
 
 func DefaultState(currentVersion string) State {
@@ -59,6 +76,9 @@ func (s State) Validate() error {
 			return fmt.Errorf(
 				"updates: detection dates require an available release",
 			)
+		}
+		if s.Download != nil {
+			return fmt.Errorf("updates: download requires an available release")
 		}
 		return nil
 	}
@@ -110,6 +130,20 @@ func (s State) Validate() error {
 			return fmt.Errorf("updates: postponement exceeds approval deadline")
 		}
 	}
+	if s.Download != nil {
+		download := s.Download
+		if download.Version != release.Version {
+			return fmt.Errorf("updates: download version does not match available release")
+		}
+		switch download.Status {
+		case DownloadStatusDownloading, DownloadStatusVerified, DownloadStatusFailed:
+		default:
+			return fmt.Errorf("updates: invalid download status %q", download.Status)
+		}
+		if download.Status == DownloadStatusVerified && download.VerifiedAt == nil {
+			return fmt.Errorf("updates: verified download requires verification time")
+		}
+	}
 
 	return nil
 }
@@ -140,6 +174,18 @@ func cloneState(state State) State {
 	if state.PostponedUntil != nil {
 		value := *state.PostponedUntil
 		cloned.PostponedUntil = &value
+	}
+	if state.Download != nil {
+		download := *state.Download
+		cloned.Download = &download
+		if state.Download.StartedAt != nil {
+			value := *state.Download.StartedAt
+			cloned.Download.StartedAt = &value
+		}
+		if state.Download.VerifiedAt != nil {
+			value := *state.Download.VerifiedAt
+			cloned.Download.VerifiedAt = &value
+		}
 	}
 
 	return cloned

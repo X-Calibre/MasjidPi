@@ -23,8 +23,9 @@
     }
 
     function render(widget, state) {
-		widget.updateState = state;
+        widget.updateState = state;
         const release = state?.available_release || null;
+        const download = state?.download || null;
         const status = widget.querySelector("[data-update-state]");
         const link = widget.querySelector("[data-update-link]");
         const actions = widget.querySelector("[data-update-actions]");
@@ -32,6 +33,11 @@
         setText(widget, "[data-update-current]", state?.current_version || "Unknown");
         setText(widget, "[data-update-last-checked]", formatDate(state?.last_checked_at));
         setText(widget, "[data-update-deadline]", release ? formatDate(state?.approval_deadline) : "Not applicable");
+        let downloadText = "Not started";
+        if (download?.status === "downloading") downloadText = "Downloading…";
+        if (download?.status === "failed") downloadText = "Download failed; retry pending";
+        if (download?.status === "verified") downloadText = "Downloaded and verified";
+        setText(widget, "[data-update-download]", release ? downloadText : "Not applicable");
 
         if (release) {
             if (state.approved_at) {
@@ -63,8 +69,9 @@
 
         const error = widget.querySelector("[data-update-error]");
         if (error) {
-            error.textContent = state?.last_check_error || "";
-            error.classList.toggle("hidden", !state?.last_check_error);
+            const message = state?.last_check_error || download?.last_error || "";
+            error.textContent = message;
+            error.classList.toggle("hidden", !message);
         }
     }
 

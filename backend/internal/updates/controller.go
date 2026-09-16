@@ -67,6 +67,20 @@ func (c *Controller) Status() (State, error) {
 	return cloneState(state), nil
 }
 
+func (c *Controller) EvaluateInstall(
+	conditions InstallConditions,
+) (InstallEvaluation, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	state, err := c.store.Load()
+	if err != nil {
+		return InstallEvaluation{}, err
+	}
+	state.CurrentVersion = c.currentVersion
+	return EvaluateInstall(state, conditions), nil
+}
+
 // Check discovers the latest complete stable release and atomically records
 // the result. The first detection time and approval deadline remain unchanged
 // while the same release stays available.

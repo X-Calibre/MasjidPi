@@ -249,3 +249,12 @@ A. The trial retained system B as rollback, booted successfully, completed the
 ID, SSH host keys, touchscreen-configured Wi-Fi, `Africa/Johannesburg` time
 zone, three selected Masjids, USB audio, splash, touch operation, and shared
 state all persisted without failed systemd units.
+
+A second signed update, `v1.6.0-lab.98de917.2`, was installed from system A
+into system B for rollback validation. A deliberately failing systemd service
+prevented automatic confirmation on both permitted trial boots. On the next
+boot, U-Boot automatically restored the confirmed system-A release, cleared
+the trial state and boot limit, and left no failed units on the restored
+system. The branded splash, Board, machine identity, Wi-Fi, time zone, three
+selected Masjids, USB audio, touch operation, and shared state all remained
+intact.

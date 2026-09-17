@@ -99,6 +99,36 @@ if [[ "${1:-}" = install ]]; then
             ;;
     esac
 
+    mapfile -t running_pi_passwd_records < <(getent passwd pi)
+    mapfile -t running_pi_shadow_records < <(getent shadow pi)
+
+    if (( ${#running_pi_passwd_records[@]} != 1 ||
+          ${#running_pi_shadow_records[@]} != 1 )); then
+        echo "Running system must contain exactly one pi account." >&2
+        exit 1
+    fi
+
+    running_pi_passwd=${running_pi_passwd_records[0]}
+    running_pi_shadow=${running_pi_shadow_records[0]}
+
+    IFS=: read -r \
+        running_pi_name _ running_pi_uid running_pi_gid _ _ _ \
+        <<<"$running_pi_passwd"
+    IFS=: read -r \
+        running_shadow_name running_pi_password_hash _ \
+        <<<"$running_pi_shadow"
+
+    if [[ "$running_pi_name" != pi ||
+          "$running_shadow_name" != pi ||
+          ! "$running_pi_uid" =~ ^[0-9]+$ ||
+          ! "$running_pi_gid" =~ ^[0-9]+$ ||
+          -z "$running_pi_password_hash" ||
+          "$running_pi_password_hash" == '!'* ||
+          "$running_pi_password_hash" == '*'* ]]; then
+        echo "Running pi account has no usable password identity." >&2
+        exit 1
+    fi
+
     staging_parent=/persistent/updates
     install -d -o root -g root -m 0700 "$staging_parent"
     staging_dir=$(mktemp -d "$staging_parent/install.XXXXXX")
@@ -269,6 +299,32 @@ if [[ "${1:-}" = install ]]; then
     target_root=$(mktemp -d "$staging_parent/target-root.XXXXXX")
     mount "$target_partition" "$target_root"
 
+    target_pi_count=$(
+        awk -F: '$1 == "pi" { count++ } END { print count + 0 }' \
+            "$target_root/etc/passwd"
+    )
+    target_shadow_count=$(
+        awk -F: '$1 == "pi" { count++ } END { print count + 0 }' \
+            "$target_root/etc/shadow"
+    )
+    target_pi_uid=$(
+        awk -F: '$1 == "pi" { print $3 }' \
+            "$target_root/etc/passwd"
+    )
+    target_pi_gid=$(
+        awk -F: '$1 == "pi" { print $4 }' \
+            "$target_root/etc/passwd"
+    )
+
+    if [[ "$target_pi_count" -ne 1 ||
+          "$target_shadow_count" -ne 1 ||
+          "$target_pi_uid" != "$running_pi_uid" ||
+          "$target_pi_gid" != "$running_pi_gid" ||
+          ! -x "$target_root/usr/sbin/chpasswd" ]]; then
+        echo "Target system has an incompatible pi account." >&2
+        exit 1
+    fi
+
     install -o root -g root -m 0444 \
         /etc/machine-id \
         "$target_root/etc/machine-id"
@@ -279,6 +335,11 @@ if [[ "${1:-}" = install ]]; then
     cp -a \
         "${host_keys[@]}" \
         "$target_root/etc/ssh/"
+
+    printf 'pi:%s\n' "$running_pi_password_hash" |
+        chroot "$target_root" \
+            /usr/sbin/chpasswd \
+            --encrypted
 
     chown root:root \
         "$target_root"/etc/ssh/ssh_host_*_key \
@@ -303,6 +364,16 @@ if [[ "${1:-}" = install ]]; then
         fi
     done
 
+    target_pi_password_hash=$(
+        awk -F: '$1 == "pi" { print $2 }' \
+            "$target_root/etc/shadow"
+    )
+
+    if [[ "$target_pi_password_hash" != "$running_pi_password_hash" ]]; then
+        echo "Unable to preserve the pi account password." >&2
+        exit 1
+    fi
+
     install -d -o root -g root -m 0755 \
         "$target_root/usr/share/masjidpi/update"
 
@@ -324,6 +395,7 @@ if [[ "${1:-}" = install ]]; then
 
     echo "PASS  machine ID"
     echo "PASS  SSH host keys"
+    echo "PASS  pi account password"
     echo "PASS  release identity"
 
     echo

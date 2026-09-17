@@ -9,18 +9,21 @@ const script = fs.readFileSync(path.join(root, "frontend/update-status.js"), "ut
 const index = fs.readFileSync(path.join(root, "frontend/index.html"), "utf8");
 const board = fs.readFileSync(path.join(root, "frontend/masjidboard.html"), "utf8");
 const boardConfig = fs.readFileSync(path.join(root, "frontend/masjidboard-config.html"), "utf8");
+const updates = fs.readFileSync(path.join(root, "frontend/updates.html"), "utf8");
 
 const touchPanel = board.match(
     /<section id="applianceUpdatesPanel"[\s\S]*?<\/section>/
 )?.[0] || "";
 
-for (const html of [index, board]) {
-    assert.match(html, /data-update-install/);
-}
-
-assert.match(index, /data-update-installation/);
-assert.match(index, /data-update-link/);
-assert.match(boardConfig, /data-update-link/);
+assert.match(updates, /data-update-install/);
+assert.match(updates, /data-update-installation/);
+assert.match(updates, /data-update-link/);
+assert.match(updates, /View release notes/);
+assert.match(updates, /class="app-tab active" href="updates\.html"/);
+assert.match(index, /class="app-tab" href="updates\.html"/);
+assert.match(boardConfig, /class="app-tab" href="updates\.html"/);
+assert.doesNotMatch(index, /data-update-widget/);
+assert.doesNotMatch(boardConfig, /data-update-widget/);
 assert.match(touchPanel, /data-update-installed-version/);
 assert.match(touchPanel, /data-update-available/);
 assert.match(touchPanel, /data-update-install-date/);

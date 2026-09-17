@@ -11,5 +11,9 @@ grep -Fq 'cp scripts/99-masjidpi-boot-firmware "$package_dir/scripts/"' "$WORKFL
 grep -Fq 'require_file "$package_dir/scripts/masjidpi-boot-readonly.service"' "$WORKFLOW"
 # shellcheck disable=SC2016
 grep -Fq 'require_file "$package_dir/scripts/99-masjidpi-boot-firmware"' "$WORKFLOW"
+# shellcheck disable=SC2016
+grep -Fq 'require_file "$package_dir/frontend/updates.html"' "$WORKFLOW"
+# shellcheck disable=SC2016
+grep -Fq 'require_file "$package_dir/frontend/update-status.js"' "$WORKFLOW"
 
-printf '[PASS] release workflow packages and validates boot protection assets\n'
+printf '[PASS] release workflow validates boot protection and update Web UI assets\n'

@@ -21,12 +21,12 @@
         <nav class="app-tabs" aria-label="MasjidPi sections">
             <a class="app-tab" data-component="listen" href="index.html">Listen</a>
             <a class="app-tab active" data-component="board" href="masjidboard-config.html" aria-current="page">Board</a>
+            <a class="app-tab" href="updates.html">Updates</a>
         </nav>
         <nav class="board-tabs" aria-label="Board configuration sections">
             <button class="board-tab active" type="button" data-board-tab="masjids" aria-selected="true">Masjids</button>
             <button class="board-tab" type="button" data-board-tab="display" aria-selected="false">Display</button>
             <button class="board-tab" type="button" data-board-tab="status" aria-selected="false">Status</button>
-            <button class="board-tab" type="button" data-board-tab="updates" aria-selected="false">Updates</button>
         </nav>
     </header>
     <main>
@@ -89,32 +89,10 @@
         <div id="masjidBoardStatus"><p class="status-detail">Loading MasjidBoard status…</p></div>
     </section>
     </div>
-    <div id="boardPanelUpdates" class="board-panel" data-board-panel="updates" hidden>
-    <section class="card update-card" data-update-widget>
-        <div class="section-heading-row">
-            <div><h2>Software Updates</h2><p class="config-intro">MasjidPi checks weekly for complete, signed stable appliance releases.</p></div>
-            <button class="secondary compact-button" type="button" data-update-check>Check now</button>
-        </div>
-        <strong class="update-state" data-update-state>Loading update status…</strong>
-        <dl class="update-details">
-            <div><dt>Installed</dt><dd data-update-current>Loading…</dd></div>
-            <div><dt>Last checked</dt><dd data-update-last-checked>Loading…</dd></div>
-            <div><dt>Published</dt><dd data-update-published>Loading…</dd></div>
-            <div><dt>Approval deadline</dt><dd data-update-deadline>Loading…</dd></div>
-            <div><dt>Download</dt><dd data-update-download>Loading…</dd></div>
-        </dl>
-        <p class="update-error hidden" data-update-error role="alert"></p>
-        <a class="update-release-link hidden" data-update-link target="_blank" rel="noopener">View release notes</a>
-        <div class="update-actions hidden" data-update-actions>
-            <button class="primary compact-button" type="button" data-update-approve>Approve update</button>
-            <button class="secondary compact-button" type="button" data-update-postpone>Remind me in 7 days</button>
-        </div>
-    </section>
-    </div>
     </main>
     <footer class="footer"><span id="version">MasjidPi</span></footer>
 </div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
-<script src="components-ui.js"></script><script src="masjidboard-config.js?v=20260829-autosave"></script><script src="masjidboard-layout-config.js?v=20260906-light-themes"></script><script src="masjidboard-tabs.js"></script><script src="update-status.js?v=20260916-discovery"></script>
+<script src="components-ui.js"></script><script src="masjidboard-config.js?v=20260829-autosave"></script><script src="masjidboard-layout-config.js?v=20260906-light-themes"></script><script src="masjidboard-tabs.js"></script>
 </body>
 </html>

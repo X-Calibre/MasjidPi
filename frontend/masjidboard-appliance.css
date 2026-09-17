@@ -223,6 +223,7 @@ body.appliance-layout {
 .appliance-update-settings .update-state-error,.appliance-update-settings .update-error { color:var(--appliance-danger-text); }
 .appliance-update-settings .update-details { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 .appliance-update-settings .update-details div { min-width:0; padding:10px; border:1px solid var(--appliance-line); border-radius:9px; background:var(--appliance-raised); }
+.appliance-update-settings .update-details div:last-child { grid-column:1 / -1; }
 .appliance-update-settings .update-details dt { color:var(--appliance-muted); font-size:12px; font-weight:700; text-transform:uppercase; }
 .appliance-update-settings .update-details dd { margin:4px 0 0; overflow-wrap:anywhere; color:var(--appliance-text); font-size:14px; font-weight:700; }
 .appliance-update-settings .update-error { margin:12px 0 0; font-size:13px; line-height:1.3; }

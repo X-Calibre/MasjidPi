@@ -17,9 +17,42 @@
         }).format(date);
     };
 
+    const formatDateOnly = value => {
+        if (!value) return "Not scheduled";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return new Intl.DateTimeFormat("en-ZA", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }).format(date);
+    };
+
     function setText(widget, selector, value) {
         const element = widget.querySelector(selector);
         if (element) element.textContent = value;
+    }
+
+    function touchSummary(state, release, installation) {
+        const runningTarget = installation?.version &&
+            ["probation", "installed"].includes(installation.status);
+        const releaseInstalled = installation?.status === "installed" &&
+            installation.version === release?.version;
+        const availableVersion = release && !releaseInstalled
+            ? release.version
+            : "None";
+        const installationDate = release && !releaseInstalled
+            ? installation?.staged_at || installation?.started_at ||
+                state?.approved_at || state?.approval_deadline
+            : null;
+
+        return {
+            installedVersion: runningTarget
+                ? installation.version
+                : state?.current_version || "Unknown",
+            availableVersion,
+            installationDate: formatDateOnly(installationDate)
+        };
     }
 
     function render(widget, state) {
@@ -30,8 +63,12 @@
         const status = widget.querySelector("[data-update-state]");
         const link = widget.querySelector("[data-update-link]");
         const actions = widget.querySelector("[data-update-actions]");
+        const summary = touchSummary(state, release, installation);
 
         setText(widget, "[data-update-current]", state?.current_version || "Unknown");
+        setText(widget, "[data-update-installed-version]", summary.installedVersion);
+        setText(widget, "[data-update-available]", summary.availableVersion);
+        setText(widget, "[data-update-install-date]", summary.installationDate);
         setText(widget, "[data-update-last-checked]", formatDate(state?.last_checked_at));
         setText(widget, "[data-update-deadline]", release ? formatDate(state?.approval_deadline) : "Not applicable");
         let downloadText = "Not started";
@@ -49,14 +86,16 @@
         setText(widget, "[data-update-installation]", release ? installationText : "Not applicable");
 
         if (release) {
-            if (state.approved_at) {
-                status.textContent = `${release.version} is approved`;
-            } else if (state.postponed_until) {
-                status.textContent = `${release.version} postponed until ${formatDate(state.postponed_until)}`;
-            } else {
-                status.textContent = `${release.version} is available`;
+            if (status) {
+                if (state.approved_at) {
+                    status.textContent = `${release.version} is approved`;
+                } else if (state.postponed_until) {
+                    status.textContent = `${release.version} postponed until ${formatDate(state.postponed_until)}`;
+                } else {
+                    status.textContent = `${release.version} is available`;
+                }
+                status.className = "update-state update-state-available";
             }
-            status.className = "update-state update-state-available";
             setText(widget, "[data-update-published]", formatDate(release.published_at));
             if (link) {
                 link.href = release.page_url;
@@ -72,8 +111,10 @@
                 install.classList.toggle("hidden", !ready);
             }
         } else {
-            status.textContent = "No stable update available";
-            status.className = "update-state update-state-current";
+            if (status) {
+                status.textContent = "No stable update available";
+                status.className = "update-state update-state-current";
+            }
             setText(widget, "[data-update-published]", "Not applicable");
             if (link) {
                 link.removeAttribute("href");
@@ -93,8 +134,12 @@
 
     function renderFailure(widget, message) {
         const status = widget.querySelector("[data-update-state]");
-        status.textContent = "Update status unavailable";
-        status.className = "update-state update-state-error";
+        if (status) {
+            status.textContent = "Update status unavailable";
+            status.className = "update-state update-state-error";
+        }
+        setText(widget, "[data-update-available]", "Unavailable");
+        setText(widget, "[data-update-install-date]", "Unavailable");
         const error = widget.querySelector("[data-update-error]");
         if (error) {
             error.textContent = message;

@@ -224,17 +224,11 @@
                     </section>
                     <section id="applianceUpdatesPanel" class="hidden" data-touch-panel="updates" role="tabpanel" aria-labelledby="applianceUpdatesTab">
                         <div class="appliance-update-settings" data-update-widget>
-                            <strong class="update-state" data-update-state>Loading update status…</strong>
                             <dl class="update-details">
-                                <div><dt>Installed</dt><dd data-update-current>Loading…</dd></div>
-                                <div><dt>Last checked</dt><dd data-update-last-checked>Loading…</dd></div>
-                                <div><dt>Published</dt><dd data-update-published>Loading…</dd></div>
-                                <div><dt>Approval deadline</dt><dd data-update-deadline>Loading…</dd></div>
-                                <div><dt>Download</dt><dd data-update-download>Loading…</dd></div>
-                                <div><dt>Installation</dt><dd data-update-installation>Not started</dd></div>
+                                <div><dt>Installed version</dt><dd data-update-installed-version>Loading…</dd></div>
+                                <div><dt>Available version</dt><dd data-update-available>Checking…</dd></div>
+                                <div><dt>Installation date</dt><dd data-update-install-date>Checking…</dd></div>
                             </dl>
-                            <p class="update-error hidden" data-update-error role="alert"></p>
-                            <a class="update-release-link hidden" data-update-link target="_blank" rel="noopener">View release notes</a>
                             <div class="update-actions hidden" data-update-actions>
                                 <button type="button" data-update-approve>Approve update</button>
                                 <button type="button" class="secondary" data-update-postpone>Remind me in 7 days</button>
@@ -258,6 +252,6 @@
 <script src="masjidboard-appliance.js?v=20260911-daily-scale-3"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
 <script src="masjidboard-touch-controls.js?v=20260911-stream-sorting"></script>
-<script src="update-status.js?v=20260916-probation"></script>
+<script src="update-status.js?v=20260917-touch-summary"></script>
 </body>
 </html>

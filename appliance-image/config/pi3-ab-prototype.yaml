@@ -1,6 +1,8 @@
 device:
   layer: rpi3
   hostname: masjidpi-ab-test
+  user1: masjidframe
+  user1pass: "MasjidFrame786!"
 #device:
 #  layer: rpi3
 #  hostname: masjidpi-ab-test

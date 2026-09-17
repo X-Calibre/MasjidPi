@@ -7,6 +7,7 @@ public_key=$(
     realpath "${MASJIDPI_UPDATE_PUBLIC_KEY:-/usr/share/masjidpi/update/masjidpi-update.pub}"
 )
 readonly public_key
+readonly appliance_user=masjidframe
 
 usage()
 {
@@ -99,33 +100,37 @@ if [[ "${1:-}" = install ]]; then
             ;;
     esac
 
-    mapfile -t running_pi_passwd_records < <(getent passwd pi)
-    mapfile -t running_pi_shadow_records < <(getent shadow pi)
+    mapfile -t running_user_passwd_records < <(
+        getent passwd "$appliance_user"
+    )
+    mapfile -t running_user_shadow_records < <(
+        getent shadow "$appliance_user"
+    )
 
-    if (( ${#running_pi_passwd_records[@]} != 1 ||
-          ${#running_pi_shadow_records[@]} != 1 )); then
-        echo "Running system must contain exactly one pi account." >&2
+    if (( ${#running_user_passwd_records[@]} != 1 ||
+          ${#running_user_shadow_records[@]} != 1 )); then
+        echo "Running system must contain exactly one $appliance_user account." >&2
         exit 1
     fi
 
-    running_pi_passwd=${running_pi_passwd_records[0]}
-    running_pi_shadow=${running_pi_shadow_records[0]}
+    running_user_passwd=${running_user_passwd_records[0]}
+    running_user_shadow=${running_user_shadow_records[0]}
 
     IFS=: read -r \
-        running_pi_name _ running_pi_uid running_pi_gid _ _ _ \
-        <<<"$running_pi_passwd"
+        running_user_name _ running_user_uid running_user_gid _ _ _ \
+        <<<"$running_user_passwd"
     IFS=: read -r \
-        running_shadow_name running_pi_password_hash _ \
-        <<<"$running_pi_shadow"
+        running_shadow_name running_user_password_hash _ \
+        <<<"$running_user_shadow"
 
-    if [[ "$running_pi_name" != pi ||
-          "$running_shadow_name" != pi ||
-          ! "$running_pi_uid" =~ ^[0-9]+$ ||
-          ! "$running_pi_gid" =~ ^[0-9]+$ ||
-          -z "$running_pi_password_hash" ||
-          "$running_pi_password_hash" == '!'* ||
-          "$running_pi_password_hash" == '*'* ]]; then
-        echo "Running pi account has no usable password identity." >&2
+    if [[ "$running_user_name" != "$appliance_user" ||
+          "$running_shadow_name" != "$appliance_user" ||
+          ! "$running_user_uid" =~ ^[0-9]+$ ||
+          ! "$running_user_gid" =~ ^[0-9]+$ ||
+          -z "$running_user_password_hash" ||
+          "$running_user_password_hash" == '!'* ||
+          "$running_user_password_hash" == '*'* ]]; then
+        echo "Running $appliance_user account has no usable password identity." >&2
         exit 1
     fi
 
@@ -299,29 +304,33 @@ if [[ "${1:-}" = install ]]; then
     target_root=$(mktemp -d "$staging_parent/target-root.XXXXXX")
     mount "$target_partition" "$target_root"
 
-    target_pi_count=$(
-        awk -F: '$1 == "pi" { count++ } END { print count + 0 }' \
+    target_user_count=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { count++ } END { print count + 0 }' \
             "$target_root/etc/passwd"
     )
     target_shadow_count=$(
-        awk -F: '$1 == "pi" { count++ } END { print count + 0 }' \
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { count++ } END { print count + 0 }' \
             "$target_root/etc/shadow"
     )
-    target_pi_uid=$(
-        awk -F: '$1 == "pi" { print $3 }' \
+    target_user_uid=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { print $3 }' \
             "$target_root/etc/passwd"
     )
-    target_pi_gid=$(
-        awk -F: '$1 == "pi" { print $4 }' \
+    target_user_gid=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { print $4 }' \
             "$target_root/etc/passwd"
     )
 
-    if [[ "$target_pi_count" -ne 1 ||
+    if [[ "$target_user_count" -ne 1 ||
           "$target_shadow_count" -ne 1 ||
-          "$target_pi_uid" != "$running_pi_uid" ||
-          "$target_pi_gid" != "$running_pi_gid" ||
+          "$target_user_uid" != "$running_user_uid" ||
+          "$target_user_gid" != "$running_user_gid" ||
           ! -x "$target_root/usr/sbin/chpasswd" ]]; then
-        echo "Target system has an incompatible pi account." >&2
+        echo "Target system has an incompatible $appliance_user account." >&2
         exit 1
     fi
 
@@ -336,7 +345,9 @@ if [[ "${1:-}" = install ]]; then
         "${host_keys[@]}" \
         "$target_root/etc/ssh/"
 
-    printf 'pi:%s\n' "$running_pi_password_hash" |
+    printf '%s:%s\n' \
+        "$appliance_user" \
+        "$running_user_password_hash" |
         chroot "$target_root" \
             /usr/sbin/chpasswd \
             --encrypted
@@ -364,13 +375,14 @@ if [[ "${1:-}" = install ]]; then
         fi
     done
 
-    target_pi_password_hash=$(
-        awk -F: '$1 == "pi" { print $2 }' \
+    target_user_password_hash=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { print $2 }' \
             "$target_root/etc/shadow"
     )
 
-    if [[ "$target_pi_password_hash" != "$running_pi_password_hash" ]]; then
-        echo "Unable to preserve the pi account password." >&2
+    if [[ "$target_user_password_hash" != "$running_user_password_hash" ]]; then
+        echo "Unable to preserve the $appliance_user account password." >&2
         exit 1
     fi
 
@@ -395,7 +407,7 @@ if [[ "${1:-}" = install ]]; then
 
     echo "PASS  machine ID"
     echo "PASS  SSH host keys"
-    echo "PASS  pi account password"
+    echo "PASS  $appliance_user account password"
     echo "PASS  release identity"
 
     echo

@@ -156,15 +156,24 @@ Explicit paths can be supplied as follows:
     "$HOME/masjidpi-u-boot-source/u-boot-2025.01"
 ```
 
-For a hardware test requiring a login, create the ignored file
+Images use these public factory login credentials:
+
+```text
+Username: masjidframe
+Password: MasjidFrame786!
+```
+
+They are defined in the tracked `pi3-ab-prototype.yaml` image configuration.
+After deployment, an operator may change the password normally; signed A/B
+updates preserve the installed `masjidframe` password hash instead of restoring
+the factory password.
+
+To preload a hardware-test Wi-Fi network, create the ignored file
 `appliance-image/config/pi3-ab-local.yaml`:
 
 ```yaml
 include:
   file: pi3-ab-prototype.yaml
-
-device:
-  user1pass: "choose-a-valid-temporary-password"
 
 nm:
   cmds: ${@SRCROOT}/config/local/network-manager.cmds
@@ -185,7 +194,7 @@ Then build with that configuration:
     "$HOME/masjidpi-u-boot-source/u-boot-2025.01"
 ```
 
-Never commit a test password.
+Never commit Wi-Fi credentials.
 
 Generated images, compressed deployment artefacts, SBOM data and IDP metadata
 are written below `work/`.

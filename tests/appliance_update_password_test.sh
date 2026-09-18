@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# The single-quoted grep patterns below intentionally match literal shell
+# expressions in the updater and must not expand in this test process.
+# shellcheck disable=SC2016
 
 set -Eeuo pipefail
 

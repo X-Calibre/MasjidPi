@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages.
 
 ## Release scope
 
@@ -225,6 +225,54 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [ ] Create immutable tag `v1.6.0-rc.5` from the accepted `main` commit.
 - [ ] Verify ARM64 and AMD64 archives plus `SHA256SUMS`.
 - [ ] Install and validate the published ARM64 archive on the Pi 4 daily-use appliance.
+
+## RC6 scope
+
+- integrate the signed stable-release discovery, approval, download, scheduling and installation workflow;
+- check for stable releases weekly, with user-initiated checks available from the touchscreen and Web UI;
+- expose a concise touchscreen update summary and a detailed Web UI Updates page;
+- install verified updates into the inactive Pi 3 system slot and preserve appliance identity, SSH host keys, configuration and the `masjidframe` account password;
+- require a ten-minute healthy trial before confirming a new system slot, with automatic rollback after two failed boots;
+- use the public factory credentials `masjidframe` / `MasjidFrame786!` in new appliance images;
+- allow first-run Board setup to be deferred when MasjidBoard is unavailable, with manual retry only and no automatic short-interval polling;
+- restore deferred Board configuration once the provider is available; and
+- package the complete Pi 3 A/B image and signed updater through the release workflow.
+
+## RC6 automated validation
+
+- [x] Go formatting and vet pass.
+- [x] The complete race-enabled Go test suite passes.
+- [x] Frontend JavaScript syntax and UI regression tests pass.
+- [x] Installer, display, release-package, updater and password-preservation shell tests pass.
+- [x] ShellCheck passes for the appliance scripts and regression tests.
+- [x] GitHub Actions passes on the integrated updater pull request.
+- [ ] GitHub Actions passes on the RC6 release-preparation pull request.
+- [ ] GitHub Actions passes on the integrated RC6 `main` commit.
+
+## RC6 Raspberry Pi 3 hardware validation
+
+- [x] A signed update bundle built from `b79c1442c6e06caa55726701000b669ace92f332` verifies successfully on the appliance.
+- [x] The updater plans the system-A to system-B transition without writes.
+- [x] Installation writes and reads back the complete inactive root filesystem and arms system B with system A as rollback.
+- [x] Machine identity, SSH host keys, release identity and the `masjidframe` password survive installation.
+- [x] System B boots into probation and reports the signed release through the update API.
+- [x] The ten-minute probation confirms system B automatically and clears the trial boot flags.
+- [x] A subsequent reboot remains on confirmed system B with no failed units.
+- [x] MasjidBoard selection and display configuration persist across the update and reboot.
+- [x] First-run Board selection works when MasjidBoard is online.
+- [x] The temporary-provider-outage path is covered by automated and embedded-image validation without aggressive automatic retries.
+
+## RC6 publication checklist
+
+- [x] Automatic-updater and Pi 3 A/B image work is merged to `main`.
+- [x] Hardware validation is complete on the Pi 3 appliance candidate.
+- [x] Version metadata is set to `v1.6.0-rc.6`.
+- [x] RC6 scope and validation status are documented.
+- [ ] Merge the RC6 release-preparation pull request after CI passes.
+- [ ] Confirm CI passes on the resulting `main` commit.
+- [ ] Create immutable tag `v1.6.0-rc.6` from the accepted `main` commit.
+- [ ] Verify published release archives, A/B image, signed update bundle and checksums.
+- [ ] Validate GitHub release discovery and installation using the published RC6 assets.
 
 ## Stable-release hardware follow-up
 

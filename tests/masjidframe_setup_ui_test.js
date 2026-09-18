@@ -65,7 +65,7 @@ assert.match(js, /\/api\/masjidboard\/catalogue\/refresh/);
 assert.match(js, /\/api\/masjidboard\/selection/);
 assert.match(js, /selection\?\.configured === true/);
 assert.match(js, /requestedStep === "location"/);
-assert.match(js, /locationRetryInterval = 30_000/);
+assert.doesNotMatch(js, /setTimeout/);
 assert.match(js, /MasjidBoard is temporarily unavailable/);
 assert.match(js, /\/api\/setup\/board/);
 assert.match(js, /setBoardSetupDeferred\(true\)/);

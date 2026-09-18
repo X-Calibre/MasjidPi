@@ -43,8 +43,6 @@
     let shifted = false;
     let symbols = false;
     let activeKeyboardInput = password;
-	let locationRetryTimer = null;
-	const locationRetryInterval = 30_000;
 
     const letterRows = [
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
@@ -406,11 +404,7 @@
 
     async function loadHierarchy() {
         const status = document.getElementById("locationStatus");
-		if (locationRetryTimer !== null) {
-			window.clearTimeout(locationRetryTimer);
-			locationRetryTimer = null;
-		}
-		retryLocationsButton.disabled = true;
+        retryLocationsButton.disabled = true;
 		locationRecovery.hidden = true;
         status.textContent = "Loading locations…";
         hierarchy = await jsonRequest("/api/masjidboard/hierarchy");
@@ -425,22 +419,14 @@
 		retryLocationsButton.disabled = false;
     }
 
-	function scheduleLocationRetry() {
-		if (locationRetryTimer !== null) window.clearTimeout(locationRetryTimer);
-		locationRetryTimer = window.setTimeout(() => {
-			if (!locationStep.hidden) void attemptHierarchyLoad();
-		}, locationRetryInterval);
-	}
-
-	async function attemptHierarchyLoad() {
+    async function attemptHierarchyLoad() {
 		try {
 			await loadHierarchy();
 		} catch (_) {
 			document.getElementById("locationStatus").textContent =
 				"MasjidBoard is temporarily unavailable. Try again, or finish setup without Board for now.";
-			locationRecovery.hidden = false;
-			retryLocationsButton.disabled = false;
-			scheduleLocationRetry();
+            locationRecovery.hidden = false;
+            retryLocationsButton.disabled = false;
 		}
 	}
 
@@ -532,10 +518,9 @@
                 : "No MasjidBoards were found for this location. Choose another location.";
             renderMasjids(records);
         } catch (error) {
-			document.getElementById("locationStatus").textContent =
-				"MasjidBoard is temporarily unavailable. Try again, or finish setup without Board for now.";
-			locationRecovery.hidden = false;
-			scheduleLocationRetry();
+            document.getElementById("locationStatus").textContent =
+                "MasjidBoard is temporarily unavailable. Try again, or finish setup without Board for now.";
+            locationRecovery.hidden = false;
         } finally {
             updateFindMasjidsButton();
             findMasjidsButton.textContent = "Find masjids";

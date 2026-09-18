@@ -178,6 +178,9 @@ h2 { margin-bottom: 8px; font-size: clamp(28px, 5vw, 40px); }
 .primary-button:disabled { opacity: .55; }
 .secondary-button, .back-button { border: 1px solid var(--border); background: var(--surface-raised); color: var(--text); }
 .secondary-button { padding: 0 18px; }
+.location-recovery { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.location-recovery[hidden] { display:none; }
+.location-recovery .primary-button { margin-top:0; }
 .back-button { margin-bottom: 18px; padding: 0 17px; }
 
 label { display: block; margin: 22px 0 8px; font-weight: 700; }

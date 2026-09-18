@@ -93,6 +93,8 @@ jobs:
             require_file "$package_dir/catalogue.json"
             require_file "$package_dir/VERSION"
             require_file "$package_dir/frontend/index.html"
+            require_file "$package_dir/frontend/updates.html"
+            require_file "$package_dir/frontend/update-status.js"
             require_file "$package_dir/frontend/app.js"
             require_file "$package_dir/frontend/masjidboard.html"
             require_file "$package_dir/frontend/masjidboard-startup.html"

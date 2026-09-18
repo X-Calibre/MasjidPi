@@ -7,6 +7,7 @@ public_key=$(
     realpath "${MASJIDPI_UPDATE_PUBLIC_KEY:-/usr/share/masjidpi/update/masjidpi-update.pub}"
 )
 readonly public_key
+readonly appliance_user=masjidframe
 
 usage()
 {
@@ -98,6 +99,40 @@ if [[ "${1:-}" = install ]]; then
             exit 1
             ;;
     esac
+
+    mapfile -t running_user_passwd_records < <(
+        getent passwd "$appliance_user"
+    )
+    mapfile -t running_user_shadow_records < <(
+        getent shadow "$appliance_user"
+    )
+
+    if (( ${#running_user_passwd_records[@]} != 1 ||
+          ${#running_user_shadow_records[@]} != 1 )); then
+        echo "Running system must contain exactly one $appliance_user account." >&2
+        exit 1
+    fi
+
+    running_user_passwd=${running_user_passwd_records[0]}
+    running_user_shadow=${running_user_shadow_records[0]}
+
+    IFS=: read -r \
+        running_user_name _ running_user_uid running_user_gid _ _ _ \
+        <<<"$running_user_passwd"
+    IFS=: read -r \
+        running_shadow_name running_user_password_hash _ \
+        <<<"$running_user_shadow"
+
+    if [[ "$running_user_name" != "$appliance_user" ||
+          "$running_shadow_name" != "$appliance_user" ||
+          ! "$running_user_uid" =~ ^[0-9]+$ ||
+          ! "$running_user_gid" =~ ^[0-9]+$ ||
+          -z "$running_user_password_hash" ||
+          "$running_user_password_hash" == '!'* ||
+          "$running_user_password_hash" == '*'* ]]; then
+        echo "Running $appliance_user account has no usable password identity." >&2
+        exit 1
+    fi
 
     staging_parent=/persistent/updates
     install -d -o root -g root -m 0700 "$staging_parent"
@@ -269,6 +304,36 @@ if [[ "${1:-}" = install ]]; then
     target_root=$(mktemp -d "$staging_parent/target-root.XXXXXX")
     mount "$target_partition" "$target_root"
 
+    target_user_count=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { count++ } END { print count + 0 }' \
+            "$target_root/etc/passwd"
+    )
+    target_shadow_count=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { count++ } END { print count + 0 }' \
+            "$target_root/etc/shadow"
+    )
+    target_user_uid=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { print $3 }' \
+            "$target_root/etc/passwd"
+    )
+    target_user_gid=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { print $4 }' \
+            "$target_root/etc/passwd"
+    )
+
+    if [[ "$target_user_count" -ne 1 ||
+          "$target_shadow_count" -ne 1 ||
+          "$target_user_uid" != "$running_user_uid" ||
+          "$target_user_gid" != "$running_user_gid" ||
+          ! -x "$target_root/usr/sbin/chpasswd" ]]; then
+        echo "Target system has an incompatible $appliance_user account." >&2
+        exit 1
+    fi
+
     install -o root -g root -m 0444 \
         /etc/machine-id \
         "$target_root/etc/machine-id"
@@ -279,6 +344,13 @@ if [[ "${1:-}" = install ]]; then
     cp -a \
         "${host_keys[@]}" \
         "$target_root/etc/ssh/"
+
+    printf '%s:%s\n' \
+        "$appliance_user" \
+        "$running_user_password_hash" |
+        chroot "$target_root" \
+            /usr/sbin/chpasswd \
+            --encrypted
 
     chown root:root \
         "$target_root"/etc/ssh/ssh_host_*_key \
@@ -303,6 +375,17 @@ if [[ "${1:-}" = install ]]; then
         fi
     done
 
+    target_user_password_hash=$(
+        awk -F: -v user="$appliance_user" \
+            '$1 == user { print $2 }' \
+            "$target_root/etc/shadow"
+    )
+
+    if [[ "$target_user_password_hash" != "$running_user_password_hash" ]]; then
+        echo "Unable to preserve the $appliance_user account password." >&2
+        exit 1
+    fi
+
     install -d -o root -g root -m 0755 \
         "$target_root/usr/share/masjidpi/update"
 
@@ -324,6 +407,7 @@ if [[ "${1:-}" = install ]]; then
 
     echo "PASS  machine ID"
     echo "PASS  SSH host keys"
+    echo "PASS  $appliance_user account password"
     echo "PASS  release identity"
 
     echo

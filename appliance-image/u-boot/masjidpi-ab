@@ -54,6 +54,15 @@ case "${1:-}" in
         show_environment
         ;;
 
+    machine-status)
+        echo "running_slot=$(running_slot)"
+        for variable in active_slot rollback_slot upgrade_available bootcount bootlimit
+        do
+            value=$(fw_printenv -n "$variable" 2>/dev/null || true)
+            echo "$variable=$value"
+        done
+        ;;
+
     diagnostics)
         echo "=== HARDWARE ==="
         tr -d '\0' </proc/device-tree/model
@@ -148,8 +157,8 @@ case "${1:-}" in
             exit 0
         fi
 
-        echo "Pending A/B trial detected; waiting 60 seconds."
-        sleep 60
+        echo "Pending A/B trial detected; beginning 10-minute probation."
+        sleep 600
 
         current_slot=$(running_slot)
         active_slot=$(
@@ -185,6 +194,18 @@ case "${1:-}" in
             exit 1
         fi
 
+        if ! curl \
+            --fail \
+            --silent \
+            --show-error \
+            --max-time 10 \
+            http://127.0.0.1:8080/api/version \
+            >/dev/null
+        then
+            echo "Refusing confirmation: MasjidPi health endpoint is unavailable." >&2
+            exit 1
+        fi
+
         failed_services=$(
             systemctl --failed --type=service --no-legend --plain ||
                 true
@@ -206,6 +227,7 @@ case "${1:-}" in
     *)
         echo "Usage:"
         echo "  sudo masjidpi-ab status"
+        echo "  sudo masjidpi-ab machine-status"
         echo "  sudo masjidpi-ab diagnostics"
         echo "  sudo masjidpi-ab trial a|b"
         echo "  sudo masjidpi-ab confirm"

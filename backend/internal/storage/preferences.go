@@ -37,6 +37,7 @@ type PreferencesState struct {
 	RadioScheduleStart      string `json:"radio_schedule_start,omitempty"`
 	RadioScheduleStop       string `json:"radio_schedule_stop,omitempty"`
 	RadioMode               string `json:"radio_mode,omitempty"`
+	BoardSetupDeferred      bool   `json:"board_setup_deferred,omitempty"`
 }
 
 func boolPointer(value bool) *bool { return &value }
@@ -99,7 +100,8 @@ func preferencesEqual(a, b PreferencesState) bool {
 		a.RadioScheduleEnabled == b.RadioScheduleEnabled &&
 		a.RadioScheduleStart == b.RadioScheduleStart &&
 		a.RadioScheduleStop == b.RadioScheduleStop &&
-		a.RadioMode == b.RadioMode
+		a.RadioMode == b.RadioMode &&
+		a.BoardSetupDeferred == b.BoardSetupDeferred
 }
 
 type Preferences struct {

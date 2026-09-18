@@ -40,7 +40,8 @@
 
     <section id="unconfiguredState" class="empty-state hidden">
         <h1>MasjidBoard is not configured</h1>
-        <p>Select your locations and masjids from the MasjidPi WebUI.</p>
+		<p>You can use MasjidFrame now and finish Board setup when the service is available.</p>
+		<a class="setup-board-link" href="/setup.html?profile=appliance-720&amp;step=location&amp;resume=1">Set up MasjidBoard</a>
     </section>
 
     <section id="displayState" class="display-state hidden">
@@ -172,6 +173,7 @@
                     <button id="applianceRadioTab" type="button" role="tab" data-touch-tab="radio" aria-controls="applianceRadioPanel" aria-selected="false">Radio</button>
                     <button id="applianceThemeTab" type="button" role="tab" data-touch-tab="theme" aria-controls="applianceThemePanel" aria-selected="false">Theme</button>
                     <button id="applianceNetworkTab" type="button" role="tab" data-touch-tab="network" aria-controls="applianceNetworkPanel" aria-selected="false">Network</button>
+                    <button id="applianceUpdatesTab" type="button" role="tab" data-touch-tab="updates" aria-controls="applianceUpdatesPanel" aria-selected="false">Updates</button>
                 </nav>
                 <div class="appliance-listen-content">
                     <section id="applianceMasjidPanel" data-touch-panel="masjid" role="tabpanel" aria-labelledby="applianceMasjidTab">
@@ -221,6 +223,21 @@
                             <a id="applianceChangeWiFi" href="/setup.html?return=board">Change Wi-Fi network</a>
                         </div>
                     </section>
+                    <section id="applianceUpdatesPanel" class="hidden" data-touch-panel="updates" role="tabpanel" aria-labelledby="applianceUpdatesTab">
+                        <div class="appliance-update-settings" data-update-widget>
+                            <dl class="update-details">
+                                <div><dt>Installed version</dt><dd data-update-installed-version>Loading…</dd></div>
+                                <div><dt>Available version</dt><dd data-update-available>Checking…</dd></div>
+                                <div><dt>Installation date</dt><dd data-update-install-date>Checking…</dd></div>
+                            </dl>
+                            <div class="update-actions hidden" data-update-actions>
+                                <button type="button" data-update-approve>Approve update</button>
+                                <button type="button" class="secondary" data-update-postpone>Remind me in 7 days</button>
+                                <button type="button" class="hidden" data-update-install>Install now</button>
+                            </div>
+                            <button type="button" data-update-check>Check now</button>
+                        </div>
+                    </section>
                 </div>
             </section>
         </aside>
@@ -236,5 +253,6 @@
 <script src="masjidboard-appliance.js?v=20260911-daily-scale-3"></script>
 <script src="masjidboard-listen-toast.js?v=20260829-source-transition-toast"></script>
 <script src="masjidboard-touch-controls.js?v=20260911-stream-sorting"></script>
+<script src="update-status.js?v=20260917-touch-summary"></script>
 </body>
 </html>

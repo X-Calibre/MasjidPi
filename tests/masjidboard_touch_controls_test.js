@@ -72,7 +72,7 @@ assert.match(appliance, /masjidpi:appliance-listen-panel/);
 assert.match(css, /\.appliance-quick-sheet\s*\{[^}]*height:auto;[^}]*max-height:calc\(100% - 20px\);[^}]*overflow-y:auto/s);
 assert.match(css, /\.appliance-quick-sheet\s*\{[^}]*touch-action:pan-x/s);
 assert.match(css, /\.appliance-quick-controls\s*\{[^}]*grid-template-columns:1fr 1fr/s);
-assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(4,1fr\)/s);
+assert.match(css, /\.appliance-listen-tabs\s*\{[^}]*grid-template-columns:repeat\(5,1fr\)/s);
 assert.match(appliance720, /\.appliance-quick-sheet\s*\{[^}]*height:auto;[^}]*max-height:calc\(100% - 20px\)/s);
 assert.match(appliance720, /\.appliance-quick-controls\s*\{[^}]*grid-template-columns:1fr/s);
 assert.match(appliance720, /\.appliance-quick-controls \.appliance-volume-control\s*\{[^}]*min-height:106px/s);
@@ -80,7 +80,7 @@ assert.match(appliance720, /\.appliance-quick-masjid-actions button,[\s\S]*?min-
 assert.match(appliance720, /\.appliance-quick-action-section h3\s*\{[^}]*font-size:21px/s);
 assert.match(appliance720, /\.appliance-quick-handle\s*\{[^}]*flex:0 0 34px;[^}]*height:34px/s);
 assert.match(appliance720, /\.appliance-listen-sheet\s*\{[^}]*height:930px/s);
-assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(4,1fr\)/s);
+assert.match(appliance720, /\.appliance-listen-tabs\s*\{[^}]*repeat\(5,1fr\)/s);
 assert.doesNotMatch(html, /<small>APPLIANCE CONTROLS<\/small>/);
 assert.match(appliance720, /\.appliance-listen-heading h2\s*\{[^}]*font-size:43px/s);
 assert.match(appliance720, /\.appliance-listen-status strong\s*\{[^}]*font-size:29px;[^}]*white-space:normal/s);

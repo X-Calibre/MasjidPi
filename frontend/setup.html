@@ -82,6 +82,10 @@
             <h2 id="locationHeading">Choose your location</h2>
             <p>We’ll use this to find MasjidBoards in your area.</p>
             <p id="locationStatus" class="status-message" role="status">Loading locations…</p>
+			<div id="locationRecovery" class="location-recovery" hidden>
+				<button id="retryLocationsButton" class="primary-button" type="button">Try again</button>
+				<button id="deferBoardSetupButton" class="secondary-button" type="button">Set up Board later</button>
+			</div>
 
             <label for="countryButton">Country</label>
             <button id="countryButton" class="picker-button" type="button" disabled>Select country…</button>
@@ -122,6 +126,6 @@
         <div id="pickerOptions" class="picker-options"></div>
     </section>
 
-    <script src="setup.js?v=20260915-first-run-timezone"></script>
+    <script src="setup.js?v=20260918-board-recovery"></script>
 </body>
 </html>

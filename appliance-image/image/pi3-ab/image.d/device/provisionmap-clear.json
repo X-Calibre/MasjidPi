@@ -1,0 +1,28 @@
+[
+   {
+      "attributes": {
+         "PMAPversion": "1.2.0",
+         "system_type": "flat"
+      }
+   },
+   {
+      "partitions": [
+         {
+            "image": "boot",
+            "comment": "shared Raspberry Pi firmware and bootloader"
+         },
+         {
+            "image": "system_a",
+            "comment": "operating-system slot A"
+         },
+         {
+            "image": "system_b",
+            "comment": "operating-system slot B"
+         },
+         {
+            "image": "persistent",
+            "comment": "state shared across system slots"
+         }
+      ]
+   }
+]

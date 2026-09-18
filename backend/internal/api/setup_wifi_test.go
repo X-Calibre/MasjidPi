@@ -84,6 +84,7 @@ func TestApplianceEntryRoutesUnconfiguredDeviceToTouchDisplaySetup(t *testing.T)
 
 func TestApplianceEntryRoutesConfiguredDeviceToTouchDisplayBoard(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: true}
 	request := httptest.NewRequest(http.MethodGet, "/appliance", nil)
 	response := httptest.NewRecorder()
 
@@ -144,6 +145,7 @@ func TestApplianceEntryRoutesMissingBoardServiceToLocationSetup(t *testing.T) {
 
 func TestApplianceEntryDoesNotRestoreRetiredProfile(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: true}
 	request := httptest.NewRequest(http.MethodGet, "/appliance?profile=appliance", nil)
 	response := httptest.NewRecorder()
 
@@ -156,6 +158,7 @@ func TestApplianceEntryDoesNotRestoreRetiredProfile(t *testing.T) {
 
 func TestApplianceEntryPreservesTouchDisplay2Profile(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{status: masjidnetwork.WiFiStatus{Supported: true, Configured: true}})
+	server.masjidBoardService = fakeMasjidBoardStatusProvider{configured: true}
 	request := httptest.NewRequest(http.MethodGet, "/appliance?profile=appliance-720", nil)
 	response := httptest.NewRecorder()
 

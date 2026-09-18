@@ -1,0 +1,121 @@
+#!/bin/bash
+
+set -eu
+
+filesystem=$1
+runtime_source="$LAYER_DIR/../../../work/masjidpi-runtime-arm64"
+
+for required_file in \
+    bin/masjidpi \
+    frontend/index.html \
+    frontend/masjidboard.html \
+    default.yaml \
+    catalogue.json \
+    VERSION \
+    scripts/masjidboard-display.sh \
+    scripts/masjidboard-warmup.sh \
+    scripts/masjidpi.service \
+    scripts/masjidpi-display.service \
+    scripts/masjidpi-display-warmup.service \
+    scripts/masjidpi-splash.plymouth \
+    scripts/masjidpi-splash-standard.script
+do
+    test -f "$runtime_source/$required_file"
+done
+
+install -d -o root -g root -m 0755 \
+    "$filesystem/opt/masjidpi/bin" \
+    "$filesystem/opt/masjidpi/frontend" \
+    "$filesystem/persistent/masjidpi/etc" \
+    "$filesystem/persistent/masjidpi/var" \
+    "$filesystem/etc/masjidpi" \
+    "$filesystem/var/lib/masjidpi" \
+    "$filesystem/usr/lib/systemd/system" \
+    "$filesystem/etc/systemd/system/multi-user.target.wants" \
+    "$filesystem/etc/systemd/system/plymouth-quit.service.d" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi"
+
+install -o root -g root -m 0755 \
+    "$runtime_source/bin/masjidpi" \
+    "$filesystem/opt/masjidpi/bin/masjidpi"
+
+cp -a \
+    "$runtime_source/frontend/." \
+    "$filesystem/opt/masjidpi/frontend/"
+
+chown -R root:root \
+    "$filesystem/opt/masjidpi/frontend"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/VERSION" \
+    "$filesystem/opt/masjidpi/VERSION"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/default.yaml" \
+    "$filesystem/persistent/masjidpi/etc/config.yaml"
+
+printf '%s\n' \
+    'MASJIDPI_COMPONENTS=listen,board' \
+    > "$filesystem/persistent/masjidpi/etc/components.env"
+
+chmod 0644 \
+    "$filesystem/persistent/masjidpi/etc/components.env"
+
+chown root:root \
+    "$filesystem/persistent/masjidpi/etc/components.env"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/catalogue.json" \
+    "$filesystem/persistent/masjidpi/var/catalogue.json"
+
+install -o root -g root -m 0755 \
+    "$runtime_source/scripts/masjidboard-display.sh" \
+    "$filesystem/opt/masjidpi/bin/masjidboard-display"
+
+install -o root -g root -m 0755 \
+    "$runtime_source/scripts/masjidboard-warmup.sh" \
+    "$filesystem/opt/masjidpi/bin/masjidboard-warmup"
+
+for service_file in \
+    masjidpi.service \
+    masjidpi-display.service \
+    masjidpi-display-warmup.service
+do
+    install -o root -g root -m 0644 \
+        "$runtime_source/scripts/$service_file" \
+        "$filesystem/usr/lib/systemd/system/$service_file"
+
+    ln -sfn \
+        "/usr/lib/systemd/system/$service_file" \
+        "$filesystem/etc/systemd/system/multi-user.target.wants/$service_file"
+done
+
+install -o root -g root -m 0644 \
+    "$runtime_source/scripts/masjidpi-splash.plymouth" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi/masjidpi.plymouth"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/scripts/masjidpi-splash-standard.script" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi/masjidpi-splash.script"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/frontend/masjidpi-splash-logo.png" \
+    "$filesystem/usr/share/plymouth/themes/masjidpi/masjidpi-splash-logo.png"
+
+cat > "$filesystem/etc/systemd/system/plymouth-quit.service.d/masjidpi.conf" <<'EOF_PLYMOUTH'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/plymouth quit --retain-splash
+EOF_PLYMOUTH
+
+# Keep console=tty1 for reliable KMS initialization, but do not expose a login
+# prompt on the dedicated appliance display.
+systemctl \
+    --root="$filesystem" \
+    disable getty@tty1.service \
+    >/dev/null 2>&1 || true
+
+# Rebuild the initramfs and allow raspi-firmware's post-update hook to copy the
+# themed result to /boot/firmware/initramfs8.
+chroot "$filesystem" \
+    plymouth-set-default-theme -R masjidpi

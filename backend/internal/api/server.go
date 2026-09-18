@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/X-Calibre/MasjidPi/backend/internal/components"
 	"github.com/X-Calibre/MasjidPi/backend/internal/display"
@@ -16,6 +17,8 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
+	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -26,6 +29,20 @@ type masjidBoardStatusProvider interface {
 }
 type masjidBoardEconomicProvider interface{ EconomicIndicators() *economic.Indicators }
 type masjidBoardDailyContentProvider interface{ DailyIslamicContent() *dailycontent.Content }
+
+type timezoneController interface {
+	Zones(string) ([]masjidtimezone.Zone, error)
+	Current() (string, bool, error)
+	Set(context.Context, string) error
+}
+
+type updateController interface {
+	Status() (updates.State, error)
+	Check(context.Context) (updates.State, error)
+	Approve() (updates.State, error)
+	Postpone(time.Time) (updates.State, error)
+	Install(context.Context, bool, bool) (updates.State, error)
+}
 
 type Server struct {
 	httpServer                  *http.Server
@@ -47,6 +64,8 @@ type Server struct {
 	installed                   components.Installed
 	wifi                        masjidnetwork.WiFiManager
 	displaySettings             *display.Controller
+	timezoneController          timezoneController
+	updateController            updateController
 }
 
 type Config struct {
@@ -71,6 +90,8 @@ type Dependencies struct {
 	AudioDeviceState       *storage.AudioDeviceState
 	WiFi                   masjidnetwork.WiFiManager
 	DisplaySettings        *display.Controller
+	Timezone               timezoneController
+	Updates                updateController
 	MasjidBoardService     masjidBoardStatusProvider
 	MasjidBoardMaintenance masjidBoardMaintenance
 }
@@ -100,12 +121,19 @@ func New(config Config, dependencies Dependencies) *Server {
 		installed:                config.Installed,
 		wifi:                     dependencies.WiFi,
 		displaySettings:          dependencies.DisplaySettings,
+		timezoneController:       dependencies.Timezone,
+		updateController:         dependencies.Updates,
 		httpServer:               &http.Server{Addr: config.Address, Handler: mux},
 	}
 	server.SetMasjidBoardService(dependencies.MasjidBoardService)
 
 	mux.HandleFunc("/api/components", server.components)
 	mux.HandleFunc("/api/version", server.version)
+	mux.HandleFunc("/api/update/status", server.updateStatus)
+	mux.HandleFunc("/api/update/check", server.updateCheck)
+	mux.HandleFunc("/api/update/approve", server.updateApprove)
+	mux.HandleFunc("/api/update/postpone", server.updatePostpone)
+	mux.HandleFunc("/api/update/install", server.updateInstall)
 	if config.Installed.Listen {
 		mux.HandleFunc("/api/player/play", server.play)
 		mux.HandleFunc("/api/player/stop", server.stop)
@@ -131,6 +159,9 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/setup/wifi/networks", server.wifiNetworks)
 		mux.HandleFunc("/api/setup/wifi/connect", server.wifiConnect)
 		mux.HandleFunc("/api/setup/device-access", server.deviceAccess)
+		mux.HandleFunc("/api/setup/timezones", server.timezones)
+		mux.HandleFunc("/api/setup/timezone", server.timezone)
+		mux.HandleFunc("/api/setup/board", server.boardSetup)
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
 		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
@@ -175,6 +206,16 @@ func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if s.masjidBoardService == nil || !s.masjidBoardService.Configured() {
+		if s.preferences != nil {
+			preferences, err := s.preferences.Load()
+			if err == nil && preferences.BoardSetupDeferred {
+				http.Redirect(w, r, "/masjidboard.html?profile="+profile, http.StatusTemporaryRedirect)
+				return
+			}
+			if err != nil && s.logger != nil {
+				s.logger.Warn("Could not load Board setup preference", "error", err)
+			}
+		}
 		http.Redirect(
 			w,
 			r,

@@ -1,0 +1,43 @@
+# METABEGIN
+# X-Env-Layer-Name: masjidpi-trixie-minbase
+# X-Env-Layer-Desc: Debian Trixie MasjidPi appliance base with NetworkManager.
+# X-Env-Layer-Category: suite
+# X-Env-Layer-Version: 1.0.0
+# X-Env-Layer-Requires: debian-trixie-arm64-multi,
+#  rpi-debian-trixie,
+#  rpi-misc-utils,
+#  rpi-essential-base,
+#  rpi-misc-skel,
+#  network-manager,
+#  openssh-server,
+#  systemd-timesyncd,
+#  wireless-regulatory
+# METAEND
+---
+mmdebstrap:
+  packages:
+    - wpasupplicant
+  customize-hooks:
+    - |-
+      set -eu
+
+      install -d -o root -g root -m 0700 \
+        "$1/persistent/network-manager" \
+        "$1/persistent/network-manager/system-connections" \
+        "$1/persistent/network-manager/state" \
+        "$1/etc/NetworkManager/system-connections" \
+        "$1/var/lib/NetworkManager"
+
+      cp -a \
+        "$1/etc/NetworkManager/system-connections/." \
+        "$1/persistent/network-manager/system-connections/"
+
+      cp -a \
+        "$1/var/lib/NetworkManager/." \
+        "$1/persistent/network-manager/state/"
+
+      find \
+        "$1/persistent/network-manager/system-connections" \
+        -mindepth 1 \
+        -type f \
+        -exec chmod 0600 {} +

@@ -17,6 +17,9 @@ type Paths struct {
 	FavouritesState      string
 	PreferencesState     string
 	DisplaySettingsState string
+	TimezoneState        string
+	UpdateState          string
+	UpdateDownloads      string
 	MasjidBoardHierarchy string
 	MasjidBoardCatalogue string
 	MasjidBoardScope     string
@@ -39,6 +42,9 @@ func NewPaths(base string) Paths {
 		FavouritesState:      filepath.Join(base, "backend", "data", "favourites.json"),
 		PreferencesState:     filepath.Join(base, "backend", "data", "preferences.json"),
 		DisplaySettingsState: filepath.Join(base, "backend", "data", "display_settings.json"),
+		TimezoneState:        filepath.Join(base, "backend", "data", "timezone.json"),
+		UpdateState:          filepath.Join(base, "backend", "data", "update_state.json"),
+		UpdateDownloads:      filepath.Join(base, "backend", "data", "update-downloads"),
 		MasjidBoardHierarchy: filepath.Join(base, "backend", "data", "masjidboard_hierarchy.json"),
 		MasjidBoardCatalogue: filepath.Join(base, "backend", "data", "masjidboard_catalogue.json"),
 		MasjidBoardScope:     filepath.Join(base, "backend", "data", "masjidboard_scope.json"),
@@ -63,6 +69,9 @@ func RuntimePaths() (Paths, error) {
 			FavouritesState:      "/var/lib/masjidpi/favourites.json",
 			PreferencesState:     "/var/lib/masjidpi/preferences.json",
 			DisplaySettingsState: "/var/lib/masjidpi/display_settings.json",
+			TimezoneState:        "/var/lib/masjidpi/timezone.json",
+			UpdateState:          "/var/lib/masjidpi/update_state.json",
+			UpdateDownloads:      "/var/lib/masjidpi/update-downloads",
 			MasjidBoardHierarchy: "/var/lib/masjidpi/masjidboard_hierarchy.json",
 			MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
 			MasjidBoardScope:     "/var/lib/masjidpi/masjidboard_scope.json",
@@ -89,6 +98,9 @@ func RuntimePaths() (Paths, error) {
 				FavouritesState:      "/var/lib/masjidpi/favourites.json",
 				PreferencesState:     "/var/lib/masjidpi/preferences.json",
 				DisplaySettingsState: "/var/lib/masjidpi/display_settings.json",
+				TimezoneState:        "/var/lib/masjidpi/timezone.json",
+				UpdateState:          "/var/lib/masjidpi/update_state.json",
+				UpdateDownloads:      "/var/lib/masjidpi/update-downloads",
 				MasjidBoardHierarchy: "/var/lib/masjidpi/masjidboard_hierarchy.json",
 				MasjidBoardCatalogue: "/var/lib/masjidpi/masjidboard_catalogue.json",
 				MasjidBoardScope:     "/var/lib/masjidpi/masjidboard_scope.json",

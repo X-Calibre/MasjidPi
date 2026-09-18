@@ -40,3 +40,10 @@ backend/data/masjidboard_catalogue.json
 backend/data/masjidboard_hierarchy.json
 backend/data/masjidboard_scope.json
 backend/data/masjidboard_selection.json
+
+/work/
+/appliance-image/config/*-local.yaml
+
+/appliance-image/u-boot/build/
+/appliance-image/config/local/
+/appliance-image/update/masjidpi-update-private.key

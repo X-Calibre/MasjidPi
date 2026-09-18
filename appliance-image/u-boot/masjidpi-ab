@@ -1,0 +1,237 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ "$EUID" -ne 0 ]]; then
+    echo "Run this command with sudo." >&2
+    exit 1
+fi
+
+show_environment()
+{
+    fw_printenv |
+        grep -E \
+            '^(active_slot|rollback_slot|upgrade_available|bootcount|bootlimit|bootcmd|altbootcmd)=' ||
+        true
+}
+
+running_slot()
+{
+    case "$(findmnt -no SOURCE /)" in
+        /dev/mmcblk0p2) echo a ;;
+        /dev/mmcblk0p3) echo b ;;
+        *)
+            echo "Unable to determine the running system slot." >&2
+            return 1
+            ;;
+    esac
+}
+
+confirm_running_slot()
+{
+    current_slot=$(running_slot)
+
+    fw_setenv active_slot "$current_slot"
+    fw_setenv rollback_slot "$current_slot"
+    fw_setenv bootcount 0
+    fw_setenv bootlimit
+
+    # Clear the trial marker last. An interrupted confirmation remains a trial.
+    fw_setenv upgrade_available 0
+
+    echo "=== CONFIRMED SYSTEM $current_slot ==="
+    show_environment
+}
+
+case "${1:-}" in
+    status)
+        echo "=== RUNNING SLOT ==="
+        echo "system_$(running_slot)"
+        findmnt -no SOURCE,FSTYPE,OPTIONS /
+
+        echo
+        echo "=== U-BOOT ENVIRONMENT ==="
+        show_environment
+        ;;
+
+    machine-status)
+        echo "running_slot=$(running_slot)"
+        for variable in active_slot rollback_slot upgrade_available bootcount bootlimit
+        do
+            value=$(fw_printenv -n "$variable" 2>/dev/null || true)
+            echo "$variable=$value"
+        done
+        ;;
+
+    diagnostics)
+        echo "=== HARDWARE ==="
+        tr -d '\0' </proc/device-tree/model
+        echo
+
+        echo
+        echo "=== KERNEL COMMAND LINE ==="
+        cat /proc/cmdline
+
+        echo
+        echo "=== ROOT FILESYSTEM ==="
+        findmnt -no SOURCE,FSTYPE,OPTIONS /
+
+        echo
+        echo "=== STORAGE ==="
+        lsblk -o NAME,PATH,SIZE,FSTYPE,LABEL,MOUNTPOINTS
+
+        echo
+        echo "=== FW_ENV CONFIGURATION ==="
+        cat /etc/fw_env.config
+
+        echo
+        echo "=== U-BOOT ENVIRONMENT ==="
+        show_environment
+
+        echo
+        echo "=== AUTOMATIC CONFIRMATION SERVICE ==="
+        systemctl status \
+            masjidpi-ab-confirm.service \
+            --no-pager -l ||
+            true
+
+        echo
+        echo "=== AUTOMATIC CONFIRMATION LOG ==="
+        journalctl \
+            -u masjidpi-ab-confirm.service \
+            -b \
+            -n 20 \
+            --no-pager ||
+            true
+
+        echo
+        echo "=== FAILED SERVICES ==="
+        systemctl --failed --no-pager
+
+        echo
+        echo "=== POWER STATUS ==="
+        if command -v vcgencmd >/dev/null; then
+            vcgencmd get_throttled
+        else
+            echo "vcgencmd is unavailable"
+        fi
+        ;;
+
+    trial)
+        target_slot=${2:-}
+
+        if [[ "$target_slot" != a && "$target_slot" != b ]]; then
+            echo "Usage: sudo masjidpi-ab trial a|b" >&2
+            exit 1
+        fi
+
+        current_slot=$(running_slot)
+
+        if [[ "$target_slot" = "$current_slot" ]]; then
+            echo "System $target_slot is already running." >&2
+            exit 1
+        fi
+
+        # active_slot is written last. An interrupted preparation therefore
+        # continues booting the currently confirmed slot.
+        fw_setenv rollback_slot "$current_slot"
+        fw_setenv upgrade_available 1
+        fw_setenv bootcount 0
+        fw_setenv bootlimit 2
+        fw_setenv active_slot "$target_slot"
+
+        echo "=== ARMED TRIAL ==="
+        show_environment
+        echo
+        echo "Reboot to test system $target_slot."
+        ;;
+
+    auto-confirm)
+        upgrade_available=$(
+            fw_printenv -n upgrade_available 2>/dev/null ||
+                true
+        )
+
+        if [[ "$upgrade_available" != 1 ]]; then
+            echo "No pending A/B trial; confirmation is not required."
+            exit 0
+        fi
+
+        echo "Pending A/B trial detected; beginning 10-minute probation."
+        sleep 600
+
+        current_slot=$(running_slot)
+        active_slot=$(
+            fw_printenv -n active_slot 2>/dev/null ||
+                true
+        )
+
+        if [[ "$active_slot" != "$current_slot" ]]; then
+            echo "Refusing confirmation: running system $current_slot but active_slot=$active_slot." >&2
+            exit 1
+        fi
+
+        root_options=$(findmnt -no OPTIONS /)
+        if ! tr ',' '\n' <<<"$root_options" | grep -Fqx rw; then
+            echo "Refusing confirmation: root filesystem is not read-write." >&2
+            exit 1
+        fi
+
+        if ! persistent_source=$(findmnt -no SOURCE /persistent); then
+            echo "Refusing confirmation: /persistent is not mounted." >&2
+            exit 1
+        fi
+
+        persistent_options=$(findmnt -no OPTIONS /persistent)
+
+        if [[ "$persistent_source" != /dev/mmcblk0p4 ]]; then
+            echo "Refusing confirmation: unexpected persistent source $persistent_source." >&2
+            exit 1
+        fi
+
+        if ! tr ',' '\n' <<<"$persistent_options" | grep -Fqx rw; then
+            echo "Refusing confirmation: persistent filesystem is not read-write." >&2
+            exit 1
+        fi
+
+        if ! curl \
+            --fail \
+            --silent \
+            --show-error \
+            --max-time 10 \
+            http://127.0.0.1:8080/api/version \
+            >/dev/null
+        then
+            echo "Refusing confirmation: MasjidPi health endpoint is unavailable." >&2
+            exit 1
+        fi
+
+        failed_services=$(
+            systemctl --failed --type=service --no-legend --plain ||
+                true
+        )
+
+        if [[ -n "$failed_services" ]]; then
+            echo "Refusing confirmation: one or more system services failed." >&2
+            printf '%s\n' "$failed_services" >&2
+            exit 1
+        fi
+
+        confirm_running_slot
+        ;;
+
+    confirm)
+        confirm_running_slot
+        ;;
+
+    *)
+        echo "Usage:"
+        echo "  sudo masjidpi-ab status"
+        echo "  sudo masjidpi-ab machine-status"
+        echo "  sudo masjidpi-ab diagnostics"
+        echo "  sudo masjidpi-ab trial a|b"
+        echo "  sudo masjidpi-ab confirm"
+        echo "  sudo masjidpi-ab auto-confirm"
+        exit 1
+        ;;
+esac

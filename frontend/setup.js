@@ -22,7 +22,11 @@
     const countryButton = document.getElementById("countryButton");
     const regionButton = document.getElementById("regionButton");
     const cityButton = document.getElementById("cityButton");
+    const timezoneButton = document.getElementById("timezoneButton");
     const findMasjidsButton = document.getElementById("findMasjidsButton");
+	const locationRecovery = document.getElementById("locationRecovery");
+	const retryLocationsButton = document.getElementById("retryLocationsButton");
+	const deferBoardSetupButton = document.getElementById("deferBoardSetupButton");
     const masjidList = document.getElementById("masjidList");
     const finishSetupButton = document.getElementById("finishSetupButton");
     const pickerSheet = document.getElementById("pickerSheet");
@@ -33,6 +37,8 @@
     let selectedCountryName = "";
     let selectedRegionIndex = -1;
     let selectedCityName = "";
+    let timezoneOptions = [];
+    let selectedTimezone = "";
     let continueAction = () => window.location.replace(boardURL);
     let shifted = false;
     let symbols = false;
@@ -308,6 +314,64 @@
         pickerSheet.hidden = false;
     }
 
+    function timezoneLabel(zone) {
+        return zone.description
+            ? `${zone.description} (${zone.name})`
+            : zone.name;
+    }
+
+    function updateFindMasjidsButton() {
+        findMasjidsButton.disabled = !selectedCityName || !selectedTimezone;
+    }
+
+    async function loadTimezones() {
+        timezoneOptions = [];
+        selectedTimezone = "";
+        timezoneButton.disabled = true;
+        timezoneButton.textContent = "Loading time zones…";
+        updateFindMasjidsButton();
+
+        const country = selectedCountryName;
+        if (!country) {
+            timezoneButton.textContent = "Select country first…";
+            return;
+        }
+
+        try {
+            const payload = await jsonRequest(
+                `/api/setup/timezones?country=${encodeURIComponent(country)}`
+            );
+            if (selectedCountryName !== country) return;
+            timezoneOptions = Array.isArray(payload?.zones)
+                ? payload.zones
+                : [];
+
+            const saved = timezoneOptions.find(
+                (zone) => zone.name === payload?.current
+            );
+            if (saved) {
+                selectedTimezone = saved.name;
+            } else if (timezoneOptions.length === 1) {
+                selectedTimezone = timezoneOptions[0].name;
+            }
+
+            timezoneButton.disabled = timezoneOptions.length === 0;
+            timezoneButton.textContent = selectedTimezone
+                ? timezoneLabel(
+                    timezoneOptions.find(
+                        (zone) => zone.name === selectedTimezone
+                    )
+                )
+                : "Select time zone…";
+            updateFindMasjidsButton();
+        } catch (error) {
+            if (selectedCountryName !== country) return;
+            timezoneButton.textContent = "Time zones unavailable";
+            document.getElementById("locationStatus").textContent =
+                `Could not load time zones: ${error.message}`;
+        }
+    }
+
     function populateCountries() {
         countryButton.disabled = countries().length === 0;
         const southAfrica = countries().find((country) => country.name === "South Africa");
@@ -315,6 +379,7 @@
             selectedCountryName = southAfrica.name;
             countryButton.textContent = southAfrica.name;
             populateRegions();
+            loadTimezones();
         }
     }
 
@@ -339,6 +404,8 @@
 
     async function loadHierarchy() {
         const status = document.getElementById("locationStatus");
+        retryLocationsButton.disabled = true;
+		locationRecovery.hidden = true;
         status.textContent = "Loading locations…";
         hierarchy = await jsonRequest("/api/masjidboard/hierarchy");
         if (!countries().length) {
@@ -347,17 +414,48 @@
             hierarchy = await jsonRequest("/api/masjidboard/hierarchy");
         }
         populateCountries();
-        status.textContent = countries().length ? "Select the location nearest to your masjid." : "No locations are currently available.";
+		if (!countries().length) throw new Error("no locations available");
+		status.textContent = "Select the location nearest to your masjid.";
+		retryLocationsButton.disabled = false;
     }
+
+    async function attemptHierarchyLoad() {
+		try {
+			await loadHierarchy();
+		} catch (_) {
+			document.getElementById("locationStatus").textContent =
+				"MasjidBoard is temporarily unavailable. Try again, or finish setup without Board for now.";
+            locationRecovery.hidden = false;
+            retryLocationsButton.disabled = false;
+		}
+	}
+
+	async function setBoardSetupDeferred(deferred) {
+		await jsonRequest("/api/setup/board", {
+			method: "PUT",
+			headers: {"Content-Type": "application/json"},
+			body: JSON.stringify({deferred})
+		});
+	}
+
+	async function deferBoardSetup() {
+		deferBoardSetupButton.disabled = true;
+		try {
+			await setBoardSetupDeferred(true);
+			window.location.replace(boardURL);
+		} catch (_) {
+			document.getElementById("locationStatus").textContent =
+				"Could not save this choice. Try again.";
+			deferBoardSetupButton.disabled = false;
+		}
+	}
 
     function showLocationStep() {
         document.body.classList.remove("masjid-step-open");
         successStep.hidden = true;
         masjidStep.hidden = true;
         locationStep.hidden = false;
-        loadHierarchy().catch((error) => {
-            document.getElementById("locationStatus").textContent = `Could not load locations: ${error.message}`;
-        });
+		void attemptHierarchyLoad();
     }
 
     function locationValue() {
@@ -393,11 +491,16 @@
 
     async function findMasjids() {
         const location = locationValue();
-        if (!location.country || !location.city) return;
+        if (!location.country || !location.city || !selectedTimezone) return;
         findMasjidsButton.disabled = true;
         findMasjidsButton.textContent = "Finding masjids…";
         document.getElementById("locationStatus").textContent = "Saving your location and retrieving MasjidBoards…";
         try {
+            await jsonRequest("/api/setup/timezone", {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({name: selectedTimezone})
+            });
             await jsonRequest("/api/masjidboard/scope", {
                 method: "PUT",
                 headers: {"Content-Type": "application/json"},
@@ -415,9 +518,11 @@
                 : "No MasjidBoards were found for this location. Choose another location.";
             renderMasjids(records);
         } catch (error) {
-            document.getElementById("locationStatus").textContent = `Could not find masjids: ${error.message}`;
+            document.getElementById("locationStatus").textContent =
+                "MasjidBoard is temporarily unavailable. Try again, or finish setup without Board for now.";
+            locationRecovery.hidden = false;
         } finally {
-            findMasjidsButton.disabled = !selectedCityName;
+            updateFindMasjidsButton();
             findMasjidsButton.textContent = "Find masjids";
         }
     }
@@ -433,6 +538,7 @@
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({catalogue_ids: [selectedMasjid.id]})
             });
+			await setBoardSetupDeferred(false);
             document.body.classList.remove("masjid-step-open");
             masjidStep.hidden = true;
             successStep.hidden = false;
@@ -492,6 +598,7 @@
             selectedCountryName = item.value;
             countryButton.textContent = item.label;
             populateRegions();
+            loadTimezones();
         }
     ));
     regionButton.addEventListener("click", () => openPicker(
@@ -511,11 +618,26 @@
         (item) => {
             selectedCityName = item.value;
             cityButton.textContent = item.label;
-            findMasjidsButton.disabled = false;
+            updateFindMasjidsButton();
+        }
+    ));
+    timezoneButton.addEventListener("click", () => openPicker(
+        "Choose time zone",
+        timezoneOptions.map((zone) => ({
+            label: timezoneLabel(zone),
+            value: zone.name
+        })),
+        selectedTimezone,
+        (item) => {
+            selectedTimezone = item.value;
+            timezoneButton.textContent = item.label;
+            updateFindMasjidsButton();
         }
     ));
     document.getElementById("closePicker").addEventListener("click", closePicker);
     findMasjidsButton.addEventListener("click", findMasjids);
+	retryLocationsButton.addEventListener("click", () => void attemptHierarchyLoad());
+	deferBoardSetupButton.addEventListener("click", () => void deferBoardSetup());
     finishSetupButton.addEventListener("click", finishSetup);
     document.getElementById("backToLocation").addEventListener("click", showLocationStep);
     document.getElementById("continueButton").addEventListener("click", () => continueAction());
@@ -530,6 +652,10 @@
         document.getElementById("networkHeading").textContent = "Change Wi-Fi network";
     }
     const requestedStep = setupParams.get("step");
-    if (requestedStep === "location") showLocationStep();
+	if (requestedStep === "location") {
+		if (setupParams.get("resume") === "1") {
+			void setBoardSetupDeferred(false).finally(showLocationStep);
+		} else showLocationStep();
+	}
     else scanNetworks();
 })();

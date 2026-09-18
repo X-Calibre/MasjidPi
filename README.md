@@ -24,7 +24,7 @@ It can run either capability independently or install both together:
 ### Board
 
 - Complete first-run setup on the attached touchscreen, including visible or hidden Wi-Fi networks
-- Choose the initial location and MasjidBoard without another computer
+- Choose the initial location, time zone, and MasjidBoard without another computer
 - Select and order up to three MasjidBoard Live masjids
 - Use a responsive TV/Monitor layout or the portrait 7-inch Appliance Display
 - Show prayer times, next-event countdowns, Daily Times and detailed Friday Jumu'ah schedules

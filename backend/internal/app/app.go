@@ -22,6 +22,8 @@ import (
 	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
 	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
 	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
+	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
 	"github.com/X-Calibre/MasjidPi/backend/internal/version"
 )
 
@@ -50,22 +52,50 @@ func Run() error {
 	if !installed.Listen && !installed.Board {
 		return fmt.Errorf("no MasjidPi components are installed")
 	}
+	timezoneController := masjidtimezone.NewController(paths.TimezoneState)
+	if restored, err := timezoneController.Restore(context.Background()); err != nil {
+		log.Warn("Could not restore saved timezone", "error", err)
+	} else if restored {
+		log.Info("Restored saved timezone")
+	}
+
 	displaySettings := display.NewController(paths.DisplaySettingsState, "")
 	if err := displaySettings.Restore(); err != nil {
 		log.Warn("Could not restore display brightness", "error", err)
 	}
+
+	updateController := updates.NewController(
+		updates.NewStore(paths.UpdateState),
+		updates.GitHubClient{},
+		version.Version,
+	)
+	updateController.SetBundlePreparer(updates.Downloader{
+		Directory: paths.UpdateDownloads,
+		Verifier:  updates.CommandVerifier{},
+	})
+	updateController.SetInstaller(
+		updates.CommandInstaller{Directory: paths.UpdateDownloads},
+		updates.CommandRebooter{},
+	)
+	applianceUpdateController := newApplianceUpdates(updateController)
+	applianceUpdateController.SetTrialStatusSource(updates.CommandTrialStatus{})
+	applianceUpdateController.SetReleaseRecordPath(updates.DefaultReleaseRecordPath)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	if !installed.Listen {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
+		applianceUpdateController.SetSafetyProviders(nil, masjidBoardService)
+		go monitorUpdateChecks(ctx, applianceUpdateController, log)
 		server := newAPIServer(cfg, paths, installed, api.Dependencies{
 			Logger:                 log,
 			WiFi:                   masjidnetwork.NewNetworkManager(),
 			MasjidBoardService:     masjidBoardService,
 			MasjidBoardMaintenance: masjidBoardMaintenance,
 			DisplaySettings:        displaySettings,
+			Timezone:               timezoneController,
+			Updates:                applianceUpdateController,
 		})
 		return runHTTPServer(ctx, server, log)
 	}
@@ -87,6 +117,7 @@ func Run() error {
 	}()
 
 	audioDeviceState := storage.NewAudioDeviceState(paths.AudioDeviceState)
+	selectFirstRunAudioDevice := false
 	if name, ok, err := audioDeviceState.Load(); err != nil {
 		log.Warn("Could not load saved audio device", "error", err)
 	} else if ok {
@@ -95,6 +126,8 @@ func Run() error {
 		} else {
 			log.Info("Restored audio device", "audio_device", name)
 		}
+	} else {
+		selectFirstRunAudioDevice = true
 	}
 
 	playbackConfig, err := newPlaybackConfig(cfg)
@@ -105,6 +138,20 @@ func Run() error {
 
 	playbackManager := playback.New(mpv, playbackConfig)
 	playbackManager.SetAudioDeviceProvider(player.NewALSAAudioDevices("/sys/class/sound", mpv))
+	if selectFirstRunAudioDevice {
+		devices, err := playbackManager.AudioDevices()
+		if err != nil {
+			log.Warn("Could not discover first-run audio devices", "error", err)
+		} else if name, ok := preferredFirstRunAudioDevice(devices); ok {
+			if err := playbackManager.AudioDevice(name); err != nil {
+				log.Warn("Could not select first-run USB audio device", "audio_device", name, "error", err)
+			} else if err := audioDeviceState.Save(name); err != nil {
+				log.Warn("Could not save first-run USB audio device", "audio_device", name, "error", err)
+			} else {
+				log.Info("Selected first-run USB audio device", "audio_device", name)
+			}
+		}
+	}
 	volumeState := storage.NewVolume(paths.VolumeState)
 	playbackManager.SetVolumePersistence(volumeState)
 	if err := playbackManager.InitializeVolume(); err != nil {
@@ -200,12 +247,21 @@ func Run() error {
 		Preferences:      preferences,
 		AudioDeviceState: audioDeviceState,
 		DisplaySettings:  displaySettings,
+		Timezone:         timezoneController,
+		Updates:          applianceUpdateController,
 	}
 	if installed.Board {
 		masjidBoardService, masjidBoardMaintenance := startMasjidBoard(ctx, paths, log)
 		dependencies.MasjidBoardService = masjidBoardService
 		dependencies.MasjidBoardMaintenance = masjidBoardMaintenance
+		applianceUpdateController.SetSafetyProviders(
+			playbackManager,
+			masjidBoardService,
+		)
+	} else {
+		applianceUpdateController.SetSafetyProviders(playbackManager, nil)
 	}
+	go monitorUpdateChecks(ctx, applianceUpdateController, log)
 	server := newAPIServer(cfg, paths, installed, dependencies)
 
 	catalogueRefreshInterval, err := time.ParseDuration(cfg.Streams.RefreshInterval)
@@ -272,6 +328,15 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 			log.Info("Scheduled catalogue refresh completed", "streams", len(streams.All()), "radio_stations", len(radio.Catalogue()))
 		}
 	}
+}
+
+func preferredFirstRunAudioDevice(devices []player.AudioDevice) (string, bool) {
+	for _, device := range devices {
+		if device.Name != "" && device.Description == "USB Audio" && !device.Unavailable {
+			return device.Name, true
+		}
+	}
+	return "", false
 }
 
 func monitorAudioDevice(ctx context.Context, manager *playback.Manager, mpv *player.MPV, state *storage.AudioDeviceState, log interface {

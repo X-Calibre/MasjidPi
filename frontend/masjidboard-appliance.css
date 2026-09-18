@@ -1,5 +1,7 @@
 .appliance-state { display:none; }
 
+.setup-board-link { display:inline-flex; align-items:center; justify-content:center; min-height:56px; margin-top:18px; padding:0 24px; border-radius:12px; background:var(--appliance-accent); color:#fff; font-weight:800; text-decoration:none; }
+
 body.appliance-layout {
     --appliance-bg:#101512;
     --appliance-panel:#19201c;

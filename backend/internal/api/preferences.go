@@ -48,21 +48,16 @@ func (s *Server) preferencesHandler(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "invalid JSON")
 			return
 		}
-		state := storage.PreferencesState{
-			LastStreamID:     req.LastStreamID,
-			Autoplay:         req.Autoplay,
-			SelectedMasjidID: req.SelectedMasjidID,
-			SelectedRadioID:  req.SelectedRadioID,
-			ResumeListening:  req.ResumeListening,
-			MasjidVolume:     req.MasjidVolume,
-			RadioVolume:      req.RadioVolume,
-			SourceVolumesSet: req.SourceVolumesSet,
-		}
-		if err := s.preferences.Save(state); err != nil {
-			writeError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		saved, err := s.preferences.Load()
+		saved, err := s.preferences.Update(func(state *storage.PreferencesState) {
+			state.LastStreamID = req.LastStreamID
+			state.Autoplay = req.Autoplay
+			state.SelectedMasjidID = req.SelectedMasjidID
+			state.SelectedRadioID = req.SelectedRadioID
+			state.ResumeListening = req.ResumeListening
+			state.MasjidVolume = req.MasjidVolume
+			state.RadioVolume = req.RadioVolume
+			state.SourceVolumesSet = req.SourceVolumesSet
+		})
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, err.Error())
 			return

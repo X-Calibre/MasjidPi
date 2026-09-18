@@ -83,3 +83,25 @@ func TestPreferencesLegacyStateNormalizesForPriorityListening(t *testing.T) {
 		t.Fatalf("RadioResumeDelayMinutes = %d, want %d", state.RadioResumeDelayMinutes, DefaultRadioResumeDelay)
 	}
 }
+
+func TestPreferencesFocusedUpdatePreservesBoardSetupDeferral(t *testing.T) {
+	preferences := NewPreferences(t.TempDir() + "/preferences.json")
+	if _, err := preferences.Update(func(state *PreferencesState) {
+		state.BoardSetupDeferred = true
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := preferences.Update(func(state *PreferencesState) {
+		state.SelectedMasjidID = "masjid-1"
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	state, err := preferences.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !state.BoardSetupDeferred {
+		t.Fatal("BoardSetupDeferred = false, want true")
+	}
+}

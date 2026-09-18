@@ -161,6 +161,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/setup/device-access", server.deviceAccess)
 		mux.HandleFunc("/api/setup/timezones", server.timezones)
 		mux.HandleFunc("/api/setup/timezone", server.timezone)
+		mux.HandleFunc("/api/setup/board", server.boardSetup)
 		mux.HandleFunc("/api/masjidboard/status", server.masjidBoardStatus)
 		mux.HandleFunc("/api/masjidboard/boards/refresh", server.masjidBoardBoardsRefresh)
 		mux.HandleFunc("/api/masjidboard/display", server.masjidBoardDisplay)
@@ -205,6 +206,16 @@ func (s *Server) applianceEntry(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if s.masjidBoardService == nil || !s.masjidBoardService.Configured() {
+		if s.preferences != nil {
+			preferences, err := s.preferences.Load()
+			if err == nil && preferences.BoardSetupDeferred {
+				http.Redirect(w, r, "/masjidboard.html?profile="+profile, http.StatusTemporaryRedirect)
+				return
+			}
+			if err != nil && s.logger != nil {
+				s.logger.Warn("Could not load Board setup preference", "error", err)
+			}
+		}
 		http.Redirect(
 			w,
 			r,

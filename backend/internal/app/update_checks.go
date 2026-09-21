@@ -53,6 +53,25 @@ func monitorUpdateChecks(
 	}
 }
 
+func persistedReleaseNeedsRefresh(state updates.State) bool {
+	if state.AvailableRelease == nil {
+		return false
+	}
+
+	candidate, err := updates.ParseStableVersion(
+		state.AvailableRelease.Version,
+	)
+	if err != nil {
+		return true
+	}
+
+	newer, err := updates.IsNewerThanInstalled(
+		candidate,
+		state.CurrentVersion,
+	)
+	return err != nil || !newer
+}
+
 func checkUpdatesIfDue(
 	ctx context.Context,
 	checker updateChecker,
@@ -69,7 +88,8 @@ func checkUpdatesIfDue(
 		return
 	}
 
-	if updates.CheckDue(state, now) {
+	if updates.CheckDue(state, now) ||
+		persistedReleaseNeedsRefresh(state) {
 		state, err = checker.Check(ctx)
 		if err != nil {
 			log.Warn(

@@ -251,7 +251,6 @@ func TestCheckUpdatesIfDueStagesEligibleVerifiedRelease(t *testing.T) {
 	}
 }
 
-
 func TestPersistedReleaseNeedsRefresh(t *testing.T) {
 	t.Parallel()
 

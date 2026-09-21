@@ -229,6 +229,7 @@ func TestCheckUpdatesIfDueStagesEligibleVerifiedRelease(t *testing.T) {
 	checker := &fakeScheduledUpdateChecker{
 		status: updates.State{
 			SchemaVersion:    updates.StateSchemaVersion,
+			CurrentVersion:   "v1.6.0",
 			AvailableRelease: &release,
 			LastCheckedAt:    &lastChecked,
 			Download: &updates.DownloadState{
@@ -247,5 +248,118 @@ func TestCheckUpdatesIfDueStagesEligibleVerifiedRelease(t *testing.T) {
 
 	if checker.installCalls != 1 {
 		t.Fatalf("install calls = %d, want 1", checker.installCalls)
+	}
+}
+
+
+func TestPersistedReleaseNeedsRefresh(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		current string
+		release string
+		want    bool
+	}{
+		{
+			name:    "newer stable release remains actionable",
+			current: "v1.6.0",
+			release: "v1.7.0",
+		},
+		{
+			name:    "stable release supersedes matching candidate image",
+			current: "v1.6.0-rc.6-image",
+			release: "v1.6.0",
+		},
+		{
+			name:    "laboratory release requires refresh",
+			current: "v1.6.0-rc.6-image",
+			release: "v1.6.0-lab.b79c144.6",
+			want:    true,
+		},
+		{
+			name:    "installed stable release requires refresh",
+			current: "v1.6.0",
+			release: "v1.6.0",
+			want:    true,
+		},
+		{
+			name:    "older stable release requires refresh",
+			current: "v1.6.0",
+			release: "v1.5.0",
+			want:    true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			release := updates.Release{Version: test.release}
+			state := updates.State{
+				SchemaVersion:    updates.StateSchemaVersion,
+				CurrentVersion:   test.current,
+				AvailableRelease: &release,
+			}
+			if got := persistedReleaseNeedsRefresh(state); got != test.want {
+				t.Fatalf("persistedReleaseNeedsRefresh() = %t, want %t", got, test.want)
+			}
+		})
+	}
+}
+
+func TestCheckUpdatesIfDueRefreshesInvalidPersistedRelease(t *testing.T) {
+	now := time.Date(2026, time.September, 21, 18, 37, 0, 0, time.UTC)
+	lastChecked := now.Add(-72 * time.Hour)
+	laboratoryRelease := updates.Release{
+		Version: "v1.6.0-lab.b79c144.6",
+	}
+	checker := &fakeScheduledUpdateChecker{
+		status: updates.State{
+			SchemaVersion:    updates.StateSchemaVersion,
+			CurrentVersion:   "v1.6.0-rc.6-image",
+			AvailableRelease: &laboratoryRelease,
+			LastCheckedAt:    &lastChecked,
+		},
+		checkResult: updates.State{
+			SchemaVersion:  updates.StateSchemaVersion,
+			CurrentVersion: "v1.6.0-rc.6-image",
+			LastCheckedAt:  &now,
+		},
+	}
+
+	checkUpdatesIfDue(t.Context(), checker, now, updateCheckTestLogger())
+
+	if checker.checkCalls != 1 {
+		t.Fatalf("check calls = %d, want 1", checker.checkCalls)
+	}
+	if checker.prepareCalls != 0 {
+		t.Fatalf("prepare calls = %d, want 0", checker.prepareCalls)
+	}
+}
+
+func TestCheckUpdatesIfDueDoesNotPrepareStaleReleaseAfterRefreshFailure(
+	t *testing.T,
+) {
+	now := time.Date(2026, time.September, 21, 18, 37, 0, 0, time.UTC)
+	lastChecked := now.Add(-72 * time.Hour)
+	laboratoryRelease := updates.Release{
+		Version: "v1.6.0-lab.b79c144.6",
+	}
+	checker := &fakeScheduledUpdateChecker{
+		status: updates.State{
+			SchemaVersion:    updates.StateSchemaVersion,
+			CurrentVersion:   "v1.6.0-rc.6-image",
+			AvailableRelease: &laboratoryRelease,
+			LastCheckedAt:    &lastChecked,
+		},
+		checkErr: errors.New("GitHub unavailable"),
+	}
+
+	checkUpdatesIfDue(t.Context(), checker, now, updateCheckTestLogger())
+
+	if checker.checkCalls != 1 {
+		t.Fatalf("check calls = %d, want 1", checker.checkCalls)
+	}
+	if checker.prepareCalls != 0 {
+		t.Fatalf("prepare calls = %d, want 0", checker.prepareCalls)
 	}
 }

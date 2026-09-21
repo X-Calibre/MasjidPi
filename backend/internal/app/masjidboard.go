@@ -10,7 +10,10 @@ import (
 	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
 )
 
-const masjidBoardTimetableRefreshInterval = 30 * time.Minute
+const (
+	masjidBoardTimetableRefreshInterval = 30 * time.Minute
+	masjidBoardDateCheckInterval        = 30 * time.Second
+)
 
 func startMasjidBoard(ctx context.Context, paths config.Paths, log interface {
 	Info(msg string, args ...any)
@@ -52,27 +55,55 @@ func monitorMasjidBoardTimetables(ctx context.Context, service *masjidboardservi
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
 }) {
+	lastRefreshDate := ""
+
 	refresh := func() {
 		if service == nil || !service.Configured() {
 			return
 		}
+		refreshedAt := time.Now()
 		logMasjidBoardRefreshResults(service.Refresh(ctx), log)
+		// Record the local date even when the provider refresh fails. This makes
+		// a clock correction cause one prompt refresh without repeatedly
+		// contacting the upstream provider.
+		lastRefreshDate = masjidBoardLocalDate(refreshedAt)
 	}
 
 	// Fetch immediately after startup when configured. Persisted last-known-good
 	// cache data remains available if the live provider cannot be reached.
 	refresh()
 
-	ticker := time.NewTicker(masjidBoardTimetableRefreshInterval)
-	defer ticker.Stop()
+	refreshTicker := time.NewTicker(masjidBoardTimetableRefreshInterval)
+	defer refreshTicker.Stop()
+	dateTicker := time.NewTicker(masjidBoardDateCheckInterval)
+	defer dateTicker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-ticker.C:
+		case <-refreshTicker.C:
+			refresh()
+		case now := <-dateTicker.C:
+			if !masjidBoardCalendarDateChanged(lastRefreshDate, now) {
+				continue
+			}
+			log.Info(
+				"MasjidBoard calendar date changed; refreshing timetables",
+				"previous_date", lastRefreshDate,
+				"current_date", masjidBoardLocalDate(now),
+			)
 			refresh()
 		}
 	}
+}
+
+func masjidBoardLocalDate(value time.Time) string {
+	return value.In(time.Local).Format("2006-01-02")
+}
+
+func masjidBoardCalendarDateChanged(previousDate string, now time.Time) bool {
+	return previousDate != "" && previousDate != masjidBoardLocalDate(now)
 }
 
 func logMasjidBoardRefreshResults(results []runtime.Result, log interface {

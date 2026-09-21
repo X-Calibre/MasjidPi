@@ -101,9 +101,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Current stable release: v1.5.2**
 
-**Current release candidate: v1.6.0-rc.5**
+**Current release candidate: v1.6.0-rc.7**
 
-v1.6.0-rc.5 completes the post-RC4 interface refinements: Daily Ayah, Hadith and Sunnah cards now scale to fill the native 720 × 1280 display, Detailed Jumu'ah labels match their times, header and control-panel spacing are rebalanced, setup follows the selected Board theme, favourites can be reordered, and Masjid and Radio catalogues use predictable sorting. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
+v1.6.0-rc.7 includes the signed automatic updater and Pi 3 A/B appliance image introduced in RC6, refreshes MasjidBoard after system-clock date corrections, and reconciles stale persisted update candidates before any automatic download is attempted. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
 
 v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 

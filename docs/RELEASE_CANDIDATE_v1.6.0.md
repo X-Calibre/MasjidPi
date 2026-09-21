@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages. `v1.6.0-rc.7` corrects post-RC6 clock-date refresh and stale updater-state issues found during published-image validation.
 
 ## Release scope
 
@@ -233,7 +233,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - expose a concise touchscreen update summary and a detailed Web UI Updates page;
 - install verified updates into the inactive Pi 3 system slot and preserve appliance identity, SSH host keys, configuration and the `masjidframe` account password;
 - require a ten-minute healthy trial before confirming a new system slot, with automatic rollback after two failed boots;
-- use the public factory credentials `masjidframe` / `MasjidFrame786!` in new appliance images;
+- use the documented factory account in new appliance images;
 - allow first-run Board setup to be deferred when MasjidBoard is unavailable, with manual retry only and no automatic short-interval polling;
 - restore deferred Board configuration once the provider is available; and
 - package the complete Pi 3 A/B image and signed updater through the release workflow.
@@ -268,11 +268,49 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Hardware validation is complete on the Pi 3 appliance candidate.
 - [x] Version metadata is set to `v1.6.0-rc.6`.
 - [x] RC6 scope and validation status are documented.
-- [ ] Merge the RC6 release-preparation pull request after CI passes.
+- [x] Merge the RC6 release-preparation pull request after CI passes.
+- [x] Confirm CI passes on the resulting `main` commit.
+- [x] Create immutable tag `v1.6.0-rc.6` from the accepted `main` commit.
+- [x] Verify published release archives, A/B image, signed update bundle and checksums.
+- [x] Confirm stable-only discovery intentionally excludes RC6 prerelease assets; retain the end-to-end GitHub discovery gate for stable v1.6.0.
+
+## RC7 scope
+
+- refresh MasjidBoard data after NTP or another system-clock correction changes the calendar date;
+- reconcile persisted update candidates against the running version before automatic preparation;
+- force release discovery when persisted availability is invalid, non-stable, equal to or older than the installed version; and
+- stop safely without downloading or installing when reconciliation cannot reach GitHub.
+
+## RC7 automated validation
+
+- [x] Go formatting and vet pass.
+- [x] The complete race-enabled Go test suite passes.
+- [x] Frontend syntax, shell, installer, display and packaging checks pass.
+- [x] Regression tests cover invalid laboratory versions, equal and older stable versions, matching-RC promotion and discovery failure.
+- [x] GitHub Actions run 605 passes on updater reconciliation commit `f230a968986853e51beb36044ee8886f305fba2a`.
+- [ ] GitHub Actions passes on the RC7 release-preparation pull request.
+- [ ] GitHub Actions passes on the integrated RC7 `main` commit.
+
+## RC7 Raspberry Pi 3 hardware validation
+
+- [x] Published RC6 is confirmed in system A with `active_slot=a`, `rollback_slot=a`, `upgrade_available=0` and `bootcount=0`.
+- [x] The persisted laboratory candidate reproduces the stale automatic-preparation attempt under the unmodified RC6 runtime.
+- [x] A patched ARM64 binary built from merged commit `3cd46bdbd45d725f4337d7866c0217d927e981f5` refreshes discovery and clears the stale candidate.
+- [x] The reconciled state contains no available release, approval, download or obsolete installation record.
+- [x] Both MasjidPi services remain active with no failed systemd units.
+- [x] A complete reboot retains confirmed system A and the reconciled update state without another preparation attempt.
+
+## RC7 publication checklist
+
+- [x] NTP date refresh and stale updater-state fixes are merged to `main`.
+- [x] Pi 3 source-binary regression validation is complete.
+- [x] Version metadata is set to `v1.6.0-rc.7`.
+- [x] RC7 scope and validation status are documented.
+- [ ] Merge the RC7 release-preparation pull request after CI passes.
 - [ ] Confirm CI passes on the resulting `main` commit.
-- [ ] Create immutable tag `v1.6.0-rc.6` from the accepted `main` commit.
-- [ ] Verify published release archives, A/B image, signed update bundle and checksums.
-- [ ] Validate GitHub release discovery and installation using the published RC6 assets.
+- [ ] Create immutable tag `v1.6.0-rc.7` from the accepted `main` commit.
+- [ ] Verify published archives, A/B image, signed update bundle and checksums.
+- [ ] Install and validate the published RC7 update bundle on the Pi 3 appliance.
 
 ## Stable-release hardware follow-up
 
@@ -282,4 +320,4 @@ The first-run and RC2 enhancement flows have been functionally accepted on Raspb
 - review Pi 3B memory headroom during setup and normal Board operation; and
 - complete any fixes discovered during the RC soak period.
 
-Release-candidate tags are immutable and must not be moved or reused. Any code change after RC5 requires a new release-candidate tag.
+Release-candidate tags are immutable and must not be moved or reused. Any code change after RC7 requires a new release-candidate tag.

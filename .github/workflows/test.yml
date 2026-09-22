@@ -52,7 +52,9 @@ jobs:
           bash tests/installer_summary_test.sh
           bash tests/installer_boot_test.sh
           bash tests/installer_runtime_test.sh
-          bash tests/installer_update_test.sh\n          bash tests/appliance_update_workspace_test.sh\n          bash tests/installer_recovery_test.sh
+          bash tests/installer_update_test.sh
+          bash tests/appliance_update_workspace_test.sh
+          bash tests/installer_recovery_test.sh
           bash tests/release_package_test.sh
           bash tests/source_build_version_test.sh
           bash tests/masjidboard_display_profile_test.sh

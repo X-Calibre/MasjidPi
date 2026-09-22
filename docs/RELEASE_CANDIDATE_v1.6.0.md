@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages. `v1.6.0-rc.7` corrects post-RC6 clock-date refresh and stale updater-state issues found during published-image validation.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages. `v1.6.0-rc.7` corrects post-RC6 clock-date refresh and stale updater-state issues found during published-image validation. `v1.6.0-rc.8` moves verification extraction to persistent storage after the published RC7 bundle exposed the Pi 3 appliance’s insufficient RAM-backed `/tmp` capacity.
 
 ## Release scope
 
@@ -312,6 +312,43 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [ ] Verify published archives, A/B image, signed update bundle and checksums.
 - [ ] Install and validate the published RC7 update bundle on the Pi 3 appliance.
 
+## RC8 scope
+
+- create verification extraction directories beside the downloaded update bundle on persistent storage;
+- avoid the Pi 3 appliance’s 453 MB RAM-backed `/tmp`, which cannot hold both the compressed bundle and extracted payload;
+- preserve automatic removal of verification and installation workspaces; and
+- retain the inactive A/B slot as the rollback copy without retaining unnecessary extracted payloads.
+
+## RC8 automated validation
+
+- [x] Go formatting, vet and the complete race-enabled Go test suite pass on the updater fix pull request.
+- [x] Shell syntax and ShellCheck pass.
+- [x] A regression test requires verification and installation workspaces to use persistent storage.
+- [x] GitHub Actions run 610 passes on pull-request head `9118e947d9eb09d25c758593d4b5a576584e6ae1`.
+- [ ] GitHub Actions passes on the RC8 release-preparation pull request.
+- [ ] GitHub Actions passes on the integrated RC8 `main` commit.
+
+## RC8 Raspberry Pi 3 validation
+
+- [x] The published RC7 bundle and signature match their release hashes.
+- [x] Verification initially reproduces `No space left on device` with an empty 453 MB `/tmp`.
+- [x] The identical bundle passes signature, manifest, payload and decompressed-rootfs checks when verification uses persistent storage.
+- [x] The read-only plan targets inactive `SYSTEM_B` while confirmed `SYSTEM_A` and U-Boot state remain unchanged.
+- [ ] Install the published RC8 bundle into inactive `SYSTEM_B`.
+- [ ] Boot RC8 into probation and confirm it automatically after ten healthy minutes.
+- [ ] Reboot again and confirm RC8 remains the stable slot with no failed units.
+
+## RC8 publication checklist
+
+- [x] Persistent verification-workspace fix is merged to `main`.
+- [x] Version metadata is set to `v1.6.0-rc.8`.
+- [x] RC8 scope and validation status are documented.
+- [ ] Merge the RC8 release-preparation pull request after CI passes.
+- [ ] Confirm CI passes on the resulting `main` commit.
+- [ ] Create immutable tag `v1.6.0-rc.8` from the accepted `main` commit.
+- [ ] Verify published archives, A/B image, signed update bundle and checksums.
+- [ ] Install and validate the published RC8 update bundle on the Pi 3 appliance.
+
 ## Stable-release hardware follow-up
 
 The first-run and RC2 enhancement flows have been functionally accepted on Raspberry Pi 4 source installations. Before stable v1.6.0 promotion:
@@ -320,4 +357,4 @@ The first-run and RC2 enhancement flows have been functionally accepted on Raspb
 - review Pi 3B memory headroom during setup and normal Board operation; and
 - complete any fixes discovered during the RC soak period.
 
-Release-candidate tags are immutable and must not be moved or reused. Any code change after RC7 requires a new release-candidate tag.
+Release-candidate tags are immutable and must not be moved or reused. Any code change after RC8 requires a new release-candidate tag.

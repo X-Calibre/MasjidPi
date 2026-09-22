@@ -708,9 +708,7 @@ fi
 
 echo "PASS  bundle contents"
 
-extraction_dir=$(mktemp -d)
-
-cleanup()
+# Keep verification extraction beside the downloaded bundle. Appliance\n# downloads live on PERSISTENT storage, while /tmp is a small RAM-backed\n# filesystem that cannot hold both the bundle and its extracted payload.\nextraction_parent=$(dirname "$bundle")\nextraction_dir=$(mktemp -d "$extraction_parent/.verify.XXXXXX")\n\ncleanup()
 {
     rm -rf "$extraction_dir"
 }

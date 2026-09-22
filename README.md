@@ -101,9 +101,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Current stable release: v1.5.2**
 
-**Current release candidate: v1.6.0-rc.8**
+**Current release candidate: v1.6.0-rc.9**
 
-v1.6.0-rc.8 includes the signed automatic updater and Pi 3 A/B appliance image, refreshes MasjidBoard after system-clock date corrections, reconciles stale persisted update candidates, and keeps update verification work on persistent storage instead of the appliance’s RAM-backed `/tmp`. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
+v1.6.0-rc.9 includes the signed automatic updater and Pi 3 A/B appliance image, refreshes MasjidBoard after system-clock date corrections, reconciles stale persisted update candidates, and keeps update verification work on persistent storage instead of the appliance’s RAM-backed `/tmp`. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
 
 v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
 

@@ -2,6 +2,20 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
+## Completed for v1.6.0-rc.9
+
+### Raspberry Pi 3 A/B appliance update
+
+- [x] The published update bundle and signature match their recorded hashes and verify without a `TMPDIR` override.
+- [x] Verification and installation workspaces use persistent storage and are removed automatically.
+- [x] The updater writes and verifies the inactive root filesystem and boot payloads before arming a trial.
+- [x] Machine identity, SSH host keys, account credentials, enabled components and Board selection survive the slot update.
+- [x] RC9 boots from `SYSTEM_B` and confirms automatically after a ten-minute healthy probation.
+- [x] The confirmed slot survives a normal reboot with the Board, Listen, live Radio audio and both services healthy.
+- [x] Two unconfirmed trial boots exhaust the configured attempts and the following boot automatically returns to the confirmed slot.
+- [x] Rollback clears `upgrade_available`, resets `bootcount`, removes `bootlimit` and retains persistent configuration.
+- [x] The Pi reports no failed units or throttling after installation, confirmation, reboot and rollback testing.
+
 ## Completed for v1.6.0-rc.3
 
 ### Raspberry Pi Touch Display 2

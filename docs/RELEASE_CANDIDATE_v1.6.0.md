@@ -362,28 +362,32 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Shell syntax and ShellCheck pass.
 - [x] The strengthened regression test requires executable persistent-workspace assignments.
 - [x] GitHub Actions run 614 passes on corrective head `09079e8b69d4926bbe3d909c00444126e969efc9`.
-- [ ] GitHub Actions passes on the RC9 release-preparation pull request.
-- [ ] GitHub Actions passes on the integrated RC9 `main` commit.
+- [x] GitHub Actions passes on the RC9 release-preparation pull request.
+- [x] GitHub Actions passes on the integrated RC9 `main` commit `de96737af40eba22cb8e2efc63ef6573904ccb34`.
 
 ## RC9 Raspberry Pi 3 validation
 
 - [x] RC8 embedded-image inspection detects the malformed updater before bundle signing or appliance publication.
 - [x] No RC8 appliance update bundle or A/B image is published or installed.
-- [ ] Confirm the RC9 updater contains separate executable persistent-workspace lines in both system slots.
-- [ ] Verify the published RC9 bundle without overriding `TMPDIR`.
-- [ ] Install RC9 into inactive `SYSTEM_B`, boot probation and confirm automatically after ten healthy minutes.
-- [ ] Reboot again and confirm RC9 remains stable with no failed units.
+- [x] The published updater contains separate executable persistent-workspace assignments and rejects literal newline escapes.
+- [x] The published bundle and signature match their recorded SHA-256 hashes and pass Minisign, manifest, payload and decompressed-rootfs verification without overriding `TMPDIR`.
+- [x] The read-only plan targets inactive `SYSTEM_B` while confirmed `SYSTEM_A` and U-Boot state remain unchanged.
+- [x] RC9 installs into `SYSTEM_B`; the written root filesystem and staged boot payloads verify before the trial is armed.
+- [x] Machine ID, SSH host keys, account password, component profile and Board selection survive the slot installation.
+- [x] RC9 boots from `SYSTEM_B` and confirms automatically after the ten-minute probation with `active_slot=b`, `rollback_slot=b`, `upgrade_available=0` and `bootcount=0`.
+- [x] A normal reboot remains on confirmed RC9 with both services active, no failed units, the Board visible and live Radio audio working through the selected USB ALSA device.
+- [x] Two deliberately unconfirmed `SYSTEM_A` boots reach `bootcount=2`; the following boot automatically rolls back to confirmed RC9 on `SYSTEM_B` and clears the trial state.
 
 ## RC9 publication checklist
 
 - [x] Corrective updater and regression-test changes are merged to `main`.
 - [x] Version metadata is set to `v1.6.0-rc.9`.
 - [x] RC9 scope and validation status are documented.
-- [ ] Merge the RC9 release-preparation pull request after CI passes.
-- [ ] Confirm CI passes on the resulting `main` commit.
-- [ ] Create immutable tag `v1.6.0-rc.9` from the accepted `main` commit.
-- [ ] Verify published archives, A/B image, signed update bundle and checksums.
-- [ ] Install and validate the published RC9 update bundle on the Pi 3 appliance.
+- [x] Merge the RC9 release-preparation pull request after CI passes.
+- [x] Confirm CI passes on the resulting `main` commit `de96737af40eba22cb8e2efc63ef6573904ccb34`.
+- [x] Create immutable tag `v1.6.0-rc.9` from the accepted `main` commit.
+- [x] Verify the release contains the ARM64 and AMD64 archives, `SHA256SUMS`, Pi 3 A/B image and checksum, signed update bundle and Minisign signature.
+- [x] Install and validate the published RC9 update bundle on the Pi 3 appliance.
 
 ## Stable-release hardware follow-up
 

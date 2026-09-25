@@ -397,7 +397,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Temporary BOOT payloads are replaced and removed by the retry.
 - [x] The interrupted extraction leaves a 372 MB `/persistent/updates/install.*` workspace, demonstrating that EXIT-trap cleanup alone is insufficient across power loss.
 - [ ] Merge exclusive updater locking and pre-verification orphan cleanup.
-- [ ] Validate the corrective updater on Pi 3 before creating the next immutable release candidate.
+- [x] On Pi 3, the corrective updater rejects a concurrent installer, removes the 372 MB orphan before verification, safely rejects the already-running RC9 bundle and leaves the committed slot, services and power state unchanged.
 
 ## Stable-release hardware follow-up
 

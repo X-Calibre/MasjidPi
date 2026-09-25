@@ -389,6 +389,16 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Verify the release contains the ARM64 and AMD64 archives, `SHA256SUMS`, Pi 3 A/B image and checksum, signed update bundle and Minisign signature.
 - [x] Install and validate the published RC9 update bundle on the Pi 3 appliance.
 
+## Post-RC9 power-loss validation
+
+- [x] A physical power cut during the inactive `SYSTEM_B` root-filesystem write leaves confirmed RC6 on `SYSTEM_A` bootable with the trial state unarmed.
+- [x] Both application services recover with no failed units, throttling or persistent-configuration loss.
+- [x] Retrying the unchanged signed RC9 bundle rewrites and verifies `SYSTEM_B`, boots RC9 and confirms it after the normal ten-minute probation.
+- [x] Temporary BOOT payloads are replaced and removed by the retry.
+- [x] The interrupted extraction leaves a 372 MB `/persistent/updates/install.*` workspace, demonstrating that EXIT-trap cleanup alone is insufficient across power loss.
+- [ ] Merge exclusive updater locking and pre-verification orphan cleanup.
+- [x] On Pi 3, the corrective updater rejects a concurrent installer, removes the 372 MB orphan before verification, safely rejects the already-running RC9 bundle and leaves the committed slot, services and power state unchanged.
+
 ## Stable-release hardware follow-up
 
 The first-run and RC2 enhancement flows have been functionally accepted on Raspberry Pi 4 source installations. Before stable v1.6.0 promotion:

@@ -1,6 +1,6 @@
 # MasjidPi v1.6.0 Release Acceptance Record
 
-This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages. `v1.6.0-rc.7` corrects post-RC6 clock-date refresh and stale updater-state issues found during published-image validation. `v1.6.0-rc.8` attempts to move verification extraction to persistent storage after the published RC7 bundle exposed the Pi 3 appliance’s insufficient RAM-backed `/tmp` capacity. Embedded-image inspection found malformed newline escapes before appliance assets were signed or published. `v1.6.0-rc.9` corrects the executable workspace statements and strengthens the regression test.
+This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages. `v1.6.0-rc.7` corrects post-RC6 clock-date refresh and stale updater-state issues found during published-image validation. `v1.6.0-rc.8` attempts to move verification extraction to persistent storage after the published RC7 bundle exposed the Pi 3 appliance’s insufficient RAM-backed `/tmp` capacity. Embedded-image inspection found malformed newline escapes before appliance assets were signed or published. `v1.6.0-rc.9` corrects the executable workspace statements and strengthens the regression test. `v1.6.0-rc.10` serializes appliance installations and recovers updater-owned workspaces left by abrupt power loss.
 
 ## Release scope
 
@@ -396,8 +396,38 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Retrying the unchanged signed RC9 bundle rewrites and verifies `SYSTEM_B`, boots RC9 and confirms it after the normal ten-minute probation.
 - [x] Temporary BOOT payloads are replaced and removed by the retry.
 - [x] The interrupted extraction leaves a 372 MB `/persistent/updates/install.*` workspace, demonstrating that EXIT-trap cleanup alone is insufficient across power loss.
-- [ ] Merge exclusive updater locking and pre-verification orphan cleanup.
+- [x] Exclusive updater locking and pre-verification orphan cleanup are merged to `main` in commit `83371c369c643336aefc1ba22c041e9e0c91e89a`.
 - [x] On Pi 3, the corrective updater rejects a concurrent installer, removes the 372 MB orphan before verification, safely rejects the already-running RC9 bundle and leaves the committed slot, services and power state unchanged.
+
+## RC10 scope
+
+- serialize appliance installations with an exclusive non-blocking lock;
+- recover updater-owned `install.*` and `target-root.*` workspaces before verification consumes additional persistent space;
+- refuse to remove a mounted target-root workspace unless it first unmounts successfully;
+- replace stale temporary BOOT payloads in the inactive slot before staging; and
+- retain the existing rule that U-Boot trial state is armed only after the root filesystem, identity and BOOT payloads are complete.
+
+## RC10 automated and hardware validation
+
+- [x] Shell syntax and workspace regression tests require locking and cleanup before verification.
+- [x] Regression coverage requires mounted-target protection and stale inactive-slot BOOT cleanup.
+- [x] GitHub Actions runs 620 and 621 pass on the corrective implementation and evidence update.
+- [x] A held lock rejects a concurrent updater with no cleanup or A/B state change.
+- [x] The corrective updater removes the 372 MB interrupted workspace before verifying the bundle.
+- [x] The already-running RC9 bundle is then rejected without writing either slot.
+- [x] Confirmed `SYSTEM_B`, both services, zero failed units and `throttled=0x0` remain unchanged.
+- [x] Persistent usage returns from 16% to 8% after recovery cleanup.
+
+## RC10 publication checklist
+
+- [x] Power-loss cleanup and regression coverage are merged to `main`.
+- [x] Version metadata is set to `v1.6.0-rc.10`.
+- [x] RC10 scope and validation status are documented.
+- [ ] Merge the RC10 release-preparation pull request after CI passes.
+- [ ] Confirm CI passes on the resulting `main` commit.
+- [ ] Create immutable tag `v1.6.0-rc.10` from the accepted `main` commit.
+- [ ] Verify ARM64 and AMD64 archives, `SHA256SUMS`, the Pi 3 A/B image and checksum, and the signed update bundle.
+- [ ] Install and validate the published RC10 update bundle on the Pi 3 appliance.
 
 ## Stable-release hardware follow-up
 
@@ -407,4 +437,4 @@ The first-run and RC2 enhancement flows have been functionally accepted on Raspb
 - review Pi 3B memory headroom during setup and normal Board operation; and
 - complete any fixes discovered during the RC soak period.
 
-Release-candidate tags are immutable and must not be moved or reused. Any code change after RC9 requires a new release-candidate tag.
+Release-candidate tags are immutable and must not be moved or reused. Any code change after RC10 requires a new release-candidate tag.

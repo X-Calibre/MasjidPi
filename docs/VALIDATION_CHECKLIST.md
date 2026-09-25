@@ -7,7 +7,7 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 ### Raspberry Pi 3 A/B appliance update
 
 - [x] The published update bundle and signature match their recorded hashes and verify without a `TMPDIR` override.
-- [x] Verification and installation workspaces use persistent storage and are removed automatically.
+- [x] Verification and installation workspaces use persistent storage; ordinary exits remove them automatically.
 - [x] The updater writes and verifies the inactive root filesystem and boot payloads before arming a trial.
 - [x] Machine identity, SSH host keys, account credentials, enabled components and Board selection survive the slot update.
 - [x] RC9 boots from `SYSTEM_B` and confirms automatically after a ten-minute healthy probation.
@@ -15,6 +15,8 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 - [x] Two unconfirmed trial boots exhaust the configured attempts and the following boot automatically returns to the confirmed slot.
 - [x] Rollback clears `upgrade_available`, resets `bootcount`, removes `bootlimit` and retains persistent configuration.
 - [x] The Pi reports no failed units or throttling after installation, confirmation, reboot and rollback testing.
+- [x] A physical power interruption during the inactive-rootfs write leaves the confirmed slot bootable and unarmed; retrying the signed update succeeds and confirms normally.
+- [x] The interruption exposes a 372 MB orphaned installation workspace, requiring pre-stable recovery cleanup.
 
 ## Completed for v1.6.0-rc.3
 

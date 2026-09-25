@@ -75,8 +75,56 @@ if [[ "${1:-}" = install ]]; then
     bundle=$(realpath "$2")
     signature=$(realpath "$3")
 
-    # Verification and all read-only targeting checks must pass before any
-    # filesystem or boot data is changed.
+    if ! command -v flock >/dev/null; then
+        echo "Required command not found: flock" >&2
+        exit 1
+    fi
+
+    exec 9>/run/lock/masjidpi-update.lock
+
+    if ! flock -n 9; then
+        echo "Another MasjidPi update is already running." >&2
+        exit 1
+    fi
+
+    staging_parent=/persistent/updates
+    install -d -o root -g root -m 0700 "$staging_parent"
+
+    # An abrupt power loss cannot run EXIT traps. Recover only updater-owned
+    # workspaces while holding the exclusive lock, and never remove a mounted
+    # target root.
+    shopt -s nullglob
+    stale_install_dirs=("$staging_parent"/install.*)
+    stale_target_roots=("$staging_parent"/target-root.*)
+    shopt -u nullglob
+
+    if (( ${#stale_install_dirs[@]} > 0 ||
+          ${#stale_target_roots[@]} > 0 )); then
+        echo
+        echo "=== RECOVER INTERRUPTED UPDATE ==="
+    fi
+
+    for stale_target_root in "${stale_target_roots[@]}"
+    do
+        if mountpoint -q "$stale_target_root"; then
+            if ! umount "$stale_target_root"; then
+                echo "Unable to unmount stale update workspace: $stale_target_root" >&2
+                exit 1
+            fi
+        fi
+
+        rm -rf -- "$stale_target_root"
+        echo "PASS  removed $(basename "$stale_target_root")"
+    done
+
+    for stale_install_dir in "${stale_install_dirs[@]}"
+    do
+        rm -rf -- "$stale_install_dir"
+        echo "PASS  removed $(basename "$stale_install_dir")"
+    done
+
+    # Verification and all targeting checks must pass before slot or boot
+    # payload data is changed.
     "$0" plan "$bundle" "$signature"
 
     running_source=$(findmnt -no SOURCE /)
@@ -134,8 +182,6 @@ if [[ "${1:-}" = install ]]; then
         exit 1
     fi
 
-    staging_parent=/persistent/updates
-    install -d -o root -g root -m 0700 "$staging_parent"
     staging_dir=$(mktemp -d "$staging_parent/install.XXXXXX")
 
     boot_was_read_only=0
@@ -189,6 +235,16 @@ if [[ "${1:-}" = install ]]; then
     fi
 
     install -d -o root -g root -m 0755 "$boot_dir"
+
+    # A previous interruption may have left verified-but-unactivated temporary
+    # payloads in this inactive slot. They are safe to replace under the lock.
+    for boot_file in \
+        kernel8-uboot.img \
+        initramfs8 \
+        bcm2710-rpi-3-b.dtb
+    do
+        rm -f -- "$boot_dir/.$boot_file.masjidpi-update"
+    done
 
     echo
     echo "=== STAGE TARGET BOOT FILES ==="

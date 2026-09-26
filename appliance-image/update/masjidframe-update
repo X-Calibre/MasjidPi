@@ -533,7 +533,7 @@ if [[ "${1:-}" = plan ]]; then
     if [[ -f "$current_release" ]]; then
         if ! jq -e '
             .schema_version == 1 and
-            .product == "masjidframe" and
+            (.product == "masjidframe" or .product == "masjidpi") and
             .device_class == "pi3" and
             (.release_version | type == "string" and
                 test("^[A-Za-z0-9][A-Za-z0-9._+-]*$")) and
@@ -783,7 +783,7 @@ readonly manifest="$extraction_dir/manifest.json"
 
 if ! jq -e '
     .schema_version == 1 and
-    .product == "masjidframe" and
+    (.product == "masjidframe" or .product == "masjidpi") and
     .device_class == "pi3" and
     (.release_version | type == "string" and
         test("^[A-Za-z0-9][A-Za-z0-9._+-]*$")) and

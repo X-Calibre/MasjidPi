@@ -23,7 +23,25 @@ func githubTestRelease(
 	includeBundle bool,
 	includeSignature bool,
 ) githubRelease {
-	bundleName := "masjidframe-update-" + tag + "-pi3.tar.zst"
+	return githubTestReleaseWithPrefix(
+		tag,
+		draft,
+		prerelease,
+		includeBundle,
+		includeSignature,
+		"masjidframe-update-",
+	)
+}
+
+func githubTestReleaseWithPrefix(
+	tag string,
+	draft bool,
+	prerelease bool,
+	includeBundle bool,
+	includeSignature bool,
+	bundlePrefix string,
+) githubRelease {
+	bundleName := bundlePrefix + tag + "-pi3.tar.zst"
 	assets := []githubAsset{}
 
 	if includeBundle {
@@ -192,6 +210,72 @@ func TestGitHubClientSelectsHighestCompleteStableRelease(
 			"signature URL = %q",
 			release.SignatureURL,
 		)
+	}
+}
+
+func TestGitHubClientAcceptsLegacyMasjidPiAssetPair(t *testing.T) {
+	release := githubTestReleaseWithPrefix(
+		"v1.6.1",
+		false,
+		false,
+		true,
+		true,
+		"masjidpi-update-",
+	)
+
+	server := githubTestServer(t, []githubRelease{release})
+	defer server.Close()
+
+	result, found, err := (GitHubClient{
+		HTTPClient:  server.Client(),
+		ReleasesURL: server.URL,
+	}).Latest(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !found {
+		t.Fatal("Latest() found = false, want legacy release")
+	}
+	if result.BundleURL !=
+		"https://downloads.example/masjidpi-update-v1.6.1-pi3.tar.zst" {
+		t.Fatalf("bundle URL = %q", result.BundleURL)
+	}
+}
+
+func TestGitHubClientPrefersMasjidFrameAssetPair(t *testing.T) {
+	release := githubTestReleaseWithPrefix(
+		"v1.6.1",
+		false,
+		false,
+		true,
+		true,
+		"masjidpi-update-",
+	)
+	branded := githubTestRelease(
+		"v1.6.1",
+		false,
+		false,
+		true,
+		true,
+	)
+	release.Assets = append(release.Assets, branded.Assets...)
+
+	server := githubTestServer(t, []githubRelease{release})
+	defer server.Close()
+
+	result, found, err := (GitHubClient{
+		HTTPClient:  server.Client(),
+		ReleasesURL: server.URL,
+	}).Latest(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !found {
+		t.Fatal("Latest() found = false, want branded release")
+	}
+	if result.BundleURL !=
+		"https://downloads.example/masjidframe-update-v1.6.1-pi3.tar.zst" {
+		t.Fatalf("bundle URL = %q", result.BundleURL)
 	}
 }
 

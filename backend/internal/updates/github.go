@@ -145,25 +145,40 @@ func (c GitHubClient) Latest(
 			continue
 		}
 
-		bundleName := fmt.Sprintf(
-			"masjidframe-update-%s-pi3.tar.zst",
-			candidate.TagName,
-		)
-		signatureName := bundleName + ".minisig"
+		bundleURL := ""
+		signatureURL := ""
 
-		bundleURL, bundleCount := uploadedAssetURL(
-			candidate.Assets,
-			bundleName,
-		)
-		signatureURL, signatureCount := uploadedAssetURL(
-			candidate.Assets,
-			signatureName,
-		)
+		// Prefer branded assets, while retaining the legacy pair required by
+		// MasjidPi v1.6.0 devices during the MasjidFrame naming transition.
+		for _, bundlePrefix := range []string{
+			"masjidframe-update-",
+			"masjidpi-update-",
+		} {
+			bundleName := fmt.Sprintf(
+				"%s%s-pi3.tar.zst",
+				bundlePrefix,
+				candidate.TagName,
+			)
+			candidateBundleURL, bundleCount := uploadedAssetURL(
+				candidate.Assets,
+				bundleName,
+			)
+			candidateSignatureURL, signatureCount := uploadedAssetURL(
+				candidate.Assets,
+				bundleName+".minisig",
+			)
 
-		if bundleCount != 1 ||
-			signatureCount != 1 ||
-			!isHTTPSURL(bundleURL) ||
-			!isHTTPSURL(signatureURL) {
+			if bundleCount == 1 &&
+				signatureCount == 1 &&
+				isHTTPSURL(candidateBundleURL) &&
+				isHTTPSURL(candidateSignatureURL) {
+				bundleURL = candidateBundleURL
+				signatureURL = candidateSignatureURL
+				break
+			}
+		}
+
+		if bundleURL == "" || signatureURL == "" {
 			continue
 		}
 

@@ -218,6 +218,23 @@ func TestWiFiConnectPassesCredentialsWithoutReturningPassword(t *testing.T) {
 	}
 }
 
+func TestWiFiConnectRejectsInvalidPassword(t *testing.T) {
+	wifi := &fakeWiFiManager{}
+	server := setupTestServer(wifi)
+	request := httptest.NewRequest(http.MethodPost, "/api/setup/wifi/connect", bytes.NewBufferString(`{"ssid":"Home","password":"short"}`))
+	request.RemoteAddr = "127.0.0.1:1234"
+	response := httptest.NewRecorder()
+
+	server.wifiConnect(response, request)
+
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", response.Code)
+	}
+	if wifi.connectedTo != "" {
+		t.Fatal("invalid password was passed to Wi-Fi manager")
+	}
+}
+
 func TestWiFiConnectRejectsOversizedPassword(t *testing.T) {
 	server := setupTestServer(&fakeWiFiManager{})
 	body := `{"ssid":"Home","password":"` + string(bytes.Repeat([]byte("x"), 65)) + `"}`

@@ -99,9 +99,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Release
 
-**Current stable release: v1.6.0**
+**Release candidate: v1.6.1**
 
-v1.6.0 adds touchscreen first-run setup, native Raspberry Pi Touch Display 2 support, expanded Board controls and themes, and a signed Pi 3 A/B appliance updater with automatic health confirmation, rollback and interrupted-update recovery. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidFrame/releases) for validation details and downloads.
+v1.6.1 completes the MasjidFrame product rename and branding, hardens Wi-Fi credential validation, and makes on-display updates continue independently of the initiating browser request while retaining update assets until A/B confirmation. See the [v1.6.1 acceptance record](docs/RELEASE_CANDIDATE_v1.6.1.md) for the remaining validation and publication gates. The current published stable release remains available from [GitHub Releases](https://github.com/X-Calibre/MasjidFrame/releases).
 
 ## Data sources and acknowledgements
 

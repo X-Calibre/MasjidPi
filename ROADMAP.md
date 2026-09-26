@@ -4,7 +4,7 @@ MasjidFrame is a lightweight appliance for live masjid audio and prayer-time inf
 
 ## Current release
 
-**v1.6.0 is the current stable release.**
+**v1.6.1 is being prepared for release.**
 
 MasjidFrame currently provides:
 
@@ -34,8 +34,8 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 
 ### Appliance product work
 
-- Monitor the initial v1.6.0 appliance rollout while retaining the accepted RC10 image, update, rollback, soak and interrupted-update recovery evidence.
-- Replace temporary splash artwork with final MasjidFrame branding.
+- Validate the v1.6.1 appliance update lifecycle, Wi-Fi hardening and MasjidFrame migration on release hardware.
+- Retain the accepted v1.6.0 image, update, rollback, soak and interrupted-update recovery evidence.
 - Finalise the portrait enclosure, display, audio and power design.
 - Validate the selected USB audio path, speakers and physical enclosure.
 - Investigate HDMI-CEC behavior on intended displays.

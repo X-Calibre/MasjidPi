@@ -2,6 +2,16 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
+## Planned for v1.6.1
+
+### Wi-Fi robustness
+
+- [ ] Reject non-empty WPA-PSK credentials unless they are 8–63 characters or exactly 64 hexadecimal characters.
+- [ ] Confirm invalid credentials are rejected before invoking NetworkManager.
+- [ ] Re-test visible Wi-Fi replacement from the appliance touchscreen with a valid WPA2-Personal password.
+- [ ] Reboot after replacement and confirm NetworkManager automatically reconnects to the saved SSID.
+- [ ] If a malformed or stale NetworkManager profile is encountered, preserve evidence before deleting and recreating the profile; do not automatically delete a known-good profile after an authentication failure.
+
 ## Completed for v1.6.0-rc.10
 
 ### Raspberry Pi 3 A/B appliance update and recovery

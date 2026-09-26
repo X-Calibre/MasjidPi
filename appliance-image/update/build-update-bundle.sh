@@ -6,24 +6,32 @@ export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
 
 usage()
 {
-    echo "Usage: $0 VERSION [IMAGE_OUTPUT_DIR] [PRIVATE_KEY]" >&2
+    echo "Usage: $0 VERSION [IMAGE_OUTPUT_DIR] [PRIVATE_KEY] [PRODUCT]" >&2
     exit 1
 }
 
 version=${1:-}
 image_output_dir=${2:-"$PWD/work/image-masjidframe-pi3-ab-prototype"}
 private_key=${3:-"$PWD/appliance-image/update/masjidframe-update-private.key"}
+product=${4:-masjidframe}
 
 if [[ -z "$version" ||
-      ! "$version" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ]]; then
+      ! "$version" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ||
+      ( "$product" != masjidframe && "$product" != masjidpi ) ]]; then
     usage
+fi
+
+if [[ "$product" = masjidpi ]]; then
+    bundle_prefix=masjidpi-update
+else
+    bundle_prefix=masjidframe-update
 fi
 
 readonly rootfs_image="$image_output_dir/system_a.ext4"
 readonly boot_image="$image_output_dir/boot.vfat"
 readonly image_metadata="$image_output_dir/image.json"
 readonly output_dir="$PWD/work/update-bundles"
-readonly bundle_name="masjidframe-update-${version}-pi3.tar.zst"
+readonly bundle_name="${bundle_prefix}-${version}-pi3.tar.zst"
 readonly bundle="$output_dir/$bundle_name"
 readonly signature="$bundle.minisig"
 readonly current_source_commit=$(git rev-parse HEAD)
@@ -222,6 +230,7 @@ dtb_sha256=$(
 )
 
 jq -n \
+    --arg product "$product" \
     --arg version "$version" \
     --arg build_version "$build_version" \
     --arg runtime_version "$runtime_version" \
@@ -239,7 +248,7 @@ jq -n \
     --argjson dtb_size "$dtb_size" \
     '{
         schema_version: 1,
-        product: "masjidframe",
+        product: $product,
         device_class: "pi3",
         release_version: $version,
         build_version: $build_version,
@@ -301,7 +310,7 @@ minisign \
     -m "$bundle"
 
 echo
-echo "MasjidFrame update bundle complete"
+echo "MasjidFrame update bundle complete ($product manifest)"
 echo "Bundle:    $bundle"
 echo "Signature: $signature"
 sha256sum "$bundle" "$signature"

@@ -37,17 +37,17 @@ type DeviceRebooter interface {
 }
 
 type Controller struct {
-	mu             sync.Mutex
-	store          StateStore
-	source         ReleaseSource
-	currentVersion string
-	now            func() time.Time
-	preparer       BundlePreparer
+	mu              sync.Mutex
+	store           StateStore
+	source          ReleaseSource
+	currentVersion  string
+	now             func() time.Time
+	preparer        BundlePreparer
 	artifactCleaner PreparedArtifactCleaner
-	preparing      bool
-	installer      UpdateInstaller
-	rebooter       DeviceRebooter
-	installing     bool
+	preparing       bool
+	installer       UpdateInstaller
+	rebooter        DeviceRebooter
+	installing      bool
 }
 
 func (c *Controller) SetInstaller(

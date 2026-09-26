@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 func TestWriteCatalogueSkipsUnchangedContent(t *testing.T) {

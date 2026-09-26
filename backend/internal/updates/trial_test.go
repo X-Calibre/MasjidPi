@@ -10,7 +10,7 @@ import (
 )
 
 func TestCommandTrialStatus(t *testing.T) {
-	command := filepath.Join(t.TempDir(), "masjidpi-ab")
+	command := filepath.Join(t.TempDir(), "masjidframe-ab")
 	if err := os.WriteFile(command, []byte(`#!/bin/sh
 test "$1" = machine-status || exit 2
 printf '%s\n' running_slot=b active_slot=b rollback_slot=a upgrade_available=1
@@ -225,4 +225,95 @@ func trialTestController(
 	controller := NewController(store, nil, currentVersion)
 	controller.now = func() time.Time { return now }
 	return controller, store
+}
+
+type artifactCleanerFunc func(string) error
+
+func (f artifactCleanerFunc) Cleanup(version string) error {
+	return f(version)
+}
+
+func TestReconcileTrialCleansArtifactsOnlyAfterConfirmation(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	controller, store := trialTestController(t, now, "v1.7.0")
+	state, err := store.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	state.Download = &DownloadState{
+		Version:    state.AvailableRelease.Version,
+		Status:     DownloadStatusVerified,
+		VerifiedAt: &now,
+	}
+	if err := store.Save(state); err != nil {
+		t.Fatal(err)
+	}
+
+	calls := 0
+	controller.artifactCleaner = artifactCleanerFunc(func(version string) error {
+		calls++
+		if version != "v1.7.0" {
+			t.Fatalf("cleanup version = %q", version)
+		}
+		return nil
+	})
+
+	probation, err := controller.ReconcileTrial(TrialStatus{
+		RunningSlot:      "b",
+		ActiveSlot:       "b",
+		RollbackSlot:     "a",
+		UpgradeAvailable: true,
+	}, "v1.7.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if probation.Download == nil || calls != 0 {
+		t.Fatalf("probation download=%+v cleanup calls=%d", probation.Download, calls)
+	}
+
+	confirmed, err := controller.ReconcileTrial(TrialStatus{
+		RunningSlot:  "b",
+		ActiveSlot:   "b",
+		RollbackSlot: "b",
+	}, "v1.7.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if confirmed.Download != nil || calls != 1 {
+		t.Fatalf("confirmed download=%+v cleanup calls=%d", confirmed.Download, calls)
+	}
+}
+
+func TestReconcileTrialRetainsArtifactsAfterRollback(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	controller, store := trialTestController(t, now, "v1.6.0")
+	state, err := store.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	state.Download = &DownloadState{
+		Version:    state.AvailableRelease.Version,
+		Status:     DownloadStatusVerified,
+		VerifiedAt: &now,
+	}
+	if err := store.Save(state); err != nil {
+		t.Fatal(err)
+	}
+	calls := 0
+	controller.artifactCleaner = artifactCleanerFunc(func(string) error {
+		calls++
+		return nil
+	})
+
+	rolledBack, err := controller.ReconcileTrial(TrialStatus{
+		RunningSlot:  "a",
+		ActiveSlot:   "a",
+		RollbackSlot: "a",
+	}, "v1.6.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rolledBack.Download == nil || calls != 0 {
+		t.Fatalf("rollback download=%+v cleanup calls=%d", rolledBack.Download, calls)
+	}
 }

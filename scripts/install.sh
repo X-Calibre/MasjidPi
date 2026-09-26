@@ -26,7 +26,7 @@ INSTALL_SUCCEEDED=false
 
 usage() {
     cat <<EOF
-MasjidPi installer
+MasjidFrame installer
 
 Usage:
   sudo $0              Install the latest pre-built release
@@ -63,8 +63,8 @@ cleanup_failed_install() {
     if [[ "$status" -ne 0 && "${INSTALL_MODE:-}" == "install" && "$INSTALL_SUCCEEDED" != true ]]; then
         warn "Installation did not complete. Cleaning up the application runtime..."
 
-        if systemctl is-active --quiet masjidpi-display.service 2>/dev/null; then
-            systemctl stop masjidpi-display.service || true
+        if systemctl is-active --quiet masjidframe-display.service 2>/dev/null; then
+            systemctl stop masjidframe-display.service || true
         fi
 
         stop_service || true
@@ -101,7 +101,7 @@ main() {
         install_go
         update_repository
         build_project
-        RELEASE_VERSION="$("$PROJECT_ROOT/backend/build/masjidpi" --version)"
+        RELEASE_VERSION="$("$PROJECT_ROOT/backend/build/masjidframe" --version)"
     else
         info "Release installation selected."
         install_packages release

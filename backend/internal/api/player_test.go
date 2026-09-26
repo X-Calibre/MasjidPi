@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
-	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/playback"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/storage"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 type apiTestPlayer struct {

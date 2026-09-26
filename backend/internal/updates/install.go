@@ -23,11 +23,11 @@ func (i CommandInstaller) Install(ctx context.Context, version string) error {
 	}
 	command := i.Command
 	if command == "" {
-		command = "/usr/local/sbin/masjidpi-update"
+		command = "/usr/local/sbin/masjidframe-update"
 	}
 	bundle := filepath.Join(
 		i.Directory,
-		fmt.Sprintf("masjidpi-update-%s-pi3.tar.zst", version),
+		fmt.Sprintf("masjidframe-update-%s-pi3.tar.zst", version),
 	)
 	output, err := exec.CommandContext(
 		ctx,
@@ -57,15 +57,47 @@ func (r CommandRebooter) Reboot(ctx context.Context) error {
 	return nil
 }
 
+type installJob struct {
+	version   string
+	installer UpdateInstaller
+	rebooter  DeviceRebooter
+}
+
+// StartInstall records the install attempt synchronously and performs the
+// staging and reboot work independently of the HTTP request that started it.
+func (c *Controller) StartInstall(
+	conditions InstallConditions,
+) (State, error) {
+	state, job, err := c.beginInstall(conditions)
+	if err != nil {
+		return state, err
+	}
+	go func() {
+		_, _ = c.runInstall(context.Background(), job)
+	}()
+	return state, nil
+}
+
 func (c *Controller) Install(
 	ctx context.Context,
 	conditions InstallConditions,
 ) (State, error) {
+	state, job, err := c.beginInstall(conditions)
+	if err != nil {
+		return state, err
+	}
+	return c.runInstall(ctx, job)
+}
+
+func (c *Controller) beginInstall(
+	conditions InstallConditions,
+) (State, installJob, error) {
 	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	state, err := c.store.Load()
 	if err != nil {
-		c.mu.Unlock()
-		return State{}, err
+		return State{}, installJob{}, err
 	}
 	state.CurrentVersion = c.currentVersion
 	if state.Installation != nil &&
@@ -73,24 +105,27 @@ func (c *Controller) Install(
 			state.Installation.Status == InstallStatusRebootPending ||
 			state.Installation.Status == InstallStatusProbation ||
 			state.Installation.Status == InstallStatusInstalled) {
-		c.mu.Unlock()
-		return cloneState(state), fmt.Errorf(
+		return cloneState(state), installJob{}, fmt.Errorf(
 			"updates: installation state is %s",
 			state.Installation.Status,
 		)
 	}
 	decision := EvaluateInstall(state, conditions)
 	if !decision.Allowed {
-		c.mu.Unlock()
-		return cloneState(state), fmt.Errorf("updates: installation blocked: %s", decision.Reason)
+		return cloneState(state), installJob{}, fmt.Errorf(
+			"updates: installation blocked: %s",
+			decision.Reason,
+		)
 	}
 	if c.installing {
-		c.mu.Unlock()
-		return cloneState(state), fmt.Errorf("updates: installation is already running")
+		return cloneState(state), installJob{}, fmt.Errorf(
+			"updates: installation is already running",
+		)
 	}
 	if c.installer == nil || c.rebooter == nil {
-		c.mu.Unlock()
-		return cloneState(state), fmt.Errorf("updates: installer is unavailable")
+		return cloneState(state), installJob{}, fmt.Errorf(
+			"updates: installer is unavailable",
+		)
 	}
 
 	now := c.now().UTC()
@@ -106,16 +141,23 @@ func (c *Controller) Install(
 		StartedAt: &now,
 		Attempts:  attempts,
 	}
-	if _, err := c.saveState(state); err != nil {
-		c.mu.Unlock()
-		return cloneState(state), err
+	saved, err := c.saveState(state)
+	if err != nil {
+		return saved, installJob{}, err
 	}
-	installer := c.installer
-	rebooter := c.rebooter
 	c.installing = true
-	c.mu.Unlock()
+	return saved, installJob{
+		version:   version,
+		installer: c.installer,
+		rebooter:  c.rebooter,
+	}, nil
+}
 
-	installErr := installer.Install(ctx, version)
+func (c *Controller) runInstall(
+	ctx context.Context,
+	job installJob,
+) (State, error) {
+	installErr := job.installer.Install(ctx, job.version)
 
 	c.mu.Lock()
 	c.installing = false
@@ -126,13 +168,17 @@ func (c *Controller) Install(
 	}
 	state.CurrentVersion = c.currentVersion
 	finished := c.now().UTC()
-	if state.Installation == nil || state.Installation.Version != version {
+	if state.Installation == nil || state.Installation.Version != job.version {
 		c.mu.Unlock()
-		return cloneState(state), fmt.Errorf("updates: installation state changed while staging")
+		return cloneState(state), fmt.Errorf(
+			"updates: installation state changed while staging",
+		)
 	}
 	if len(state.Installation.Attempts) == 0 {
 		c.mu.Unlock()
-		return cloneState(state), fmt.Errorf("updates: installation attempt disappeared while staging")
+		return cloneState(state), fmt.Errorf(
+			"updates: installation attempt disappeared while staging",
+		)
 	}
 	attempt := &state.Installation.Attempts[len(state.Installation.Attempts)-1]
 	attempt.FinishedAt = &finished
@@ -158,11 +204,11 @@ func (c *Controller) Install(
 		return saved, saveErr
 	}
 
-	if rebootErr := rebooter.Reboot(ctx); rebootErr != nil {
+	if rebootErr := job.rebooter.Reboot(ctx); rebootErr != nil {
 		c.mu.Lock()
 		latest, loadErr := c.store.Load()
 		if loadErr == nil && latest.Installation != nil &&
-			latest.Installation.Version == version {
+			latest.Installation.Version == job.version {
 			latest.Installation.LastError = rebootErr.Error()
 			latest, loadErr = c.saveState(latest)
 		}

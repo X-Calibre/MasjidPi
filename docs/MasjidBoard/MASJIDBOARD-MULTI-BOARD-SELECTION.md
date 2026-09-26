@@ -4,7 +4,7 @@
 
 ## Decision
 
-MasjidPi allows the user to select and display between one and three MasjidBoard entries at the same time once MasjidBoard has been configured.
+MasjidFrame allows the user to select and display between one and three MasjidBoard entries at the same time once MasjidBoard has been configured.
 
 The primary use case is timetable comparison between nearby masjids. Selection order is significant and is preserved exactly as chosen by the user.
 
@@ -52,19 +52,19 @@ Selected board 3 -> provider -> runtime -> cache
 
 A failure retrieving one board does not prevent the others from operating.
 
-The ordered selection can be changed through the configuration API while MasjidPi is running. The service reconfigures the selected-board runtimes without requiring the display to manage configuration.
+The ordered selection can be changed through the configuration API while MasjidFrame is running. The service reconfigures the selected-board runtimes without requiring the display to manage configuration.
 
 ## Persistence
 
 Installed state is persisted independently of the discovery catalogue at:
 
 ```text
-/var/lib/masjidpi/masjidboard_selection.json
+/var/lib/masjidframe/masjidboard_selection.json
 ```
 
 Development state lives under `backend/data/`.
 
-Persistence follows the MasjidPi appliance rules: validate first, suppress unchanged writes, write through a temporary file, sync, atomically rename, and retain the previous in-memory last-known-good state if persistence fails.
+Persistence follows the MasjidFrame appliance rules: validate first, suppress unchanged writes, write through a temporary file, sync, atomically rename, and retain the previous in-memory last-known-good state if persistence fails.
 
 ## Catalogue Independence
 

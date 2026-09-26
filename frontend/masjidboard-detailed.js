@@ -447,7 +447,7 @@
             addSharedPrayerLabels();
     }
 
-    window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    window.addEventListener("masjidframe:board-view", event => refresh(event.detail));
     if (window.MasjidBoardCurrentView) refresh(window.MasjidBoardCurrentView);
     window.setInterval(() => {
         if (!latestCommunityView) return;

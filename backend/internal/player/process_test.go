@@ -27,7 +27,7 @@ func TestMPVCommandArgsBoundLiveAudioCache(t *testing.T) {
 
 func TestProcessRestartsAfterUnexpectedExit(t *testing.T) {
 	if runtime.GOOS != "linux" {
-		t.Skip("MasjidPi process tests require Linux")
+		t.Skip("MasjidFrame process tests require Linux")
 	}
 
 	dir := t.TempDir()
@@ -40,7 +40,7 @@ func TestProcessRestartsAfterUnexpectedExit(t *testing.T) {
 	oldPath := os.Getenv("PATH")
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+oldPath)
 
-	p := NewProcess(filepath.Join(t.TempDir(), "masjidpi.sock"))
+	p := NewProcess(filepath.Join(t.TempDir(), "masjidframe.sock"))
 	if err := p.Start(); err != nil {
 		t.Fatal(err)
 	}

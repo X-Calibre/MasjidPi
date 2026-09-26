@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Record findings, assumptions, decisions, and open questions for integrating MasjidBoard Live as the primary data source for the MasjidBoard module in MasjidPi V2.
+Record findings, assumptions, decisions, and open questions for integrating MasjidBoard Live as the primary data source for the MasjidBoard module in MasjidFrame V2.
 
 ## Confirmed Requirements
 
@@ -12,7 +12,7 @@ Record findings, assumptions, decisions, and open questions for integrating Masj
 - Display it on an external HDMI-connected screen attached to the Raspberry Pi.
 - Use MasjidBoard Live as the primary data source.
 - Cache downloaded data locally so the board can continue operating during temporary connectivity loss.
-- Keep MasjidBoard independent from the MasjidPi audio playback subsystem.
+- Keep MasjidBoard independent from the MasjidFrame audio playback subsystem.
 
 ## Initial Architecture
 
@@ -97,7 +97,7 @@ functions_uo_latest.js
 
 The important architectural conclusion is that **`boardId` is an opaque, server-supplied identifier**. It is not derived by the frontend JavaScript from the public `mid`.
 
-Therefore MasjidPi must **not attempt to calculate or transform a public `mid` into an API ID**.
+Therefore MasjidFrame must **not attempt to calculate or transform a public `mid` into an API ID**.
 
 The public `mid` should remain the stable board identifier used by our MasjidBoard catalogue/provider configuration. The opaque `boardId` should be treated as a MasjidBoard Live implementation detail discovered from the generated board page.
 
@@ -276,9 +276,9 @@ The three heading/time pairs describe stages of one Jumu'ah service. Columns 9�
 | 15 | `liveStreamingServer` | Live-stream server |
 | 16 | `liveStreamingURL` | Live-stream URL |
 
-**Important source-code observation:** `handleResults()` assigns `spreadsheetArray[3][6]` to both `iftar` and `maghribAthan`. This does not establish that Iftar and Maghrib are semantically identical. A masjid may publish Iftar at a time that differs from the Maghrib Adhan by a few minutes, depending on its timetable/practice. MasjidPi must therefore retain this as an open research question rather than collapsing the two concepts in the normalised model. During Ramadhaan, compare real MasjidBoard Live boards that explicitly display both Iftar and Maghrib times to determine whether MasjidBoard Live supports distinct values or only exposes a shared source value. Row 23 separately contains `maghribAthanI` and other alternate-language Salah values.
+**Important source-code observation:** `handleResults()` assigns `spreadsheetArray[3][6]` to both `iftar` and `maghribAthan`. This does not establish that Iftar and Maghrib are semantically identical. A masjid may publish Iftar at a time that differs from the Maghrib Adhan by a few minutes, depending on its timetable/practice. MasjidFrame must therefore retain this as an open research question rather than collapsing the two concepts in the normalised model. During Ramadhaan, compare real MasjidBoard Live boards that explicitly display both Iftar and Maghrib times to determine whether MasjidBoard Live supports distinct values or only exposes a shared source value. Row 23 separately contains `maghribAthanI` and other alternate-language Salah values.
 
-MasjidPi preserves the additional Dhuhr time and its label and presents it in the primary masjid's Daily Times whenever it differs from both ordinary Dhuhr times. The label communicates its applicability, such as `(Sundays & Public Holidays)` or `(Everyday)`, without requiring date inference. The ordinary Dhuhr timetable is never replaced.
+MasjidFrame preserves the additional Dhuhr time and its label and presents it in the primary masjid's Daily Times whenever it differs from both ordinary Dhuhr times. The label communicates its applicability, such as `(Sundays & Public Holidays)` or `(Everyday)`, without requiring date inference. The ordinary Dhuhr timetable is never replaced.
 
 #### Row 4 — display/theme/time configuration
 
@@ -348,7 +348,7 @@ MasjidPi preserves the additional Dhuhr time and its label and presents it in th
 
 The Premium row values configure MasjidBoard Live's own presentation but do
 not carry the actual Ayah/Hadith/Sunnah text. The text source has since been
-resolved as the separate shared `mblfileapi` translations feed. MasjidPi does
+resolved as the separate shared `mblfileapi` translations feed. MasjidFrame does
 not apply these masjid-specific enable flags to the shared feed; its own three
 local display preferences control whether each category is shown.
 
@@ -511,7 +511,7 @@ An August 2026 review confirmed that a new MasjidBoard Live discovery exercise i
 
 The existing captures contain the following information:
 
-| Content | Existing upstream location | Current MasjidPi state |
+| Content | Existing upstream location | Current MasjidFrame state |
 |---|---|---|
 | Daily Ayah, Hadith and Sunnah | Shared `mblfileapi` JavaScript translations object; independent of the selected masjid and its Premium enable flags | Parsed, cached, exposed and displayed; three default-enabled user controls select the visible categories |
 | Upcoming Salaah changes | Premium row 0, with a public Core HTML fallback using the six named Fajr/Asr/Esha date and time elements | Parsed as active/future `salaah_change` cards; blank/dash values and unpopulated `00:00` Core placeholders are ignored |
@@ -527,7 +527,7 @@ The existing captures contain the following information:
 | Sickness/well-wishes | Row 21; ten configurable messages and visibility state | Parsed, exposed and displayed when active |
 | New moon information | Row 2 and related settings; birth, set, age, azimuth, altitude and visibility dates | Parsed and displayed only when the upstream moon-information flag is active; never labelled as a confirmed sighting |
 
-The public Premium webpage also contains static presentation blocks for a cellphone reminder and the Arabic/translated Dua after Adhan. They are webpage chrome, not per-masjid payload fields. MasjidPi does not import the cellphone reminder. It provides its own optional bilingual priority card for five minutes from each listed timetable Adhan instead; as built-in content, the card has no visible source attribution.
+The public Premium webpage also contains static presentation blocks for a cellphone reminder and the Arabic/translated Dua after Adhan. They are webpage chrome, not per-masjid payload fields. MasjidFrame does not import the cellphone reminder. It provides its own optional bilingual priority card for five minutes from each listed timetable Adhan instead; as built-in content, the card has no visible source attribution.
 
 ### What is already implemented
 
@@ -549,7 +549,7 @@ The display view and `/api/masjidboard/display` response expose identity, dates,
 
 ### Core versus Premium payloads
 
-MasjidPi currently retrieves the public Core board data for normal operation. The Core validation found no announcements, community content, posters, programmes or notices in its embedded `data` object. The richer content listed above is confirmed in the captured Premium 29-row payloads.
+MasjidFrame currently retrieves the public Core board data for normal operation. The Core validation found no announcements, community content, posters, programmes or notices in its embedded `data` object. The richer content listed above is confirmed in the captured Premium 29-row payloads.
 
 ### 2026-08-23 — Premium access path revalidated
 
@@ -563,9 +563,9 @@ The public Premium page and API path were rechecked for five previously research
 
 For every board, `https://premium.masjidboardlive.com/v2/?mid=<mid>` still returned a generated page containing both `let boardId = "<opaque-id>"` and `let theInfo = [...]`. Calling `https://api.masjidboardlive.com/mblapi?id=<opaque-id>` returned a valid 29-row JSON array for every resolved ID. Existing repository fixtures also demonstrate that MasjidBoard Live may append a 30th row, so the provider accepts 29 or more rows while continuing to parse only verified positions.
 
-This confirms the existing technical access path remains operational and unauthenticated. It does not by itself establish a contractual entitlement or guarantee that every Core-listed masjid has a Premium board. MasjidPi must therefore treat Premium enrichment as optional and must retain the current Core provider as the reliable timetable fallback.
+This confirms the existing technical access path remains operational and unauthenticated. It does not by itself establish a contractual entitlement or guarantee that every Core-listed masjid has a Premium board. MasjidFrame must therefore treat Premium enrichment as optional and must retain the current Core provider as the reliable timetable fallback.
 
-The provider includes a `PremiumClient` that resolves the opaque ID and embedded payload from the stable public `mid` on each fetch. The opaque ID is not persisted, so a server-side board rebuild cannot leave MasjidPi tied to a stale implementation identifier.
+The provider includes a `PremiumClient` that resolves the opaque ID and embedded payload from the stable public `mid` on each fetch. The opaque ID is not persisted, so a server-side board rebuild cannot leave MasjidFrame tied to a stale implementation identifier.
 
 Runtime integration uses an `EnrichedClient` with explicit fallback semantics:
 
@@ -674,7 +674,7 @@ For focused testing of the latest Dawah/Gasht, three-day Jamaat and contribution
 
 ### MasjidBoard is a separate application capability
 
-MasjidBoard must be capable of operating as a separate application from MasjidPi audio playback. An end user should ultimately be able to run:
+MasjidBoard must be capable of operating as a separate application from MasjidFrame audio playback. An end user should ultimately be able to run:
 
 - audio only;
 - MasjidBoard display only; or
@@ -682,9 +682,9 @@ MasjidBoard must be capable of operating as a separate application from MasjidPi
 
 The MasjidBoard display must not depend on the audio subsystem being active.
 
-### MasjidBoard Live supplies data; MasjidPi renders the board
+### MasjidBoard Live supplies data; MasjidFrame renders the board
 
-MasjidBoard Live is the primary data source. MasjidPi will **render the board itself** rather than embedding the MasjidBoard Live webpage.
+MasjidBoard Live is the primary data source. MasjidFrame will **render the board itself** rather than embedding the MasjidBoard Live webpage.
 
 This gives us control over the display, allows MasjidBoard to run as a standalone application, and avoids making the HDMI display dependent on a full web browser rendering the upstream site.
 
@@ -764,7 +764,7 @@ The exact Go representation of the detailed events should be frozen only after t
 
 The current `functions_uo_latest.js` assigns the same upstream row-3 column to both `iftar` and `maghribAthan`. This is a **source mapping observation, not a semantic decision**.
 
-MasjidPi should treat Iftar and Maghrib Athaan as distinct concepts until the upstream behaviour is verified. A masjid may publish Iftar a few minutes before or otherwise separately from the Maghrib Athaan according to its own timetable/practice.
+MasjidFrame should treat Iftar and Maghrib Athaan as distinct concepts until the upstream behaviour is verified. A masjid may publish Iftar a few minutes before or otherwise separately from the Maghrib Athaan according to its own timetable/practice.
 
 The planned validation is to observe multiple MasjidBoard Live boards during Ramadhaan where both Iftar and Maghrib are explicitly displayed. The investigation should determine whether:
 
@@ -776,7 +776,7 @@ Until that evidence exists, the normalised model must not silently equate Iftar 
 
 ### Do not mirror the 29-row structure in the domain model
 
-The 29-row response is an upstream transport/configuration format. It should not become the MasjidPi domain model.
+The 29-row response is an upstream transport/configuration format. It should not become the MasjidFrame domain model.
 
 The provider should parse the upstream response into a normalised model containing semantically verified fields. Unknown or insufficiently understood upstream fields should remain outside the domain model until their meaning is established.
 
@@ -806,7 +806,7 @@ This is appropriate because a prayer time is fundamentally a local mosque clock 
 
 The following staged plan guided the original MasjidBoard Live investigation and
 implementation. It is retained as design history; all four stages have since
-been completed for the fields used by MasjidPi v1.5.2.
+been completed for the fields used by MasjidFrame v1.5.2.
 
 ### Stage 1 — Complete the upstream schema
 
@@ -823,7 +823,7 @@ For every relevant row and column, record:
 - known dependencies on other fields; and
 - unresolved questions.
 
-The output of this stage is the **MasjidBoard Live data contract** as currently understood by MasjidPi.
+The output of this stage is the **MasjidBoard Live data contract** as currently understood by MasjidFrame.
 
 This stage must also trace the remaining Jumu'ah heading/code semantics and investigate fields that `handleResults()` does not fully populate or explain.
 
@@ -845,7 +845,7 @@ Compare the same fields across the currently verified boards and add further rep
 
 The objective is to distinguish **actual upstream semantics** from values or behaviours that merely occur on one board.
 
-### Stage 3 — Define the normalised MasjidPi model
+### Stage 3 — Define the normalised MasjidFrame model
 
 Only after Stages 1 and 2 should the generic MasjidBoard domain model be finalised.
 
@@ -903,7 +903,7 @@ maintained implementation and validation documentation.
 ## Current Status
 
 The upstream investigation established the main 29-row schema and the
-public-`mid`/opaque-`boardId` relationship. MasjidPi uses MasjidBoard Live Core
+public-`mid`/opaque-`boardId` relationship. MasjidFrame uses MasjidBoard Live Core
 for the primary timetable and can use Premium as optional enrichment.
 
 The provider, normalised domain model, last-known-good caches and both display
@@ -913,7 +913,7 @@ Dua after Adhan, Zawaal warning behaviour and distinct special-day Dhuhr data.
 On Islamic Friday, Jumu'ah replaces the Dhuhr row and may also appear as a
 detailed attributed card.
 
-Iftar versus Maghrib remains an open upstream-semantics question. The current source maps both names to one value, but MasjidPi will not assume they are semantically identical until Ramadhaan observations establish how MasjidBoard Live represents boards that distinguish the two times.
+Iftar versus Maghrib remains an open upstream-semantics question. The current source maps both names to one value, but MasjidFrame will not assume they are semantically identical until Ramadhaan observations establish how MasjidBoard Live represents boards that distinguish the two times.
 
 ## Remaining Upstream Research
 

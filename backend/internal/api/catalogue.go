@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
-	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/radio"
 )
 
 func (s *Server) refreshCatalogue() error {

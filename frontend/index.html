@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listen - MasjidPi</title>
-    <link rel="stylesheet" href="style.css?v=20260911-favourites-order">
+    <title>Listen - MasjidFrame</title>
+    <link rel="stylesheet" href="style.css?v=20260926-brand-logo">
     <link rel="stylesheet" href="listen.css?v=20260829-live-resume-status">
 </head>
 <body data-component-page="listen">
@@ -12,19 +12,19 @@
     <header class="app-header">
         <div class="header-row">
             <div>
-                <h1>MasjidPi</h1>
+                <h1 class="brand-title"><img class="brand-logo" src="masjidframe-logo-horizontal.svg" alt="MasjidFrame"></h1>
                 <p>Home appliance control</p>
             </div>
             <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
         </div>
-        <nav class="app-tabs" aria-label="MasjidPi sections">
+        <nav class="app-tabs" aria-label="MasjidFrame sections">
             <a class="app-tab active" data-component="listen" href="index.html" aria-current="page">Listen</a>
             <a class="app-tab" data-component="board" href="masjidboard-config.html">Board</a>
             <a class="app-tab" href="updates.html">Updates</a>
         </nav>
     </header>
 
-    <div id="offlineBanner" class="offline-banner hidden">● OFFLINE – Cannot connect to MasjidPi</div>
+    <div id="offlineBanner" class="offline-banner hidden">● OFFLINE – Cannot connect to MasjidFrame</div>
 
     <main>
         <section class="card now-playing-card">
@@ -134,7 +134,7 @@
                     <label for="radioResumeDelaySlider">Radio Resume Delay</label>
                     <input id="radioResumeDelaySlider" type="range" min="1" max="30" step="1" value="5">
                     <div id="radioResumeDelayValue">5 minutes</div>
-                    <small class="volume-note">In scheduled mode, MasjidPi waits this long after a masjid broadcast ends before resuming Radio.</small>
+                    <small class="volume-note">In scheduled mode, MasjidFrame waits this long after a masjid broadcast ends before resuming Radio.</small>
                 </div>
 
                 <div class="radio-schedule-block">
@@ -166,7 +166,7 @@
                     <button id="refreshAudioDevices" type="button" class="secondary compact-action">Refresh Devices</button>
                 </div>
                 <select id="audioDevice"></select>
-                <small class="volume-note">Select where MasjidPi plays audio.</small>
+                <small class="volume-note">Select where MasjidFrame plays audio.</small>
 
                 <label for="volumeSlider">Master Volume</label>
                 <input id="volumeSlider" type="range" min="0" max="100" value="100">
@@ -177,7 +177,7 @@
 
     </main>
 
-    <footer class="footer"><span id="version">MasjidPi</span></footer>
+    <footer class="footer"><span id="version">MasjidFrame</span></footer>
 </div>
 
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
@@ -193,7 +193,7 @@
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");
-    const key = "masjidpi-theme";
+    const key = "masjidframe-theme";
     const validThemes = ["system", "light", "dark"];
     function storedTheme() { const value = localStorage.getItem(key); return validThemes.includes(value) ? value : "system"; }
     function applyTheme(theme) {

@@ -28,7 +28,7 @@
         }, duration);
     }
 
-    window.MasjidPiUI = Object.freeze({notify});
+    window.MasjidFrameUI = Object.freeze({notify});
 
     async function loadComponents() {
         const response = await fetch("/api/components", {cache: "no-store"});
@@ -63,7 +63,7 @@
             const response = await fetch("/api/version", {cache: "no-store"});
             if (!response.ok) return;
             const status = await response.json();
-            if (status.version) footer.textContent = "MasjidPi " + status.version;
+            if (status.version) footer.textContent = "MasjidFrame " + status.version;
         } catch (_) {
             // Keep the product name when version status is unavailable.
         }
@@ -78,6 +78,6 @@
             document.documentElement.dataset.componentsReady = "true";
         })
         .catch((error) => {
-            console.warn("Unable to load installed MasjidPi components", error);
+            console.warn("Unable to load installed MasjidFrame components", error);
         });
 })();

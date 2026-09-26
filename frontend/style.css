@@ -60,6 +60,8 @@ header { margin-bottom: 30px; }
 .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
 .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
 header h1 { font-size: 42px; color: var(--accent); }
+.brand-title { line-height: 0; }
+.brand-logo { display: block; width: min(270px, 100%); height: auto; padding: 8px; border-radius: 8px; background: #f8f7f1; }
 header p { color: var(--muted); margin-top: 8px; }
 .card { background: var(--card); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px var(--shadow); }
 .card h2 { margin-bottom: 20px; }
@@ -110,6 +112,15 @@ button.secondary:hover { background: var(--field-hover); }
 .update-details dt { color:var(--subtle); font-size:12px; font-weight:700; text-transform:uppercase; }
 .update-details dd { margin-top:5px; overflow-wrap:anywhere; color:var(--text); font-size:14px; font-weight:600; }
 .update-error { margin-top:14px; line-height:1.4; }
+.update-error-details { margin-top:10px; color:var(--muted); }
+.update-error-details summary { cursor:pointer; font-weight:700; }
+.update-error-details pre {
+    max-height:12rem;
+    margin-top:8px;
+    overflow:auto;
+    font-size:12px;
+    line-height:1.35;
+}
 .update-release-link { display:inline-block; margin-top:14px; color:var(--accent); font-weight:700; }
 .update-actions { margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; }
 .update-actions.hidden { display:none; }
@@ -162,7 +173,7 @@ button.secondary:hover { background: var(--field-hover); }
 }
 
 
-/* Unified MasjidPi application navigation */
+/* Unified MasjidFrame application navigation */
 .app-header { margin-bottom: 24px; }
 .app-header .header-row { align-items: center; }
 .app-tabs {

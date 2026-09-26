@@ -3,11 +3,11 @@
 set -Eeuo pipefail
 
 REPO_OWNER="X-Calibre"
-REPO_NAME="MasjidPi"
+REPO_NAME="MasjidFrame"
 RELEASE_API="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
 
-info() { printf 'MasjidPi: %s\n' "$*"; }
-die() { printf 'MasjidPi: ERROR: %s\n' "$*" >&2; exit 1; }
+info() { printf 'MasjidFrame: %s\n' "$*"; }
+die() { printf 'MasjidFrame: ERROR: %s\n' "$*" >&2; exit 1; }
 
 require_root() {
     if [[ "$(id -u)" -ne 0 ]]; then
@@ -32,7 +32,7 @@ main() {
             release_arch="amd64"
             ;;
         armv7l|armv6l)
-            die "No official MasjidPi release is available for $arch. Use the source installer instead."
+            die "No official MasjidFrame release is available for $arch. Use the source installer instead."
             ;;
         *)
             die "Unsupported architecture: $arch"
@@ -40,14 +40,14 @@ main() {
     esac
 
     latest_tag="$(curl -fsSL --retry 3 "$RELEASE_API" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n1)"
-    [[ "$latest_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Unable to determine the latest MasjidPi release."
+    [[ "$latest_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Unable to determine the latest MasjidFrame release."
 
-    archive_name="masjidpi-${latest_tag}-linux-${release_arch}.tar.gz"
+    archive_name="masjidframe-${latest_tag}-linux-${release_arch}.tar.gz"
     base_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${latest_tag}"
-    work_dir="$(mktemp -d /tmp/masjidpi-latest.XXXXXX)"
+    work_dir="$(mktemp -d /tmp/masjidframe-latest.XXXXXX)"
     trap 'rm -rf "$work_dir"' EXIT
 
-    info "Downloading MasjidPi ${latest_tag} (${release_arch})..."
+    info "Downloading MasjidFrame ${latest_tag} (${release_arch})..."
     curl -fL --retry 3 "${base_url}/${archive_name}" -o "$work_dir/$archive_name"
     curl -fsSL --retry 3 "${base_url}/SHA256SUMS" -o "$work_dir/SHA256SUMS"
 
@@ -59,17 +59,17 @@ main() {
 
     info "Extracting release..."
     tar -xzf "$work_dir/$archive_name" -C "$work_dir"
-    release_dir="$work_dir/masjidpi-${latest_tag}-linux-${release_arch}"
+    release_dir="$work_dir/masjidframe-${latest_tag}-linux-${release_arch}"
 
-    [[ -x "$release_dir/masjidpi" ]] || die "Release binary is missing."
+    [[ -x "$release_dir/masjidframe" ]] || die "Release binary is missing."
     [[ -f "$release_dir/default.yaml" ]] || die "Release configuration is missing."
     [[ -f "$release_dir/VERSION" ]] || die "Release version file is missing."
     [[ -f "$release_dir/frontend/index.html" ]] || die "Release frontend is missing."
     [[ -x "$release_dir/scripts/install.sh" ]] || die "Release installer is missing."
-    [[ -f "$release_dir/scripts/masjidpi.service" ]] || die "Release service file is missing."
-    [[ -f "$release_dir/scripts/masjidpi-display.service" ]] || die "MasjidBoard display service file is missing."
+    [[ -f "$release_dir/scripts/masjidframe.service" ]] || die "Release service file is missing."
+    [[ -f "$release_dir/scripts/masjidframe-display.service" ]] || die "MasjidBoard display service file is missing."
 
-    info "Installing MasjidPi ${latest_tag}..."
+    info "Installing MasjidFrame ${latest_tag}..."
 
     # The recommended install command pipes this bootstrap script into bash,
     # which means stdin is not a TTY. Reconnect the bundled installer to the

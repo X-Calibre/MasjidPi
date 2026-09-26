@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-BOOT_FIRMWARE_DIR="${MASJIDPI_BOOT_FIRMWARE_DIR:-/boot/firmware}"
-CMDLINE_FILE="${MASJIDPI_CMDLINE_FILE:-$BOOT_FIRMWARE_DIR/cmdline.txt}"
-CONFIG_FILE="${MASJIDPI_CONFIG_FILE:-$BOOT_FIRMWARE_DIR/config.txt}"
-RPI_MODEL_FILE="${MASJIDPI_RPI_MODEL_FILE:-/proc/device-tree/model}"
-PLYMOUTH_THEME_DIR="${MASJIDPI_PLYMOUTH_THEME_DIR:-/usr/share/plymouth/themes/masjidpi}"
-PLYMOUTH_QUIT_DROPIN_DIR="${MASJIDPI_PLYMOUTH_QUIT_DROPIN_DIR:-/etc/systemd/system/plymouth-quit.service.d}"
-BOOT_READONLY_SERVICE_FILE="${MASJIDPI_BOOT_READONLY_SERVICE_FILE:-/etc/systemd/system/masjidpi-boot-readonly.service}"
-BOOT_APT_HOOK_FILE="${MASJIDPI_BOOT_APT_HOOK_FILE:-/etc/apt/apt.conf.d/99-masjidpi-boot-firmware}"
+BOOT_FIRMWARE_DIR="${MASJIDFRAME_BOOT_FIRMWARE_DIR:-/boot/firmware}"
+CMDLINE_FILE="${MASJIDFRAME_CMDLINE_FILE:-$BOOT_FIRMWARE_DIR/cmdline.txt}"
+CONFIG_FILE="${MASJIDFRAME_CONFIG_FILE:-$BOOT_FIRMWARE_DIR/config.txt}"
+RPI_MODEL_FILE="${MASJIDFRAME_RPI_MODEL_FILE:-/proc/device-tree/model}"
+PLYMOUTH_THEME_DIR="${MASJIDFRAME_PLYMOUTH_THEME_DIR:-/usr/share/plymouth/themes/masjidframe}"
+PLYMOUTH_QUIT_DROPIN_DIR="${MASJIDFRAME_PLYMOUTH_QUIT_DROPIN_DIR:-/etc/systemd/system/plymouth-quit.service.d}"
+BOOT_READONLY_SERVICE_FILE="${MASJIDFRAME_BOOT_READONLY_SERVICE_FILE:-/etc/systemd/system/masjidframe-boot-readonly.service}"
+BOOT_APT_HOOK_FILE="${MASJIDFRAME_BOOT_APT_HOOK_FILE:-/etc/apt/apt.conf.d/99-masjidframe-boot-firmware}"
 BOOT_FIRMWARE_UPDATE_ACTIVE=false
 
 is_raspberry_pi() {
-    if [[ "${MASJIDPI_FORCE_RASPBERRY_PI:-0}" == "1" ]]; then
+    if [[ "${MASJIDFRAME_FORCE_RASPBERRY_PI:-0}" == "1" ]]; then
         return 0
     fi
 
@@ -52,8 +52,8 @@ protect_boot_firmware() {
 configure_boot_firmware_protection() {
     is_raspberry_pi || return 0
 
-    local service_file="$PROJECT_ROOT/scripts/masjidpi-boot-readonly.service"
-    local apt_hook_file="$PROJECT_ROOT/scripts/99-masjidpi-boot-firmware"
+    local service_file="$PROJECT_ROOT/scripts/masjidframe-boot-readonly.service"
+    local apt_hook_file="$PROJECT_ROOT/scripts/99-masjidframe-boot-firmware"
 
     if [[ ! -f "$service_file" || ! -f "$apt_hook_file" ]]; then
         warn "Raspberry Pi boot firmware protection assets are missing; persistent protection was not installed."
@@ -64,7 +64,7 @@ configure_boot_firmware_protection() {
     install -D -m 0644 "$service_file" "$BOOT_READONLY_SERVICE_FILE"
     install -D -m 0644 "$apt_hook_file" "$BOOT_APT_HOOK_FILE"
     systemctl daemon-reload
-    systemctl enable masjidpi-boot-readonly.service >/dev/null
+    systemctl enable masjidframe-boot-readonly.service >/dev/null
 
     protect_boot_firmware
 }
@@ -110,12 +110,13 @@ configure_quiet_boot() {
 configure_boot_splash() {
     is_raspberry_pi_board || return 0
 
-    local theme_file="$PROJECT_ROOT/scripts/masjidpi-splash.plymouth"
-    local script_file="$PROJECT_ROOT/scripts/masjidpi-splash-standard.script"
-    local logo_file="$PROJECT_ROOT/frontend/masjidpi-splash-logo.png"
+    local theme_file="$PROJECT_ROOT/scripts/masjidframe-splash.plymouth"
+    local script_file="$PROJECT_ROOT/scripts/masjidframe-splash-standard.script"
+    local logo_file="$PROJECT_ROOT/frontend/masjidframe-splash-logo.png"
+    local portrait_logo_file="$PROJECT_ROOT/frontend/masjidframe-splash-logo-portrait.png"
 
-    if [[ ! -f "$theme_file" || ! -f "$script_file" || ! -f "$logo_file" ]]; then
-        warn "MasjidPi Plymouth splash assets are missing; skipping branded boot splash."
+    if [[ ! -f "$theme_file" || ! -f "$script_file" || ! -f "$logo_file" || ! -f "$portrait_logo_file" ]]; then
+        warn "MasjidFrame Plymouth splash assets are missing; skipping branded boot splash."
         return 0
     fi
 
@@ -124,13 +125,14 @@ configure_boot_splash() {
         return 0
     fi
 
-    info "Installing MasjidPi Raspberry Pi Board boot splash..."
+    info "Installing MasjidFrame Raspberry Pi Board boot splash..."
 
     install -d -m 0755 "$PLYMOUTH_THEME_DIR"
-    install -m 0644 "$theme_file" "$PLYMOUTH_THEME_DIR/masjidpi.plymouth"
-    install -m 0644 "$script_file" "$PLYMOUTH_THEME_DIR/masjidpi-splash.script"
+    install -m 0644 "$theme_file" "$PLYMOUTH_THEME_DIR/masjidframe.plymouth"
+    install -m 0644 "$script_file" "$PLYMOUTH_THEME_DIR/masjidframe-splash.script"
     install -m 0644 "$logo_file" "$PLYMOUTH_THEME_DIR/$(basename "$logo_file")"
-    rm -f "$PLYMOUTH_THEME_DIR/masjidpi-splash-logo-appliance.png"
+    install -m 0644 "$portrait_logo_file" "$PLYMOUTH_THEME_DIR/$(basename "$portrait_logo_file")"
+    rm -f "$PLYMOUTH_THEME_DIR/masjidframe-splash-logo-appliance.png"
 
     append_cmdline_parameter splash
     append_cmdline_parameter plymouth.ignore-serial-consoles
@@ -139,14 +141,14 @@ configure_boot_splash() {
     # Keep the final splash frame on screen after Plymouth releases DRM so the
     # quiet console cannot flash between Plymouth and Cog startup.
     install -d -m 0755 "$PLYMOUTH_QUIT_DROPIN_DIR"
-    cat > "$PLYMOUTH_QUIT_DROPIN_DIR/masjidpi.conf" <<'EOF'
+    cat > "$PLYMOUTH_QUIT_DROPIN_DIR/masjidframe.conf" <<'EOF'
 [Service]
 ExecStart=
 ExecStart=-/usr/bin/plymouth quit --retain-splash
 EOF
 
     systemctl daemon-reload
-    plymouth-set-default-theme -R masjidpi
+    plymouth-set-default-theme -R masjidframe
 
-    success "MasjidPi Raspberry Pi Board boot splash installed."
+    success "MasjidFrame Raspberry Pi Board boot splash installed."
 }

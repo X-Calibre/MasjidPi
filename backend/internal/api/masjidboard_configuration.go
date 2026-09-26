@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/hierarchy"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/scope"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/hierarchy"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/scope"
 )
 
 type masjidBoardScopeResponse struct {

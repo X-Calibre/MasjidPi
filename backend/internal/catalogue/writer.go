@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/atomicfile"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 func WriteCatalogue(filename string, streams []stream.Stream) error {

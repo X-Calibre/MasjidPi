@@ -1,6 +1,6 @@
 package version
 
-const AppName = "MasjidPi"
+const AppName = "MasjidFrame"
 
 // Version is the application version embedded in the binary.
 // Release builds override this value with Go linker flags from the Git tag.

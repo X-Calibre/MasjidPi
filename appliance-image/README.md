@@ -1,4 +1,4 @@
-# MasjidPi Raspberry Pi 3 A/B appliance image
+# MasjidFrame Raspberry Pi 3 A/B appliance image
 
 This directory builds a Raspberry Pi 3 Model B appliance image using
 [`rpi-image-gen`](https://github.com/raspberrypi/rpi-image-gen).
@@ -46,7 +46,7 @@ A developer may use an ignored local configuration and `nm.cmds` file to
 preconfigure a test network.
 
 During first-run setup, the selected IANA time zone is applied to the system and
-saved as `/var/lib/masjidpi/timezone.json`. Because `/var/lib/masjidpi` is
+saved as `/var/lib/masjidframe/timezone.json`. Because `/var/lib/masjidframe` is
 shared, either system slot restores the same time zone at application startup.
 
 ## U-Boot
@@ -71,29 +71,29 @@ A stable confirmed system has no `bootlimit`. An updater must create
 `bootlimit=2` only when arming a trial boot. Successful confirmation and
 automatic rollback both remove it.
 
-The U-Boot source tree is not modified. MasjidPi's configuration and compiled
+The U-Boot source tree is not modified. MasjidFrame's configuration and compiled
 default environment are stored under `appliance-image/u-boot/`.
 
 ## A/B management command
 
-The image installs `/usr/local/sbin/masjidpi-ab` in both system slots.
+The image installs `/usr/local/sbin/masjidframe-ab` in both system slots.
 
 Display the running slot and boot state:
 
 ```bash
-sudo masjidpi-ab status
+sudo masjidframe-ab status
 ```
 
 Collect detailed boot diagnostics:
 
 ```bash
-sudo masjidpi-ab diagnostics
+sudo masjidframe-ab diagnostics
 ```
 
 Arm the other slot for a trial boot:
 
 ```bash
-sudo masjidpi-ab trial b
+sudo masjidframe-ab trial b
 sudo reboot
 ```
 
@@ -103,7 +103,7 @@ A systemd one-shot service automatically evaluates a pending trial after a
 - The running root partition agrees with `active_slot`.
 - The root filesystem is mounted read-write.
 - `PERSISTENT` is mounted read-write from `/dev/mmcblk0p4`.
-- The local MasjidPi version endpoint responds successfully.
+- The local MasjidFrame version endpoint responds successfully.
 - No systemd service has failed.
 
 Successful automatic confirmation makes the running slot the new rollback
@@ -113,7 +113,7 @@ Ordinary stable boots exit immediately without changing the environment.
 Manual confirmation remains available for diagnostics and recovery:
 
 ```bash
-sudo masjidpi-ab confirm
+sudo masjidframe-ab confirm
 ```
 
 These commands and the confirmation service provide the boot-control foundation
@@ -139,7 +139,7 @@ the hardware-tested default environment before building.
 The default locations are:
 
 - `rpi-image-gen`: `$HOME/rpi-image-gen`
-- U-Boot source: `$HOME/masjidpi-u-boot-source/u-boot-2025.01`
+- U-Boot source: `$HOME/masjidframe-u-boot-source/u-boot-2025.01`
 
 From the repository root:
 
@@ -153,7 +153,7 @@ Explicit paths can be supplied as follows:
 ./appliance-image/build-pi3-ab-prototype.sh \
     "$HOME/rpi-image-gen" \
     "$PWD/appliance-image/config/pi3-ab-prototype.yaml" \
-    "$HOME/masjidpi-u-boot-source/u-boot-2025.01"
+    "$HOME/masjidframe-u-boot-source/u-boot-2025.01"
 ```
 
 Images use these public factory login credentials:
@@ -182,7 +182,7 @@ nm:
 The optional `nm.cmds` file contains one `nmcli --offline` command per line.
 Keep that file under `appliance-image/config/local/`; the directory is ignored
 by Git because connection commands can contain Wi-Fi credentials. Builds
-without `nm.cmds` start with no saved Wi-Fi network and use MasjidPi's first-run
+without `nm.cmds` start with no saved Wi-Fi network and use MasjidFrame's first-run
 network setup.
 
 Then build with that configuration:
@@ -191,7 +191,7 @@ Then build with that configuration:
 ./appliance-image/build-pi3-ab-prototype.sh \
     "$HOME/rpi-image-gen" \
     "$PWD/appliance-image/config/pi3-ab-local.yaml" \
-    "$HOME/masjidpi-u-boot-source/u-boot-2025.01"
+    "$HOME/masjidframe-u-boot-source/u-boot-2025.01"
 ```
 
 Never commit Wi-Fi credentials.
@@ -233,7 +233,7 @@ MasjidBoard selection, time zone, touch operation, and USB audio persisted;
 system B automatically confirmed and restored `Africa/Johannesburg` from shared
 state.
 
-The appliance uses MasjidPi's branded Plymouth theme throughout early Linux
+The appliance uses MasjidFrame's branded Plymouth theme throughout early Linux
 startup. A clean image built without saved Wi-Fi or application state passed
 the complete touchscreen first-run flow: the branded splash appeared without
 firmware, kernel, systemd, or login-console text; Wi-Fi was configured on the

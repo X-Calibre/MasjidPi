@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/cache"
 )
 
 func TestFetchRecoversFromStaleCacheToCurrent(t *testing.T) {

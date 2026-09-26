@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const DefaultReleaseRecordPath = "/usr/share/masjidpi/update/release.json"
+const DefaultReleaseRecordPath = "/usr/share/masjidframe/update/release.json"
 
 type TrialStatus struct {
 	RunningSlot      string
@@ -30,7 +30,7 @@ type CommandTrialStatus struct {
 func (s CommandTrialStatus) Status(ctx context.Context) (TrialStatus, error) {
 	command := s.Command
 	if command == "" {
-		command = "/usr/local/sbin/masjidpi-ab"
+		command = "/usr/local/sbin/masjidframe-ab"
 	}
 	output, err := exec.CommandContext(ctx, command, "machine-status").CombinedOutput()
 	if err != nil {
@@ -106,9 +106,14 @@ func (c *Controller) ReconcileTrial(
 		runningReleaseVersion = c.currentVersion
 	}
 	installation := state.Installation
-	if installation == nil ||
-		(installation.Status != InstallStatusRebootPending &&
-			installation.Status != InstallStatusProbation) {
+	if installation == nil {
+		return cloneState(state), nil
+	}
+	if installation.Status == InstallStatusInstalled {
+		return c.cleanupConfirmedArtifact(state, status, runningReleaseVersion)
+	}
+	if installation.Status != InstallStatusRebootPending &&
+		installation.Status != InstallStatusProbation {
 		return cloneState(state), nil
 	}
 
@@ -131,7 +136,11 @@ func (c *Controller) ReconcileTrial(
 		installation.Status = InstallStatusInstalled
 		installation.ConfirmedAt = &now
 		installation.LastError = ""
-		return c.saveState(state)
+		saved, err := c.saveState(state)
+		if err != nil {
+			return saved, err
+		}
+		return c.cleanupConfirmedArtifact(saved, status, runningReleaseVersion)
 	}
 
 	installation.Status = InstallStatusRolledBack
@@ -143,5 +152,30 @@ func (c *Controller) ReconcileTrial(
 			attempt.Error = installation.LastError
 		}
 	}
+	return c.saveState(state)
+}
+
+func (c *Controller) cleanupConfirmedArtifact(
+	state State,
+	status TrialStatus,
+	runningReleaseVersion string,
+) (State, error) {
+	installation := state.Installation
+	stableSlot := status.RunningSlot == status.ActiveSlot &&
+		status.RunningSlot == status.RollbackSlot
+	if installation == nil ||
+		installation.Status != InstallStatusInstalled ||
+		runningReleaseVersion != installation.Version ||
+		!stableSlot ||
+		state.Download == nil ||
+		c.artifactCleaner == nil {
+		return cloneState(state), nil
+	}
+	if err := c.artifactCleaner.Cleanup(installation.Version); err != nil {
+		// Keep the download record so the next status reconciliation retries
+		// cleanup without affecting the already-confirmed release.
+		return cloneState(state), nil
+	}
+	state.Download = nil
 	return c.saveState(state)
 }

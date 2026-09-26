@@ -3,30 +3,30 @@
 set -Eeuo pipefail
 
 MASJIDBOARD_BASE_URL="${MASJIDBOARD_BASE_URL:-http://127.0.0.1:8080/masjidboard.html}"
-MASJIDBOARD_STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidpi/frontend/masjidboard-startup.html}"
-MASJIDPI_READY_URL="${MASJIDPI_READY_URL:-http://127.0.0.1:8080/api/version}"
-MASJIDPI_DRM_SYSFS_ROOT="${MASJIDPI_DRM_SYSFS_ROOT:-/sys/class/drm}"
-MASJIDPI_RPI_MODEL_FILE="${MASJIDPI_RPI_MODEL_FILE:-/proc/device-tree/model}"
+MASJIDBOARD_STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidframe/frontend/masjidboard-startup.html}"
+MASJIDFRAME_READY_URL="${MASJIDFRAME_READY_URL:-http://127.0.0.1:8080/api/version}"
+MASJIDFRAME_DRM_SYSFS_ROOT="${MASJIDFRAME_DRM_SYSFS_ROOT:-/sys/class/drm}"
+MASJIDFRAME_RPI_MODEL_FILE="${MASJIDFRAME_RPI_MODEL_FILE:-/proc/device-tree/model}"
 
-wait_for_masjidpi() {
+wait_for_masjidframe() {
     while ! curl --silent --show-error --fail --max-time 2 \
-        "$MASJIDPI_READY_URL" >/dev/null 2>&1; do
+        "$MASJIDFRAME_READY_URL" >/dev/null 2>&1; do
         sleep 2
     done
 }
 
 is_raspberry_pi_runtime() {
-    if [[ "${MASJIDPI_FORCE_RASPBERRY_PI:-0}" == "1" ]]; then
+    if [[ "${MASJIDFRAME_FORCE_RASPBERRY_PI:-0}" == "1" ]]; then
         return 0
     fi
 
-    [[ -r "$MASJIDPI_RPI_MODEL_FILE" ]] || return 1
-    grep -aqi 'Raspberry Pi' "$MASJIDPI_RPI_MODEL_FILE"
+    [[ -r "$MASJIDFRAME_RPI_MODEL_FILE" ]] || return 1
+    grep -aqi 'Raspberry Pi' "$MASJIDFRAME_RPI_MODEL_FILE"
 }
 
 dsi_720x1280_present() {
     local connector
-    for connector in "$MASJIDPI_DRM_SYSFS_ROOT"/card*-DSI-*; do
+    for connector in "$MASJIDFRAME_DRM_SYSFS_ROOT"/card*-DSI-*; do
         [[ -r "$connector/status" && -r "$connector/modes" ]] || continue
         [[ "$(<"$connector/status")" == "connected" ]] || continue
         grep -Fxq '720x1280' "$connector/modes" && return 0
@@ -99,7 +99,7 @@ main() {
     # that page performs its own backend readiness poll. Other standard installs
     # retain the established wait-before-launch behaviour.
     if ! uses_startup_screen "$profile"; then
-        wait_for_masjidpi
+        wait_for_masjidframe
     fi
 
     platform_params="renderer=gles"

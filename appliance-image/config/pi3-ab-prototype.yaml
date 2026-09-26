@@ -1,18 +1,18 @@
 device:
   layer: rpi3
-  hostname: masjidpi-ab-test
+  hostname: masjidframe
   user1: masjidframe
   user1pass: "MasjidFrame786!"
 #device:
 #  layer: rpi3
-#  hostname: masjidpi-ab-test
+#  hostname: masjidframe
 
 image:
-  layer: masjidpi-pi3-ab-prototype
+  layer: masjidframe-pi3-ab-prototype
   boot_part_size: 256M
   system_part_size: 4G
   data_part_size: 5G
-  name: masjidpi-pi3-ab-prototype
+  name: masjidframe-pi3-ab-prototype
 
 layer:
-  base: masjidpi-trixie-minbase
+  base: masjidframe-trixie-minbase

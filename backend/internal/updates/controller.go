@@ -24,6 +24,10 @@ type BundlePreparer interface {
 	Prepare(context.Context, Release) (PreparedArtifact, error)
 }
 
+type PreparedArtifactCleaner interface {
+	Cleanup(string) error
+}
+
 type UpdateInstaller interface {
 	Install(context.Context, string) error
 }
@@ -33,16 +37,17 @@ type DeviceRebooter interface {
 }
 
 type Controller struct {
-	mu             sync.Mutex
-	store          StateStore
-	source         ReleaseSource
-	currentVersion string
-	now            func() time.Time
-	preparer       BundlePreparer
-	preparing      bool
-	installer      UpdateInstaller
-	rebooter       DeviceRebooter
-	installing     bool
+	mu              sync.Mutex
+	store           StateStore
+	source          ReleaseSource
+	currentVersion  string
+	now             func() time.Time
+	preparer        BundlePreparer
+	artifactCleaner PreparedArtifactCleaner
+	preparing       bool
+	installer       UpdateInstaller
+	rebooter        DeviceRebooter
+	installing      bool
 }
 
 func (c *Controller) SetInstaller(
@@ -59,6 +64,9 @@ func (c *Controller) SetBundlePreparer(preparer BundlePreparer) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.preparer = preparer
+	if cleaner, ok := preparer.(PreparedArtifactCleaner); ok {
+		c.artifactCleaner = cleaner
+	}
 }
 
 func NewController(

@@ -1,8 +1,8 @@
 [Unit]
-Description=MasjidPi MasjidBoard Display
+Description=MasjidFrame MasjidBoard Display
 # Cog's DRM backend requires DRM master. Plymouth owns DRM during the boot
 # splash, so starting Cog before Plymouth quits can leave the display blank.
-# Do not wait for MasjidPi or network-online here: the display wrapper handles
+# Do not wait for MasjidFrame or network-online here: the display wrapper handles
 # backend readiness itself and the appliance startup page can be shown first.
 After=plymouth-quit.service
 Wants=plymouth-quit.service
@@ -10,9 +10,9 @@ Wants=plymouth-quit.service
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/masjidpi
-Environment=MASJIDPI_HOME=/opt/masjidpi
-ExecStart=/opt/masjidpi/bin/masjidboard-display
+WorkingDirectory=/opt/masjidframe
+Environment=MASJIDFRAME_HOME=/opt/masjidframe
+ExecStart=/opt/masjidframe/bin/masjidboard-display
 Restart=always
 RestartSec=5
 

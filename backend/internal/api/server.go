@@ -6,20 +6,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/components"
-	"github.com/X-Calibre/MasjidPi/backend/internal/display"
-	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
-	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
-	masjidnetwork "github.com/X-Calibre/MasjidPi/backend/internal/network"
-	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
-	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
-	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
-	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
-	"github.com/X-Calibre/MasjidPi/backend/internal/version"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/components"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/display"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/listen"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/dailycontent"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/economic"
+	masjidboardruntime "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
+	masjidnetwork "github.com/X-Calibre/MasjidFrame/backend/internal/network"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/playback"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/storage"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
+	masjidtimezone "github.com/X-Calibre/MasjidFrame/backend/internal/timezone"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/version"
 )
 
 type masjidBoardStatusProvider interface {
@@ -41,7 +41,7 @@ type updateController interface {
 	Check(context.Context) (updates.State, error)
 	Approve() (updates.State, error)
 	Postpone(time.Time) (updates.State, error)
-	Install(context.Context, bool, bool) (updates.State, error)
+	StartInstall(bool, bool) (updates.State, error)
 }
 
 type Server struct {

@@ -1,4 +1,4 @@
-module github.com/X-Calibre/MasjidPi/backend
+module github.com/X-Calibre/MasjidFrame/backend
 
 go 1.26.5
 

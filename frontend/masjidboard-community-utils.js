@@ -105,7 +105,7 @@
             title: "Dua after Adhan",
             body: "",
             fields: {arabic: duaAfterAdhanArabic, translation: duaAfterAdhanTranslation, note: "Wasilah is a rank in Jannah."},
-            source: "MasjidPi",
+            source: "MasjidFrame",
         };
     }
 

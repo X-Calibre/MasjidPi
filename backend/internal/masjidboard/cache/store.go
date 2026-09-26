@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/atomicfile"
 )
 
 const unchangedCheckpointInterval = 24 * time.Hour

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
 )
 
 type fakeScheduledUpdateChecker struct {

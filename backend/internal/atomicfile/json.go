@@ -24,7 +24,7 @@ func Write(path string, data []byte, mode fs.FileMode) error {
 		return err
 	}
 
-	tmp, err := os.CreateTemp(dir, ".masjidpi-*.tmp")
+	tmp, err := os.CreateTemp(dir, ".masjidframe-*.tmp")
 	if err != nil {
 		return err
 	}

@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
 )
 
 var coreUpcomingSalaahHTMLRE = regexp.MustCompile(`(?is)<(?:h[1-6]|div|span)\b[^>]*\bid=["'](fajrNextDate|fajrNextTime|asrNextDate|asrNextTime|eshaNextDate|eshaNextTime)["'][^>]*>(.*?)</(?:h[1-6]|div|span)\s*>`)

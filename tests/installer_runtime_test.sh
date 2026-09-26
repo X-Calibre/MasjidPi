@@ -15,11 +15,11 @@ source "$ROOT/scripts/runtime.sh"
 config="$TMP/config.yaml"
 cat > "$config" <<'EOF'
 player:
-  socket: "/tmp/masjidpi.sock"
+  socket: "/tmp/masjidframe.sock"
 EOF
 
 migrate_runtime_socket_path "$config"
-grep -qx '  socket: "/run/masjidpi/mpv.sock"' "$config"
+grep -qx '  socket: "/run/masjidframe/mpv.sock"' "$config"
 
 cat > "$config" <<'EOF'
 player:

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Installed describes the MasjidPi capabilities enabled on this appliance.
+// Installed describes the MasjidFrame capabilities enabled on this appliance.
 type Installed struct {
 	Listen bool `json:"listen"`
 	Board  bool `json:"board"`
@@ -14,7 +14,7 @@ type Installed struct {
 // Current returns the installed component profile. Installations created before
 // component profiles existed retain the historical Listen + Board behaviour.
 func Current() Installed {
-	value := strings.TrimSpace(os.Getenv("MASJIDPI_COMPONENTS"))
+	value := strings.TrimSpace(os.Getenv("MASJIDFRAME_COMPONENTS"))
 	if value == "" {
 		return Installed{Listen: true, Board: true}
 	}

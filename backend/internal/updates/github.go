@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DefaultGitHubReleasesURL = "https://api.github.com/repos/X-Calibre/MasjidPi/releases?per_page=30"
+	DefaultGitHubReleasesURL = "https://api.github.com/repos/X-Calibre/MasjidFrame/releases?per_page=30"
 	githubResponseLimit      = 2 << 20
 	githubTimeout            = 20 * time.Second
 )
@@ -78,7 +78,7 @@ func (c GitHubClient) Latest(
 	)
 	request.Header.Set(
 		"User-Agent",
-		"MasjidPi Update Checker",
+		"MasjidFrame Update Checker",
 	)
 	request.Header.Set(
 		"X-GitHub-Api-Version",
@@ -146,7 +146,7 @@ func (c GitHubClient) Latest(
 		}
 
 		bundleName := fmt.Sprintf(
-			"masjidpi-update-%s-pi3.tar.zst",
+			"masjidframe-update-%s-pi3.tar.zst",
 			candidate.TagName,
 		)
 		signatureName := bundleName + ".minisig"

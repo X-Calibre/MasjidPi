@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/hierarchy"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/hierarchy"
 )
 
 type masjidBoardMaintenance interface {

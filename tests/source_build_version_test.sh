@@ -26,6 +26,6 @@ source "$ROOT/scripts/build.sh"
 build_project
 
 expected_version="$(jq -r '.version' "$ROOT/version.json")-dev"
-grep -F -- "-ldflags -X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=$expected_version" "$TMP/go-args" >/dev/null
+grep -F -- "-ldflags -X github.com/X-Calibre/MasjidFrame/backend/internal/version.Version=$expected_version" "$TMP/go-args" >/dev/null
 
 printf '[PASS] source builds embed the current project version with a development suffix\n'

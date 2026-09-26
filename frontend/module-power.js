@@ -42,7 +42,7 @@
         updating = false;
     }
 
-    const refresh = () => window.MasjidPiRefreshListenStatus?.();
+    const refresh = () => window.MasjidFrameRefreshListenStatus?.();
 
     masjidSwitch.addEventListener("change", async () => {
         if (updating) return;
@@ -50,12 +50,12 @@
         try {
             const data = await setPower("masjid", masjidSwitch.checked);
             render(data);
-            window.MasjidPiUI?.notify?.(
+            window.MasjidFrameUI?.notify?.(
                 masjidSwitch.checked ? "Masjid powered on." : "Masjid and Radio powered off.",
                 "success"
             );
         } catch (err) {
-            window.MasjidPiUI?.notify?.(err.message, "error");
+            window.MasjidFrameUI?.notify?.(err.message, "error");
         } finally {
             await refresh();
         }
@@ -70,19 +70,19 @@
             const data = await setPower("radio", enabling);
             render(data);
             if (enabling && masjidWasOff && data.masjid_enabled) {
-                window.MasjidPiUI?.notify?.("Radio powered on. Masjid was also powered on automatically.", "success");
+                window.MasjidFrameUI?.notify?.("Radio powered on. Masjid was also powered on automatically.", "success");
             } else {
-                window.MasjidPiUI?.notify?.(
+                window.MasjidFrameUI?.notify?.(
                     enabling ? "Radio powered on." : "Radio powered off.",
                     "success"
                 );
             }
         } catch (err) {
-            window.MasjidPiUI?.notify?.(err.message, "error");
+            window.MasjidFrameUI?.notify?.(err.message, "error");
         } finally {
             await refresh();
         }
     });
 
-    window.addEventListener("masjidpi:listen-status", event => render(event.detail));
+    window.addEventListener("masjidframe:listen-status", event => render(event.detail));
 })();

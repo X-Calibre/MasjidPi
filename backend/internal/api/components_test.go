@@ -3,7 +3,7 @@ package api
 import "testing"
 
 func TestCurrentInstalledComponentsDefaultsToBoth(t *testing.T) {
-	t.Setenv("MASJIDPI_COMPONENTS", "")
+	t.Setenv("MASJIDFRAME_COMPONENTS", "")
 	got := currentInstalledComponents()
 	if !got.Listen || !got.Board {
 		t.Fatalf("components = %+v, want both enabled", got)
@@ -25,7 +25,7 @@ func TestCurrentInstalledComponentsProfiles(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("MASJIDPI_COMPONENTS", tt.value)
+			t.Setenv("MASJIDFRAME_COMPONENTS", tt.value)
 			got := currentInstalledComponents()
 			if got.Listen != tt.listen || got.Board != tt.board {
 				t.Fatalf("components = %+v, want listen=%v board=%v", got, tt.listen, tt.board)

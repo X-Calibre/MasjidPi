@@ -6,7 +6,7 @@
 
 The MasjidBoard catalogue is **disk-first, not permanently memory-resident**.
 
-MasjidPi may be configured with **one to three discovery locations**. Each location has an independently persisted last-known-good catalogue partition. The WebUI/API sees a merged, deduplicated catalogue view across those partitions.
+MasjidFrame may be configured with **one to three discovery locations**. Each location has an independently persisted last-known-good catalogue partition. The WebUI/API sees a merged, deduplicated catalogue view across those partitions.
 
 The selected **one to three boards** are separate runtime-critical state.
 

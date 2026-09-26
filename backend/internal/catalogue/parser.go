@@ -6,7 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 func ParseHTML(r io.Reader) ([]stream.Stream, error) {

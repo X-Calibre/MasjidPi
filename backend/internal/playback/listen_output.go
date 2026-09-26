@@ -3,7 +3,7 @@ package playback
 import (
 	"errors"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 const maxSoftwareVolume = 150

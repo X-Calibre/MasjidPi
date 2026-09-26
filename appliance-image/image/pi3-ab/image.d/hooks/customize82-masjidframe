@@ -1,0 +1,125 @@
+#!/bin/bash
+
+set -eu
+
+filesystem=$1
+runtime_source="$LAYER_DIR/../../../work/masjidframe-runtime-arm64"
+
+for required_file in \
+    bin/masjidframe \
+    frontend/index.html \
+    frontend/masjidboard.html \
+    default.yaml \
+    catalogue.json \
+    VERSION \
+    scripts/masjidboard-display.sh \
+    scripts/masjidboard-warmup.sh \
+    scripts/masjidframe.service \
+    scripts/masjidframe-display.service \
+    scripts/masjidframe-display-warmup.service \
+    scripts/masjidframe-splash.plymouth \
+    scripts/masjidframe-splash-standard.script
+do
+    test -f "$runtime_source/$required_file"
+done
+
+install -d -o root -g root -m 0755 \
+    "$filesystem/opt/masjidframe/bin" \
+    "$filesystem/opt/masjidframe/frontend" \
+    "$filesystem/persistent/masjidframe/etc" \
+    "$filesystem/persistent/masjidframe/var" \
+    "$filesystem/etc/masjidframe" \
+    "$filesystem/var/lib/masjidframe" \
+    "$filesystem/usr/lib/systemd/system" \
+    "$filesystem/etc/systemd/system/multi-user.target.wants" \
+    "$filesystem/etc/systemd/system/plymouth-quit.service.d" \
+    "$filesystem/usr/share/plymouth/themes/masjidframe"
+
+install -o root -g root -m 0755 \
+    "$runtime_source/bin/masjidframe" \
+    "$filesystem/opt/masjidframe/bin/masjidframe"
+
+cp -a \
+    "$runtime_source/frontend/." \
+    "$filesystem/opt/masjidframe/frontend/"
+
+chown -R root:root \
+    "$filesystem/opt/masjidframe/frontend"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/VERSION" \
+    "$filesystem/opt/masjidframe/VERSION"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/default.yaml" \
+    "$filesystem/persistent/masjidframe/etc/config.yaml"
+
+printf '%s\n' \
+    'MASJIDFRAME_COMPONENTS=listen,board' \
+    > "$filesystem/persistent/masjidframe/etc/components.env"
+
+chmod 0644 \
+    "$filesystem/persistent/masjidframe/etc/components.env"
+
+chown root:root \
+    "$filesystem/persistent/masjidframe/etc/components.env"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/catalogue.json" \
+    "$filesystem/persistent/masjidframe/var/catalogue.json"
+
+install -o root -g root -m 0755 \
+    "$runtime_source/scripts/masjidboard-display.sh" \
+    "$filesystem/opt/masjidframe/bin/masjidboard-display"
+
+install -o root -g root -m 0755 \
+    "$runtime_source/scripts/masjidboard-warmup.sh" \
+    "$filesystem/opt/masjidframe/bin/masjidboard-warmup"
+
+for service_file in \
+    masjidframe.service \
+    masjidframe-display.service \
+    masjidframe-display-warmup.service
+do
+    install -o root -g root -m 0644 \
+        "$runtime_source/scripts/$service_file" \
+        "$filesystem/usr/lib/systemd/system/$service_file"
+
+    ln -sfn \
+        "/usr/lib/systemd/system/$service_file" \
+        "$filesystem/etc/systemd/system/multi-user.target.wants/$service_file"
+done
+
+install -o root -g root -m 0644 \
+    "$runtime_source/scripts/masjidframe-splash.plymouth" \
+    "$filesystem/usr/share/plymouth/themes/masjidframe/masjidframe.plymouth"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/scripts/masjidframe-splash-standard.script" \
+    "$filesystem/usr/share/plymouth/themes/masjidframe/masjidframe-splash.script"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/frontend/masjidframe-splash-logo.png" \
+    "$filesystem/usr/share/plymouth/themes/masjidframe/masjidframe-splash-logo.png"
+
+install -o root -g root -m 0644 \
+    "$runtime_source/frontend/masjidframe-splash-logo-portrait.png" \
+    "$filesystem/usr/share/plymouth/themes/masjidframe/masjidframe-splash-logo-portrait.png"
+
+cat > "$filesystem/etc/systemd/system/plymouth-quit.service.d/masjidframe.conf" <<'EOF_PLYMOUTH'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/plymouth quit --retain-splash
+EOF_PLYMOUTH
+
+# Keep console=tty1 for reliable KMS initialization, but do not expose a login
+# prompt on the dedicated appliance display.
+systemctl \
+    --root="$filesystem" \
+    disable getty@tty1.service \
+    >/dev/null 2>&1 || true
+
+# Rebuild the initramfs and allow raspi-firmware's post-update hook to copy the
+# themed result to /boot/firmware/initramfs8.
+chroot "$filesystem" \
+    plymouth-set-default-theme -R masjidframe

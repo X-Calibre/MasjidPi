@@ -86,6 +86,35 @@ func TestConnectPassesPasswordOnlyOnStandardInput(t *testing.T) {
 	}
 }
 
+func TestValidWiFiPassword(t *testing.T) {
+	valid := []string{"", "12345678", "very-secret", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789"}
+	for _, password := range valid {
+		if !ValidWiFiPassword(password) {
+			t.Fatalf("expected password length %d to be valid", len(password))
+		}
+	}
+
+	invalid := []string{"short", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"}
+	for _, password := range invalid {
+		if ValidWiFiPassword(password) {
+			t.Fatalf("expected password length %d to be invalid", len(password))
+		}
+	}
+}
+
+func TestConnectRejectsInvalidPasswordBeforeRunningNMCLI(t *testing.T) {
+	runner := &fakeRunner{}
+	manager := newNetworkManager(runner)
+
+	err := manager.Connect(context.Background(), "Home", "short", false)
+	if err == nil {
+		t.Fatal("expected invalid password error")
+	}
+	if len(runner.calls) != 0 {
+		t.Fatalf("nmcli was called for invalid password: %#v", runner.calls)
+	}
+}
+
 func TestConnectReturnsSafeError(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{{out: []byte("secret diagnostic"), err: errors.New("exit 10")}}}
 	manager := newNetworkManager(runner)
@@ -100,7 +129,7 @@ func TestConnectMarksHiddenNetwork(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{{}}}
 	manager := newNetworkManager(runner)
 
-	if err := manager.Connect(context.Background(), "Hidden Masjid", "secret", true); err != nil {
+	if err := manager.Connect(context.Background(), "Hidden Masjid", "secret123", true); err != nil {
 		t.Fatal(err)
 	}
 	want := []string{"--ask", "--wait", "20", "device", "wifi", "connect", "Hidden Masjid", "hidden", "yes"}
@@ -113,7 +142,7 @@ func TestDeviceAccessUsesDHCPHostnameDomainAndAddress(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{
 		{out: []byte("wlan0:wifi:connected\nlo:loopback:connected (externally)\n")},
 		{out: []byte("10.78.63.4/24\n")},
-		{out: []byte("domain_name = internal.cassim.net.za | host_name = zc-masjidpi-test | ip_address = 10.78.63.4\n")},
+		{out: []byte("domain_name = internal.cassim.net.za | host_name = zc-masjidframe-test | ip_address = 10.78.63.4\n")},
 	}}
 	manager := newNetworkManager(runner)
 
@@ -121,7 +150,7 @@ func TestDeviceAccessUsesDHCPHostnameDomainAndAddress(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := DeviceAccess{IPAddress: "10.78.63.4", FQDN: "zc-masjidpi-test.internal.cassim.net.za"}
+	want := DeviceAccess{IPAddress: "10.78.63.4", FQDN: "zc-masjidframe-test.internal.cassim.net.za"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("access = %#v, want %#v", got, want)
 	}

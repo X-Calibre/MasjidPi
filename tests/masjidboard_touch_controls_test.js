@@ -56,7 +56,7 @@ assert.match(controller, /querySelectorAll\("\[data-masjid-play\]"\)/);
 assert.match(controller, /querySelectorAll\("\[data-listen-stop\]"\)/);
 assert.match(controller, /closest\("\[data-brightness-step\]"\)/);
 assert.match(controller, /brightness\.dispatchEvent\(new Event\("input"/);
-assert.doesNotMatch(controller, /color_temperature|data-temperature|MasjidPiDisplaySettings/);
+assert.doesNotMatch(controller, /color_temperature|data-temperature|MasjidFrameDisplaySettings/);
 assert.match(controller, /const inactivityTimeout = 60000/);
 assert.match(controller, /setOpenPanel\(""\)/);
 assert.match(controller, /return=board&profile=\$\{profile\}/);
@@ -67,7 +67,7 @@ assert.match(controller, /\/api\/masjidboard\/layout/);
 assert.match(controller, /\/api\/setup\/device-access/);
 assert.match(controller, /pendingVolumes\[name\] \?\? values\[name\]/);
 assert.match(controller, /\{volume:value,persist:true\}/);
-assert.match(appliance, /masjidpi:appliance-listen-panel/);
+assert.match(appliance, /masjidframe:appliance-listen-panel/);
 
 assert.match(css, /\.appliance-quick-sheet\s*\{[^}]*height:auto;[^}]*max-height:calc\(100% - 20px\);[^}]*overflow-y:auto/s);
 assert.match(css, /\.appliance-quick-sheet\s*\{[^}]*touch-action:pan-x/s);

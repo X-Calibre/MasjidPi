@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/cache"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 type fakeProvider struct {

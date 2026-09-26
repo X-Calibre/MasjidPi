@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
 )
 
 const defaultCoreEndpoint = "https://masjidboardlive.com/boards/"
@@ -26,7 +26,7 @@ type CoreClient struct {
 
 // Fetch implements the provider-level board contract. Provider-specific Core
 // metadata remains available through FetchAt for callers that explicitly need
-// it, while the rest of MasjidPi sees only the normalised Board model.
+// it, while the rest of MasjidFrame sees only the normalised Board model.
 func (c CoreClient) Fetch(ctx context.Context) (model.Board, error) {
 	result, err := c.FetchAt(ctx, time.Now())
 	if err != nil {

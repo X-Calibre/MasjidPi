@@ -28,7 +28,7 @@ var islamicMonthNames = [...]string{
 	"Dhul Hijjah",
 }
 
-// String returns the English date form used by MasjidPi displays.
+// String returns the English date form used by MasjidFrame displays.
 func (d IslamicDate) String() string {
 	if d.Day < 1 || d.Month < 1 || d.Month > len(islamicMonthNames) || d.Year < 1 {
 		return ""

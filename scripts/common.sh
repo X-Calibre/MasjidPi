@@ -5,8 +5,8 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-INSTALL_DIR="/opt/masjidpi"
-SERVICE_NAME="masjidpi"
+INSTALL_DIR="/opt/masjidframe"
+SERVICE_NAME="masjidframe"
 
 RED="\033[31m"
 GREEN="\033[32m"
@@ -116,7 +116,7 @@ print_summary() {
 
     echo
     echo "========================================="
-    echo " MasjidPi installation complete"
+    echo " MasjidFrame installation complete"
     echo "========================================="
     echo
 
@@ -145,10 +145,10 @@ print_summary() {
 
     echo "Useful commands"
     echo
-    echo "    sudo systemctl status masjidpi"
-    echo "    sudo systemctl restart masjidpi"
-    echo "    sudo systemctl stop masjidpi"
-    echo "    journalctl -u masjidpi -f"
+    echo "    sudo systemctl status masjidframe"
+    echo "    sudo systemctl restart masjidframe"
+    echo "    sudo systemctl stop masjidframe"
+    echo "    journalctl -u masjidframe -f"
     echo
     echo "========================================="
 }

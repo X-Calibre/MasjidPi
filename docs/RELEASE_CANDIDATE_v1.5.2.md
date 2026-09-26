@@ -1,4 +1,4 @@
-# MasjidPi v1.5.2 Release Acceptance Record
+# MasjidFrame v1.5.2 Release Acceptance Record
 
 This record covers promotion of the v1.5.2 release after three release candidates and the final MasjidBoard feature-validation cycle.
 
@@ -9,7 +9,7 @@ This record covers promotion of the v1.5.2 release after three release candidate
 - quiet branded Plymouth and Cog startup stages for portrait appliance and landscape HDMI profiles;
 - WebKit warm-up and ordered Plymouth-to-Cog DRM handoff;
 - a normally read-only Raspberry Pi boot firmware filesystem with controlled write windows;
-- an mpv IPC socket under the systemd-managed `/run/masjidpi` directory;
+- an mpv IPC socket under the systemd-managed `/run/masjidframe` directory;
 - durable atomic JSON replacement and fewer unnecessary persistent-state writes;
 - safer source-update migration, incomplete-update detection, rollback and self-test behaviour;
 - hardened Jamiat Islamic Economic Indicator date parsing;
@@ -38,7 +38,7 @@ This record covers promotion of the v1.5.2 release after three release candidate
 ## Raspberry Pi 4 validation
 
 - [x] Source installation completes and the installer self-test passes.
-- [x] MasjidPi and display services remain active with no unexpected restarts or logged errors.
+- [x] MasjidFrame and display services remain active with no unexpected restarts or logged errors.
 - [x] Existing display preferences persist across service restart.
 - [x] Detailed Jumu'ah schedules render in portrait and landscape layouts.
 - [x] Structured Section 10 community cards render in both layouts.
@@ -69,7 +69,7 @@ The stable tag was published with:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.2 -m "MasjidPi v1.5.2"
+git tag -a v1.5.2 -m "MasjidFrame v1.5.2"
 git push origin v1.5.2
 ```
 

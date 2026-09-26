@@ -45,7 +45,7 @@
     const brightnessValue = byID("applianceBrightnessValue");
     const brightnessUnavailable = byID("applianceBrightnessUnavailable");
     const themes = [
-        ["emerald","Emerald","MasjidPi green"],["midnight","Midnight","Deep blue"],
+        ["emerald","Emerald","MasjidFrame green"],["midnight","Midnight","Deep blue"],
         ["slate","Slate","Neutral gold"],["ruby","Ruby","Warm red"],
         ["light","Light Gold","Warm gold"],["ivory","Ivory","Ivory & emerald"],
         ["sage","Sage","Soft forest green"],["sky","Sky","Cool blue"],
@@ -135,7 +135,7 @@
         quickPanel.classList.toggle("hidden", name !== "quick");
         bottomPanel.setAttribute("aria-hidden", name === "bottom" ? "false" : "true");
         quickPanel.setAttribute("aria-hidden", name === "quick" ? "false" : "true");
-        window.dispatchEvent(new CustomEvent("masjidpi:appliance-listen-panel", {detail:{open:Boolean(name)}}));
+        window.dispatchEvent(new CustomEvent("masjidframe:appliance-listen-panel", {detail:{open:Boolean(name)}}));
         window.clearTimeout(refreshTimer);
         window.clearTimeout(inactivityTimer);
         if (name) {
@@ -159,7 +159,7 @@
         if (!favouriteMasjids.length) {
             const empty = document.createElement("div");
             empty.className = "appliance-source-empty";
-            empty.textContent = "No favourite masjids. Add favourites through the full MasjidPi Web UI.";
+            empty.textContent = "No favourite masjids. Add favourites through the full MasjidFrame Web UI.";
             favouriteHost.append(empty);
         }
         for (const item of favouriteMasjids) {

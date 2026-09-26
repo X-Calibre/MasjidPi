@@ -1,6 +1,30 @@
-# MasjidPi Validation Checklist
+# MasjidFrame Validation Checklist
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
+
+## Planned for v1.6.1
+
+### Product identity
+
+- [ ] Confirm the Web UI, appliance display, splash screen, services, executables and persistent paths use MasjidFrame naming on a fresh image.
+- [ ] Confirm an update from v1.6.0 preserves appliance identity and migrates persistent state without data loss.
+
+### Wi-Fi robustness
+
+- [ ] Reject non-empty WPA-PSK credentials unless they are 8–63 characters or exactly 64 hexadecimal characters.
+- [ ] Confirm invalid credentials are rejected before invoking NetworkManager.
+- [ ] Re-test visible Wi-Fi replacement from the appliance touchscreen with a valid WPA2-Personal password.
+- [ ] Reboot after replacement and confirm NetworkManager automatically reconnects to the saved SSID.
+- [ ] If a malformed or stale NetworkManager profile is encountered, preserve evidence before deleting and recreating the profile; do not automatically delete a known-good profile after an authentication failure.
+
+### Appliance update lifecycle
+
+- [ ] Start Install Now from the appliance display and confirm closing or navigating away from the initiating page does not cancel installation.
+- [ ] Confirm the API persists the installing state before returning HTTP 202 and the display polls through installation, reboot and probation.
+- [ ] Confirm technical failure detail is bounded in both the appliance display and Web UI.
+- [ ] Confirm downloaded bundle and signature files remain available during the trial and rollback window.
+- [ ] Confirm those files are removed only after the new A/B slot is healthy and committed.
+- [ ] Confirm a failed or rolled-back trial retains the files for retry and diagnosis.
 
 ## Completed for v1.6.0-rc.10
 
@@ -49,7 +73,7 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 
 - [x] The standard kernel backlight interface reports `panel_backlight@1` with range 0–31.
 - [x] Backlight brightness can be changed from the appliance Display tab.
-- [x] Brightness persists and is restored when MasjidPi starts.
+- [x] Brightness persists and is restored when MasjidFrame starts.
 - [x] Off, Mild, Medium and Strong cool-white corrections apply correctly.
 - [x] Colour correction also applies to the 720 × 1280 Wi-Fi setup flow.
 - [x] Display controls remain unavailable outside the `appliance-720` profile.
@@ -114,13 +138,13 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 
 - [x] Atomic JSON state remains valid across service restarts and abrupt power loss.
 - [x] Source update, staged activation, self-test and rollback behavior were exercised.
-- [x] The mpv IPC socket is created under /run/masjidpi/mpv.sock.
+- [x] The mpv IPC socket is created under /run/masjidframe/mpv.sock.
 - [x] Board preferences, Listen settings and component profile survive upgrades and restarts.
 - [x] Last-known-good Board and daily-content caches survive upstream failures without being overwritten.
 
 ### Audio
 
-- [x] A USB audio device connected after boot is discovered without restarting MasjidPi.
+- [x] A USB audio device connected after boot is discovered without restarting MasjidFrame.
 - [x] Playback falls back safely when the selected USB device is removed.
 - [x] The saved device is restored automatically after reconnection.
 - [x] Playback and services remain healthy throughout device loss and recovery.

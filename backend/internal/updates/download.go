@@ -2,6 +2,7 @@ package updates
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -41,7 +42,7 @@ func (v CommandVerifier) Verify(
 ) error {
 	command := v.Command
 	if command == "" {
-		command = "/usr/local/sbin/masjidpi-update"
+		command = "/usr/local/sbin/masjidframe-update"
 	}
 	output, err := exec.CommandContext(
 		ctx,
@@ -86,7 +87,7 @@ func (d Downloader) Prepare(
 		return PreparedArtifact{}, fmt.Errorf("updates: create download directory: %w", err)
 	}
 
-	bundleName := fmt.Sprintf("masjidpi-update-%s-pi3.tar.zst", release.Version)
+	bundleName := fmt.Sprintf("masjidframe-update-%s-pi3.tar.zst", release.Version)
 	bundlePath := filepath.Join(d.Directory, bundleName)
 	signaturePath := bundlePath + ".minisig"
 	cleanup := true
@@ -118,6 +119,29 @@ func (d Downloader) Prepare(
 	}, nil
 }
 
+func (d Downloader) Cleanup(version string) error {
+	if _, err := ParseStableVersion(version); err != nil {
+		return err
+	}
+	if d.Directory == "" {
+		return fmt.Errorf("updates: download directory is required")
+	}
+	bundlePath := filepath.Join(
+		d.Directory,
+		fmt.Sprintf("masjidframe-update-%s-pi3.tar.zst", version),
+	)
+	var cleanupErr error
+	for _, path := range []string{bundlePath, bundlePath + ".minisig"} {
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			cleanupErr = errors.Join(
+				cleanupErr,
+				fmt.Errorf("updates: remove %s: %w", filepath.Base(path), err),
+			)
+		}
+	}
+	return cleanupErr
+}
+
 func (d Downloader) download(
 	ctx context.Context,
 	address string,
@@ -128,7 +152,7 @@ func (d Downloader) download(
 	if err != nil {
 		return 0, fmt.Errorf("updates: create download request: %w", err)
 	}
-	request.Header.Set("User-Agent", "MasjidPi Update Downloader")
+	request.Header.Set("User-Agent", "MasjidFrame Update Downloader")
 
 	client := d.client()
 	response, err := client.Do(request)

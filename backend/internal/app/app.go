@@ -8,23 +8,23 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/api"
-	"github.com/X-Calibre/MasjidPi/backend/internal/catalogue"
-	"github.com/X-Calibre/MasjidPi/backend/internal/components"
-	"github.com/X-Calibre/MasjidPi/backend/internal/config"
-	"github.com/X-Calibre/MasjidPi/backend/internal/display"
-	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
-	"github.com/X-Calibre/MasjidPi/backend/internal/livestatus"
-	"github.com/X-Calibre/MasjidPi/backend/internal/logger"
-	masjidnetwork "github.com/X-Calibre/MasjidPi/backend/internal/network"
-	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
-	"github.com/X-Calibre/MasjidPi/backend/internal/radio"
-	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
-	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
-	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
-	"github.com/X-Calibre/MasjidPi/backend/internal/version"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/api"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/components"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/config"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/display"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/listen"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/livestatus"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/logger"
+	masjidnetwork "github.com/X-Calibre/MasjidFrame/backend/internal/network"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/playback"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/radio"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/storage"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
+	masjidtimezone "github.com/X-Calibre/MasjidFrame/backend/internal/timezone"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/version"
 )
 
 const (
@@ -50,7 +50,7 @@ func Run() error {
 	installed := components.Current()
 	log.Info("Installed component profile", "listen", installed.Listen, "board", installed.Board)
 	if !installed.Listen && !installed.Board {
-		return fmt.Errorf("no MasjidPi components are installed")
+		return fmt.Errorf("no MasjidFrame components are installed")
 	}
 	timezoneController := masjidtimezone.NewController(paths.TimezoneState)
 	if restored, err := timezoneController.Restore(context.Background()); err != nil {

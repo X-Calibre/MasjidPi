@@ -1,10 +1,10 @@
 # MasjidBoard Display and Configuration Boundary
 
-**Status:** Implemented in MasjidPi v1.5.2
+**Status:** Implemented in MasjidFrame v1.5.2
 
 ## Principle
 
-The timetable/content presentation is read-only. Discovery, selected-board administration and persistent settings belong to the MasjidPi configuration Web UI and APIs.
+The timetable/content presentation is read-only. Discovery, selected-board administration and persistent settings belong to the MasjidFrame configuration Web UI and APIs.
 
 The Appliance profile includes a deliberately narrow touch-control overlay for everyday Listen actions and theme selection. It does not turn the HDMI presentation into an administrative interface.
 

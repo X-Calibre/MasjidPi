@@ -46,4 +46,4 @@ backend/data/masjidboard_selection.json
 
 /appliance-image/u-boot/build/
 /appliance-image/config/local/
-/appliance-image/update/masjidpi-update-private.key
+/appliance-image/update/masjidframe-update-private.key

@@ -1,11 +1,11 @@
-# MasjidPi Installation Guide
+# MasjidFrame Installation Guide
 
 ## Recommended: official release
 
 For a supported 64-bit Linux system, install the latest official release with:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidFrame/main/scripts/install-latest.sh | sudo bash
 ```
 
 On an interactive terminal, the production installer prompts for the appliance profile:
@@ -30,7 +30,7 @@ No Git checkout or Go installation is required for an official release.
 
 ## Supported production systems
 
-MasjidPi production releases currently provide binaries for:
+MasjidFrame production releases currently provide binaries for:
 
 - Linux `x86_64` / AMD64
 - Linux `aarch64` / ARM64
@@ -56,38 +56,38 @@ Raspberry Pi 3B and Raspberry Pi 4 have been validated with 64-bit Raspberry Pi 
 Application files are installed under:
 
 ```text
-/opt/masjidpi
+/opt/masjidframe
 ```
 
 Persistent configuration is stored under:
 
 ```text
-/etc/masjidpi/config.yaml
+/etc/masjidframe/config.yaml
 ```
 
 The installed component profile is stored under:
 
 ```text
-/etc/masjidpi/components.env
+/etc/masjidframe/components.env
 ```
 
 Persistent runtime data is stored under:
 
 ```text
-/var/lib/masjidpi
+/var/lib/masjidframe
 ```
 
 The main application service is:
 
 ```text
-masjidpi.service
+masjidframe.service
 ```
 
 When Board is installed, the installer also installs and enables:
 
 ```text
-masjidpi-display-warmup.service
-masjidpi-display.service
+masjidframe-display-warmup.service
+masjidframe-display.service
 ```
 
 It also installs the boot-splash and read-only boot-firmware protection assets used on Raspberry Pi Board appliances.
@@ -133,11 +133,11 @@ Listen profiles additionally validate:
 Board profiles additionally validate:
 
 - `/api/masjidboard/status` responds
-- `masjidpi-display.service` reaches the running state
+- `masjidframe-display.service` reaches the running state
 
 The self-test is component-aware, so APIs and hardware belonging to an uninstalled component are not required.
 
-If a fresh installation fails, the installer removes the incomplete application runtime rather than leaving a partially installed `/opt/masjidpi` tree behind.
+If a fresh installation fails, the installer removes the incomplete application runtime rather than leaving a partially installed `/opt/masjidframe` tree behind.
 
 For an existing installation, the safe update workflow stages the new runtime, applies the selected component profile, validates the result and automatically restores the previous runtime/profile if validation fails.
 
@@ -158,37 +158,37 @@ For example, changing from Board to Listen removes the Cog display service and s
 Source installation is intended for development and testing rather than normal production deployment:
 
 ```bash
-git clone https://github.com/X-Calibre/MasjidPi.git
-cd MasjidPi
+git clone https://github.com/X-Calibre/MasjidFrame.git
+cd MasjidFrame
 sudo ./scripts/install.sh --source
 ```
 
-It builds MasjidPi locally and then uses the same component selection, service installation and validation workflow as a release installation.
+It builds MasjidFrame locally and then uses the same component selection, service installation and validation workflow as a release installation.
 
 ## Troubleshooting
 
 Check the main service:
 
 ```bash
-sudo systemctl status masjidpi --no-pager
+sudo systemctl status masjidframe --no-pager
 ```
 
 Check the Board display service when Board is installed:
 
 ```bash
-sudo systemctl status masjidpi-display --no-pager
+sudo systemctl status masjidframe-display --no-pager
 ```
 
 View recent logs:
 
 ```bash
-sudo journalctl -u masjidpi --no-pager -n 100
+sudo journalctl -u masjidframe --no-pager -n 100
 ```
 
 Follow Board display logs:
 
 ```bash
-sudo journalctl -u masjidpi-display -f
+sudo journalctl -u masjidframe-display -f
 ```
 
 Check installed components:
@@ -209,4 +209,4 @@ For Board:
 curl -s http://127.0.0.1:8080/api/masjidboard/status
 ```
 
-If installation stops before MasjidPi is running, correct the reported prerequisite or systemd problem and run the installer again.
+If installation stops before MasjidFrame is running, correct the reported prerequisite or systemd problem and run the installer again.

@@ -29,7 +29,7 @@ func TestClientFetchesAndNormalizesContent(t *testing.T) {
 	var requests atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requests.Add(1)
-		if got := r.Header.Get("User-Agent"); got != "MasjidPi Daily Islamic Content" {
+		if got := r.Header.Get("User-Agent"); got != "MasjidFrame Daily Islamic Content" {
 			t.Errorf("User-Agent = %q", got)
 		}
 		fmt.Fprint(w, validResponse)

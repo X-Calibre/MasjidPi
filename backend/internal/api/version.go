@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/version"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/version"
 )
 
 func (s *Server) version(w http.ResponseWriter, r *http.Request) {

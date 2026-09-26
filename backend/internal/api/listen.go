@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
-	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/listen"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/storage"
 )
 
 type listenStatusResponse struct {

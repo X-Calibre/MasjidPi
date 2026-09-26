@@ -1,4 +1,4 @@
-# MasjidPi v1.6.0 Release Acceptance Record
+# MasjidFrame v1.6.0 Release Acceptance Record
 
 This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced first-run touchscreen onboarding for the MasjidFrame appliance. `v1.6.0-rc.2` added post-setup network management, touch-control refinements and four additional light Board themes. `v1.6.0-rc.3` added native Raspberry Pi Touch Display 2 support and on-device screen controls. `v1.6.0-rc.4` incorporated the physical-display legibility review, retired the older 600 × 1024 profile and refined the touch-control model. `v1.6.0-rc.5` completes the accepted post-RC4 interface refinements while keeping the automatic-updater and A/B appliance-image prototype outside the release. `v1.6.0-rc.6` integrates the signed automatic updater and Pi 3 A/B appliance image after end-to-end hardware validation, and adds resilient first-run handling for temporary MasjidBoard outages. `v1.6.0-rc.7` corrects post-RC6 clock-date refresh and stale updater-state issues found during published-image validation. `v1.6.0-rc.8` attempts to move verification extraction to persistent storage after the published RC7 bundle exposed the Pi 3 appliance’s insufficient RAM-backed `/tmp` capacity. Embedded-image inspection found malformed newline escapes before appliance assets were signed or published. `v1.6.0-rc.9` corrects the executable workspace statements and strengthens the regression test. `v1.6.0-rc.10` serializes appliance installations and recovers updater-owned workspaces left by abrupt power loss.
 
@@ -297,7 +297,7 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] The persisted laboratory candidate reproduces the stale automatic-preparation attempt under the unmodified RC6 runtime.
 - [x] A patched ARM64 binary built from merged commit `3cd46bdbd45d725f4337d7866c0217d927e981f5` refreshes discovery and clears the stale candidate.
 - [x] The reconciled state contains no available release, approval, download or obsolete installation record.
-- [x] Both MasjidPi services remain active with no failed systemd units.
+- [x] Both MasjidFrame services remain active with no failed systemd units.
 - [x] A complete reboot retains confirmed system A and the reconciled update state without another preparation attempt.
 
 ## RC7 publication checklist

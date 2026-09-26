@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// MasjidPi plays live audio rather than seekable video. Keep enough forward
+	// MasjidFrame plays live audio rather than seekable video. Keep enough forward
 	// cache for prolonged network jitter without retaining mpv's much larger
 	// generic media-player cache, and retain only a small non-seekable back
 	// buffer. These limits are understood by every supported mpv release.
@@ -47,7 +47,7 @@ func (p *Process) Start() error {
 	cmd := exec.Command("mpv", mpvCommandArgs(p.socket)...)
 
 	// MPV runs as a background service. Do not forward its terminal/progress
-	// output to MasjidPi's stdout/stderr and therefore into journald.
+	// output to MasjidFrame's stdout/stderr and therefore into journald.
 	cmd.Stdout = nil
 	cmd.Stderr = nil
 

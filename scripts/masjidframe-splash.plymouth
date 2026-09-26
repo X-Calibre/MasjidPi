@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=MasjidFrame
+Description=MasjidFrame Raspberry Pi Board boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/masjidframe
+ScriptFile=/usr/share/plymouth/themes/masjidframe/masjidframe-splash.script

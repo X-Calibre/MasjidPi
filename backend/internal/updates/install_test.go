@@ -287,3 +287,52 @@ func TestCommandInstallerRequiresDownloadDirectory(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+func TestStartInstallReturnsBeforeStagingCompletes(t *testing.T) {
+	now := time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC)
+	started := make(chan struct{})
+	finish := make(chan struct{})
+	rebooted := make(chan struct{})
+	controller, store := newInstallController(
+		t,
+		now,
+		installerFunc(func(context.Context, string) error {
+			close(started)
+			<-finish
+			return nil
+		}),
+		rebooterFunc(func(context.Context) error {
+			close(rebooted)
+			return nil
+		}),
+	)
+
+	state, err := controller.StartInstall(immediateInstall(now))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.Installation == nil ||
+		state.Installation.Status != InstallStatusInstalling {
+		t.Fatalf("installation = %+v", state.Installation)
+	}
+
+	select {
+	case <-started:
+	case <-time.After(time.Second):
+		t.Fatal("installer did not start")
+	}
+	persisted, err := store.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if persisted.Installation.Status != InstallStatusInstalling {
+		t.Fatalf("persisted status = %q", persisted.Installation.Status)
+	}
+
+	close(finish)
+	select {
+	case <-rebooted:
+	case <-time.After(time.Second):
+		t.Fatal("reboot was not requested")
+	}
+}

@@ -27,8 +27,8 @@
 
     async function save() {
         if (enabled.checked && start.value === stop.value) {
-            window.MasjidPiUI?.notify?.("Radio start and stop times must differ.", "error");
-            await window.MasjidPiRefreshListenStatus?.();
+            window.MasjidFrameUI?.notify?.("Radio start and stop times must differ.", "error");
+            await window.MasjidFrameRefreshListenStatus?.();
             return;
         }
 
@@ -46,15 +46,15 @@
                 const body = await response.json().catch(() => ({}));
                 throw new Error(body.error || `Request failed (${response.status})`);
             }
-            window.MasjidPiUI?.notify?.(
+            window.MasjidFrameUI?.notify?.(
                 enabled.checked ? `Radio schedule set to ${start.value}–${stop.value}.` : "Radio schedule disabled.",
                 "success"
             );
         } catch (err) {
-            window.MasjidPiUI?.notify?.(err.message, "error");
+            window.MasjidFrameUI?.notify?.(err.message, "error");
         } finally {
             editing = false;
-            await window.MasjidPiRefreshListenStatus?.();
+            await window.MasjidFrameRefreshListenStatus?.();
         }
     }
 
@@ -80,5 +80,5 @@
     }
 
     renderEnabled();
-    window.addEventListener("masjidpi:listen-status", event => refresh(event.detail));
+    window.addEventListener("masjidframe:listen-status", event => refresh(event.detail));
 })();

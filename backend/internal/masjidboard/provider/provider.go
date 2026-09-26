@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
 )
 
 // Provider retrieves and normalises board data from an external source.

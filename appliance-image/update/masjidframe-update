@@ -4,7 +4,7 @@ set -euo pipefail
 export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
 
 public_key=$(
-    realpath "${MASJIDPI_UPDATE_PUBLIC_KEY:-/usr/share/masjidpi/update/masjidpi-update.pub}"
+    realpath "${MASJIDFRAME_UPDATE_PUBLIC_KEY:-/usr/share/masjidframe/update/masjidframe-update.pub}"
 )
 readonly public_key
 readonly appliance_user=masjidframe
@@ -12,9 +12,9 @@ readonly appliance_user=masjidframe
 usage()
 {
     echo "Usage:" >&2
-    echo "  masjidpi-update verify BUNDLE SIGNATURE" >&2
-    echo "  sudo masjidpi-update plan BUNDLE SIGNATURE" >&2
-    echo "  sudo masjidpi-update install BUNDLE SIGNATURE" >&2
+    echo "  masjidframe-update verify BUNDLE SIGNATURE" >&2
+    echo "  sudo masjidframe-update plan BUNDLE SIGNATURE" >&2
+    echo "  sudo masjidframe-update install BUNDLE SIGNATURE" >&2
     exit 1
 }
 
@@ -80,10 +80,10 @@ if [[ "${1:-}" = install ]]; then
         exit 1
     fi
 
-    exec 9>/run/lock/masjidpi-update.lock
+    exec 9>/run/lock/masjidframe-update.lock
 
     if ! flock -n 9; then
-        echo "Another MasjidPi update is already running." >&2
+        echo "Another MasjidFrame update is already running." >&2
         exit 1
     fi
 
@@ -243,7 +243,7 @@ if [[ "${1:-}" = install ]]; then
         initramfs8 \
         bcm2710-rpi-3-b.dtb
     do
-        rm -f -- "$boot_dir/.$boot_file.masjidpi-update"
+        rm -f -- "$boot_dir/.$boot_file.masjidframe-update"
     done
 
     echo
@@ -255,7 +255,7 @@ if [[ "${1:-}" = install ]]; then
         bcm2710-rpi-3-b.dtb
     do
         source_file="$staging_dir/boot/$boot_file"
-        staged_file="$boot_dir/.$boot_file.masjidpi-update"
+        staged_file="$boot_dir/.$boot_file.masjidframe-update"
 
         install -o root -g root -m 0644 \
             "$source_file" \
@@ -443,15 +443,15 @@ if [[ "${1:-}" = install ]]; then
     fi
 
     install -d -o root -g root -m 0755 \
-        "$target_root/usr/share/masjidpi/update"
+        "$target_root/usr/share/masjidframe/update"
 
     install -o root -g root -m 0644 \
         "$manifest" \
-        "$target_root/usr/share/masjidpi/update/release.json"
+        "$target_root/usr/share/masjidframe/update/release.json"
 
     if ! cmp -s \
         "$manifest" \
-        "$target_root/usr/share/masjidpi/update/release.json"; then
+        "$target_root/usr/share/masjidframe/update/release.json"; then
         echo "Unable to record the target release identity." >&2
         exit 1
     fi
@@ -475,7 +475,7 @@ if [[ "${1:-}" = install ]]; then
         bcm2710-rpi-3-b.dtb
     do
         mv -f \
-            "$boot_dir/.$boot_file.masjidpi-update" \
+            "$boot_dir/.$boot_file.masjidframe-update" \
             "$boot_dir/$boot_file"
         echo "PASS  $boot_file"
     done
@@ -491,7 +491,7 @@ if [[ "${1:-}" = install ]]; then
 
     # This is deliberately last. Any interruption before this point leaves
     # U-Boot selecting the currently confirmed system.
-    masjidpi-ab trial "$target_slot"
+    masjidframe-ab trial "$target_slot"
 
     echo
     echo "RESULT: PASS — update installed into system_$target_slot"
@@ -527,13 +527,13 @@ if [[ "${1:-}" = plan ]]; then
         jq -r '.source_commit' <<<"$manifest_json"
     )
 
-    current_release=/usr/share/masjidpi/update/release.json
+    current_release=/usr/share/masjidframe/update/release.json
     current_version=unrecorded
 
     if [[ -f "$current_release" ]]; then
         if ! jq -e '
             .schema_version == 1 and
-            .product == "masjidpi" and
+            .product == "masjidframe" and
             .device_class == "pi3" and
             (.release_version | type == "string" and
                 test("^[A-Za-z0-9][A-Za-z0-9._+-]*$")) and
@@ -783,7 +783,7 @@ readonly manifest="$extraction_dir/manifest.json"
 
 if ! jq -e '
     .schema_version == 1 and
-    .product == "masjidpi" and
+    .product == "masjidframe" and
     .device_class == "pi3" and
     (.release_version | type == "string" and
         test("^[A-Za-z0-9][A-Za-z0-9._+-]*$")) and
@@ -849,6 +849,6 @@ fi
 
 echo "PASS  decompressed root filesystem"
 echo
-echo "RESULT: PASS — trusted MasjidPi update bundle"
+echo "RESULT: PASS — trusted MasjidFrame update bundle"
 echo "Version: $(jq -r '.release_version' "$manifest")"
 echo "Commit:  $(jq -r '.source_commit' "$manifest")"

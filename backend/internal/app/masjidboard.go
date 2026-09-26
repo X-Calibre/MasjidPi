@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/config"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/maintenance"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	masjidboardservice "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/service"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/config"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/maintenance"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	masjidboardservice "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/service"
 )
 
 const (

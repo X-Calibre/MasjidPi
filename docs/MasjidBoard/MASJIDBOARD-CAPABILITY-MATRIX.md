@@ -52,7 +52,7 @@ https://api.masjidboardlive.com/mblfileapi
 ```
 
 These are distinct responsibilities. A board does not need Premium capability
-to provide a useful full timetable to MasjidPi, and the shared daily content
+to provide a useful full timetable to MasjidFrame, and the shared daily content
 does not indicate any capability or setting of an individual board.
 
 ## FindMasjid Discovery Data
@@ -194,7 +194,7 @@ Temporary override
        Ramadan or other special timetable requirements
 ```
 
-This distinction is important for MasjidPi freshness handling. An old upstream edit timestamp does not by itself prove that today's timetable is stale.
+This distinction is important for MasjidFrame freshness handling. An old upstream edit timestamp does not by itself prove that today's timetable is stale.
 
 ### `last_updated` observations
 
@@ -218,13 +218,13 @@ The current evidence therefore supports these conclusions:
 - it is optional in practice;
 - an empty value does not mean that timetable data is unavailable;
 - an old value does not by itself mean that the current day's timetable is stale; and
-- `last_updated` must not be used as MasjidPi's sole freshness test.
+- `last_updated` must not be used as MasjidFrame's sole freshness test.
 
-The exact authoritative meaning of `last_updated` is not yet proven from upstream implementation. It is reasonable to treat it as an upstream edit/update indicator, but MasjidPi must not assume that it represents the time today's timetable was generated.
+The exact authoritative meaning of `last_updated` is not yet proven from upstream implementation. It is reasonable to treat it as an upstream edit/update indicator, but MasjidFrame must not assume that it represents the time today's timetable was generated.
 
-### MasjidPi freshness model
+### MasjidFrame freshness model
 
-The working model should keep upstream metadata separate from MasjidPi's own retrieval state:
+The working model should keep upstream metadata separate from MasjidFrame's own retrieval state:
 
 ```text
 upstream_last_updated
@@ -233,10 +233,10 @@ upstream_last_updated
     -> never used alone to reject an otherwise valid timetable
 
 retrieved_at
-    -> time MasjidPi successfully retrieved the board response
+    -> time MasjidFrame successfully retrieved the board response
 
 validated_at
-    -> time MasjidPi successfully parsed and validated the board response
+    -> time MasjidFrame successfully parsed and validated the board response
 
 timetable_date
     -> local date for which the normalised timetable applies
@@ -244,7 +244,7 @@ timetable_date
 
 A rule such as `upstream_last_updated older than N days = stale` would be unsafe because perpetual timetable data can remain valid without frequent manual edits.
 
-MasjidPi freshness should instead be based primarily on successful retrieval, successful parsing/validation and the date context of the timetable. Upstream `last_updated` can remain useful informational metadata where supplied.
+MasjidFrame freshness should instead be based primarily on successful retrieval, successful parsing/validation and the date context of the timetable. Upstream `last_updated` can remain useful informational metadata where supplied.
 
 ### What is not yet proven
 
@@ -349,11 +349,11 @@ HTTP status alone is not sufficient; the generated Premium page structure must a
 Daily Ayah, Hadith and Sunnah do not belong to any of the three
 masjid-specific data paths above. MasjidBoard Live publishes one shared public
 JavaScript translations object at `https://api.masjidboardlive.com/mblfileapi`.
-MasjidPi therefore treats this as optional service-level enrichment rather
+MasjidFrame therefore treats this as optional service-level enrichment rather
 than a capability of the selected masjid. A user may display it even when none
 of the selected masjids has enabled the corresponding MasjidBoard Live slides.
 
-| MasjidBoard Live field | MasjidPi field | Implemented | Presentation |
+| MasjidBoard Live field | MasjidFrame field | Implemented | Presentation |
 |---|---|---|---|
 | `ayahSurah` | `ayah.surah` | Yes | Primary Ayah heading |
 | `AyahNo` | `ayah.ayah_number` | Yes | Directly below the Surah heading |
@@ -366,7 +366,7 @@ of the selected masjids has enabled the corresponding MasjidBoard Live slides.
 | `sunnahRef` | `sunnah.reference` | Yes | Reference footer field |
 
 The response is parsed as data from the expected `let translations = {...}`
-envelope; it is never executed as JavaScript. MasjidPi also records the
+envelope; it is never executed as JavaScript. MasjidFrame also records the
 language, source name, source URL, upstream content date and local fetch time.
 
 The three independent display preferences are `show_daily_ayah`,
@@ -376,7 +376,7 @@ for the setting. An explicit `false` is persisted and respected.
 
 Content refreshes at most once per Africa/Johannesburg calendar day while at
 least one category is enabled. A successful response is atomically stored at
-`/var/lib/masjidpi/masjidboard_cache/daily_islamic_content.json`. Startup loads
+`/var/lib/masjidframe/masjidboard_cache/daily_islamic_content.json`. Startup loads
 that last-known-good cache before attempting a refresh; a transport, HTTP,
 size, envelope, decoding or validation failure cannot overwrite it.
 
@@ -488,7 +488,7 @@ which again matches the Premium event sequence.
 
 Two independent Premium-capable boards now show Core and Premium agreeing field-for-field for the standard timetable and the astronomical/Jumu'ah values compared.
 
-This is enough to adopt **Core as the working primary timetable source** for MasjidPi research.
+This is enough to adopt **Core as the working primary timetable source** for MasjidFrame research.
 
 It does not prove Core and Premium can never diverge, so production code should still be defensive and the decision should remain revisitable if future captures contradict it.
 
@@ -530,7 +530,7 @@ sunset       = 17:49
 maghribAthan = 17:52
 ```
 
-MasjidPi must therefore retain separate semantic fields for sunset/Iftar and Maghrib Adhan.
+MasjidFrame must therefore retain separate semantic fields for sunset/Iftar and Maghrib Adhan.
 
 During Ramadan, a masjid may display Iftar at sunset while delaying Maghrib Adhan by several minutes. Ramadan-specific data should be revalidated when boards are actively publishing those fields.
 
@@ -585,7 +585,7 @@ Premium available
     -> enrich the board with Premium-only content
 ```
 
-MasjidPi should not switch its standard timetable provider merely because Premium is available.
+MasjidFrame should not switch its standard timetable provider merely because Premium is available.
 
 This has several advantages:
 
@@ -601,7 +601,7 @@ The production implementation should still define how to behave if future valida
 
 Known Premium boards have appeared with both `PRM` and `PRP` suffixes, while other entries expose suffixes including `CRM`, `CRP`, `CRS`, `EXT` and `PTA...EXT` forms.
 
-MasjidPi must not derive Premium capability solely from these suffixes.
+MasjidFrame must not derive Premium capability solely from these suffixes.
 
 `MBL_ID` should remain opaque upstream metadata unless authoritative semantics are established later.
 
@@ -618,7 +618,7 @@ The production source boundary is implemented. Remaining research questions incl
 5. defined production behaviour if such a divergence is observed;
 6. exact Core Jumu'ah behaviour across more `jumuahHeadings` combinations;
 7. Ramadan-specific values, especially Iftar versus Maghrib behaviour;
-8. how Core live-stream metadata relates to MasjidPi's existing audio-stream subsystem; and
+8. how Core live-stream metadata relates to MasjidFrame's existing audio-stream subsystem; and
 9. whether later upstream schema changes require additional catalogue fields.
 
 ## Implemented source direction

@@ -6,7 +6,7 @@
 set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-UPDATER="$ROOT/appliance-image/update/masjidpi-update"
+UPDATER="$ROOT/appliance-image/update/masjidframe-update"
 
 bash -n "$UPDATER"
 

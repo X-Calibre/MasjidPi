@@ -49,11 +49,11 @@ let renderedMasjidID = null;
 let renderedRadioID = null;
 
 function publishListenStatus(status) {
-    window.dispatchEvent(new CustomEvent("masjidpi:listen-status", {detail: status}));
+    window.dispatchEvent(new CustomEvent("masjidframe:listen-status", {detail: status}));
 }
 
 function publishMasjidCatalogue(items) {
-    window.dispatchEvent(new CustomEvent("masjidpi:masjid-catalogue", {detail: items}));
+    window.dispatchEvent(new CustomEvent("masjidframe:masjid-catalogue", {detail: items}));
 }
 
 const state = document.getElementById("state");
@@ -147,7 +147,7 @@ async function updateCatalogue() {
 }
 
 function showToast(message, type = "success") {
-    window.MasjidPiUI.notify(message, type);
+    window.MasjidFrameUI.notify(message, type);
 }
 
 function setBusy(button, busy, busyText, normalText) {
@@ -423,7 +423,7 @@ async function refreshStatus() {
         const status = await getListenStatus();
         if (!backendOnline) {
             backendOnline = true;
-            showToast("Connection to MasjidPi restored.", "success");
+            showToast("Connection to MasjidFrame restored.", "success");
         }
         renderStatus(status);
         setOffline(false);
@@ -431,17 +431,17 @@ async function refreshStatus() {
         console.error(err);
         if (backendOnline) {
             backendOnline = false;
-            showToast("Connection to MasjidPi lost.", "error");
+            showToast("Connection to MasjidFrame lost.", "error");
         }
         state.textContent = "Offline";
         state.className = "status-badge status-error";
-        statusDetail.textContent = "Unable to reach MasjidPi.";
+        statusDetail.textContent = "Unable to reach MasjidFrame.";
         statusDetail.className = "status-detail status-detail-error";
         setOffline(true);
     }
 }
 
-window.MasjidPiRefreshListenStatus = refreshStatus;
+window.MasjidFrameRefreshListenStatus = refreshStatus;
 
 function activateTab(name) {
     document.querySelectorAll("[data-listen-tab]").forEach(button => {
@@ -453,7 +453,7 @@ function activateTab(name) {
     document.querySelectorAll("[data-listen-panel]").forEach(panel => {
         panel.classList.toggle("hidden", panel.dataset.listenPanel !== name);
     });
-    sessionStorage.setItem("masjidpi-listen-tab", name);
+    sessionStorage.setItem("masjidframe-listen-tab", name);
 }
 
 document.querySelectorAll("[data-listen-tab]").forEach(button => {
@@ -468,7 +468,7 @@ document.querySelectorAll("[data-listen-tab]").forEach(button => {
     });
 });
 
-const savedListenTab = sessionStorage.getItem("masjidpi-listen-tab");
+const savedListenTab = sessionStorage.getItem("masjidframe-listen-tab");
 if (["masjid", "radio", "audio"].includes(savedListenTab)) activateTab(savedListenTab);
 
 streamSearch.addEventListener("input", () => renderMasjids(streamInput.value));

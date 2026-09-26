@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in MasjidPi!
+Thank you for your interest in MasjidFrame!
 
 We welcome:
 

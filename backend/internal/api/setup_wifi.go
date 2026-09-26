@@ -5,6 +5,8 @@ import (
 	"net"
 	"net/http"
 	"strings"
+
+	network "github.com/X-Calibre/MasjidFrame/backend/internal/network"
 )
 
 type wifiConnectRequest struct {
@@ -75,7 +77,7 @@ func (s *Server) wifiConnect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	request.SSID = strings.TrimSpace(request.SSID)
-	if request.SSID == "" || len(request.SSID) > 32 || len(request.Password) > 64 {
+	if request.SSID == "" || len(request.SSID) > 32 || !network.ValidWiFiPassword(request.Password) {
 		writeError(w, http.StatusBadRequest, "invalid Wi-Fi network name or password")
 		return
 	}

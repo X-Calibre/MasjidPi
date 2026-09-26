@@ -40,14 +40,14 @@ func TestNewPathsUpdateStateUsesDevelopmentDataRoot(
 func TestRuntimePathsUpdateStateUsesPersistentDataRoot(
 	t *testing.T,
 ) {
-	t.Setenv("MASJIDPI_HOME", "/opt/masjidpi")
+	t.Setenv("MASJIDFRAME_HOME", "/opt/masjidframe")
 
 	paths, err := RuntimePaths()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	const want = "/var/lib/masjidpi/update_state.json"
+	const want = "/var/lib/masjidframe/update_state.json"
 
 	if paths.UpdateState != want {
 		t.Fatalf(
@@ -63,7 +63,7 @@ func TestRuntimePathsUpdateStateUsesPersistentDataRoot(
 			paths.DataRoot,
 		)
 	}
-	if paths.UpdateDownloads != "/var/lib/masjidpi/update-downloads" {
+	if paths.UpdateDownloads != "/var/lib/masjidframe/update-downloads" {
 		t.Fatalf("UpdateDownloads = %q", paths.UpdateDownloads)
 	}
 }

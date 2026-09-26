@@ -3,10 +3,10 @@ package app
 import (
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
-	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
-	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
+	masjidboardruntime "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/playback"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
 )
 
 type updatePlaybackProvider interface {

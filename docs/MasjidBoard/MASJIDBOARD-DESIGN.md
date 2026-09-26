@@ -8,9 +8,9 @@
 
 This document turns the architectural decisions in `MASJIDBOARD-ARCHITECTURE.md` into a concrete application/component design.
 
-MasjidBoard is a standalone application within the MasjidPi repository. It uses MasjidBoard Live as its primary data source, normalises the upstream data into a semantic model, caches the result and media locally, schedules board content, and renders the resulting presentation to an HDMI display.
+MasjidBoard is a standalone application within the MasjidFrame repository. It uses MasjidBoard Live as its primary data source, normalises the upstream data into a semantic model, caches the result and media locally, schedules board content, and renders the resulting presentation to an HDMI display.
 
-The design deliberately keeps MasjidBoard independent from the MasjidPi audio application.
+The design deliberately keeps MasjidBoard independent from the MasjidFrame audio application.
 
 ## Component Structure
 
@@ -19,7 +19,7 @@ The initial Go package structure should be approximately:
 ```text
 backend/
 ├── cmd/
-│   ├── masjidpi/
+│   ├── masjidframe/
 │   └── masjidboard/
 │
 └── internal/
@@ -102,7 +102,7 @@ Persists the normalised board data and downloaded media.
 The agreed initial cache location is:
 
 ```text
-/var/lib/masjidpi/masjidboard/
+/var/lib/masjidframe/masjidboard/
 ├── board.json
 ├── metadata.json
 └── media/
@@ -275,7 +275,7 @@ type Cache interface {
 }
 ```
 
-The exact implementation is not yet fixed, but the agreed initial storage is normalised JSON under `/var/lib/masjidpi/masjidboard/` plus locally cached media.
+The exact implementation is not yet fixed, but the agreed initial storage is normalised JSON under `/var/lib/masjidframe/masjidboard/` plus locally cached media.
 
 A cached board should include freshness metadata so that the application can tell the difference between current and stale data.
 
@@ -469,7 +469,7 @@ Renderer failure
     → application recovery/restart
 ```
 
-The exact service-level restart strategy will follow the existing MasjidPi service/recovery conventions.
+The exact service-level restart strategy will follow the existing MasjidFrame service/recovery conventions.
 
 ## Display Modes
 
@@ -502,7 +502,7 @@ Configuration should not be embedded in the provider implementation.
 
 MasjidBoard will have its own application/API boundary rather than being coupled to the existing audio API.
 
-The initial API surface should remain deliberately small and should only expose functionality needed by the MasjidBoard application and MasjidPi UI. Candidate endpoints include:
+The initial API surface should remain deliberately small and should only expose functionality needed by the MasjidBoard application and MasjidFrame UI. Candidate endpoints include:
 
 ```text
 /api/masjidboard/status
@@ -527,11 +527,11 @@ masjidboard
 masjidboard.service
 ```
 
-alongside the existing MasjidPi audio application/service:
+alongside the existing MasjidFrame audio application/service:
 
 ```text
-masjidpi
-masjidpi.service
+masjidframe
+masjidframe.service
 ```
 
 Both must be independently startable, stoppable and recoverable.
@@ -621,7 +621,7 @@ Validate actual display output and resource usage on the target hardware.
 
 ### 10. Service integration
 
-Add independent startup, shutdown, recovery and configuration integration with MasjidPi.
+Add independent startup, shutdown, recovery and configuration integration with MasjidFrame.
 
 ## Deliberate Non-Goals for Initial Implementation
 
@@ -641,7 +641,7 @@ The following questions have been reviewed and settled for the initial implement
 1. **Exact Go model:** explicit semantic structs and enums; no generic maps for the core domain model.
 2. **Prayer representation:** fixed five-prayer structure with `PrayerTime` values containing Adhan and Jamaah where available.
 3. **Time representation:** Go `time.Time` internally with explicit date/timezone context.
-4. **Cache location:** `/var/lib/masjidpi/masjidboard/`.
+4. **Cache location:** `/var/lib/masjidframe/masjidboard/`.
 5. **Cache format:** normalised JSON plus locally cached media; raw upstream data is optional diagnostics only.
 6. **Renderer:** native graphics; SDL2 is the preferred initial candidate, behind a renderer interface.
 7. **Display target:** 1920×1080 landscape initially.

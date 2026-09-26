@@ -10,13 +10,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/components"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/components"
 )
 
 func TestPreferencesUseConfiguredPersistentPath(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "persistent", "preferences.json")
-	t.Setenv("MASJIDPI_HOME", filepath.Join(root, "replaceable-runtime"))
+	t.Setenv("MASJIDFRAME_HOME", filepath.Join(root, "replaceable-runtime"))
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	server := New(Config{
 		Address:         ":0",
@@ -34,7 +34,7 @@ func TestPreferencesUseConfiguredPersistentPath(t *testing.T) {
 	if _, err := os.Stat(path); err != nil {
 		t.Fatalf("configured preferences path was not written: %v", err)
 	}
-	legacy := filepath.Join(os.Getenv("MASJIDPI_HOME"), "backend", "data", "preferences.json")
+	legacy := filepath.Join(os.Getenv("MASJIDFRAME_HOME"), "backend", "data", "preferences.json")
 	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
 		t.Fatalf("replaceable runtime path was written: %v", err)
 	}

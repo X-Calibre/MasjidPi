@@ -4,7 +4,7 @@
 
 ## Purpose
 
-MasjidPi persists a lightweight global MasjidBoard Live location hierarchy independently from the scoped board catalogue.
+MasjidFrame persists a lightweight global MasjidBoard Live location hierarchy independently from the scoped board catalogue.
 
 ```text
 MasjidBoard hierarchy
@@ -26,7 +26,7 @@ The hierarchy exists so initial configuration and later location changes can be 
 Installed appliances use:
 
 ```text
-/var/lib/masjidpi/masjidboard_hierarchy.json
+/var/lib/masjidframe/masjidboard_hierarchy.json
 ```
 
 Development uses:
@@ -35,7 +35,7 @@ Development uses:
 backend/data/masjidboard_hierarchy.json
 ```
 
-The hierarchy contains location names, upstream board counts, and MasjidPi-owned retrieval/validation timestamps. It does not contain timetable or individual board records.
+The hierarchy contains location names, upstream board counts, and MasjidFrame-owned retrieval/validation timestamps. It does not contain timetable or individual board records.
 
 ## Upstream source
 
@@ -54,7 +54,7 @@ South Africa -> 615 boards
 North West   -> 23 boards
 ```
 
-Upstream data can contain anomalies such as duplicate region labels and blank region buckets. MasjidPi preserves blank regions and normalises duplicate labels at the same hierarchy level by summing their counts.
+Upstream data can contain anomalies such as duplicate region labels and blank region buckets. MasjidFrame preserves blank regions and normalises duplicate labels at the same hierarchy level by summing their counts.
 
 ## Refresh policy
 

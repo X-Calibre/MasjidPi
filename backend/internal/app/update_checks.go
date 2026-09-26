@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
 )
 
 const updateCheckPollInterval = time.Hour

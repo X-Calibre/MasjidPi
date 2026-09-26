@@ -484,9 +484,9 @@
         if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) showSlide(activeSlide + (dx < 0 ? 1 : -1));
     });
 
-    window.addEventListener("masjidpi:board-view", event => refresh(event.detail));
+    window.addEventListener("masjidframe:board-view", event => refresh(event.detail));
     if (window.MasjidBoardCurrentView) refresh(window.MasjidBoardCurrentView);
-    window.addEventListener("masjidpi:appliance-listen-panel", event => {
+    window.addEventListener("masjidframe:appliance-listen-panel", event => {
         state.classList.toggle("listen-panel-open", Boolean(event.detail && event.detail.open));
         if (state.classList.contains("listen-panel-open")) window.clearInterval(slideTimer);
         else startTimer();

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/display"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/display"
 )
 
 func TestDisplaySettingsHandlerUpdatesBrightness(t *testing.T) {

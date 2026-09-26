@@ -2,17 +2,17 @@
 
 **Status:** Historical endpoint research; secondary Radio shipped in v1.5.0
 **Last validated:** 2026-08-27
-**Purpose:** Evaluate South African Islamic radio stations for inclusion in MasjidPi Listen as secondary audio sources.
+**Purpose:** Evaluate South African Islamic radio stations for inclusion in MasjidFrame Listen as secondary audio sources.
 
 ## Objective
 
-MasjidPi Listen currently focuses on live audio streams from individual masjids. A secondary catalogue of continuous Islamic radio stations would provide users with an alternative source of Islamic programming.
+MasjidFrame Listen currently focuses on live audio streams from individual masjids. A secondary catalogue of continuous Islamic radio stations would provide users with an alternative source of Islamic programming.
 
-This investigation identifies suitable South African Islamic radio stations, resolves direct audio endpoints where possible, records measured stream properties, and validates compatibility with MasjidPi's `mpv`-based playback architecture.
+This investigation identifies suitable South African Islamic radio stations, resolves direct audio endpoints where possible, records measured stream properties, and validates compatibility with MasjidFrame's `mpv`-based playback architecture.
 
 ## Current Validation Summary
 
-Eight stations now have direct endpoints that have been successfully tested with `mpv` on both an x86_64 MasjidPi development environment and the aarch64 Raspberry Pi 4 test platform.
+Eight stations now have direct endpoints that have been successfully tested with `mpv` on both an x86_64 MasjidFrame development environment and the aarch64 Raspberry Pi 4 test platform.
 
 | Station | Region | Direct endpoint | Codec | Sample rate | Channels | Bitrate | Container | Pi 4 5-minute soak |
 |---|---|---|---|---:|---|---:|---|---|
@@ -35,20 +35,20 @@ The remaining candidates are not yet ready for production catalogue inclusion:
 
 ## Validation Environments
 
-### MasjidPi-Dev
+### MasjidFrame-Dev
 
 The resolved streams were tested using `mpv` with audio output disabled (`--ao=null`) to isolate network, transport, demuxing and decoding behaviour.
 
-The original seven streams passed a 30-second screening test. Salaamedia subsequently passed a five-minute `mpv` soak test on MasjidPi-Dev.
+The original seven streams passed a 30-second screening test. Salaamedia subsequently passed a five-minute `mpv` soak test on MasjidFrame-Dev.
 
 `ffprobe` was used to measure codec, sample rate, channel layout, bitrate and container information. The measured properties are recorded in the validation table above.
 
-### Raspberry Pi 4 — MasjidPi-Test
+### Raspberry Pi 4 — MasjidFrame-Test
 
 The resolved streams were tested on the Raspberry Pi test platform:
 
 ```text
-Linux MasjidPi-Test 6.18.39+rpt-rpi-v8
+Linux MasjidFrame-Test 6.18.39+rpt-rpi-v8
 Debian / Raspberry Pi kernel
 Architecture: aarch64
 ```
@@ -278,7 +278,7 @@ Protocol:    HTTP
 
 The advertised HLS bandwidth of 128,285 bps closely matches the approximately 129,370 bps measured by `ffprobe`.
 
-The endpoint passed a five-minute `mpv` soak test on both MasjidPi-Dev and the Raspberry Pi 4 test platform.
+The endpoint passed a five-minute `mpv` soak test on both MasjidFrame-Dev and the Raspberry Pi 4 test platform.
 
 The stream currently uses plain HTTP rather than HTTPS. This is not a blocker for `mpv` playback but should be recorded as part of the station's transport characteristics.
 
@@ -326,16 +326,16 @@ Radio 786's genuine independent fallback stream also remains to be resolved.
 
 Islam Alive Radio should remain outside the initial catalogue pending further investigation.
 
-## Proposed MasjidPi Architecture
+## Proposed MasjidFrame Architecture
 
 Radio stations should not be represented as ordinary masjid catalogue entries.
 
-MasjidPi Listen should distinguish between:
+MasjidFrame Listen should distinguish between:
 
 - **Masjids** — individual masjid live streams
 - **Radio Stations** — continuous Islamic radio broadcasters
 
-The validation work shows that radio streams may use different transports and codecs, including MP3, raw AAC and HLS/AAC. MasjidPi should continue to delegate transport and codec handling to `mpv` rather than restricting catalogue entries to one stream type.
+The validation work shows that radio streams may use different transports and codecs, including MP3, raw AAC and HLS/AAC. MasjidFrame should continue to delegate transport and codec handling to `mpv` rather than restricting catalogue entries to one stream type.
 
 ## Fallback Stream Support
 
@@ -363,7 +363,7 @@ Where two URLs are merely different proxy/access paths to the same upstream serv
 
 ## Implemented Secondary-Stream Behaviour
 
-MasjidPi v1.5.0 implemented a selected Radio station as a secondary source while the priority masjid is not broadcasting:
+MasjidFrame v1.5.0 implemented a selected Radio station as a secondary source while the priority masjid is not broadcasting:
 
 ```text
 Selected Masjid
@@ -416,10 +416,10 @@ For production catalogue entries, validation should ultimately record:
 
 The investigation has progressed from preliminary stream discovery to successful hardware validation.
 
-Eight South African Islamic radio stations now have direct endpoints that have successfully played through MasjidPi's `mpv`/FFmpeg stack on both the x86_64 development environment and an aarch64 Raspberry Pi 4. The test set includes MP3, raw AAC and HLS/AAC streams.
+Eight South African Islamic radio stations now have direct endpoints that have successfully played through MasjidFrame's `mpv`/FFmpeg stack on both the x86_64 development environment and an aarch64 Raspberry Pi 4. The test set includes MP3, raw AAC and HLS/AAC streams.
 
 Salaamedia's previously uncertain Antfarm endpoint has now been confirmed as a valid HLS/AAC stream and has passed five-minute playback testing on both environments.
 
-This provides strong evidence that a dedicated Radio Stations catalogue is technically viable in MasjidPi Listen.
+This provides strong evidence that a dedicated Radio Stations catalogue is technically viable in MasjidFrame Listen.
 
 The validated endpoints were sufficient for the v1.5.0 Radio catalogue and secondary-playback implementation. Remaining endpoint, Pi 3B, ALSA and reconnection work is ongoing catalogue/hardware validation rather than an implementation prerequisite.

@@ -1,6 +1,6 @@
 # SD Card Write Policy
 
-MasjidPi is intended to run continuously on Raspberry Pi hardware where the primary persistent storage may be an SD card. Avoiding unnecessary flash writes is therefore an appliance reliability requirement.
+MasjidFrame is intended to run continuously on Raspberry Pi hardware where the primary persistent storage may be an SD card. Avoiding unnecessary flash writes is therefore an appliance reliability requirement.
 
 ## Principles
 
@@ -43,17 +43,17 @@ Individual MQTT events are logged at `DEBUG` rather than `INFO`. Connection and 
 
 ### systemd journal protection
 
-The MasjidPi service applies systemd journal rate limiting so a persistent failure cannot generate an uncontrolled burst of journal writes.
+The MasjidFrame service applies systemd journal rate limiting so a persistent failure cannot generate an uncontrolled burst of journal writes.
 
 ### Read-only boot firmware
 
-On Raspberry Pi installations, `/boot/firmware` is remounted read-only before normal MasjidPi operation. Board installations explicitly open and close a controlled writable window for splash and initramfs changes. APT/DPKG hooks do the same around package operations that may update the kernel or initramfs, then flush and restore the read-only mount.
+On Raspberry Pi installations, `/boot/firmware` is remounted read-only before normal MasjidFrame operation. Board installations explicitly open and close a controlled writable window for splash and initramfs changes. APT/DPKG hooks do the same around package operations that may update the kernel or initramfs, then flush and restore the read-only mount.
 
 This protects the FAT boot filesystem, which cannot provide the same power-loss guarantees as the journalled EXT4 root filesystem.
 
 ### Volatile runtime files
 
-The mpv IPC socket now lives in `/run/masjidpi`, backed by volatile runtime storage. systemd creates the directory for the service on every boot. Existing installations using MasjidPi's previous `/tmp/masjidpi.sock` default are migrated automatically, while custom socket paths are preserved.
+The mpv IPC socket now lives in `/run/masjidframe`, backed by volatile runtime storage. systemd creates the directory for the service on every boot. Existing installations using MasjidFrame's previous `/tmp/masjidframe.sock` default are migrated automatically, while custom socket paths are preserved.
 
 ## Application-level audit status
 
@@ -70,8 +70,8 @@ OS-level behaviour will be assessed separately after application-level optimisat
 - OS services and timers that may write frequently to the SD card;
 - measurement of real filesystem writes during long-running Raspberry Pi tests.
 
-OS-level changes should be based on measurement and should be applied only where appropriate for a dedicated MasjidPi appliance rather than changing normal Linux behaviour unnecessarily.
+OS-level changes should be based on measurement and should be applied only where appropriate for a dedicated MasjidFrame appliance rather than changing normal Linux behaviour unnecessarily.
 
 ## Validation goal
 
-A normal MasjidPi installation should be able to run continuously without generating meaningful background application writes apart from intentional configuration/state changes, changed catalogue refreshes, package/update activity, and other explicitly expected persistence.
+A normal MasjidFrame installation should be able to run continuously without generating meaningful background application writes apart from intentional configuration/state changes, changed catalogue refreshes, package/update activity, and other explicitly expected persistence.

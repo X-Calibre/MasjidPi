@@ -4,7 +4,7 @@
 
 ## Decision
 
-MasjidPi will not maintain a worldwide local copy of the MasjidBoard Live board directory.
+MasjidFrame will not maintain a worldwide local copy of the MasjidBoard Live board directory.
 
 During MasjidBoard configuration, the user chooses **one to three geographic discovery locations** through the WebUI/API:
 
@@ -27,7 +27,7 @@ Location 3 (optional)
 
 This supports users who live near a town, municipal, provincial or national boundary. A mosque in an adjacent location may be physically closer than another mosque in the user's nominal town.
 
-MasjidPi persists the ordered location set and maintains a local catalogue containing the union of boards returned for those locations.
+MasjidFrame persists the ordered location set and maintains a local catalogue containing the union of boards returned for those locations.
 
 The selected 1–3 displayed boards are persisted separately from the discovery scope and catalogue. The limit of three discovery locations and the limit of three displayed boards are independent product rules.
 
@@ -86,7 +86,7 @@ development:
 backend/data/masjidboard_scope.json
 
 installed appliance:
-/var/lib/masjidpi/masjidboard_scope.json
+/var/lib/masjidframe/masjidboard_scope.json
 ```
 
 The scope file is separate from:
@@ -135,7 +135,7 @@ Each configured location has two refresh paths only.
 
 Refresh at most once every seven days.
 
-The due decision must use MasjidPi-owned persisted successful-refresh timestamps, not process uptime and not upstream per-board `last_updated` values. A reboot therefore does not restart the seven-day interval.
+The due decision must use MasjidFrame-owned persisted successful-refresh timestamps, not process uptime and not upstream per-board `last_updated` values. A reboot therefore does not restart the seven-day interval.
 
 ### Manual
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/hierarchy"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/hierarchy"
 )
 
 // Service coordinates the lightweight global hierarchy refresh and the

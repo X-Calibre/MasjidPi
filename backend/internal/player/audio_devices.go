@@ -36,7 +36,7 @@ func userFacingAudioDevice(name, description string) (string, bool) {
 		return "Default audio output", true
 	}
 
-	// MasjidPi uses ALSA. Hide other mpv audio-output backends and their
+	// MasjidFrame uses ALSA. Hide other mpv audio-output backends and their
 	// backend-specific defaults from the end user.
 	if !strings.HasPrefix(name, "alsa/") {
 		return "", false

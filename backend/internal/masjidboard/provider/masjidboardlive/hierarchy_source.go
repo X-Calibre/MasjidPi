@@ -3,7 +3,7 @@ package masjidboardlive
 import (
 	"context"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/hierarchy"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/hierarchy"
 )
 
 // HierarchySource adapts the MasjidBoard Live discovery client to the

@@ -1,6 +1,6 @@
 # MasjidBoard Domain Model
 
-**Status:** Implemented in MasjidPi v1.5.2
+**Status:** Implemented in MasjidFrame v1.5.2
 
 The provider translates positional MasjidBoard Live data into semantic Go types. The normalized model does not expose upstream row numbers to the rest of the application.
 

@@ -120,3 +120,30 @@ func TestDownloaderRemovesFilesAfterVerificationFailure(t *testing.T) {
 		t.Fatalf("files remain after failure: %v", entries)
 	}
 }
+
+func TestDownloaderCleanupRemovesOnlyRequestedRelease(t *testing.T) {
+	directory := t.TempDir()
+	target := filepath.Join(directory, "masjidframe-update-v1.7.0-pi3.tar.zst")
+	other := filepath.Join(directory, "masjidframe-update-v1.8.0-pi3.tar.zst")
+	for _, path := range []string{target, target + ".minisig", other} {
+		if err := os.WriteFile(path, []byte("test"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	downloader := Downloader{Directory: directory}
+	if err := downloader.Cleanup("v1.7.0"); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{target, target + ".minisig"} {
+		if _, err := os.Stat(path); !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("%s still exists: %v", path, err)
+		}
+	}
+	if _, err := os.Stat(other); err != nil {
+		t.Fatalf("unrelated release removed: %v", err)
+	}
+	if err := downloader.Cleanup("v1.7.0"); err != nil {
+		t.Fatalf("repeated cleanup: %v", err)
+	}
+}

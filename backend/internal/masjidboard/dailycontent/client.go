@@ -53,7 +53,7 @@ func (c Client) Fetch(ctx context.Context) (Content, error) {
 		return Content{}, fmt.Errorf("daily Islamic content: create request: %w", err)
 	}
 	req.Header.Set("Accept", "text/javascript, application/javascript, text/plain;q=0.9, */*;q=0.1")
-	req.Header.Set("User-Agent", "MasjidPi Daily Islamic Content")
+	req.Header.Set("User-Agent", "MasjidFrame Daily Islamic Content")
 	response, err := client.Do(req)
 	if err != nil {
 		return Content{}, fmt.Errorf("daily Islamic content: fetch: %w", err)

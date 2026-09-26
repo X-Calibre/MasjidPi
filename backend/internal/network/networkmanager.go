@@ -128,6 +128,24 @@ func (m *NetworkManager) Scan(ctx context.Context) ([]WiFiNetwork, error) {
 	return networks, nil
 }
 
+func ValidWiFiPassword(password string) bool {
+	if password == "" {
+		return true
+	}
+	if len(password) >= 8 && len(password) <= 63 {
+		return true
+	}
+	if len(password) != 64 {
+		return false
+	}
+	for _, char := range password {
+		if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F')) {
+			return false
+		}
+	}
+	return true
+}
+
 func (m *NetworkManager) Connect(ctx context.Context, ssid, password string, hidden bool) error {
 	ssid = strings.TrimSpace(ssid)
 	if ssid == "" {
@@ -135,6 +153,9 @@ func (m *NetworkManager) Connect(ctx context.Context, ssid, password string, hid
 	}
 	if strings.ContainsAny(ssid, "\r\n\x00") || strings.ContainsAny(password, "\r\n\x00") {
 		return errors.New("Wi-Fi credentials contain unsupported characters")
+	}
+	if !ValidWiFiPassword(password) {
+		return errors.New("Wi-Fi password must be 8 to 63 characters, or a 64-character hexadecimal key")
 	}
 	if !m.available() {
 		return errors.New("NetworkManager is unavailable")

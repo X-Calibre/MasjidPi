@@ -2,7 +2,7 @@
 
 ## Purpose
 
-MasjidPi selects the presentation used on its local display from attached
+MasjidFrame selects the presentation used on its local display from attached
 hardware. The display profile is a runtime property, not a saved preference and
 not a synonym for orientation.
 
@@ -23,7 +23,7 @@ Opening `/masjidboard.html` in a normal browser also uses this profile.
 ### Appliance 720
 
 The `appliance-720` profile is the native portrait presentation for the
-official 7-inch Raspberry Pi Touch Display 2. MasjidPi selects it when a
+official 7-inch Raspberry Pi Touch Display 2. MasjidFrame selects it when a
 connected DSI connector advertises the panel's native `720x1280` mode.
 
 This profile:
@@ -70,7 +70,7 @@ Normal browser access remains:
 
 ## Persistence
 
-MasjidPi does not persist `standard` or `appliance-720` as a user preference.
+MasjidFrame does not persist `standard` or `appliance-720` as a user preference.
 Old selection files containing `layout: landscape` or `layout: portrait`
 remain upgrade-safe because unknown JSON fields are ignored. The obsolete field
 disappears the next time the selection is saved.

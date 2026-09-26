@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/atomicfile"
 )
 
 const (

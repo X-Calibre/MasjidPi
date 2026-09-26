@@ -8,7 +8,7 @@ genimage_input=$2
 test -d "$filesystem"
 
 mkenvimage="$LAYER_DIR/../../u-boot/build/tools/mkenvimage"
-environment_file="$LAYER_DIR/../../u-boot/masjidpi.env"
+environment_file="$LAYER_DIR/../../u-boot/masjidframe.env"
 primary_environment="$genimage_input/uboot-env-primary.bin"
 redundant_environment="$genimage_input/uboot-env-redundant.bin"
 
@@ -95,7 +95,7 @@ sed -i \
 
 cat >> "$boot_config" <<'EOF'
 
-# MasjidPi Pi 3 A/B boot prototype
+# MasjidFrame Pi 3 A/B boot prototype
 auto_initramfs=0
 arm_64bit=1
 kernel=u-boot.bin

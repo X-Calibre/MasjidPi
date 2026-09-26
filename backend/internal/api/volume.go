@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/config"
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
-	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/config"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/storage"
 )
 
 type VolumeRequest struct {

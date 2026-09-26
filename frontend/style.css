@@ -112,6 +112,15 @@ button.secondary:hover { background: var(--field-hover); }
 .update-details dt { color:var(--subtle); font-size:12px; font-weight:700; text-transform:uppercase; }
 .update-details dd { margin-top:5px; overflow-wrap:anywhere; color:var(--text); font-size:14px; font-weight:600; }
 .update-error { margin-top:14px; line-height:1.4; }
+.update-error-details { margin-top:10px; color:var(--muted); }
+.update-error-details summary { cursor:pointer; font-weight:700; }
+.update-error-details pre {
+    max-height:12rem;
+    margin-top:8px;
+    overflow:auto;
+    font-size:12px;
+    line-height:1.35;
+}
 .update-release-link { display:inline-block; margin-top:14px; color:var(--accent); font-weight:700; }
 .update-actions { margin-top:14px; display:flex; flex-wrap:wrap; gap:10px; }
 .update-actions.hidden { display:none; }

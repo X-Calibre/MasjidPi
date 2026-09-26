@@ -241,8 +241,9 @@ func TestReconcileTrialCleansArtifactsOnlyAfterConfirmation(t *testing.T) {
 		t.Fatal(err)
 	}
 	state.Download = &DownloadState{
-		Version: state.AvailableRelease.Version,
-		Status:  DownloadStatusVerified,
+		Version:    state.AvailableRelease.Version,
+		Status:     DownloadStatusVerified,
+		VerifiedAt: &now,
 	}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)
@@ -291,8 +292,9 @@ func TestReconcileTrialRetainsArtifactsAfterRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	state.Download = &DownloadState{
-		Version: state.AvailableRelease.Version,
-		Status:  DownloadStatusVerified,
+		Version:    state.AvailableRelease.Version,
+		Status:     DownloadStatusVerified,
+		VerifiedAt: &now,
 	}
 	if err := store.Save(state); err != nil {
 		t.Fatal(err)

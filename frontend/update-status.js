@@ -33,6 +33,43 @@
         if (element) element.textContent = value;
     }
 
+    function showError(widget, summary, technical = "") {
+        const message = widget.querySelector("[data-update-error-summary]");
+        const details = widget.querySelector("[data-update-error-details]");
+        const output = widget.querySelector("[data-update-error]");
+        if (message) {
+            message.textContent = summary;
+            message.classList.toggle("hidden", !summary);
+        }
+        if (output) output.textContent = technical;
+        details?.classList.toggle("hidden", !technical);
+        if (!technical && details) details.open = false;
+    }
+
+    function stateError(state) {
+        const installation = state?.installation;
+        const download = state?.download;
+        if (installation?.last_error) {
+            return {
+                summary: "The update could not be installed. The current system remains safe; try again when convenient.",
+                technical: installation.last_error
+            };
+        }
+        if (download?.last_error) {
+            return {
+                summary: "The update could not be downloaded or verified. It will be retried.",
+                technical: download.last_error
+            };
+        }
+        if (state?.last_check_error) {
+            return {
+                summary: "MasjidFrame could not check for updates. It will try again automatically.",
+                technical: state.last_check_error
+            };
+        }
+        return {summary: "", technical: ""};
+    }
+
     function touchSummary(state, release, installation) {
         const runningTarget = installation?.version &&
             ["probation", "installed"].includes(installation.status);
@@ -124,12 +161,8 @@
             widget.querySelector("[data-update-install]")?.classList.add("hidden");
         }
 
-        const error = widget.querySelector("[data-update-error]");
-        if (error) {
-            const message = state?.last_check_error || download?.last_error || installation?.last_error || "";
-            error.textContent = message;
-            error.classList.toggle("hidden", !message);
-        }
+        const failure = stateError(state);
+        showError(widget, failure.summary, failure.technical);
     }
 
     function renderFailure(widget, message) {
@@ -140,11 +173,11 @@
         }
         setText(widget, "[data-update-available]", "Unavailable");
         setText(widget, "[data-update-install-date]", "Unavailable");
-        const error = widget.querySelector("[data-update-error]");
-        if (error) {
-            error.textContent = message;
-            error.classList.remove("hidden");
-        }
+        showError(
+            widget,
+            "Update status could not be loaded. Please try again.",
+            message
+        );
     }
 
     async function requestState(method) {
@@ -192,6 +225,24 @@
         }
     }
 
+    function pollInstallation(widget) {
+        clearTimeout(widget.updatePollTimer);
+        const poll = async () => {
+            try {
+                const result = await requestState("GET");
+                render(widget, result.state);
+                const status = result.state?.installation?.status;
+                if (["installing", "reboot_pending", "probation"].includes(status)) {
+                    widget.updatePollTimer = setTimeout(poll, 2000);
+                }
+            } catch (_) {
+                // The appliance can be temporarily unreachable while rebooting.
+                widget.updatePollTimer = setTimeout(poll, 3000);
+            }
+        };
+        widget.updatePollTimer = setTimeout(poll, 1000);
+    }
+
     async function installNow(widget) {
         const button = widget.querySelector("[data-update-install]");
         const confirmed = window.confirm(
@@ -205,9 +256,9 @@
                 interrupt_playback: true
             });
             render(widget, state);
+            pollInstallation(widget);
         } catch (error) {
             renderFailure(widget, error.message);
-        } finally {
             button.disabled = false;
             button.textContent = "Install now";
         }

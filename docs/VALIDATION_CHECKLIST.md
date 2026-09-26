@@ -2,6 +2,21 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
+## Completed for v1.6.0-rc.10
+
+### Raspberry Pi 3 A/B appliance update and recovery
+
+- [x] The published Pi 3 image, checksum, signed update bundle and Minisign signature are present in the RC10 prerelease.
+- [x] The published bundle and signature match their recorded SHA-256 hashes and pass complete verification.
+- [x] The RC9 `SYSTEM_B` to RC10 `SYSTEM_A` installation writes and verifies the inactive root filesystem and BOOT payloads before arming the trial.
+- [x] Machine identity, SSH host keys, account credentials, enabled components and Board selection survive the update.
+- [x] RC10 confirms automatically after the ten-minute healthy probation and remains committed after a normal reboot.
+- [x] The Board appears automatically and audio playback works through the selected USB ALSA device.
+- [x] Both application services remain active with no failed units or power throttling.
+- [x] The RC10 updater rejects a concurrent installer before cleanup or A/B mutation.
+- [x] Pre-verification recovery removes a controlled orphaned `install.*` workspace and safely rejects reinstalling the running release.
+- [x] Cleanup leaves the committed slot unchanged and restores persistent-storage usage after validation.
+
 ## Completed for v1.6.0-rc.9
 
 ### Raspberry Pi 3 A/B appliance update

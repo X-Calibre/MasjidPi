@@ -2,6 +2,7 @@ package updates
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -116,6 +117,29 @@ func (d Downloader) Prepare(
 		BundleBytes:    bundleBytes,
 		SignatureBytes: signatureBytes,
 	}, nil
+}
+
+func (d Downloader) Cleanup(version string) error {
+	if _, err := ParseStableVersion(version); err != nil {
+		return err
+	}
+	if d.Directory == "" {
+		return fmt.Errorf("updates: download directory is required")
+	}
+	bundlePath := filepath.Join(
+		d.Directory,
+		fmt.Sprintf("masjidframe-update-%s-pi3.tar.zst", version),
+	)
+	var cleanupErr error
+	for _, path := range []string{bundlePath, bundlePath + ".minisig"} {
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			cleanupErr = errors.Join(
+				cleanupErr,
+				fmt.Errorf("updates: remove %s: %w", filepath.Base(path), err),
+			)
+		}
+	}
+	return cleanupErr
 }
 
 func (d Downloader) download(

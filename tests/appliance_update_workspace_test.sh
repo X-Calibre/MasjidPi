@@ -32,6 +32,11 @@ grep -Fqx '        rm -rf -- "$stale_target_root"' "$UPDATER"
 grep -Fqx '        rm -rf -- "$stale_install_dir"' "$UPDATER"
 grep -Fqx '        rm -f -- "$boot_dir/.$boot_file.masjidframe-update"' "$UPDATER"
 
+if [[ $(grep -Fc '(.product == "masjidframe" or .product == "masjidpi") and' "$UPDATER") -ne 2 ]]; then
+    echo '[FAIL] updater must accept branded and legacy transition manifests' >&2
+    exit 1
+fi
+
 lock_line=$(grep -nF '    exec 9>/run/lock/masjidframe-update.lock' "$UPDATER" | cut -d: -f1)
 cleanup_line=$(grep -nF '    stale_install_dirs=("$staging_parent"/install.*)' "$UPDATER" | cut -d: -f1)
 plan_line=$(grep -nF '    "$0" plan "$bundle" "$signature"' "$UPDATER" | head -n 1 | cut -d: -f1)

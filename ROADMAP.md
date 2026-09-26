@@ -34,7 +34,7 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 
 ### Appliance product work
 
-- Publish and validate v1.6.0-rc.10 with interrupted-update recovery before promoting v1.6.0; the RC9 installation, probation, reboot, rollback, fresh-image and 35.8-hour soak paths and the corrective cleanup regression are accepted.
+- Prepare stable v1.6.0 promotion after accepted RC10 publication, Pi 3 A/B installation, probation, confirmed reboot, display/audio checks and interrupted-workspace recovery validation.
 - Replace temporary splash artwork with final MasjidFrame branding.
 - Finalise the portrait enclosure, display, audio and power design.
 - Validate the selected USB audio path, speakers and physical enclosure.

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DefaultGitHubReleasesURL = "https://api.github.com/repos/X-Calibre/MasjidFrame/releases?per_page=30"
+	DefaultGitHubReleasesURL = "https://api.github.com/repos/X-Calibre/MasjidPi/releases?per_page=30"
 	githubResponseLimit      = 2 << 20
 	githubTimeout            = 20 * time.Second
 )

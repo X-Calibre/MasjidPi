@@ -5,7 +5,7 @@
 For a supported 64-bit Linux system, install the latest official release with:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidFrame/main/scripts/install-latest.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
 On an interactive terminal, the production installer prompts for the appliance profile:
@@ -158,7 +158,7 @@ For example, changing from Board to Listen removes the Cog display service and s
 Source installation is intended for development and testing rather than normal production deployment:
 
 ```bash
-git clone https://github.com/X-Calibre/MasjidFrame.git
+git clone https://github.com/X-Calibre/MasjidPi.git MasjidFrame
 cd MasjidFrame
 sudo ./scripts/install.sh --source
 ```

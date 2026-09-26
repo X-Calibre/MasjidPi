@@ -51,7 +51,7 @@ MasjidFrame supports 64-bit ARM Linux and 64-bit x86 Linux. Raspberry Pi 3B and 
 Install the latest stable release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidFrame/main/scripts/install-latest.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
 The installer prompts for one of three profiles:
@@ -90,7 +90,7 @@ make test
 For source-based development installation:
 
 ```bash
-git clone https://github.com/X-Calibre/MasjidFrame.git
+git clone https://github.com/X-Calibre/MasjidPi.git MasjidFrame
 cd MasjidFrame
 sudo ./scripts/install.sh --source
 ```
@@ -101,7 +101,7 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Release candidate: v1.6.1**
 
-v1.6.1 completes the MasjidFrame product rename and branding, hardens Wi-Fi credential validation, and makes on-display updates continue independently of the initiating browser request while retaining update assets until A/B confirmation. See the [v1.6.1 acceptance record](docs/RELEASE_CANDIDATE_v1.6.1.md) for the remaining validation and publication gates. The current published stable release remains available from [GitHub Releases](https://github.com/X-Calibre/MasjidFrame/releases).
+v1.6.1 completes the MasjidFrame product rename and branding, hardens Wi-Fi credential validation, and makes on-display updates continue independently of the initiating browser request while retaining update assets until A/B confirmation. See the [v1.6.1 acceptance record](docs/RELEASE_CANDIDATE_v1.6.1.md) for the remaining validation and publication gates. The current published stable release remains available from [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases).
 
 ## Data sources and acknowledgements
 

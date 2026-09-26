@@ -20,7 +20,7 @@ MasjidFrame currently provides:
 - release packages for Linux ARM64 and AMD64; and
 - a signed Pi 3 A/B appliance image with automatic health confirmation and rollback.
 
-Completed release details belong in [GitHub Releases](https://github.com/X-Calibre/MasjidFrame/releases) and the relevant acceptance records under `docs/`.
+Completed release details belong in [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) and the relevant acceptance records under `docs/`.
 
 ## Current priorities
 

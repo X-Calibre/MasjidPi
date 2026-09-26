@@ -64,8 +64,7 @@ func (f *fakeUpdateController) Postpone(
 	return f.postponeState, f.postponeErr
 }
 
-func (f *fakeUpdateController) Install(
-	_ context.Context,
+func (f *fakeUpdateController) StartInstall(
 	immediate bool,
 	interruptPlayback bool,
 ) (updates.State, error) {
@@ -368,7 +367,7 @@ func TestUpdateInstallRequiresExplicitPlaybackInterruption(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	server.httpServer.Handler.ServeHTTP(recorder, request)
 
-	if recorder.Code != http.StatusOK {
+	if recorder.Code != http.StatusAccepted {
 		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
 	}
 	if controller.installCalls != 1 || !controller.installImmediate ||

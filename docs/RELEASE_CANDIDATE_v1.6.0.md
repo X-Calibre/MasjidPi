@@ -412,22 +412,28 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Shell syntax and workspace regression tests require locking and cleanup before verification.
 - [x] Regression coverage requires mounted-target protection and stale inactive-slot BOOT cleanup.
 - [x] GitHub Actions runs 620 and 621 pass on the corrective implementation and evidence update.
-- [x] A held lock rejects a concurrent updater with no cleanup or A/B state change.
-- [x] The corrective updater removes the 372 MB interrupted workspace before verifying the bundle.
-- [x] The already-running RC9 bundle is then rejected without writing either slot.
-- [x] Confirmed `SYSTEM_B`, both services, zero failed units and `throttled=0x0` remain unchanged.
-- [x] Persistent usage returns from 16% to 8% after recovery cleanup.
+- [x] A physical RC9 power-loss recovery test confirms that a held lock rejects a concurrent updater without cleanup or A/B state change.
+- [x] The corrective updater removes the 372 MB interrupted workspace before verification and safely rejects the already-running RC9 bundle.
+- [x] The published RC10 bundle and signature match their recorded SHA-256 hashes and pass Minisign, manifest, payload and decompressed-rootfs verification.
+- [x] The read-only plan targets inactive `SYSTEM_A` while confirmed RC9 remains on `SYSTEM_B`.
+- [x] RC10 installs into `SYSTEM_A`; the complete root filesystem and BOOT payloads verify before trial activation.
+- [x] Machine ID, SSH host keys, account password, component profile and Board selection survive installation.
+- [x] RC10 boots from `SYSTEM_A`, confirms automatically after the ten-minute probation and remains committed after a normal reboot.
+- [x] The Board appears automatically, audio playback works through the selected USB ALSA device, both services remain active, no units fail and `throttled=0x0`.
+- [x] The updater embedded in published RC10 rejects a concurrent installation without altering its controlled orphan workspace.
+- [x] A subsequent same-version invocation removes the orphan before verification, rejects the running release safely and leaves committed A/B state unchanged.
+- [x] Persistent usage returns from 16% to 8% after validation downloads are removed; the small validation report and snapshots are retained.
 
 ## RC10 publication checklist
 
 - [x] Power-loss cleanup and regression coverage are merged to `main`.
 - [x] Version metadata is set to `v1.6.0-rc.10`.
 - [x] RC10 scope and validation status are documented.
-- [ ] Merge the RC10 release-preparation pull request after CI passes.
-- [ ] Confirm CI passes on the resulting `main` commit.
-- [ ] Create immutable tag `v1.6.0-rc.10` from the accepted `main` commit.
-- [ ] Verify ARM64 and AMD64 archives, `SHA256SUMS`, the Pi 3 A/B image and checksum, and the signed update bundle.
-- [ ] Install and validate the published RC10 update bundle on the Pi 3 appliance.
+- [x] Merge the RC10 release-preparation pull request after CI passes.
+- [x] Confirm CI passes on accepted `main` commit `f2a38f283bd0a3083719f14d056c767fa29c89a5`.
+- [x] Create immutable tag `v1.6.0-rc.10` from the accepted `main` commit.
+- [x] Verify the release contains ARM64 and AMD64 archives, `SHA256SUMS`, the Pi 3 A/B image and checksum, and the signed update bundle and Minisign signature.
+- [x] Install and validate the published RC10 update bundle on the Pi 3 appliance.
 
 ## Stable-release hardware follow-up
 

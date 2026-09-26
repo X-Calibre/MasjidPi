@@ -3,7 +3,7 @@
 set -euo pipefail
 
 readonly expected_version="2025.01-3+deb13u1"
-readonly expected_environment_sha256="5222e55f4527fa5c06270acf336fad31b0368929467ba82c46c508f4aca15a72"
+readonly expected_environment_sha256="934ba277e205dade87d445c33e92c93c15d567bd84974c80f4b91274aec8eadf"
 
 readonly script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 readonly source_dir=${1:-"$HOME/masjidframe-u-boot-source/u-boot-2025.01"}

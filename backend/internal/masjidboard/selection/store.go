@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/atomicfile"
 )
 
 // Store persists the small runtime selection state. Unlike the full catalogue,

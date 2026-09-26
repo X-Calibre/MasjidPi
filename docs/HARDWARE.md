@@ -1,4 +1,4 @@
-# MasjidPi Hardware Guide
+# MasjidFrame Hardware Guide
 
 This guide records supported release architectures, validated Raspberry Pi platforms and measured appliance performance.
 
@@ -9,7 +9,7 @@ Official release packages are built for:
 - **Linux ARM64 (`aarch64`)**
 - **Linux AMD64 (`x86_64`)**
 
-MasjidPi requires `systemd`. Listen requires an ALSA-compatible audio device. Board requires a DRM/KMS display environment supported by the Cog/WPE packages installed by MasjidPi.
+MasjidFrame requires `systemd`. Listen requires an ALSA-compatible audio device. Board requires a DRM/KMS display environment supported by the Cog/WPE packages installed by MasjidFrame.
 
 ## Raspberry Pi compatibility
 
@@ -25,7 +25,7 @@ Raspberry Pi 3B and Raspberry Pi 4 are production-validated. Other entries are e
 | **Pi 3B** | **Validated** | **Validated** | Current 64-bit reference platform. |
 | Pi 3B+ | Expected | Expected | Same memory class as the validated Pi 3B with a faster CPU. |
 | **Pi 4** | **Validated** | **Validated** | Validated with simultaneous Listen and GLES-backed Board operation. |
-| Pi 5 | Expected | Expected | Substantially more performance than MasjidPi requires. |
+| Pi 5 | Expected | Expected | Substantially more performance than MasjidFrame requires. |
 | Compute Module 3/3+ | Expected | Expected | Depends on carrier, RAM and audio/display hardware. |
 | Compute Module 4/5 | Expected | Expected | Suitable performance; appliance integration remains hardware-specific. |
 
@@ -37,7 +37,7 @@ During simultaneous Listen playback and Cog/WPE Board rendering:
 
 - approximately 337 MiB RAM was used and 567 MiB remained available;
 - swap was unused after a fresh boot;
-- the MasjidPi backend used approximately 15 MiB RSS and about 2% CPU;
+- the MasjidFrame backend used approximately 15 MiB RSS and about 2% CPU;
 - mpv used approximately 75–80 MiB RSS and about 7% CPU;
 - the WPE renderer used approximately 190–195 MiB RSS and about 31% CPU;
 - CPU temperature was approximately 58–60 °C; and

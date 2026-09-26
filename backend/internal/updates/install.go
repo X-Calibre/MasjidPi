@@ -23,11 +23,11 @@ func (i CommandInstaller) Install(ctx context.Context, version string) error {
 	}
 	command := i.Command
 	if command == "" {
-		command = "/usr/local/sbin/masjidpi-update"
+		command = "/usr/local/sbin/masjidframe-update"
 	}
 	bundle := filepath.Join(
 		i.Directory,
-		fmt.Sprintf("masjidpi-update-%s-pi3.tar.zst", version),
+		fmt.Sprintf("masjidframe-update-%s-pi3.tar.zst", version),
 	)
 	output, err := exec.CommandContext(
 		ctx,

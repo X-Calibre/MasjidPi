@@ -32,10 +32,10 @@ source "$ROOT/scripts/common.sh"
 get_version() { printf 'v1.5.0-rc.3\n'; }
 
 TEST_ROUTE_ADDRESS=10.78.63.4 \
-TEST_FQDN=masjidpi.example.test \
+TEST_FQDN=masjidframe.example.test \
     print_summary > "$TEST_ROOT/configured-summary"
 grep -Fq 'IP address:  http://10.78.63.4:8080' "$TEST_ROOT/configured-summary"
-grep -Fq 'Hostname:    http://masjidpi.example.test:8080' "$TEST_ROOT/configured-summary"
+grep -Fq 'Hostname:    http://masjidframe.example.test:8080' "$TEST_ROOT/configured-summary"
 
 TEST_ROUTE_ADDRESS=10.78.63.5 \
 TEST_FQDN='' \
@@ -47,9 +47,9 @@ if grep -Fq 'Hostname:' "$TEST_ROOT/ip-only-summary"; then
 fi
 
 TEST_ROUTE_ADDRESS=10.78.63.6 \
-TEST_FQDN=MasjidPi-Test.local \
+TEST_FQDN=MasjidFrame-Test.local \
     print_summary > "$TEST_ROOT/network-local-summary"
-grep -Fq 'Hostname:    http://MasjidPi-Test.local:8080' "$TEST_ROOT/network-local-summary"
+grep -Fq 'Hostname:    http://MasjidFrame-Test.local:8080' "$TEST_ROOT/network-local-summary"
 
 TEST_ROUTE_ADDRESS='' \
 TEST_HOST_ADDRESSES='' \

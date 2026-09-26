@@ -3,7 +3,7 @@ package radio
 import (
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 func TestCatalogueContainsOnlyRadioStreams(t *testing.T) {

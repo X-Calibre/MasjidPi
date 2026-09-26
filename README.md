@@ -1,13 +1,13 @@
-# MasjidPi
+# MasjidFrame
 
-MasjidPi is a lightweight home appliance for live masjid audio and prayer-time information.
+MasjidFrame is a lightweight home appliance for live masjid audio and prayer-time information.
 
 It can run either capability independently or install both together:
 
 - **Listen** prioritises a selected LiveMasjid stream and can play Islamic Radio while the masjid is offline.
 - **Board** displays prayer times, Jumu'ah schedules and supported community content from MasjidBoard Live on an attached HDMI display.
 
-> New to MasjidPi? Start with the [User Guide](docs/USER_GUIDE.md).
+> New to MasjidFrame? Start with the [User Guide](docs/USER_GUIDE.md).
 
 ## Features
 
@@ -40,18 +40,18 @@ Content availability depends on what each upstream masjid publishes.
 
 | Listen | Board |
 |---|---|
-| ![MasjidPi Listen interface](docs/images/masjidpi-listen-v1.3.0.png) | ![MasjidBoard HDMI display](docs/images/masjidboard-display-v1.3.0.png) |
+| ![MasjidFrame Listen interface](docs/images/masjidframe-listen-v1.3.0.png) | ![MasjidBoard HDMI display](docs/images/masjidboard-display-v1.3.0.png) |
 
 ![MasjidBoard configuration interface](docs/images/masjidboard-configuration-v1.3.0.png)
 
 ## Install
 
-MasjidPi supports 64-bit ARM Linux and 64-bit x86 Linux. Raspberry Pi 3B and Raspberry Pi 4 are the production-validated appliance platforms.
+MasjidFrame supports 64-bit ARM Linux and 64-bit x86 Linux. Raspberry Pi 3B and Raspberry Pi 4 are the production-validated appliance platforms.
 
 Install the latest stable release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidFrame/main/scripts/install-latest.sh | sudo bash
 ```
 
 The installer prompts for one of three profiles:
@@ -63,7 +63,7 @@ The installer prompts for one of three profiles:
 After installation, open the configuration interface from another device on the same network:
 
 ```text
-http://<masjidpi-ip-address>:8080
+http://<masjidframe-ip-address>:8080
 ```
 
 See the [Installation Guide](docs/INSTALL.md) for supported systems, installer behavior, updates and troubleshooting. Hardware compatibility and measured Raspberry Pi performance are documented in the [Hardware Guide](docs/HARDWARE.md).
@@ -79,7 +79,7 @@ See the [Installation Guide](docs/INSTALL.md) for supported systems, installer b
 
 ## Development
 
-MasjidPi uses a Go backend and a browser-based frontend.
+MasjidFrame uses a Go backend and a browser-based frontend.
 
 Run the automated tests:
 
@@ -90,8 +90,8 @@ make test
 For source-based development installation:
 
 ```bash
-git clone https://github.com/X-Calibre/MasjidPi.git
-cd MasjidPi
+git clone https://github.com/X-Calibre/MasjidFrame.git
+cd MasjidFrame
 sudo ./scripts/install.sh --source
 ```
 
@@ -101,16 +101,16 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Current stable release: v1.6.0**
 
-v1.6.0 adds touchscreen first-run setup, native Raspberry Pi Touch Display 2 support, expanded Board controls and themes, and a signed Pi 3 A/B appliance updater with automatic health confirmation, rollback and interrupted-update recovery. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for validation details and downloads.
+v1.6.0 adds touchscreen first-run setup, native Raspberry Pi Touch Display 2 support, expanded Board controls and themes, and a signed Pi 3 A/B appliance updater with automatic health confirmation, rollback and interrupted-update recovery. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidFrame/releases) for validation details and downloads.
 
 ## Data sources and acknowledgements
 
-MasjidPi was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal).
+MasjidFrame was inspired by the [eBilal project](https://github.com/Muslims-in-IT/ebilal).
 
-MasjidPi uses [LiveMasjid](https://www.livemasjid.com/) for live masjid streams, [MasjidBoard Live](https://masjidboardlive.com/) for timetable and community data, and [Jamiatul Ulama South Africa](https://www.jamiatsa.org/category/islamic-economic-indicators/) for optional Islamic Economic Indicators.
+MasjidFrame uses [LiveMasjid](https://www.livemasjid.com/) for live masjid streams, [MasjidBoard Live](https://masjidboardlive.com/) for timetable and community data, and [Jamiatul Ulama South Africa](https://www.jamiatsa.org/category/islamic-economic-indicators/) for optional Islamic Economic Indicators.
 
-MasjidPi is independent and is not affiliated with or endorsed by those projects or services.
+MasjidFrame is independent and is not affiliated with or endorsed by those projects or services.
 
 ## Licence
 
-MasjidPi is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+MasjidFrame is licensed under the [GNU Affero General Public License v3.0](LICENSE).

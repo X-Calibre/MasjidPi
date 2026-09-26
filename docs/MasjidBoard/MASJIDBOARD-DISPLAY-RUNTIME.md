@@ -6,7 +6,7 @@
 
 Document the working MasjidBoard HDMI appliance display runtime.
 
-MasjidPi is intended to be a home appliance. When Board is installed, the attached HDMI display is therefore the normal MasjidBoard presentation path rather than a user manually opening the page in another browser.
+MasjidFrame is intended to be a home appliance. When Board is installed, the attached HDMI display is therefore the normal MasjidBoard presentation path rather than a user manually opening the page in another browser.
 
 The display page remains:
 
@@ -29,18 +29,18 @@ The appliance path is:
 ```text
 Raspberry Pi OS Lite boots
         ↓
-MasjidPi backend starts
+MasjidFrame backend starts
         ↓
-masjidpi-display.service starts
+masjidframe-display.service starts
         ↓
 Cog/WPE renders directly through DRM/KMS
         ↓
 TV/monitor shows MasjidBoard
 ```
 
-The production boot path also uses `masjidpi-display-warmup.service` to prepare WPE while Plymouth retains the display, then hands DRM ownership to the main display service.
+The production boot path also uses `masjidframe-display-warmup.service` to prepare WPE while Plymouth retains the display, then hands DRM ownership to the main display service.
 
-This is substantially better aligned with the MasjidPi appliance goal than the earlier Chromium/labwc prototype direction.
+This is substantially better aligned with the MasjidFrame appliance goal than the earlier Chromium/labwc prototype direction.
 
 ## Why Cog / WPE
 
@@ -71,7 +71,7 @@ The installer installs these only when Board is selected. Listen-only installati
 The installed component profile is stored in:
 
 ```text
-/etc/masjidpi/components.env
+/etc/masjidframe/components.env
 ```
 
 Supported profiles are:
@@ -87,7 +87,7 @@ listen,board
 Board installs use the dedicated systemd unit:
 
 ```text
-masjidpi-display.service
+masjidframe-display.service
 ```
 
 The service launches the installed display wrapper, which starts Cog against the local MasjidBoard page using the DRM platform.
@@ -98,22 +98,22 @@ The display service is configured to restart after an unexpected Cog exit. This 
 
 ## Backend Independence
 
-`masjidpi.service` remains the common application service because it supplies the shared HTTP/API runtime and whichever installed subsystems are enabled.
+`masjidframe.service` remains the common application service because it supplies the shared HTTP/API runtime and whichever installed subsystems are enabled.
 
 Component startup is profile-aware:
 
 ```text
 Listen only
-    -> MasjidPi backend + MPV
+    -> MasjidFrame backend + MPV
     -> no Board subsystem
     -> no Cog display
 
 Board only
-    -> MasjidPi backend + Board subsystem + Cog display
+    -> MasjidFrame backend + Board subsystem + Cog display
     -> no MPV
 
 Listen + Board
-    -> MasjidPi backend + MPV + Board subsystem + Cog display
+    -> MasjidFrame backend + MPV + Board subsystem + Cog display
 ```
 
 Listen and Board remain functionally independent. Board does not control playback and Listen does not require Board.
@@ -127,7 +127,7 @@ Validated behaviour includes:
 - correct MasjidBoard rendering over HDMI;
 - automatic startup under systemd;
 - Cog crash/restart recovery;
-- MasjidPi service restart while the display runtime remains operational;
+- MasjidFrame service restart while the display runtime remains operational;
 - reboot recovery;
 - Board-only operation with no MPV process;
 - Listen-only operation with no Cog process or Board API;
@@ -177,7 +177,7 @@ Display process exits
     -> systemd restarts Cog
     -> Listen remains independent
 
-MasjidPi backend restarts
+MasjidFrame backend restarts
     -> display may temporarily lose the local page/API
     -> display recovers when the backend returns
 

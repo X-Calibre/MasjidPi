@@ -1,5 +1,5 @@
 [Unit]
-Description=MasjidPi Internet Radio
+Description=MasjidFrame Internet Radio
 After=network-online.target sound.target
 Wants=network-online.target
 
@@ -7,14 +7,14 @@ Wants=network-online.target
 Type=simple
 
 User=root
-WorkingDirectory=/opt/masjidpi
-RuntimeDirectory=masjidpi
+WorkingDirectory=/opt/masjidframe
+RuntimeDirectory=masjidframe
 RuntimeDirectoryMode=0755
 
-Environment=MASJIDPI_HOME=/opt/masjidpi
-EnvironmentFile=-/etc/masjidpi/components.env
+Environment=MASJIDFRAME_HOME=/opt/masjidframe
+EnvironmentFile=-/etc/masjidframe/components.env
 
-ExecStart=/opt/masjidpi/bin/masjidpi
+ExecStart=/opt/masjidframe/bin/masjidframe
 
 Restart=always
 RestartSec=5

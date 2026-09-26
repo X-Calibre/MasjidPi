@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	masjidnetwork "github.com/X-Calibre/MasjidPi/backend/internal/network"
+	masjidnetwork "github.com/X-Calibre/MasjidFrame/backend/internal/network"
 )
 
 type fakeWiFiManager struct {
@@ -45,7 +45,7 @@ func (f *fakeWiFiManager) DeviceAccess(context.Context) (masjidnetwork.DeviceAcc
 func TestDeviceAccessReturnsDHCPNetworkDetails(t *testing.T) {
 	wifi := &fakeWiFiManager{access: masjidnetwork.DeviceAccess{
 		IPAddress: "10.78.63.4",
-		FQDN:      "zc-masjidpi-test.internal.cassim.net.za",
+		FQDN:      "zc-masjidframe-test.internal.cassim.net.za",
 	}}
 	server := setupTestServer(wifi)
 	request := httptest.NewRequest(http.MethodGet, "/api/setup/device-access", nil)
@@ -56,7 +56,7 @@ func TestDeviceAccessReturnsDHCPNetworkDetails(t *testing.T) {
 	if response.Code != http.StatusOK {
 		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
 	}
-	if !bytes.Contains(response.Body.Bytes(), []byte(`"fqdn":"zc-masjidpi-test.internal.cassim.net.za"`)) ||
+	if !bytes.Contains(response.Body.Bytes(), []byte(`"fqdn":"zc-masjidframe-test.internal.cassim.net.za"`)) ||
 		!bytes.Contains(response.Body.Bytes(), []byte(`"ip_address":"10.78.63.4"`)) {
 		t.Fatalf("unexpected body: %s", response.Body.String())
 	}

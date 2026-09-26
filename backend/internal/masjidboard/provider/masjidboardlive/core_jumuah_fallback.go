@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
 )
 
 var coreJumuahHeadingHTMLRE = regexp.MustCompile(`(?is)<h2\s+id=["']jumuahHead([123])["'][^>]*>(.*?)</h2>`)

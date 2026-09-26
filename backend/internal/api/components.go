@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/components"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/components"
 )
 
 type installedComponents = components.Installed

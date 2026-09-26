@@ -36,8 +36,8 @@
         });
     }
 
-    window.addEventListener("masjidpi:listen-status", event => render(event.detail.masjid_id));
-    window.addEventListener("masjidpi:masjid-catalogue", event => {
+    window.addEventListener("masjidframe:listen-status", event => render(event.detail.masjid_id));
+    window.addEventListener("masjidframe:masjid-catalogue", event => {
         catalogue = event.detail;
         if (lastMasjidID !== null) render(lastMasjidID);
     });

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
 )
 
 func selected(id, name string, offset int64) Board {

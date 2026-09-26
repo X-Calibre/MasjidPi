@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	network "github.com/X-Calibre/MasjidPi/backend/internal/network"
+	network "github.com/X-Calibre/MasjidFrame/backend/internal/network"
 )
 
 type wifiConnectRequest struct {

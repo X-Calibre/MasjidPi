@@ -1,28 +1,28 @@
-# MasjidPi User Guide
+# MasjidFrame User Guide
 
-This guide explains day-to-day use of MasjidPi. It is intended for people using MasjidPi as a home appliance rather than for developers.
+This guide explains day-to-day use of MasjidFrame. It is intended for people using MasjidFrame as a home appliance rather than for developers.
 
 For installation instructions, see [INSTALL.md](INSTALL.md).
 
-## 1. MasjidPi at a glance
+## 1. MasjidFrame at a glance
 
-MasjidPi can be installed with one or both of these capabilities:
+MasjidFrame can be installed with one or both of these capabilities:
 
 - **Listen** — plays your selected masjid's live audio and can optionally play an Islamic radio station while the masjid is offline.
 - **Board** — displays prayer times and other supported masjid information on a connected HDMI display.
 - **Listen + Board** — runs both capabilities on the same device.
 
-Open the MasjidPi Web UI from another device on the same network:
+Open the MasjidFrame Web UI from another device on the same network:
 
 ```text
-http://<masjidpi-ip-address>:8080
+http://<masjidframe-ip-address>:8080
 ```
 
-The browser does not need to remain open. MasjidPi continues operating as an appliance after you close the Web UI.
+The browser does not need to remain open. MasjidFrame continues operating as an appliance after you close the Web UI.
 
 The Web UI shows a **Listen** tab, a **Board** tab, or both, according to the components installed on the appliance. The **Theme** button changes only the Web UI between System, Light and Dark appearance. Board display themes are configured separately in Board settings.
 
-![MasjidPi Web UI showing the Listen and Board navigation](images/user-guide/web-ui-navigation.png)
+![MasjidFrame Web UI showing the Listen and Board navigation](images/user-guide/web-ui-navigation.png)
 
 ## First-run MasjidFrame setup
 
@@ -48,7 +48,7 @@ Listen has two possible audio sources:
 1. **Masjid** — the primary source.
 2. **Radio** — an optional secondary source.
 
-The selected masjid always has priority. If Radio is playing and the selected masjid comes online, MasjidPi stops Radio and switches to the masjid immediately.
+The selected masjid always has priority. If Radio is playing and the selected masjid comes online, MasjidFrame stops Radio and switches to the masjid immediately.
 
 When the masjid goes offline again, Radio can resume according to the configured Radio operating mode, daily schedule and resume delay.
 
@@ -128,13 +128,13 @@ Radio is optional. If you do not want secondary Radio playback, leave Radio Powe
 
 ### Radio Power
 
-Turning **Radio Power on** enables secondary Radio operation. If Masjid Power is currently off, MasjidPi automatically enables Masjid Power as well and notifies you.
+Turning **Radio Power on** enables secondary Radio operation. If Masjid Power is currently off, MasjidFrame automatically enables Masjid Power as well and notifies you.
 
 Turning Radio Power off prevents Radio playback but does not disable Masjid playback.
 
 ### Selecting a Radio station
 
-Choose a station from the **Radio Station** list. The catalogue contains validated South African Islamic radio streams supported by the current MasjidPi release.
+Choose a station from the **Radio Station** list. The catalogue contains validated South African Islamic radio streams supported by the current MasjidFrame release.
 
 The selected station is saved immediately. Selecting a station changes the configured Radio source but does not necessarily start playback; playback remains governed by the selected Radio operating mode and Masjid priority.
 
@@ -232,11 +232,11 @@ The Audio tab contains settings for Listen audio output and master hardware volu
 
 ### Audio Output
 
-Choose the ALSA-compatible output device MasjidPi should use for Listen playback.
+Choose the ALSA-compatible output device MasjidFrame should use for Listen playback.
 
 Available outputs depend on the hardware and operating system.
 
-Use **Refresh Devices** after connecting or disconnecting USB audio hardware. Newly connected outputs appear without restarting MasjidPi. A saved output that is temporarily disconnected remains identified as unavailable and is restored automatically when it returns.
+Use **Refresh Devices** after connecting or disconnecting USB audio hardware. Newly connected outputs appear without restarting MasjidFrame. A saved output that is temporarily disconnected remains identified as unavailable and is restored automatically when it returns.
 
 ### Master Volume
 
@@ -294,7 +294,7 @@ Turn **Masjid Power off**. Radio is forced off and the Listen controller stops c
 
 ## 8. Settings, restarts and power failures
 
-MasjidPi persists normal appliance configuration so it can recover sensibly after a service restart or device reboot. Persisted Listen settings include the configured source selections and normal source-volume/settings state.
+MasjidFrame persists normal appliance configuration so it can recover sensibly after a service restart or device reboot. Persisted Listen settings include the configured source selections and normal source-volume/settings state.
 
 Module power state and Radio scheduling configuration are designed as appliance settings rather than browser-only state.
 
@@ -325,7 +325,7 @@ In TV / Monitor mode, the first selected masjid supplies the shared Daily Times 
 
 ### Layout
 
-MasjidPi supports dedicated HDMI presentation including:
+MasjidFrame supports dedicated HDMI presentation including:
 
 - **TV / Monitor (responsive landscape)**
 - **7-inch Appliance Display** — a purpose-built 720 × 1280 portrait layout for the Raspberry Pi Touch Display 2
@@ -367,7 +367,7 @@ Swipe up from the bottom edge to open the main control sheet. It retains:
 
 Close Quick Settings by swiping upward from its header or lower handle, tapping ×, or tapping outside it. Close the main sheet by swiping downward from its handle/header, tapping ×, or tapping outside it.
 
-The first-run setup and Change Wi-Fi screens use the dedicated 720 × 1280 Raspberry Pi Touch Display 2 portrait layout. Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidPi starts.
+The first-run setup and Change Wi-Fi screens use the dedicated 720 × 1280 Raspberry Pi Touch Display 2 portrait layout. Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidFrame starts.
 
 Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the main panel does not start it until the corresponding playback action is selected.
 
@@ -411,15 +411,15 @@ Not every masjid supplies every type of content.
 
 Notice cards identify their upstream masjid with **Source:**. Islamic Economic Indicators retain their own Jamiat attribution and update information.
 
-The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidPi shows its own Arabic-and-English card for five minutes beginning at a listed Adhan time for the primary selected masjid, using that masjid's timezone. During this priority window, the Appliance card remains continuously visible and the Landscape card occupies the complete notice column; ordinary slides or notice cards resume automatically afterward. The card does not show a source attribution because it is built-in MasjidPi content rather than a selected masjid notice.
+The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidFrame shows its own Arabic-and-English card for five minutes beginning at a listed Adhan time for the primary selected masjid, using that masjid's timezone. During this priority window, the Appliance card remains continuously visible and the Landscape card occupies the complete notice column; ordinary slides or notice cards resume automatically afterward. The card does not show a source attribution because it is built-in MasjidFrame content rather than a selected masjid notice.
 
 Community cards are shown one selected masjid at a time and use a consistent priority order. Funeral and urgent/time-sensitive notices appear before general announcements and programmes. Shared Daily Ayah, Hadith, Sunnah and Economic Indicator pages appear after all masjid-specific content.
 
 When the primary masjid publishes an Istiwaa caution/Zawaal interval, the clock and current date flash red throughout that interval. The warning begins at the published caution time (or Istiwaa when no caution time is available) and ends at the published Zawaal end time.
 
-A provider-supplied special Dhuhr time, such as **Dhuhr (Sundays & Public Holidays)**, is always listed in the primary masjid's Daily Times so it can be seen in advance. MasjidPi suppresses it when it is identical to the normal Dhuhr Adhan or Jamaah time.
+A provider-supplied special Dhuhr time, such as **Dhuhr (Sundays & Public Holidays)**, is always listed in the primary masjid's Daily Times so it can be seen in advance. MasjidFrame suppresses it when it is identical to the normal Dhuhr Adhan or Jamaah time.
 
-Arabic and mixed-language notices use automatic text direction. MasjidPi treats upstream notice headings conservatively: only recognised Salaah-change, class-time, weekly-programme and Ramadan/Taraweeh headings receive a specialised label; other text remains a general announcement.
+Arabic and mixed-language notices use automatic text direction. MasjidFrame treats upstream notice headings conservatively: only recognised Salaah-change, class-time, weekly-programme and Ramadan/Taraweeh headings receive a specialised label; other text remains a general announcement.
 
 ### Board status
 
@@ -429,9 +429,9 @@ The **Status** tab reports each selected MasjidBoard as Current, Stale or Unavai
 
 ### Upstream outages
 
-MasjidPi maintains last-known-good timetable data so the Board can continue displaying cached information during temporary upstream failures. The status shown in the configuration interface should be used to determine whether current or cached data is being displayed.
+MasjidFrame maintains last-known-good timetable data so the Board can continue displaying cached information during temporary upstream failures. The status shown in the configuration interface should be used to determine whether current or cached data is being displayed.
 
-## 10. Updating MasjidPi
+## 10. Updating MasjidFrame
 
 Normal users should install official releases rather than development branches.
 
@@ -445,7 +445,7 @@ vX.Y.Z-rc.N
 
 These are prerelease builds intended for validation before the corresponding stable release. They may contain known or undiscovered defects and should not replace a validated production installation unless you specifically intend to test the RC.
 
-Normal upgrades preserve MasjidPi's persistent configuration and runtime data.
+Normal upgrades preserve MasjidFrame's persistent configuration and runtime data.
 
 ## 11. Troubleshooting
 
@@ -463,7 +463,7 @@ Check:
 
 ### The masjid is offline
 
-MasjidPi can only play a masjid when its upstream live stream is available. The Selected Masjid indicator shows which masjid remains configured even while it is offline.
+MasjidFrame can only play a masjid when its upstream live stream is available. The Selected Masjid indicator shows which masjid remains configured even while it is offline.
 
 If Radio is enabled and permitted by its operating mode, it can play while the masjid is offline.
 
@@ -481,7 +481,7 @@ Use **Play Now** if you deliberately want to bypass the current delay or quiet-t
 
 ### Master Volume is unavailable
 
-Some ALSA outputs do not expose a hardware mixer that MasjidPi can control. This does not prevent playback. Use the Masjid and Radio software-volume controls and, where necessary, the volume control provided by the amplifier, television or speakers.
+Some ALSA outputs do not expose a hardware mixer that MasjidFrame can control. This does not prevent playback. Use the Masjid and Radio software-volume controls and, where necessary, the volume control provided by the amplifier, television or speakers.
 
 ### No audio
 
@@ -490,13 +490,13 @@ Check the selected **Audio Output** in Config and verify the external amplifier,
 For system-level diagnosis:
 
 ```bash
-sudo systemctl status masjidpi --no-pager
+sudo systemctl status masjidframe --no-pager
 ```
 
 and:
 
 ```bash
-sudo journalctl -u masjidpi --no-pager -n 100
+sudo journalctl -u masjidframe --no-pager -n 100
 ```
 
 Listen controller status can be inspected with:
@@ -510,8 +510,8 @@ curl -s http://127.0.0.1:8080/api/listen/status
 Check the main service and Board display service:
 
 ```bash
-sudo systemctl status masjidpi --no-pager
-sudo systemctl status masjidpi-display --no-pager
+sudo systemctl status masjidframe --no-pager
+sudo systemctl status masjidframe-display --no-pager
 ```
 
 Board status is available at:
@@ -532,4 +532,4 @@ Swipe upward from the lower display area. The panel closes automatically after 6
 - [Project README](../README.md)
 - [Development Roadmap](../ROADMAP.md)
 
-MasjidPi is an independent project. Live masjid streams and timetable/content data depend on the external services identified in the project README.
+MasjidFrame is an independent project. Live masjid streams and timetable/content data depend on the external services identified in the project README.

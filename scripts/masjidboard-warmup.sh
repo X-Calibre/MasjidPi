@@ -2,7 +2,7 @@
 
 set -u
 
-STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidpi/frontend/masjidboard-startup.html}"
+STARTUP_FILE="${MASJIDBOARD_STARTUP_FILE:-/opt/masjidframe/frontend/masjidboard-startup.html}"
 WARMUP_TIMEOUT="${MASJIDBOARD_WARMUP_TIMEOUT:-20}"
 WARMUP_PROFILE="${MASJIDBOARD_WARMUP_PROFILE:-standard}"
 

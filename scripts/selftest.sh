@@ -6,12 +6,12 @@ run_selftest() {
 
     info "Running self test..."
 
-    if ! systemctl is-active --quiet masjidpi; then
-        error "MasjidPi service is not running."
+    if ! systemctl is-active --quiet masjidframe; then
+        error "MasjidFrame service is not running."
         return 1
     fi
 
-    success "MasjidPi service is running."
+    success "MasjidFrame service is running."
 
     info "Checking HTTP interface..."
 
@@ -74,16 +74,16 @@ run_selftest() {
         info "Checking MasjidBoard display service..."
 
         for i in {1..50}; do
-            if systemctl is-active --quiet masjidpi-display.service; then
+            if systemctl is-active --quiet masjidframe-display.service; then
                 success "MasjidBoard display service is running."
                 break
             fi
             sleep 0.2
         done
 
-        if ! systemctl is-active --quiet masjidpi-display.service; then
+        if ! systemctl is-active --quiet masjidframe-display.service; then
             error "MasjidBoard display service is not running."
-            journalctl -u masjidpi-display.service --no-pager -n 20 || true
+            journalctl -u masjidframe-display.service --no-pager -n 20 || true
             return 1
         fi
     fi
@@ -97,7 +97,7 @@ run_selftest() {
             return 1
         fi
 
-        if ! systemctl is-enabled --quiet masjidpi-boot-readonly.service; then
+        if ! systemctl is-enabled --quiet masjidframe-boot-readonly.service; then
             error "Raspberry Pi boot firmware protection service is not enabled."
             return 1
         fi

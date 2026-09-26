@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-COMPONENTS_FILE="/etc/masjidpi/components.env"
+COMPONENTS_FILE="/etc/masjidframe/components.env"
 INSTALL_LISTEN=true
 INSTALL_BOARD=true
 PREVIOUS_COMPONENT_PROFILE=""
@@ -33,7 +33,7 @@ load_existing_components() {
     fi
 
     local value
-    value="$(sed -n 's/^MASJIDPI_COMPONENTS=//p' "$COMPONENTS_FILE" | tail -1)"
+    value="$(sed -n 's/^MASJIDFRAME_COMPONENTS=//p' "$COMPONENTS_FILE" | tail -1)"
     set_component_profile "$value"
 }
 
@@ -46,7 +46,7 @@ select_components() {
 
     if [[ ! -t 0 ]]; then
         if [[ -n "$existing_profile" ]]; then
-            info "Non-interactive installation detected; preserving installed MasjidPi component profile: $existing_profile"
+            info "Non-interactive installation detected; preserving installed MasjidFrame component profile: $existing_profile"
             return 0
         fi
         info "Non-interactive installation detected; installing Listen + Board."
@@ -56,12 +56,12 @@ select_components() {
     fi
 
     if [[ -n "$existing_profile" ]]; then
-        printf '\nCurrent MasjidPi component profile: %s\n' "$existing_profile"
+        printf '\nCurrent MasjidFrame component profile: %s\n' "$existing_profile"
     fi
 
     cat <<'EOF'
 
-Select MasjidPi components to install:
+Select MasjidFrame components to install:
   1) Listen
   2) Board
   3) Listen + Board
@@ -100,7 +100,7 @@ EOF
         esac
     done
 
-    info "Selected MasjidPi component profile: $(component_profile)"
+    info "Selected MasjidFrame component profile: $(component_profile)"
 }
 
 component_profile() {
@@ -114,8 +114,8 @@ component_profile() {
 }
 
 save_components() {
-    install -d -m 0755 /etc/masjidpi
-    printf 'MASJIDPI_COMPONENTS=%s\n' "$(component_profile)" > "$COMPONENTS_FILE"
+    install -d -m 0755 /etc/masjidframe
+    printf 'MASJIDFRAME_COMPONENTS=%s\n' "$(component_profile)" > "$COMPONENTS_FILE"
     chmod 0644 "$COMPONENTS_FILE"
     success "Installed component profile saved to $COMPONENTS_FILE."
 }
@@ -127,5 +127,5 @@ restore_previous_components() {
 
     set_component_profile "$PREVIOUS_COMPONENT_PROFILE" || return 1
     save_components
-    info "Restored previous MasjidPi component profile: $PREVIOUS_COMPONENT_PROFILE"
+    info "Restored previous MasjidFrame component profile: $PREVIOUS_COMPONENT_PROFILE"
 }

@@ -54,7 +54,7 @@ Cache filenames are derived from a SHA-256 hash of the stable catalogue ID. The 
 Installed cache storage is:
 
 ```text
-/var/lib/masjidpi/masjidboard_cache/
+/var/lib/masjidframe/masjidboard_cache/
 ```
 
 Development cache storage lives under `backend/data/`.

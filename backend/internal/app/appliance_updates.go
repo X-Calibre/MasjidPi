@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/updates"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
 )
 
 // applianceUpdates binds the platform-neutral update controller to live

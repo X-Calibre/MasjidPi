@@ -44,7 +44,7 @@ assert.equal(duaAfterAdhanItem([board], new Date("2026-09-05T03:35:00Z"), false)
 assert.equal(duaAfterAdhanWindowMinutes, 5);
 const dua = duaAfterAdhanItem([board], new Date("2026-09-05T03:34:00Z"), true);
 assert.equal(dua.type, "dua_after_adhan");
-assert.equal(dua.source, "MasjidPi");
+assert.equal(dua.source, "MasjidFrame");
 assert.match(dua.fields.arabic, /اللَّهُمَّ/);
 assert.match(dua.fields.translation, /^O Allah/);
 assert.deepEqual(Array.from(orderedFields(dua), field => field.label), ["Arabic", "Translation", "Note"]);

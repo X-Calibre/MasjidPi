@@ -7,11 +7,11 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 export MASJIDBOARD_DISPLAY_LIBRARY_ONLY=1
-export MASJIDPI_DRM_SYSFS_ROOT="$TMP/drm"
-export MASJIDPI_RPI_MODEL_FILE="$TMP/model"
+export MASJIDFRAME_DRM_SYSFS_ROOT="$TMP/drm"
+export MASJIDFRAME_RPI_MODEL_FILE="$TMP/model"
 export MASJIDBOARD_STARTUP_FILE="$TMP/masjidboard-startup.html"
-mkdir -p "$MASJIDPI_DRM_SYSFS_ROOT"
-printf 'generic linux\n' > "$MASJIDPI_RPI_MODEL_FILE"
+mkdir -p "$MASJIDFRAME_DRM_SYSFS_ROOT"
+printf 'generic linux\n' > "$MASJIDFRAME_RPI_MODEL_FILE"
 
 # shellcheck source=../scripts/masjidboard-display.sh
 source "$ROOT/scripts/masjidboard-display.sh"
@@ -34,21 +34,21 @@ if [[ "$(launch_url standard)" != "$MASJIDBOARD_BASE_URL" ]]; then
 fi
 
 # Raspberry Pi standard installs use the local branded startup screen.
-export MASJIDPI_FORCE_RASPBERRY_PI=1
+export MASJIDFRAME_FORCE_RASPBERRY_PI=1
 if [[ "$(launch_url standard)" != "file://${MASJIDBOARD_STARTUP_FILE}?profile=standard" ]]; then
     echo "Raspberry Pi standard launch URL must use the local startup screen" >&2
     exit 1
 fi
 
 # The retired 1024x600 HDMI mode no longer selects an appliance profile.
-hdmi="$MASJIDPI_DRM_SYSFS_ROOT/card0-HDMI-A-1"
+hdmi="$MASJIDFRAME_DRM_SYSFS_ROOT/card0-HDMI-A-1"
 mkdir -p "$hdmi"
 printf 'connected\n' > "$hdmi/status"
 printf '1024x600\n1920x1080\n' > "$hdmi/modes"
 assert_profile standard
 
 # The official Touch Display 2 is selected only by its connected native DSI mode.
-dsi="$MASJIDPI_DRM_SYSFS_ROOT/card1-DSI-1"
+dsi="$MASJIDFRAME_DRM_SYSFS_ROOT/card1-DSI-1"
 mkdir -p "$dsi"
 printf 'connected\n' > "$dsi/status"
 printf '720x1280\n' > "$dsi/modes"

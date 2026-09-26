@@ -1,6 +1,6 @@
 package catalogue
 
-import "github.com/X-Calibre/MasjidPi/backend/internal/stream"
+import "github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 
 const LiveMasjidPageURL = "https://www.livemasjid.com"
 

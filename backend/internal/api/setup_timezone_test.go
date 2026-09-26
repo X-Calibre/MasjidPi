@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	masjidtimezone "github.com/X-Calibre/MasjidPi/backend/internal/timezone"
+	masjidtimezone "github.com/X-Calibre/MasjidFrame/backend/internal/timezone"
 )
 
 type fakeTimezoneController struct {

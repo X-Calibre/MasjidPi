@@ -11,8 +11,8 @@ usage()
 }
 
 version=${1:-}
-image_output_dir=${2:-"$PWD/work/image-masjidpi-pi3-ab-prototype"}
-private_key=${3:-"$PWD/appliance-image/update/masjidpi-update-private.key"}
+image_output_dir=${2:-"$PWD/work/image-masjidframe-pi3-ab-prototype"}
+private_key=${3:-"$PWD/appliance-image/update/masjidframe-update-private.key"}
 
 if [[ -z "$version" ||
       ! "$version" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ]]; then
@@ -23,7 +23,7 @@ readonly rootfs_image="$image_output_dir/system_a.ext4"
 readonly boot_image="$image_output_dir/boot.vfat"
 readonly image_metadata="$image_output_dir/image.json"
 readonly output_dir="$PWD/work/update-bundles"
-readonly bundle_name="masjidpi-update-${version}-pi3.tar.zst"
+readonly bundle_name="masjidframe-update-${version}-pi3.tar.zst"
 readonly bundle="$output_dir/$bundle_name"
 readonly signature="$bundle.minisig"
 readonly current_source_commit=$(git rev-parse HEAD)
@@ -75,14 +75,14 @@ fi
 
 embedded_release=$(
     debugfs \
-        -R 'cat /usr/share/masjidpi/update/release.json' \
+        -R 'cat /usr/share/masjidframe/update/release.json' \
         "$rootfs_image" \
         2>/dev/null
 )
 
 if ! jq -e '
     .schema_version == 1 and
-    .product == "masjidpi" and
+    .product == "masjidframe" and
     .device_class == "pi3" and
     (.release_version | type == "string") and
     (.build_version | type == "string") and
@@ -132,7 +132,7 @@ fi
 
 embedded_version_file=$(
     debugfs \
-        -R 'cat /opt/masjidpi/VERSION' \
+        -R 'cat /opt/masjidframe/VERSION' \
         "$rootfs_image" \
         2>/dev/null |
     tr -d '\r\n'
@@ -239,7 +239,7 @@ jq -n \
     --argjson dtb_size "$dtb_size" \
     '{
         schema_version: 1,
-        product: "masjidpi",
+        product: "masjidframe",
         device_class: "pi3",
         release_version: $version,
         build_version: $build_version,
@@ -301,7 +301,7 @@ minisign \
     -m "$bundle"
 
 echo
-echo "MasjidPi update bundle complete"
+echo "MasjidFrame update bundle complete"
 echo "Bundle:    $bundle"
 echo "Signature: $signature"
 sha256sum "$bundle" "$signature"

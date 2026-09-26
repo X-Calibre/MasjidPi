@@ -9,7 +9,7 @@ import (
 func defaultSocketPath() string {
 	return filepath.Join(
 		os.TempDir(),
-		fmt.Sprintf("masjidpi-%d.sock", os.Getuid()),
+		fmt.Sprintf("masjidframe-%d.sock", os.Getuid()),
 	)
 }
 

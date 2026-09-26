@@ -2,8 +2,8 @@
 
 detect_install_mode() {
 
-    local update_backup="${UPDATE_BACKUP:-/opt/.masjidpi-backup}"
-    local update_marker="${UPDATE_MARKER:-/opt/.masjidpi-update-in-progress}"
+    local update_backup="${UPDATE_BACKUP:-/opt/.masjidframe-backup}"
+    local update_marker="${UPDATE_MARKER:-/opt/.masjidframe-update-in-progress}"
 
     # Recover an interrupted update before deciding whether this is a fresh
     # installation. The marker means the previous runtime swap did not finish.
@@ -18,7 +18,7 @@ detect_install_mode() {
             fi
 
             if ! mv "$update_backup" "$INSTALL_DIR"; then
-                error "Previous MasjidPi runtime could not be restored."
+                error "Previous MasjidFrame runtime could not be restored."
                 return 1
             fi
 
@@ -28,14 +28,14 @@ detect_install_mode() {
             rm -f "$update_marker"
 
             if start_service && run_selftest; then
-                success "Previous MasjidPi runtime restored and validated."
+                success "Previous MasjidFrame runtime restored and validated."
             else
-                error "Previous MasjidPi runtime was restored but failed validation."
+                error "Previous MasjidFrame runtime was restored but failed validation."
                 return 1
             fi
         else
             warn "Found an incomplete update marker without a backup runtime."
-            error "MasjidPi cannot safely determine which runtime should be active."
+            error "MasjidFrame cannot safely determine which runtime should be active."
             return 1
         fi
     elif [[ ! -d "$INSTALL_DIR" && -d "$update_backup" ]]; then
@@ -44,14 +44,14 @@ detect_install_mode() {
         warn "Incomplete previous update detected. Restoring previous runtime..."
 
         if ! mv "$update_backup" "$INSTALL_DIR"; then
-            error "Previous MasjidPi runtime could not be restored."
+            error "Previous MasjidFrame runtime could not be restored."
             return 1
         fi
 
         if start_service && run_selftest; then
-            success "Previous MasjidPi runtime restored and validated."
+            success "Previous MasjidFrame runtime restored and validated."
         else
-            error "Previous MasjidPi runtime was restored but failed validation."
+            error "Previous MasjidFrame runtime was restored but failed validation."
             return 1
         fi
     fi

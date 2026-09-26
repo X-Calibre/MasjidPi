@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Updates - MasjidPi</title>
-    <link rel="stylesheet" href="style.css?v=20260917-updates-page">
+    <title>Updates - MasjidFrame</title>
+    <link rel="stylesheet" href="style.css?v=20260926-brand-logo">
 </head>
 <body>
 <div class="container">
     <header class="app-header">
         <div class="header-row">
-            <div><h1>MasjidPi</h1><p>Home appliance control</p></div>
+            <div><h1 class="brand-title"><img class="brand-logo" src="masjidframe-logo-horizontal.svg" alt="MasjidFrame"></h1><p>Home appliance control</p></div>
             <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
         </div>
-        <nav class="app-tabs" aria-label="MasjidPi sections">
+        <nav class="app-tabs" aria-label="MasjidFrame sections">
             <a class="app-tab" data-component="listen" href="index.html">Listen</a>
             <a class="app-tab" data-component="board" href="masjidboard-config.html">Board</a>
             <a class="app-tab active" href="updates.html" aria-current="page">Updates</a>
@@ -25,7 +25,7 @@
             <div class="section-heading-row">
                 <div>
                     <h2>Software Updates</h2>
-                    <p class="section-intro">MasjidPi checks weekly for complete, signed stable appliance releases.</p>
+                    <p class="section-intro">MasjidFrame checks weekly for complete, signed stable appliance releases.</p>
                 </div>
                 <button class="secondary compact-action" type="button" data-update-check>Check now</button>
             </div>
@@ -48,7 +48,7 @@
         </section>
     </main>
 
-    <footer class="footer"><span id="version">MasjidPi</span></footer>
+    <footer class="footer"><span id="version">MasjidFrame</span></footer>
 </div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
 <script src="components-ui.js"></script>
@@ -56,7 +56,7 @@
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");
-    const key = "masjidpi-theme";
+    const key = "masjidframe-theme";
     const validThemes = ["system", "light", "dark"];
     function storedTheme() { const value = localStorage.getItem(key); return validThemes.includes(value) ? value : "system"; }
     function applyTheme(theme) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
 )
 
 const (

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const DefaultReleaseRecordPath = "/usr/share/masjidpi/update/release.json"
+const DefaultReleaseRecordPath = "/usr/share/masjidframe/update/release.json"
 
 type TrialStatus struct {
 	RunningSlot      string
@@ -30,7 +30,7 @@ type CommandTrialStatus struct {
 func (s CommandTrialStatus) Status(ctx context.Context) (TrialStatus, error) {
 	command := s.Command
 	if command == "" {
-		command = "/usr/local/sbin/masjidpi-ab"
+		command = "/usr/local/sbin/masjidframe-ab"
 	}
 	output, err := exec.CommandContext(ctx, command, "machine-status").CombinedOutput()
 	if err != nil {

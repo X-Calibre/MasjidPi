@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 type fakePlayer struct {

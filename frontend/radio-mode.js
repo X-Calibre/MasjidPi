@@ -50,20 +50,20 @@
             if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
             render(body);
             const labels = { schedule: "Radio set to Play on Schedule.", play_now: "Radio Play Now enabled.", stopped: "Radio stopped." };
-            window.MasjidPiUI?.notify?.(labels[mode], "success");
+            window.MasjidFrameUI?.notify?.(labels[mode], "success");
         } catch (err) {
-            window.MasjidPiUI?.notify?.(err.message, "error");
+            window.MasjidFrameUI?.notify?.(err.message, "error");
         } finally {
             for (const button of Object.values(buttons)) button.disabled = false;
             await refresh();
         }
     }
 
-    const refresh = () => window.MasjidPiRefreshListenStatus?.();
+    const refresh = () => window.MasjidFrameRefreshListenStatus?.();
 
     scheduleButton.addEventListener("click", () => setMode("schedule"));
     playNowButton.addEventListener("click", () => setMode("play_now"));
     stopButton.addEventListener("click", () => setMode("stopped"));
 
-    window.addEventListener("masjidpi:listen-status", event => render(event.detail));
+    window.addEventListener("masjidframe:listen-status", event => render(event.detail));
 })();

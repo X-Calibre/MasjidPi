@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	masjidboardcatalogue "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
-	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	masjidboardcatalogue "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
+	masjidboardruntime "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 type masjidBoardSelectionManager interface {

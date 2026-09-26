@@ -1,10 +1,10 @@
 .PHONY: build run fmt tidy test
 
 build:
-	cd backend && mkdir -p build && go build -o build/masjidpi ./cmd/masjidpi
+	cd backend && mkdir -p build && go build -o build/masjidframe ./cmd/masjidframe
 
 run:
-	cd backend && go run ./cmd/masjidpi
+	cd backend && go run ./cmd/masjidframe
 
 fmt:
 	cd backend && gofmt -w .

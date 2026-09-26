@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 type fakeAvailability struct {

@@ -3,9 +3,9 @@ package display
 import (
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
-	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
+	masjidboardruntime "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 // Build creates the read-only display view from selected-board runtime state.

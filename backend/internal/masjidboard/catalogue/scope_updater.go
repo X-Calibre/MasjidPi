@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/scope"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/scope"
 )
 
 // ScopePersistence supplies the persisted 1-3 location discovery scope.

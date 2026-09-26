@@ -49,10 +49,10 @@ func testRelease(version string) Release {
 		PageURL: "https://github.example/releases/tag/" +
 			version,
 		BundleURL: "https://downloads.example/" +
-			"masjidpi-update-" + version +
+			"masjidframe-update-" + version +
 			"-pi3.tar.zst",
 		SignatureURL: "https://downloads.example/" +
-			"masjidpi-update-" + version +
+			"masjidframe-update-" + version +
 			"-pi3.tar.zst.minisig",
 	}
 }

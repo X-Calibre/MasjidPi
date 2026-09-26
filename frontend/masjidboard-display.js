@@ -342,7 +342,7 @@
             if (signature !== renderedViewSignature) {
                 render(view);
                 renderedViewSignature = signature;
-                window.dispatchEvent(new CustomEvent("masjidpi:board-view", {detail: view}));
+                window.dispatchEvent(new CustomEvent("masjidframe:board-view", {detail: view}));
             }
             connectionState.textContent = "";
             connectionState.classList.remove("warning");

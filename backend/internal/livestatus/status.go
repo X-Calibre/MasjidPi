@@ -46,7 +46,7 @@ func New(broker string, port int, log *slog.Logger) *Client {
 func (c *Client) Start(ctx context.Context) {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", c.broker, c.port))
-	opts.SetClientID(fmt.Sprintf("masjidpi-%d", time.Now().UnixNano()))
+	opts.SetClientID(fmt.Sprintf("masjidframe-%d", time.Now().UnixNano()))
 	opts.SetAutoReconnect(true)
 	opts.SetConnectRetry(true)
 	opts.SetConnectRetryInterval(10 * time.Second)

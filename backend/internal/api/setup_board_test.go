@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	masjidnetwork "github.com/X-Calibre/MasjidPi/backend/internal/network"
-	"github.com/X-Calibre/MasjidPi/backend/internal/storage"
+	masjidnetwork "github.com/X-Calibre/MasjidFrame/backend/internal/network"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/storage"
 )
 
 func TestBoardSetupDeferralPersistsAndRoutesToBoard(t *testing.T) {

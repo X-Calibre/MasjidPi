@@ -200,7 +200,7 @@ func parseHierarchyPairs(raw []byte, allowBlankName bool) ([]HierarchyEntry, err
 //
 //	[<city rows>, <grouping rows>, "changeToCity"]
 //
-// Only the primary city rows are relevant to MasjidPi.
+// Only the primary city rows are relevant to MasjidFrame.
 func parseDirectCityResponse(raw []byte) ([]HierarchyEntry, bool, error) {
 	var top []json.RawMessage
 	if err := json.Unmarshal(raw, &top); err != nil {

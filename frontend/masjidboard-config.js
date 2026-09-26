@@ -49,7 +49,7 @@
     }
 
     function setupTheme() {
-        const key = "masjidpi-theme";
+        const key = "masjidframe-theme";
         const validThemes = ["system", "light", "dark"];
         let theme = validThemes.includes(localStorage.getItem(key)) ? localStorage.getItem(key) : "system";
 
@@ -81,7 +81,7 @@
     }
 
     function showBanner(message, kind = "success") {
-        window.MasjidPiUI.notify(message, kind);
+        window.MasjidFrameUI.notify(message, kind);
     }
 
     function option(value, text, selected = false) {

@@ -1,15 +1,15 @@
 [Unit]
-Description=MasjidPi MasjidBoard WebKit Warm-up
+Description=MasjidFrame MasjidBoard WebKit Warm-up
 # Keep Plymouth on screen while WPE/WebKit performs its expensive cold start.
 # The real DRM display service is ordered after plymouth-quit.service.
 Before=plymouth-quit.service
-ConditionPathExists=/opt/masjidpi/frontend/masjidboard-startup.html
+ConditionPathExists=/opt/masjidframe/frontend/masjidboard-startup.html
 
 [Service]
 Type=oneshot
 User=root
-Environment=MASJIDPI_HOME=/opt/masjidpi
-ExecStart=/opt/masjidpi/bin/masjidboard-warmup
+Environment=MASJIDFRAME_HOME=/opt/masjidframe
+ExecStart=/opt/masjidframe/bin/masjidboard-warmup
 TimeoutStartSec=25
 
 [Install]

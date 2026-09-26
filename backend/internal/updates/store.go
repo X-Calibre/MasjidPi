@@ -7,7 +7,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/atomicfile"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/atomicfile"
 )
 
 // Store durably persists the small update-orchestration state file.

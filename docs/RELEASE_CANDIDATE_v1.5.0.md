@@ -1,8 +1,8 @@
-# MasjidPi v1.5.0 Release Acceptance Record
+# MasjidFrame v1.5.0 Release Acceptance Record
 
 **Status:** Historical completed release record. Do not treat its commands or gates as instructions for the current release.
 
-This document records the release-candidate acceptance checks used to promote MasjidPi v1.5.0.
+This document records the release-candidate acceptance checks used to promote MasjidFrame v1.5.0.
 
 `v1.5.0-rc.4` was selected for stable promotion. RC1 completed initial functional testing, RC2 carried the runtime and Web UI optimisation pass, RC3 addressed issues identified during RC2 hardware soak testing, and RC4 added the responsive and touch-oriented Board appliance experience.
 
@@ -11,15 +11,15 @@ This document records the release-candidate acceptance checks used to promote Ma
 - Automated Go, vet, race, shell and frontend validation passed in CI.
 - The published ARM64 RC4 archive and checksum were downloaded and verified successfully.
 - The RC4 release upgrade and installer self-test passed on the Raspberry Pi 4 test appliance while preserving the Listen + Board profile and settings.
-- Both MasjidPi services remained active with zero restarts during initial RC4 appliance validation; Listen source changes and current Board updates were confirmed.
-- RC3 completed approximately 24 hours on the Raspberry Pi 3B with zero MasjidPi and display-service restarts, stable Listen playback and current Board data.
+- Both MasjidFrame services remained active with zero restarts during initial RC4 appliance validation; Listen source changes and current Board updates were confirmed.
+- RC3 completed approximately 24 hours on the Raspberry Pi 3B with zero MasjidFrame and display-service restarts, stable Listen playback and current Board data.
 - Responsive Board layouts were validated from 1366 × 768 through 3840 × 2160, and the 600 × 1024 appliance layout and touch controls were validated separately.
 - The v1.5.0 User Guide, all relative documentation links and all 14 guide screenshots passed structural and visual review.
 - No release-blocking application defect remained at promotion. Historical undervoltage and throttling flags on the Raspberry Pi 3B were attributed to its power supply and retained as a hardware follow-up.
 
 ## Scope
 
-v1.5.0 introduces secondary Islamic radio playback to MasjidPi Listen while preserving the selected masjid as the priority audio source.
+v1.5.0 introduces secondary Islamic radio playback to MasjidFrame Listen while preserving the selected masjid as the priority audio source.
 
 The release also includes the outstanding enhancements and bug fixes already incorporated into `feature/radio-secondary-stream`.
 
@@ -160,7 +160,7 @@ Validate the persistent Masjid and Radio module power switches:
 
 ## Persistence and restart
 
-With representative settings configured, restart `masjidpi.service` and reboot the appliance. Confirm persistence of:
+With representative settings configured, restart `masjidframe.service` and reboot the appliance. Confirm persistence of:
 
 - selected masjid
 - selected radio station
@@ -191,7 +191,7 @@ The detailed codec/bitrate measurements from development are recorded separately
 For subsequent maintenance validation:
 
 ```bash
-cd ~/MasjidPi
+cd ~/MasjidFrame
 git switch main
 git pull --ff-only origin main
 
@@ -216,7 +216,7 @@ After the feature branch is merged into `main` and `main` is validated:
 git switch main
 git pull --ff-only origin main
 
-git tag -a v1.5.0 -m "MasjidPi v1.5.0"
+git tag -a v1.5.0 -m "MasjidFrame v1.5.0"
 git push origin v1.5.0
 ```
 
@@ -266,7 +266,7 @@ Use the temporary systemd-based monitor documented in [`RC_SOAK_MONITORING.md`](
 
 During the soak period confirm:
 
-- no unexpected `masjidpi.service` or `masjidpi-display.service` restarts;
+- no unexpected `masjidframe.service` or `masjidframe-display.service` restarts;
 - no sustained process RSS growth;
 - no unexpected memory or swap pressure;
 - Raspberry Pi throttling remains `0x0`;

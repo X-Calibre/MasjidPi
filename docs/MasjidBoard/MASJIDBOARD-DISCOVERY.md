@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Define how MasjidPi will discover the MasjidBoard Live boards that are available to users and generate a catalogue from which a user can select a board.
+Define how MasjidFrame will discover the MasjidBoard Live boards that are available to users and generate a catalogue from which a user can select a board.
 
 This is a separate research item from parsing and normalising the data returned by an individual MasjidBoard Live board.
 
@@ -26,18 +26,18 @@ Individual board acquisition
 Parse / normalise board data
 ```
 
-MasjidPi should not assume that knowing how to retrieve one board tells us how the complete set of available boards can be discovered.
+MasjidFrame should not assume that knowing how to retrieve one board tells us how the complete set of available boards can be discovered.
 
 ## Core Requirement
 
-MasjidPi needs a reliable way to:
+MasjidFrame needs a reliable way to:
 
 1. discover the MasjidBoard Live boards that are available;
 2. identify the public board identifier (`mid`) for each board;
 3. determine the board's display name and other useful catalogue metadata;
 4. distinguish Basic/Free boards from Premium boards where the upstream service exposes that distinction;
-5. determine whether a board is actually accessible to MasjidPi without requiring unsupported or private access;
-6. generate and maintain a local MasjidPi catalogue;
+5. determine whether a board is actually accessible to MasjidFrame without requiring unsupported or private access;
+6. generate and maintain a local MasjidFrame catalogue;
 7. allow users to search/select from that catalogue; and
 8. subsequently retrieve and parse the selected board using the individual-board provider path.
 
@@ -49,7 +49,7 @@ The catalogue is therefore a discovery product in its own right. It should not b
 
 Discovery answers:
 
-> **Which MasjidBoard Live boards exist and can MasjidPi use them?**
+> **Which MasjidBoard Live boards exist and can MasjidFrame use them?**
 
 The output is catalogue data.
 
@@ -65,7 +65,7 @@ Current research has established that a Premium board page can expose a public `
 
 Parsing answers:
 
-> **What do the returned positional fields mean and how should they be represented in the MasjidPi domain model?**
+> **What do the returned positional fields mean and how should they be represented in the MasjidFrame domain model?**
 
 This remains covered by `MASJIDBOARD-LIVE.md` and the provider research.
 
@@ -78,7 +78,7 @@ MasjidBoard Live has at least two board/service categories that must be investig
 - **Basic / Free boards**
 - **Premium boards**
 
-MasjidPi must not assume that the same discovery mechanism, page structure, access rules, API behaviour, or available data applies equally to both categories.
+MasjidFrame must not assume that the same discovery mechanism, page structure, access rules, API behaviour, or available data applies equally to both categories.
 
 The catalogue design should therefore retain an upstream service/category field where useful, rather than flattening all boards into an unexplained single class.
 
@@ -90,7 +90,7 @@ The research must establish whether:
 - Premium-only functionality affects data availability rather than only presentation;
 - a board can change category without changing its public identifier;
 - disabled, private, expired, or otherwise inaccessible boards can be detected; and
-- MasjidPi is permitted to catalogue and retrieve both categories under the upstream service's access model.
+- MasjidFrame is permitted to catalogue and retrieve both categories under the upstream service's access model.
 
 ## Four Research Stages
 
@@ -116,7 +116,7 @@ No implementation should be based on a manually collected list until this stage 
 
 ### Stage 2 — Basic/Free vs Premium access and data validation
 
-**Goal:** Establish what MasjidPi can legitimately and technically retrieve for each board category.
+**Goal:** Establish what MasjidFrame can legitimately and technically retrieve for each board category.
 
 For representative boards in each category, verify:
 
@@ -134,7 +134,7 @@ The research must also confirm which fields are safe to expose in the catalogue 
 
 **Output:** A capability/access matrix for Basic/Free and Premium boards, backed by captures from multiple real boards.
 
-### Stage 3 — MasjidPi catalogue design
+### Stage 3 — MasjidFrame catalogue design
 
 **Goal:** Design the local catalogue independently of the upstream 29-row board data structure.
 
@@ -142,7 +142,7 @@ The catalogue should provide enough information for a user to identify and selec
 
 Likely catalogue fields include:
 
-- stable MasjidPi catalogue ID;
+- stable MasjidFrame catalogue ID;
 - public MasjidBoard Live `mid`;
 - masjid/board display name;
 - alternate name where useful;
@@ -157,18 +157,18 @@ The catalogue should **not** require the opaque `boardId` to be the user-facing 
 
 The design should also decide:
 
-- whether the catalogue is shipped with MasjidPi or generated dynamically;
+- whether the catalogue is shipped with MasjidFrame or generated dynamically;
 - whether it can be updated independently of an application release;
 - how stale/removed boards are handled;
 - how duplicate boards are detected;
 - how renamed boards are handled; and
 - how search and favourites should operate against the catalogue.
 
-**Output:** A stable MasjidPi catalogue model and update strategy.
+**Output:** A stable MasjidFrame catalogue model and update strategy.
 
 ### Stage 4 — Implementation, refresh and maintenance
 
-**Goal:** Turn the verified discovery model into a maintainable MasjidPi subsystem.
+**Goal:** Turn the verified discovery model into a maintainable MasjidFrame subsystem.
 
 The eventual implementation should cover:
 
@@ -211,7 +211,7 @@ type=cityProvince
 type=masjid
 ```
 
-This means MasjidPi can potentially enumerate the directory using structured responses rather than scraping rendered HTML.
+This means MasjidFrame can potentially enumerate the directory using structured responses rather than scraping rendered HTML.
 
 The country response includes both names and board counts. At the time of capture, South Africa reported 615 masjids and the directory contained 722 masjids in total across the returned countries.
 
@@ -277,7 +277,7 @@ Known Premium boards have appeared with both `PRM` and `PRP` suffixes:
 
 Other observed catalogue suffixes include `CRM`, `CRP`, `CRS`, `EXT`, and additional `PRM`/`PRP` entries.
 
-Therefore MasjidPi must **not infer Premium status from the `MBL_ID` suffix** unless authoritative upstream evidence is found later. `MBL_ID` should be retained, if useful, only as opaque upstream metadata.
+Therefore MasjidFrame must **not infer Premium status from the `MBL_ID` suffix** unless authoritative upstream evidence is found later. `MBL_ID` should be retained, if useful, only as opaque upstream metadata.
 
 ### Stage 1 discovery conclusion so far
 
@@ -328,7 +328,7 @@ The individual-board parser should accept a selected board identifier and parse 
 
 ### Prefer public, stable identifiers
 
-The public `mid` is currently the appropriate external identifier for a board. The opaque `boardId` discovered inside generated Premium pages is an upstream implementation detail and should not be promoted to the MasjidPi catalogue identity unless later evidence requires it.
+The public `mid` is currently the appropriate external identifier for a board. The opaque `boardId` discovered inside generated Premium pages is an upstream implementation detail and should not be promoted to the MasjidFrame catalogue identity unless later evidence requires it.
 
 ### Verify across multiple boards
 
@@ -366,7 +366,7 @@ The eventual architecture should therefore be:
    Board Discovery             Board Retrieval
           |                         |
           v                         v
-   MasjidPi Catalogue       Selected public `mid`
+   MasjidFrame Catalogue       Selected public `mid`
           |                         |
           |                         v
           |                 Generated board page
@@ -388,6 +388,6 @@ The eventual architecture should therefore be:
 
 ## Implemented outcome
 
-This research identified the structured public directory and stable public `web_url` identity now used by MasjidPi. The production implementation persists the hierarchy separately, builds location-scoped catalogue partitions, retains Core-only boards and probes Premium only as optional enrichment.
+This research identified the structured public directory and stable public `web_url` identity now used by MasjidFrame. The production implementation persists the hierarchy separately, builds location-scoped catalogue partitions, retains Core-only boards and probes Premium only as optional enrichment.
 
 Current discovery behavior is documented in `MASJIDBOARD-CATALOGUE-DESIGN.md`, `MASJIDBOARD-HIERARCHY.md` and `MASJIDBOARD-IMPLEMENTATION-STATUS.md`.

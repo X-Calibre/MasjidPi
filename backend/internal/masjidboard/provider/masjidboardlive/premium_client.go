@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
 )
 
 const defaultPremiumEndpoint = "https://premium.masjidboardlive.com/v2/"

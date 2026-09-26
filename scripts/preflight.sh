@@ -3,14 +3,14 @@
 preflight_install() {
     info "Checking installation environment..."
 
-    command_exists apt-get || die "apt-get is required on supported MasjidPi systems."
-    command_exists systemctl || die "systemctl is required. MasjidPi must run as a system service."
+    command_exists apt-get || die "apt-get is required on supported MasjidFrame systems."
+    command_exists systemctl || die "systemctl is required. MasjidFrame must run as a system service."
     command_exists curl || die "curl is required."
     command_exists tar || die "tar is required."
     command_exists sha256sum || die "sha256sum is required."
 
     if [[ ! -d /run/systemd/system ]]; then
-        die "systemd is not running. MasjidPi production installation requires systemd."
+        die "systemd is not running. MasjidFrame production installation requires systemd."
     fi
 
     local system_state

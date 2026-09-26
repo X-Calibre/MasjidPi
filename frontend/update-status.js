@@ -195,7 +195,7 @@
     async function installNow(widget) {
         const button = widget.querySelector("[data-update-install]");
         const confirmed = window.confirm(
-            "Install this verified update now? MasjidPi may stop active audio and will restart automatically."
+            "Install this verified update now? MasjidFrame may stop active audio and will restart automatically."
         );
         if (!confirmed) return;
         button.disabled = true;

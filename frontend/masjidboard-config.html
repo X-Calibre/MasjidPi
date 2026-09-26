@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MasjidBoard Configuration - MasjidPi</title>
-    <link rel="stylesheet" href="style.css">
+    <title>MasjidBoard Configuration - MasjidFrame</title>
+    <link rel="stylesheet" href="style.css?v=20260926-brand-logo">
     <link rel="stylesheet" href="masjidboard-config.css?v=20260831-appliance-profile">
     <link rel="stylesheet" href="masjidboard-theme-config.css?v=20260906-light-themes">
 </head>
@@ -12,13 +12,13 @@
 <div class="container">
     <header class="app-header">
         <div class="header-row">
-            <div><h1>MasjidPi</h1><p>Home appliance control</p></div>
+            <div><h1 class="brand-title"><img class="brand-logo" src="masjidframe-logo-horizontal.svg" alt="MasjidFrame"></h1><p>Home appliance control</p></div>
             <div class="header-actions">
                 <a id="displayPreviewLink" class="nav-button preview-button" href="masjidboard.html">Open Display Preview</a>
                 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Change colour theme">Theme: System</button>
             </div>
         </div>
-        <nav class="app-tabs" aria-label="MasjidPi sections">
+        <nav class="app-tabs" aria-label="MasjidFrame sections">
             <a class="app-tab" data-component="listen" href="index.html">Listen</a>
             <a class="app-tab active" data-component="board" href="masjidboard-config.html" aria-current="page">Board</a>
             <a class="app-tab" href="updates.html">Updates</a>
@@ -51,7 +51,7 @@
     </div>
     <div id="boardPanelDisplay" class="board-panel" data-board-panel="display" hidden>
     <section class="card">
-        <div class="section-heading-row"><div><h2>Display</h2><p class="config-intro">MasjidPi selects the local display profile automatically. Configure the shared colour theme, slide duration and additional information here.</p></div></div>
+        <div class="section-heading-row"><div><h2>Display</h2><p class="config-intro">MasjidFrame selects the local display profile automatically. Configure the shared colour theme, slide duration and additional information here.</p></div></div>
         <div class="display-layout-picker">
             <label>Local display profile</label><div><strong>Automatic</strong><small class="config-meta">The 7-inch Raspberry Pi Touch Display 2 is detected at startup; other displays use the standard landscape profile.</small></div>
             <label for="slideDuration">Slide duration</label><div><input id="slideDuration" type="range" min="5" max="60" step="1" value="15"><output id="slideDurationValue" for="slideDuration">15 seconds</output></div>
@@ -61,7 +61,7 @@
                 <label class="display-option-toggle"><input id="showDailyHadith" type="checkbox" checked><span><strong>Daily Hadith</strong><small>Show the daily Hadith and its reference.</small></span></label>
                 <label class="display-option-toggle"><input id="showDailySunnah" type="checkbox" checked><span><strong>Daily Sunnah</strong><small>Show the daily Sunnah and its reference.</small></span></label>
             </div>
-            <label for="showDuaAfterAdhan">After Adhan</label><label class="display-option-toggle"><input id="showDuaAfterAdhan" type="checkbox"><span><strong>Dua after Adhan</strong><small>Show MasjidPi's bilingual Dua card for five minutes after a listed Adhan time.</small></span></label>
+            <label for="showDuaAfterAdhan">After Adhan</label><label class="display-option-toggle"><input id="showDuaAfterAdhan" type="checkbox"><span><strong>Dua after Adhan</strong><small>Show MasjidFrame's bilingual Dua card for five minutes after a listed Adhan time.</small></span></label>
             <div id="displayLayoutMeta" class="config-meta">Loading current display settings…</div>
             <div><a class="nav-button preview-button" href="masjidboard.html?profile=appliance-720" target="_blank" rel="noopener">Open Touch Display 2 Preview</a></div>
         </div>
@@ -90,7 +90,7 @@
     </section>
     </div>
     </main>
-    <footer class="footer"><span id="version">MasjidPi</span></footer>
+    <footer class="footer"><span id="version">MasjidFrame</span></footer>
 </div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
 <script src="components-ui.js"></script><script src="masjidboard-config.js?v=20260829-autosave"></script><script src="masjidboard-layout-config.js?v=20260906-light-themes"></script><script src="masjidboard-tabs.js"></script>

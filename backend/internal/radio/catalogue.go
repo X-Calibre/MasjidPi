@@ -1,10 +1,10 @@
 package radio
 
-import "github.com/X-Calibre/MasjidPi/backend/internal/stream"
+import "github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 
 // Catalogue returns the built-in South African Islamic radio stations that
-// have been validated with MasjidPi's mpv stack. Radio entries are maintained
-// by MasjidPi rather than scraped at runtime so endpoint changes can be tested
+// have been validated with MasjidFrame's mpv stack. Radio entries are maintained
+// by MasjidFrame rather than scraped at runtime so endpoint changes can be tested
 // before being shipped to appliances.
 func Catalogue() []stream.Stream {
 	return []stream.Stream{

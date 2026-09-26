@@ -5,7 +5,7 @@ umask 022
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 project_root=$(cd "$script_dir/.." && pwd)
-output_dir=${1:-"$project_root/work/masjidpi-runtime-arm64"}
+output_dir=${1:-"$project_root/work/masjidframe-runtime-arm64"}
 
 for command_name in \
     date \
@@ -31,7 +31,7 @@ source_version=$(
     ' "$project_root/version.json"
 )
 
-runtime_version=${MASJIDPI_IMAGE_VERSION:-"${source_version}-image"}
+runtime_version=${MASJIDFRAME_IMAGE_VERSION:-"${source_version}-image"}
 source_commit=$(git -C "$project_root" rev-parse HEAD)
 build_version=$(git -C "$project_root" describe --tags --always --dirty)
 source_date_epoch=$(git -C "$project_root" show -s --format=%ct "$source_commit")
@@ -40,7 +40,7 @@ created_at=$(
         --date="@$source_date_epoch" \
         '+%Y-%m-%dT%H:%M:%SZ'
 )
-staging_dir=$(mktemp -d "$project_root/work/masjidpi-runtime.XXXXXX")
+staging_dir=$(mktemp -d "$project_root/work/masjidframe-runtime.XXXXXX")
 
 cleanup()
 {
@@ -52,7 +52,7 @@ mkdir -p \
     "$staging_dir/bin" \
     "$staging_dir/scripts"
 
-echo "Building MasjidPi ARM64 runtime..."
+echo "Building MasjidFrame ARM64 runtime..."
 
 (
     cd "$project_root/backend"
@@ -63,9 +63,9 @@ echo "Building MasjidPi ARM64 runtime..."
     go build \
         -trimpath \
         -ldflags \
-        "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=$runtime_version" \
-        -o "$staging_dir/bin/masjidpi" \
-        ./cmd/masjidpi
+        "-X github.com/X-Calibre/MasjidFrame/backend/internal/version.Version=$runtime_version" \
+        -o "$staging_dir/bin/masjidframe" \
+        ./cmd/masjidframe
 )
 
 cp -R \
@@ -90,7 +90,7 @@ jq -n \
     --arg created_at "$created_at" \
     '{
         schema_version: 1,
-        product: "masjidpi",
+        product: "masjidframe",
         device_class: "pi3",
         release_version: $release_version,
         build_version: $build_version,
@@ -109,9 +109,9 @@ do
 done
 
 for service_file in \
-    masjidpi.service \
-    masjidpi-display.service \
-    masjidpi-display-warmup.service
+    masjidframe.service \
+    masjidframe-display.service \
+    masjidframe-display-warmup.service
 do
     install -m 0644 \
         "$project_root/scripts/$service_file" \
@@ -119,28 +119,28 @@ do
 done
 
 for theme_file in \
-    masjidpi-splash.plymouth \
-    masjidpi-splash-standard.script
+    masjidframe-splash.plymouth \
+    masjidframe-splash-standard.script
 do
     install -m 0644 \
         "$project_root/scripts/$theme_file" \
         "$staging_dir/scripts/$theme_file"
 done
 
-if ! file "$staging_dir/bin/masjidpi" |
+if ! file "$staging_dir/bin/masjidframe" |
     grep -Fq 'ARM aarch64'; then
     echo "Built backend is not an ARM64 executable." >&2
     exit 1
 fi
 
-if ! file "$staging_dir/bin/masjidpi" |
+if ! file "$staging_dir/bin/masjidframe" |
     grep -Fq 'statically linked'; then
     echo "Built backend is not statically linked." >&2
     exit 1
 fi
 
 reported_version=$(
-    qemu-aarch64 "$staging_dir/bin/masjidpi" --version
+    qemu-aarch64 "$staging_dir/bin/masjidframe" --version
 )
 
 if [[ "$reported_version" != "$runtime_version" ]]; then
@@ -151,7 +151,7 @@ if [[ "$reported_version" != "$runtime_version" ]]; then
 fi
 
 for required_file in \
-    bin/masjidpi \
+    bin/masjidframe \
     frontend/index.html \
     frontend/masjidboard.html \
     frontend/masjidboard-startup.html \
@@ -161,11 +161,11 @@ for required_file in \
     release.json \
     scripts/masjidboard-display.sh \
     scripts/masjidboard-warmup.sh \
-    scripts/masjidpi.service \
-    scripts/masjidpi-display.service \
-    scripts/masjidpi-display-warmup.service \
-    scripts/masjidpi-splash.plymouth \
-    scripts/masjidpi-splash-standard.script
+    scripts/masjidframe.service \
+    scripts/masjidframe-display.service \
+    scripts/masjidframe-display-warmup.service \
+    scripts/masjidframe-splash.plymouth \
+    scripts/masjidframe-splash-standard.script
 do
     if [[ ! -f "$staging_dir/$required_file" ]]; then
         echo "Missing runtime file: $required_file" >&2
@@ -187,7 +187,7 @@ mv "$staging_dir" "$output_dir"
 trap - EXIT
 
 echo
-echo "MasjidPi ARM64 runtime complete"
+echo "MasjidFrame ARM64 runtime complete"
 echo "Version: $runtime_version"
 echo "Output:  $output_dir"
 du -sh "$output_dir"

@@ -1,18 +1,18 @@
 # MasjidBoard Implementation Status
 
-**Status:** Implemented in MasjidPi v1.5.2
+**Status:** Implemented in MasjidFrame v1.5.2
 
 This document summarises the current production implementation. Provider research and superseded design proposals are retained separately as historical records.
 
 ## Architecture
 
-MasjidPi supports three component profiles:
+MasjidFrame supports three component profiles:
 
 - Listen
 - Board
 - Listen + Board
 
-The profile is stored in `/etc/masjidpi/components.env` and controls backend startup, API registration, dependencies, systemd services and installer self-tests. Listen and Board remain independently operable within one application.
+The profile is stored in `/etc/masjidframe/components.env` and controls backend startup, API registration, dependencies, systemd services and installer self-tests. Listen and Board remain independently operable within one application.
 
 Current Board packages cover:
 

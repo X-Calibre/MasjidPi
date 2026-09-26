@@ -3,7 +3,7 @@ package masjidboardlive
 import (
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
 )
 
 func TestApplyCoreUpcomingSalaahChangeFallbackUsesRenderedHTML(t *testing.T) {

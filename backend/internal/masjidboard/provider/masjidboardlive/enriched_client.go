@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider"
 )
 
 // EnrichedClient keeps the public Core board as the authoritative timetable

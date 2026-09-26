@@ -2,7 +2,7 @@
 
 build_project() {
 
-    info "Building MasjidPi..."
+    info "Building MasjidFrame..."
 
     local source_version
     source_version="$(jq -er '
@@ -18,9 +18,9 @@ build_project() {
     mkdir -p build
 
     go build \
-        -ldflags "-X github.com/X-Calibre/MasjidPi/backend/internal/version.Version=${development_version}" \
-        -o build/masjidpi \
-        ./cmd/masjidpi
+        -ldflags "-X github.com/X-Calibre/MasjidFrame/backend/internal/version.Version=${development_version}" \
+        -o build/masjidframe \
+        ./cmd/masjidframe
 
     # Keep build artifacts writable by the user who invoked sudo, if any.
     if [[ -n "${SUDO_UID:-}" && -n "${SUDO_GID:-}" ]]; then

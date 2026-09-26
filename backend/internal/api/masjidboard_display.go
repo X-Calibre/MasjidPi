@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/display"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/display"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 // masjidBoardDisplay exposes only presentation-oriented MasjidBoard state. It

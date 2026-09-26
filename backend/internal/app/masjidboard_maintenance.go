@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/config"
-	masjidboardcatalogue "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/hierarchy"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/maintenance"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider/masjidboardlive"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/scope"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/config"
+	masjidboardcatalogue "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/hierarchy"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/maintenance"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider/masjidboardlive"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/scope"
 )
 
 const masjidBoardMaintenanceCheckInterval = 24 * time.Hour

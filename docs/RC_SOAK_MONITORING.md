@@ -1,8 +1,8 @@
-# MasjidPi Release Candidate Soak Monitoring
+# MasjidFrame Release Candidate Soak Monitoring
 
 This document describes a reusable lightweight monitoring service for release-candidate and post-release validation on Raspberry Pi hardware.
 
-The monitor is intended for temporary 24–48 hour soak testing. It records service health, process resource usage, system load, memory, disk usage, Raspberry Pi temperature/throttling state, Listen status, MasjidBoard status summaries, and recent MasjidPi warnings/errors.
+The monitor is intended for temporary 24–48 hour soak testing. It records service health, process resource usage, system load, memory, disk usage, Raspberry Pi temperature/throttling state, Listen status, MasjidBoard status summaries, and recent MasjidFrame warnings/errors.
 
 The monitor runs under `systemd`, so it continues after an SSH or terminal session disconnects and restarts automatically after a reboot.
 
@@ -10,35 +10,35 @@ The monitor runs under `systemd`, so it continues after an SSH or terminal sessi
 
 Every five minutes the monitor writes a sample containing:
 
-- MasjidPi version
+- MasjidFrame version
 - uptime and load average
 - memory usage
 - root filesystem usage
 - Raspberry Pi temperature and throttling state
-- `masjidpi.service` state and restart count
-- `masjidpi-display.service` state and restart count
-- CPU, memory, RSS and elapsed time for MasjidPi, mpv, Cog and WPE processes
+- `masjidframe.service` state and restart count
+- `masjidframe-display.service` state and restart count
+- CPU, memory, RSS and elapsed time for MasjidFrame, mpv, Cog and WPE processes
 - `/api/listen/status`
 - a compact `/api/masjidboard/status` summary
-- recent MasjidPi warnings and errors
+- recent MasjidFrame warnings and errors
 
 The log is written to:
 
 ```text
-/var/log/masjidpi-rc-monitor/soak.log
+/var/log/masjidframe-rc-monitor/soak.log
 ```
 
 ## 1. Install the monitoring script
 
-Create `/usr/local/bin/masjidpi-rc-monitor.sh`:
+Create `/usr/local/bin/masjidframe-rc-monitor.sh`:
 
 ```bash
-sudo tee /usr/local/bin/masjidpi-rc-monitor.sh >/dev/null <<'EOF'
+sudo tee /usr/local/bin/masjidframe-rc-monitor.sh >/dev/null <<'EOF'
 #!/usr/bin/env bash
 
 set -u
 
-LOG_DIR="/var/log/masjidpi-rc-monitor"
+LOG_DIR="/var/log/masjidframe-rc-monitor"
 LOG_FILE="${LOG_DIR}/soak.log"
 
 mkdir -p "$LOG_DIR"
@@ -78,13 +78,13 @@ while true; do
 
         echo
         echo "=== SERVICE STATE ==="
-        systemctl show masjidpi \
+        systemctl show masjidframe \
             -p ActiveState \
             -p SubState \
             -p NRestarts \
             -p ExecMainStartTimestamp
 
-        systemctl show masjidpi-display \
+        systemctl show masjidframe-display \
             -p ActiveState \
             -p SubState \
             -p NRestarts \
@@ -93,7 +93,7 @@ while true; do
         echo
         echo "=== PROCESSES ==="
         ps -eo pid,comm,%cpu,%mem,rss,etime \
-            | grep -E 'masjidpi|mpv|cog|WPEWebProcess' \
+            | grep -E 'masjidframe|mpv|cog|WPEWebProcess' \
             | grep -v grep \
             || true
 
@@ -144,7 +144,7 @@ while true; do
 
         echo
         echo "=== RECENT WARNINGS / ERRORS ==="
-        journalctl -u masjidpi \
+        journalctl -u masjidframe \
             --since "6 minutes ago" \
             --no-pager -o short-iso \
             | grep -E 'WARN|ERROR|failed|Failed|panic|fatal' \
@@ -157,23 +157,23 @@ while true; do
 done
 EOF
 
-sudo chmod +x /usr/local/bin/masjidpi-rc-monitor.sh
+sudo chmod +x /usr/local/bin/masjidframe-rc-monitor.sh
 ```
 
 ## 2. Install the systemd service
 
-Create `/etc/systemd/system/masjidpi-rc-monitor.service`:
+Create `/etc/systemd/system/masjidframe-rc-monitor.service`:
 
 ```bash
-sudo tee /etc/systemd/system/masjidpi-rc-monitor.service >/dev/null <<'EOF'
+sudo tee /etc/systemd/system/masjidframe-rc-monitor.service >/dev/null <<'EOF'
 [Unit]
-Description=MasjidPi RC Soak Monitor
-After=network-online.target masjidpi.service
+Description=MasjidFrame RC Soak Monitor
+After=network-online.target masjidframe.service
 Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/masjidpi-rc-monitor.sh
+ExecStart=/usr/local/bin/masjidframe-rc-monitor.sh
 Restart=always
 RestartSec=10
 
@@ -186,7 +186,7 @@ Reload systemd and enable the monitor:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now masjidpi-rc-monitor.service
+sudo systemctl enable --now masjidframe-rc-monitor.service
 ```
 
 Because the service is enabled, it will start again automatically if the Raspberry Pi is rebooted during the soak test.
@@ -196,13 +196,13 @@ Because the service is enabled, it will start again automatically if the Raspber
 Check the service:
 
 ```bash
-systemctl status masjidpi-rc-monitor --no-pager
+systemctl status masjidframe-rc-monitor --no-pager
 ```
 
 Confirm that the log exists and contains samples:
 
 ```bash
-sudo tail -n 100 /var/log/masjidpi-rc-monitor/soak.log
+sudo tail -n 100 /var/log/masjidframe-rc-monitor/soak.log
 ```
 
 ## Reading the logs
@@ -210,20 +210,20 @@ sudo tail -n 100 /var/log/masjidpi-rc-monitor/soak.log
 Follow the monitor log live:
 
 ```bash
-sudo tail -f /var/log/masjidpi-rc-monitor/soak.log
+sudo tail -f /var/log/masjidframe-rc-monitor/soak.log
 ```
 
 Read the most recent samples:
 
 ```bash
-sudo tail -n 300 /var/log/masjidpi-rc-monitor/soak.log
+sudo tail -n 300 /var/log/masjidframe-rc-monitor/soak.log
 ```
 
 Search for warnings, failures, throttling or unavailable endpoints:
 
 ```bash
 sudo grep -Ei 'WARN|ERROR|failed|panic|fatal|unavailable|throttled' \
-    /var/log/masjidpi-rc-monitor/soak.log
+    /var/log/masjidframe-rc-monitor/soak.log
 ```
 
 The normal Raspberry Pi throttling value is:
@@ -239,25 +239,25 @@ A non-zero value should be investigated because it can indicate current or histo
 Start the monitor:
 
 ```bash
-sudo systemctl start masjidpi-rc-monitor.service
+sudo systemctl start masjidframe-rc-monitor.service
 ```
 
 Stop the monitor without disabling it at boot:
 
 ```bash
-sudo systemctl stop masjidpi-rc-monitor.service
+sudo systemctl stop masjidframe-rc-monitor.service
 ```
 
 Restart the monitor:
 
 ```bash
-sudo systemctl restart masjidpi-rc-monitor.service
+sudo systemctl restart masjidframe-rc-monitor.service
 ```
 
 Show its current state:
 
 ```bash
-systemctl status masjidpi-rc-monitor --no-pager
+systemctl status masjidframe-rc-monitor --no-pager
 ```
 
 ## Stop monitoring after RC acceptance
@@ -265,13 +265,13 @@ systemctl status masjidpi-rc-monitor --no-pager
 When the soak test is complete, stop the service and prevent it from starting on future boots:
 
 ```bash
-sudo systemctl disable --now masjidpi-rc-monitor.service
+sudo systemctl disable --now masjidframe-rc-monitor.service
 ```
 
 The existing log is intentionally left in place at:
 
 ```text
-/var/log/masjidpi-rc-monitor/soak.log
+/var/log/masjidframe-rc-monitor/soak.log
 ```
 
 This allows the results to be reviewed after the monitor has been stopped.
@@ -281,16 +281,16 @@ This allows the results to be reviewed after the monitor has been stopped.
 After the release candidate has been accepted and the log has been archived or reviewed, the temporary monitoring service can be removed:
 
 ```bash
-sudo systemctl disable --now masjidpi-rc-monitor.service 2>/dev/null || true
-sudo rm -f /etc/systemd/system/masjidpi-rc-monitor.service
-sudo rm -f /usr/local/bin/masjidpi-rc-monitor.sh
+sudo systemctl disable --now masjidframe-rc-monitor.service 2>/dev/null || true
+sudo rm -f /etc/systemd/system/masjidframe-rc-monitor.service
+sudo rm -f /usr/local/bin/masjidframe-rc-monitor.sh
 sudo systemctl daemon-reload
 ```
 
 To also delete the recorded soak data:
 
 ```bash
-sudo rm -rf /var/log/masjidpi-rc-monitor
+sudo rm -rf /var/log/masjidframe-rc-monitor
 ```
 
 Do not remove the log directory until any required RC diagnostic data has been collected.
@@ -299,9 +299,9 @@ Do not remove the log directory until any required RC diagnostic data has been c
 
 A healthy 24–48 hour run should generally show:
 
-- `masjidpi.service` and `masjidpi-display.service` staying active
+- `masjidframe.service` and `masjidframe-display.service` staying active
 - no unexpected increases in `NRestarts`
-- no sustained growth in MasjidPi, mpv, Cog or WPE RSS usage
+- no sustained growth in MasjidFrame, mpv, Cog or WPE RSS usage
 - adequate free memory and no unexpected swap pressure
 - `throttled=0x0`
 - no repeated mpv reconnect loops
@@ -309,7 +309,7 @@ A healthy 24–48 hour run should generally show:
 - no repeated Board update failures affecting multiple boards
 - Listen and Board HTTP endpoints remaining available
 
-A single MasjidBoard provider warning can be valid when upstream data is malformed or unavailable, provided MasjidPi correctly retains last-known-good cached data. Repeated failures across multiple boards should be investigated.
+A single MasjidBoard provider warning can be valid when upstream data is malformed or unavailable, provided MasjidFrame correctly retains last-known-good cached data. Repeated failures across multiple boards should be investigated.
 
 ## SD-card write consideration
 

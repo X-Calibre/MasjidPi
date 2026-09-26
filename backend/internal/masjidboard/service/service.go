@@ -9,13 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/cache"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider/masjidboardlive"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/cache"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/dailycontent"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/economic"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider/masjidboardlive"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 type Config struct {

@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Define the stable MasjidPi catalogue identity, geographic discovery scope, hierarchy persistence, multi-board selection, refresh behaviour and last-known-good strategy for MasjidBoard discovery/runtime.
+Define the stable MasjidFrame catalogue identity, geographic discovery scope, hierarchy persistence, multi-board selection, refresh behaviour and last-known-good strategy for MasjidBoard discovery/runtime.
 
 ```text
 FindMasjid hierarchy
@@ -33,7 +33,7 @@ Discovery hierarchy, configured scope, catalogue persistence, board selection, i
 
 ## Discovery Scope
 
-MasjidPi does **not** maintain a worldwide mirror of all MasjidBoard timetable records.
+MasjidFrame does **not** maintain a worldwide mirror of all MasjidBoard timetable records.
 
 The user may configure **one to three locations**. Each location is expressed as:
 
@@ -131,11 +131,11 @@ load selected-board state
 Installed appliance state includes conceptually:
 
 ```text
-/var/lib/masjidpi/masjidboard_scope.json
-/var/lib/masjidpi/masjidboard_hierarchy.json
-/var/lib/masjidpi/masjidboard_catalogue.json
-/var/lib/masjidpi/masjidboard_selection.json
-/var/lib/masjidpi/masjidboard_cache/
+/var/lib/masjidframe/masjidboard_scope.json
+/var/lib/masjidframe/masjidboard_hierarchy.json
+/var/lib/masjidframe/masjidboard_catalogue.json
+/var/lib/masjidframe/masjidboard_selection.json
+/var/lib/masjidframe/masjidboard_cache/
 ```
 
 Development equivalents live under `backend/data/`.
@@ -150,7 +150,7 @@ The hierarchy is persisted independently so available countries, regions and tow
 
 ### Scoped catalogue
 
-Automatic scoped catalogue refresh occurs at most once every seven days based on persisted MasjidPi freshness timestamps. The user may explicitly request an immediate refresh through API/WebUI. Opening configuration does not itself force a refresh.
+Automatic scoped catalogue refresh occurs at most once every seven days based on persisted MasjidFrame freshness timestamps. The user may explicitly request an immediate refresh through API/WebUI. Opening configuration does not itself force a refresh.
 
 ### Selected timetables
 
@@ -188,7 +188,7 @@ Failures are isolated per selected board.
 
 ## Timezone Handling
 
-`time_zone_milli` is preserved exactly and is not rounded to whole hours. MasjidPi does not invent an IANA timezone where upstream only provides a fixed offset.
+`time_zone_milli` is preserved exactly and is not rounded to whole hours. MasjidFrame does not invent an IANA timezone where upstream only provides a fixed offset.
 
 ## Configuration / Display Boundary
 

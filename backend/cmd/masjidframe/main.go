@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/app"
-	"github.com/X-Calibre/MasjidPi/backend/internal/version"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/app"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/version"
 )
 
 func main() {
@@ -40,12 +40,12 @@ func printUsage() {
 	fmt.Printf(`%s - lightweight internet radio for masājid streams
 
 Usage:
-  masjidpi [options]
+  masjidframe [options]
 
 Options:
   -h, --help       Show this help message and exit
   -v, --version    Show the application version and exit
 
-With no options, MasjidPi starts the application and HTTP server.
+With no options, MasjidFrame starts the application and HTTP server.
 `, version.AppName)
 }

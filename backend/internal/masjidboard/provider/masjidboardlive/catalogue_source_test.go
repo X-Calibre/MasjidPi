@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	masjidboardcatalogue "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/catalogue"
+	masjidboardcatalogue "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/catalogue"
 )
 
 func TestCatalogueSourceFetchMapsDiscoveryRecords(t *testing.T) {

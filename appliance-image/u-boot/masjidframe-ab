@@ -91,14 +91,14 @@ case "${1:-}" in
         echo
         echo "=== AUTOMATIC CONFIRMATION SERVICE ==="
         systemctl status \
-            masjidpi-ab-confirm.service \
+            masjidframe-ab-confirm.service \
             --no-pager -l ||
             true
 
         echo
         echo "=== AUTOMATIC CONFIRMATION LOG ==="
         journalctl \
-            -u masjidpi-ab-confirm.service \
+            -u masjidframe-ab-confirm.service \
             -b \
             -n 20 \
             --no-pager ||
@@ -121,7 +121,7 @@ case "${1:-}" in
         target_slot=${2:-}
 
         if [[ "$target_slot" != a && "$target_slot" != b ]]; then
-            echo "Usage: sudo masjidpi-ab trial a|b" >&2
+            echo "Usage: sudo masjidframe-ab trial a|b" >&2
             exit 1
         fi
 
@@ -202,7 +202,7 @@ case "${1:-}" in
             http://127.0.0.1:8080/api/version \
             >/dev/null
         then
-            echo "Refusing confirmation: MasjidPi health endpoint is unavailable." >&2
+            echo "Refusing confirmation: MasjidFrame health endpoint is unavailable." >&2
             exit 1
         fi
 
@@ -226,12 +226,12 @@ case "${1:-}" in
 
     *)
         echo "Usage:"
-        echo "  sudo masjidpi-ab status"
-        echo "  sudo masjidpi-ab machine-status"
-        echo "  sudo masjidpi-ab diagnostics"
-        echo "  sudo masjidpi-ab trial a|b"
-        echo "  sudo masjidpi-ab confirm"
-        echo "  sudo masjidpi-ab auto-confirm"
+        echo "  sudo masjidframe-ab status"
+        echo "  sudo masjidframe-ab machine-status"
+        echo "  sudo masjidframe-ab diagnostics"
+        echo "  sudo masjidframe-ab trial a|b"
+        echo "  sudo masjidframe-ab confirm"
+        echo "  sudo masjidframe-ab auto-confirm"
         exit 1
         ;;
 esac

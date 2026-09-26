@@ -1,6 +1,6 @@
 # METABEGIN
-# X-Env-Layer-Name: masjidpi-trixie-minbase
-# X-Env-Layer-Desc: Debian Trixie MasjidPi appliance base with NetworkManager.
+# X-Env-Layer-Name: masjidframe-trixie-minbase
+# X-Env-Layer-Desc: Debian Trixie MasjidFrame appliance base with NetworkManager.
 # X-Env-Layer-Category: suite
 # X-Env-Layer-Version: 1.0.0
 # X-Env-Layer-Requires: debian-trixie-arm64-multi,

@@ -1,12 +1,12 @@
-# MasjidPi Roadmap
+# MasjidFrame Roadmap
 
-MasjidPi is a lightweight appliance for live masjid audio and prayer-time information.
+MasjidFrame is a lightweight appliance for live masjid audio and prayer-time information.
 
 ## Current release
 
 **v1.6.0 is the current stable release.**
 
-MasjidPi currently provides:
+MasjidFrame currently provides:
 
 - independent Listen, Board and combined appliance profiles;
 - touchscreen first-run Wi-Fi, location and primary-masjid setup for the portrait appliance;
@@ -20,7 +20,7 @@ MasjidPi currently provides:
 - release packages for Linux ARM64 and AMD64; and
 - a signed Pi 3 A/B appliance image with automatic health confirmation and rollback.
 
-Completed release details belong in [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) and the relevant acceptance records under `docs/`.
+Completed release details belong in [GitHub Releases](https://github.com/X-Calibre/MasjidFrame/releases) and the relevant acceptance records under `docs/`.
 
 ## Current priorities
 
@@ -91,7 +91,7 @@ Potential integration could expose:
 
 ## Architecture guardrails
 
-MasjidPi remains one repository with shared Core functionality and two independently operable capabilities:
+MasjidFrame remains one repository with shared Core functionality and two independently operable capabilities:
 
 - **Core** — configuration, persistent state, APIs and platform integration
 - **Listen** — stream discovery, priority playback, Radio, mpv and audio devices
@@ -101,7 +101,7 @@ Listen must continue operating when Board or its upstream providers are unavaila
 
 ## Project principles
 
-MasjidPi should remain:
+MasjidFrame should remain:
 
 - simple to install and operate;
 - reliable through network and device interruptions;

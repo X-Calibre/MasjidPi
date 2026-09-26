@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/listen"
-	"github.com/X-Calibre/MasjidPi/backend/internal/playback"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/listen"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/playback"
 )
 
 func TestListenStatusIncludesActiveAudioDevice(t *testing.T) {

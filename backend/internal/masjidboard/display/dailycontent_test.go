@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/dailycontent"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 func displayDailyContent() *dailycontent.Content {

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider"
 )
 
 var _ provider.Provider = PremiumClient{}

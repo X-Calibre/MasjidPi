@@ -1,10 +1,10 @@
 # MasjidBoard Architecture
 
-**Status:** Current architecture in MasjidPi v1.5.2
+**Status:** Current architecture in MasjidFrame v1.5.2
 
 ## Boundary
 
-MasjidBoard is the Board capability inside the MasjidPi repository. It shares configuration, HTTP serving, persistence helpers and platform integration with Listen, while its provider, cache, refresh and display failures remain isolated from audio playback.
+MasjidBoard is the Board capability inside the MasjidFrame repository. It shares configuration, HTTP serving, persistence helpers and platform integration with Listen, while its provider, cache, refresh and display failures remain isolated from audio playback.
 
 The installer supports:
 
@@ -51,11 +51,11 @@ Shared Daily Ayah/Hadith/Sunnah and Islamic Economic Indicators use independent 
 | `economic` | Jamiat Islamic Economic Indicator retrieval/cache |
 | `maintenance` | Board persistent-state maintenance |
 
-There is no separate `cmd/masjidboard` executable or scheduler service. Board runs inside the main MasjidPi backend; slideshow timing and content rotation belong to the frontend renderers.
+There is no separate `cmd/masjidboard` executable or scheduler service. Board runs inside the main MasjidFrame backend; slideshow timing and content rotation belong to the frontend renderers.
 
 ## Persistence
 
-Board state is stored under `/var/lib/masjidpi/masjidboard/`. Persistent concerns are separated:
+Board state is stored under `/var/lib/masjidframe/masjidboard/`. Persistent concerns are separated:
 
 - hierarchy;
 - scoped catalogue partitions;

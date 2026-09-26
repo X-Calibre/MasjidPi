@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/scope"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/scope"
 )
 
 type fakeScopeStore struct {

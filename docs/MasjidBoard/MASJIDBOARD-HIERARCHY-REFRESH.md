@@ -19,7 +19,7 @@ The hierarchy contains location labels and upstream board counts only. It does n
 The last-known-good hierarchy is stored separately from scope, catalogue, selection and board-data cache:
 
 ```text
-/var/lib/masjidpi/masjidboard_hierarchy.json
+/var/lib/masjidframe/masjidboard_hierarchy.json
 ```
 
 Development uses:

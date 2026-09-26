@@ -26,5 +26,5 @@
     });
 
     syncAll();
-    window.addEventListener("masjidpi:listen-status", syncAll);
+    window.addEventListener("masjidframe:listen-status", syncAll);
 })();

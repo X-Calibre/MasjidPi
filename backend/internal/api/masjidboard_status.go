@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
-	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
+	masjidboardruntime "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
 )
 
 type masjidBoardStatusResponse struct {

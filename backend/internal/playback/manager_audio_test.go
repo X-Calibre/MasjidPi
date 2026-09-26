@@ -3,7 +3,7 @@ package playback
 import (
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
 )
 
 type fakeAudioDeviceProvider struct {

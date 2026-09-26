@@ -59,7 +59,7 @@ This is the basis for the working decision that Core is the primary standard tim
 
 `last_updated` is shared upstream metadata between FindMasjid and Core when populated, but it may also be blank.
 
-MasjidBoard Live supports perpetual/annual timetable behaviour as well as manual timetable maintenance and temporary overrides. MasjidPi therefore must not infer timetable validity from the age or presence of `last_updated` alone.
+MasjidBoard Live supports perpetual/annual timetable behaviour as well as manual timetable maintenance and temporary overrides. MasjidFrame therefore must not infer timetable validity from the age or presence of `last_updated` alone.
 
 The provider should track its own retrieval/validation freshness independently.
 
@@ -70,7 +70,7 @@ Do not infer upstream timetable-maintenance mode from:
 - `nextChangeDisplay`; or
 - next-change fields.
 
-MasjidPi consumes the resolved current timetable supplied by MasjidBoard Live.
+MasjidFrame consumes the resolved current timetable supplied by MasjidBoard Live.
 
 ## Jumu'ah and Placeholder Handling
 

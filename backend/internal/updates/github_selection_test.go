@@ -16,7 +16,7 @@ func githubTestRelease(
 	includeBundle bool,
 	includeSignature bool,
 ) githubRelease {
-	bundleName := "masjidpi-update-" + tag + "-pi3.tar.zst"
+	bundleName := "masjidframe-update-" + tag + "-pi3.tar.zst"
 	assets := []githubAsset{}
 
 	if includeBundle {
@@ -74,7 +74,7 @@ func githubTestServer(
 				)
 			}
 			if got := request.Header.Get("User-Agent"); got !=
-				"MasjidPi Update Checker" {
+				"MasjidFrame Update Checker" {
 				t.Errorf(
 					"User-Agent = %q",
 					got,
@@ -173,14 +173,14 @@ func TestGitHubClientSelectsHighestCompleteStableRelease(
 		)
 	}
 	if release.BundleURL !=
-		"https://downloads.example/masjidpi-update-v1.10.0-pi3.tar.zst" {
+		"https://downloads.example/masjidframe-update-v1.10.0-pi3.tar.zst" {
 		t.Fatalf(
 			"bundle URL = %q",
 			release.BundleURL,
 		)
 	}
 	if release.SignatureURL !=
-		"https://downloads.example/masjidpi-update-v1.10.0-pi3.tar.zst.minisig" {
+		"https://downloads.example/masjidframe-update-v1.10.0-pi3.tar.zst.minisig" {
 		t.Fatalf(
 			"signature URL = %q",
 			release.SignatureURL,

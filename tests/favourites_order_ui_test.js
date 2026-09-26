@@ -22,7 +22,7 @@ assert.match(app, /data\.direction|dataset\.direction/);
 assert.match(app, /Favourite order saved/);
 assert.match(app, /favouriteIds = new Set\(previousIds\)/);
 assert.match(html, /app\.js\?v=20260911-stream-sorting/);
-assert.match(html, /style\.css\?v=20260911-favourites-order/);
+assert.match(html, /style\.css\?v=20260926-brand-logo/);
 assert.match(css, /\.favourite-order-controls/);
 assert.match(css, /\.favourite-move/);
 

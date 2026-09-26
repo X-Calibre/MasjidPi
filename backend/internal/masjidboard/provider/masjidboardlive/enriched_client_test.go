@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/model"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/provider"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/model"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/provider"
 )
 
 type enrichmentProvider struct {

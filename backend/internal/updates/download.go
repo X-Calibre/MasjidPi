@@ -41,7 +41,7 @@ func (v CommandVerifier) Verify(
 ) error {
 	command := v.Command
 	if command == "" {
-		command = "/usr/local/sbin/masjidpi-update"
+		command = "/usr/local/sbin/masjidframe-update"
 	}
 	output, err := exec.CommandContext(
 		ctx,
@@ -86,7 +86,7 @@ func (d Downloader) Prepare(
 		return PreparedArtifact{}, fmt.Errorf("updates: create download directory: %w", err)
 	}
 
-	bundleName := fmt.Sprintf("masjidpi-update-%s-pi3.tar.zst", release.Version)
+	bundleName := fmt.Sprintf("masjidframe-update-%s-pi3.tar.zst", release.Version)
 	bundlePath := filepath.Join(d.Directory, bundleName)
 	signaturePath := bundlePath + ".minisig"
 	cleanup := true
@@ -128,7 +128,7 @@ func (d Downloader) download(
 	if err != nil {
 		return 0, fmt.Errorf("updates: create download request: %w", err)
 	}
-	request.Header.Set("User-Agent", "MasjidPi Update Downloader")
+	request.Header.Set("User-Agent", "MasjidFrame Update Downloader")
 
 	client := d.client()
 	response, err := client.Do(request)

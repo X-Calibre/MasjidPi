@@ -1,4 +1,4 @@
-# MasjidPi Validation Checklist
+# MasjidFrame Validation Checklist
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
@@ -59,7 +59,7 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 
 - [x] The standard kernel backlight interface reports `panel_backlight@1` with range 0–31.
 - [x] Backlight brightness can be changed from the appliance Display tab.
-- [x] Brightness persists and is restored when MasjidPi starts.
+- [x] Brightness persists and is restored when MasjidFrame starts.
 - [x] Off, Mild, Medium and Strong cool-white corrections apply correctly.
 - [x] Colour correction also applies to the 720 × 1280 Wi-Fi setup flow.
 - [x] Display controls remain unavailable outside the `appliance-720` profile.
@@ -124,13 +124,13 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 
 - [x] Atomic JSON state remains valid across service restarts and abrupt power loss.
 - [x] Source update, staged activation, self-test and rollback behavior were exercised.
-- [x] The mpv IPC socket is created under /run/masjidpi/mpv.sock.
+- [x] The mpv IPC socket is created under /run/masjidframe/mpv.sock.
 - [x] Board preferences, Listen settings and component profile survive upgrades and restarts.
 - [x] Last-known-good Board and daily-content caches survive upstream failures without being overwritten.
 
 ### Audio
 
-- [x] A USB audio device connected after boot is discovered without restarting MasjidPi.
+- [x] A USB audio device connected after boot is discovered without restarting MasjidFrame.
 - [x] Playback falls back safely when the selected USB device is removed.
 - [x] The saved device is restored automatically after reconnection.
 - [x] Playback and services remain healthy throughout device loss and recovery.

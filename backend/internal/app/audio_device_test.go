@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
 )
 
 func TestPreferredFirstRunAudioDeviceSelectsFirstAvailableUSBDevice(t *testing.T) {

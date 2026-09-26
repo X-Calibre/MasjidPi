@@ -64,7 +64,7 @@ func (c Client) Fetch(ctx context.Context) (Indicators, error) {
 		return Indicators{}, fmt.Errorf("economic indicators: create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "MasjidPi Islamic Economic Indicators")
+	req.Header.Set("User-Agent", "MasjidFrame Islamic Economic Indicators")
 
 	response, err := client.Do(req)
 	if err != nil {

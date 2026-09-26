@@ -6,9 +6,9 @@ readonly expected_version="2025.01-3+deb13u1"
 readonly expected_environment_sha256="5222e55f4527fa5c06270acf336fad31b0368929467ba82c46c508f4aca15a72"
 
 readonly script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-readonly source_dir=${1:-"$HOME/masjidpi-u-boot-source/u-boot-2025.01"}
+readonly source_dir=${1:-"$HOME/masjidframe-u-boot-source/u-boot-2025.01"}
 readonly build_dir="$script_dir/build"
-readonly environment_file="$script_dir/masjidpi.env"
+readonly environment_file="$script_dir/masjidframe.env"
 readonly config_fragment="$script_dir/pi3-ab.config"
 readonly environment_relative=$(realpath --relative-to="$source_dir" "$environment_file")
 
@@ -59,7 +59,7 @@ actual_environment_sha256=$(
 )
 
 if [[ "$actual_environment_sha256" != "$expected_environment_sha256" ]]; then
-    echo "The MasjidPi U-Boot environment differs from the hardware-tested input." >&2
+    echo "The MasjidFrame U-Boot environment differs from the hardware-tested input." >&2
     echo "Expected: $expected_environment_sha256" >&2
     echo "Found:    $actual_environment_sha256" >&2
     exit 1
@@ -138,7 +138,7 @@ do
 done
 
 echo
-echo "MasjidPi Pi 3 U-Boot build complete"
+echo "MasjidFrame Pi 3 U-Boot build complete"
 echo "Version: $actual_version"
 echo "Source date epoch: $SOURCE_DATE_EPOCH"
 echo "Binary: $binary"

@@ -142,7 +142,7 @@ func TestDeviceAccessUsesDHCPHostnameDomainAndAddress(t *testing.T) {
 	runner := &fakeRunner{responses: []runnerResponse{
 		{out: []byte("wlan0:wifi:connected\nlo:loopback:connected (externally)\n")},
 		{out: []byte("10.78.63.4/24\n")},
-		{out: []byte("domain_name = internal.cassim.net.za | host_name = zc-masjidpi-test | ip_address = 10.78.63.4\n")},
+		{out: []byte("domain_name = internal.cassim.net.za | host_name = zc-masjidframe-test | ip_address = 10.78.63.4\n")},
 	}}
 	manager := newNetworkManager(runner)
 
@@ -150,7 +150,7 @@ func TestDeviceAccessUsesDHCPHostnameDomainAndAddress(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := DeviceAccess{IPAddress: "10.78.63.4", FQDN: "zc-masjidpi-test.internal.cassim.net.za"}
+	want := DeviceAccess{IPAddress: "10.78.63.4", FQDN: "zc-masjidframe-test.internal.cassim.net.za"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("access = %#v, want %#v", got, want)
 	}

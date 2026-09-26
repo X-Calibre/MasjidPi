@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-UPDATE_STAGING="/opt/.masjidpi-staging"
-UPDATE_BACKUP="/opt/.masjidpi-backup"
-UPDATE_MARKER="/opt/.masjidpi-update-in-progress"
+UPDATE_STAGING="/opt/.masjidframe-staging"
+UPDATE_BACKUP="/opt/.masjidframe-backup"
+UPDATE_MARKER="/opt/.masjidframe-update-in-progress"
 
 prepare_update() {
-    info "Preparing new MasjidPi runtime..."
+    info "Preparing new MasjidFrame runtime..."
 
     rm -rf "$UPDATE_STAGING"
     mkdir -p "$UPDATE_STAGING"
@@ -14,13 +14,13 @@ prepare_update() {
     install_runtime
     unset RUNTIME_TARGET
 
-    [[ -x "$UPDATE_STAGING/bin/masjidpi" ]] || die "Staged MasjidPi binary is missing."
-    [[ -f "$UPDATE_STAGING/frontend/index.html" ]] || die "Staged MasjidPi frontend is missing."
+    [[ -x "$UPDATE_STAGING/bin/masjidframe" ]] || die "Staged MasjidFrame binary is missing."
+    [[ -f "$UPDATE_STAGING/frontend/index.html" ]] || die "Staged MasjidFrame frontend is missing."
 
     if $SOURCE_MODE; then
         info "Source build staged successfully."
     else
-        [[ -f "$UPDATE_STAGING/VERSION" ]] || die "Staged MasjidPi version file is missing."
+        [[ -f "$UPDATE_STAGING/VERSION" ]] || die "Staged MasjidFrame version file is missing."
 
         local staged_version
         staged_version="$(cat "$UPDATE_STAGING/VERSION")"
@@ -32,7 +32,7 @@ prepare_update() {
 }
 
 rollback_update() {
-    error "MasjidPi ${RELEASE_VERSION} failed validation. Rolling back..."
+    error "MasjidFrame ${RELEASE_VERSION} failed validation. Rolling back..."
 
     stop_service || true
 
@@ -43,7 +43,7 @@ rollback_update() {
     if [[ -d "$UPDATE_BACKUP" ]]; then
         mv "$UPDATE_BACKUP" "$INSTALL_DIR"
     else
-        error "Previous MasjidPi runtime is not available for rollback."
+        error "Previous MasjidFrame runtime is not available for rollback."
         return 1
     fi
 
@@ -54,12 +54,12 @@ rollback_update() {
     rm -f "$UPDATE_MARKER"
 
     if ! restore_previous_components; then
-        error "Unable to restore the previous MasjidPi component profile."
+        error "Unable to restore the previous MasjidFrame component profile."
         return 1
     fi
 
     if ! install_service; then
-        error "Unable to restore the MasjidPi systemd service during rollback."
+        error "Unable to restore the MasjidFrame systemd service during rollback."
         return 1
     fi
 
@@ -69,11 +69,11 @@ rollback_update() {
     fi
 
     if start_service && run_selftest; then
-        success "Previous MasjidPi version and component profile restored successfully."
+        success "Previous MasjidFrame version and component profile restored successfully."
         return 0
     fi
 
-    error "Automatic rollback failed. MasjidPi may require manual recovery."
+    error "Automatic rollback failed. MasjidFrame may require manual recovery."
     return 1
 }
 
@@ -81,25 +81,25 @@ activate_update() {
     local expected_version="$1"
 
     [[ -d "$UPDATE_STAGING" ]] || die "Update staging directory is missing."
-    [[ -d "$INSTALL_DIR" ]] || die "Current MasjidPi runtime is missing."
+    [[ -d "$INSTALL_DIR" ]] || die "Current MasjidFrame runtime is missing."
 
     rm -rf "$UPDATE_BACKUP"
     printf '%s\n' "$expected_version" > "$UPDATE_MARKER"
 
     stop_service
 
-    info "Activating MasjidPi ${expected_version}..."
+    info "Activating MasjidFrame ${expected_version}..."
 
     if ! mv "$INSTALL_DIR" "$UPDATE_BACKUP"; then
         rm -f "$UPDATE_MARKER"
-        die "Unable to preserve the current MasjidPi runtime. Update cancelled."
+        die "Unable to preserve the current MasjidFrame runtime. Update cancelled."
     fi
 
     if ! mv "$UPDATE_STAGING" "$INSTALL_DIR"; then
-        error "Unable to activate the new MasjidPi runtime. Restoring previous version..."
+        error "Unable to activate the new MasjidFrame runtime. Restoring previous version..."
 
         if ! mv "$UPDATE_BACKUP" "$INSTALL_DIR"; then
-            die "Previous MasjidPi runtime could not be restored."
+            die "Previous MasjidFrame runtime could not be restored."
         fi
 
         restore_previous_components || true
@@ -110,7 +110,7 @@ activate_update() {
             die "Update cancelled before the new runtime was activated. Previous version restored successfully."
         fi
 
-        die "Update cancelled and previous MasjidPi runtime failed validation."
+        die "Update cancelled and previous MasjidFrame runtime failed validation."
     fi
 
     # Updates may change service-level runtime requirements such as
@@ -120,7 +120,7 @@ activate_update() {
     if install_service && install_component_services && start_service && run_selftest "$expected_version"; then
         rm -rf "$UPDATE_BACKUP"
         rm -f "$UPDATE_MARKER"
-        success "MasjidPi ${expected_version} installed and validated."
+        success "MasjidFrame ${expected_version} installed and validated."
         return 0
     fi
 

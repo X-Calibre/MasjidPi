@@ -1,11 +1,11 @@
 [Unit]
-Description=Confirm a healthy MasjidPi A/B trial
-After=local-fs.target masjidpi.service
+Description=Confirm a healthy MasjidFrame A/B trial
+After=local-fs.target masjidframe.service
 ConditionPathExists=/etc/fw_env.config
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/masjidpi-ab auto-confirm
+ExecStart=/usr/local/sbin/masjidframe-ab auto-confirm
 TimeoutStartSec=660
 RemainAfterExit=yes
 

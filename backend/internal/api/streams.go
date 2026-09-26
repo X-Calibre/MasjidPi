@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/stream"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/stream"
 )
 
 type streamResponse struct {

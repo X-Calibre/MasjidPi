@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 configure_raspberry_pi_wifi() {
-    local model_path="${MASJIDPI_DEVICE_MODEL_PATH:-/proc/device-tree/model}"
-    local config_dir="${MASJIDPI_NETWORKMANAGER_CONF_DIR:-/etc/NetworkManager/conf.d}"
-    local config_path="$config_dir/masjidpi-wifi-powersave.conf"
+    local model_path="${MASJIDFRAME_DEVICE_MODEL_PATH:-/proc/device-tree/model}"
+    local config_dir="${MASJIDFRAME_NETWORKMANAGER_CONF_DIR:-/etc/NetworkManager/conf.d}"
+    local config_path="$config_dir/masjidframe-wifi-powersave.conf"
     local model
 
     if [[ ! -r "$model_path" ]]; then

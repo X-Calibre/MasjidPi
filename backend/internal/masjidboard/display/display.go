@@ -3,10 +3,10 @@ package display
 import (
 	"time"
 
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/dailycontent"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/economic"
-	masjidboardruntime "github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/runtime"
-	"github.com/X-Calibre/MasjidPi/backend/internal/masjidboard/selection"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/dailycontent"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/economic"
+	masjidboardruntime "github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/runtime"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/masjidboard/selection"
 )
 
 // View is the read-only presentation model consumed by a MasjidBoard display.

@@ -30,7 +30,7 @@
     };
 
     function showBanner(message, kind = "success") {
-        window.MasjidPiUI.notify(message, kind);
+        window.MasjidFrameUI.notify(message, kind);
     }
 
     async function request(options = {}) {

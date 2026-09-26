@@ -10,7 +10,7 @@ import (
 )
 
 func TestCommandTrialStatus(t *testing.T) {
-	command := filepath.Join(t.TempDir(), "masjidpi-ab")
+	command := filepath.Join(t.TempDir(), "masjidframe-ab")
 	if err := os.WriteFile(command, []byte(`#!/bin/sh
 test "$1" = machine-status || exit 2
 printf '%s\n' running_slot=b active_slot=b rollback_slot=a upgrade_available=1

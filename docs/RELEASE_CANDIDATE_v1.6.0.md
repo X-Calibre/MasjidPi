@@ -435,12 +435,26 @@ This record covers the v1.6.0 release-candidate cycle. `v1.6.0-rc.1` introduced 
 - [x] Verify the release contains ARM64 and AMD64 archives, `SHA256SUMS`, the Pi 3 A/B image and checksum, and the signed update bundle and Minisign signature.
 - [x] Install and validate the published RC10 update bundle on the Pi 3 appliance.
 
-## Stable-release hardware follow-up
+## Stable-release hardware acceptance
 
-The first-run and RC2 enhancement flows have been functionally accepted on Raspberry Pi 4 source installations. Before stable v1.6.0 promotion:
+- [x] The first-run flow completes on a freshly flashed Pi 3B appliance image, including setup persistence and automatic Board startup after reboot.
+- [x] A 35.81-hour Pi 3B fresh-image soak records 1,846 samples with no service failures, failed-unit samples, throttling, A/B mismatch, pending-update state or non-zero boot count.
+- [x] During the soak, available memory remains at or above 496.8 MiB and temperature remains below 67.8 °C while idle and live playback states are exercised.
+- [x] Published RC9 installation, probation, confirmed reboot, deliberate rollback, fresh-image and live display/audio paths are accepted.
+- [x] Physical power-loss recovery and the corrective RC10 updater lock and orphan-cleanup behavior are accepted.
+- [x] Published RC10 installation, automatic confirmation, committed reboot, persistent identity/configuration and display/audio operation are accepted.
+- [x] No unresolved release-blocking defect remains after RC10 validation.
 
-- confirm the first-run flow on the intended Pi 3B appliance hardware or explicitly record its deferral;
-- review Pi 3B memory headroom during setup and normal Board operation; and
-- complete any fixes discovered during the RC soak period.
+## v1.6.0 publication checklist
 
-Release-candidate tags are immutable and must not be moved or reused. Any code change after RC10 requires a new release-candidate tag.
+- [x] RC10 publication and Pi 3 hardware acceptance are complete.
+- [x] Stable version metadata is set to `v1.6.0`.
+- [x] Stable scope and acceptance evidence are documented.
+- [ ] Merge the v1.6.0 release-preparation pull request after CI passes.
+- [ ] Confirm CI passes on the resulting accepted `main` commit.
+- [ ] Create immutable tag `v1.6.0` from that accepted `main` commit.
+- [ ] Verify the stable release contains ARM64 and AMD64 archives plus `SHA256SUMS`.
+- [ ] Build, sign and upload the Pi 3 A/B image, checksum, update bundle and Minisign signature from the immutable stable tag.
+- [ ] Verify the published stable Pi artifacts and install the signed v1.6.0 update on the Pi 3 appliance.
+
+Release-candidate tags are immutable and must not be moved or reused. The stable `v1.6.0` tag must be created only from the accepted release-preparation commit and must remain immutable.

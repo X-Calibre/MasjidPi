@@ -99,13 +99,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Release
 
-**Current stable release: v1.5.2**
+**Current stable release: v1.6.0**
 
-**Current release candidate: v1.6.0-rc.10**
-
-v1.6.0-rc.10 includes the signed automatic updater and Pi 3 A/B appliance image, and adds exclusive updater locking plus automatic recovery of temporary workspaces left by abrupt power loss. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md).
-
-v1.5.2 improves appliance startup and resilience and substantially expands MasjidBoard content and presentation. See the [v1.5.2 acceptance record](docs/RELEASE_CANDIDATE_v1.5.2.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for details and downloads.
+v1.6.0 adds touchscreen first-run setup, native Raspberry Pi Touch Display 2 support, expanded Board controls and themes, and a signed Pi 3 A/B appliance updater with automatic health confirmation, rollback and interrupted-update recovery. See the [v1.6.0 acceptance record](docs/RELEASE_CANDIDATE_v1.6.0.md) and [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases) for validation details and downloads.
 
 ## Data sources and acknowledgements
 

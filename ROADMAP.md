@@ -4,7 +4,7 @@ MasjidPi is a lightweight appliance for live masjid audio and prayer-time inform
 
 ## Current release
 
-**v1.5.2 is the current stable release. v1.6.0-rc.10 is the current release candidate.**
+**v1.6.0 is the current stable release.**
 
 MasjidPi currently provides:
 
@@ -34,7 +34,7 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 
 ### Appliance product work
 
-- Prepare stable v1.6.0 promotion after accepted RC10 publication, Pi 3 A/B installation, probation, confirmed reboot, display/audio checks and interrupted-workspace recovery validation.
+- Monitor the initial v1.6.0 appliance rollout while retaining the accepted RC10 image, update, rollback, soak and interrupted-update recovery evidence.
 - Replace temporary splash artwork with final MasjidFrame branding.
 - Finalise the portrait enclosure, display, audio and power design.
 - Validate the selected USB audio path, speakers and physical enclosure.

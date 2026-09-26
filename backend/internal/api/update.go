@@ -151,8 +151,7 @@ func (s *Server) updateInstall(
 		return
 	}
 
-	state, err := s.updateController.Install(
-		r.Context(),
+	state, err := s.updateController.StartInstall(
 		true,
 		request.InterruptPlayback,
 	)
@@ -161,7 +160,7 @@ func (s *Server) updateInstall(
 		return
 	}
 
-	writeJSON(w, http.StatusOK, state)
+	writeJSON(w, http.StatusAccepted, state)
 }
 
 func (s *Server) requireUpdatePost(

@@ -38,7 +38,11 @@
                 <div><dt>Download</dt><dd data-update-download>Loading…</dd></div>
                 <div><dt>Installation</dt><dd data-update-installation>Not started</dd></div>
             </dl>
-            <p class="update-error hidden" data-update-error role="alert"></p>
+            <p class="update-error hidden" data-update-error-summary role="alert"></p>
+            <details class="update-error-details hidden" data-update-error-details>
+                <summary>Technical details</summary>
+                <pre data-update-error></pre>
+            </details>
             <a class="update-release-link hidden" data-update-link target="_blank" rel="noopener">View release notes</a>
             <div class="update-actions hidden" data-update-actions>
                 <button class="primary compact-action" type="button" data-update-approve>Approve update</button>
@@ -52,7 +56,7 @@
 </div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
 <script src="components-ui.js"></script>
-<script src="update-status.js?v=20260917-touch-summary"></script>
+<script src="update-status.js?v=20260926-install-lifecycle"></script>
 <script>
 (() => {
     const toggle = document.getElementById("themeToggle");

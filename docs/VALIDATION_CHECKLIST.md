@@ -4,6 +4,11 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 
 ## Planned for v1.6.1
 
+### Product identity
+
+- [ ] Confirm the Web UI, appliance display, splash screen, services, executables and persistent paths use MasjidFrame naming on a fresh image.
+- [ ] Confirm an update from v1.6.0 preserves appliance identity and migrates persistent state without data loss.
+
 ### Wi-Fi robustness
 
 - [ ] Reject non-empty WPA-PSK credentials unless they are 8–63 characters or exactly 64 hexadecimal characters.
@@ -11,6 +16,15 @@ This living checklist records completed v1.5.2 hardware evidence and validation 
 - [ ] Re-test visible Wi-Fi replacement from the appliance touchscreen with a valid WPA2-Personal password.
 - [ ] Reboot after replacement and confirm NetworkManager automatically reconnects to the saved SSID.
 - [ ] If a malformed or stale NetworkManager profile is encountered, preserve evidence before deleting and recreating the profile; do not automatically delete a known-good profile after an authentication failure.
+
+### Appliance update lifecycle
+
+- [ ] Start Install Now from the appliance display and confirm closing or navigating away from the initiating page does not cancel installation.
+- [ ] Confirm the API persists the installing state before returning HTTP 202 and the display polls through installation, reboot and probation.
+- [ ] Confirm technical failure detail is bounded in both the appliance display and Web UI.
+- [ ] Confirm downloaded bundle and signature files remain available during the trial and rollback window.
+- [ ] Confirm those files are removed only after the new A/B slot is healthy and committed.
+- [ ] Confirm a failed or rolled-back trial retains the files for retry and diagnosis.
 
 ## Completed for v1.6.0-rc.10
 

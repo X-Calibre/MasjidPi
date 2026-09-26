@@ -120,6 +120,35 @@ func (a *applianceUpdates) Install(
 	return a.Controller.Install(ctx, conditions)
 }
 
+func (a *applianceUpdates) StartInstall(
+	immediate bool,
+	interruptPlayback bool,
+) (updates.State, error) {
+	a.mu.RLock()
+	playbackProvider := a.playback
+	boardProvider := a.board
+	now := a.now()
+	a.mu.RUnlock()
+	conditions := currentInstallConditions(
+		now,
+		immediate,
+		interruptPlayback,
+		playbackProvider,
+		boardProvider,
+	)
+	state, err := a.Status()
+	if err != nil {
+		return state, err
+	}
+	if !updates.EvaluateInstall(state, conditions).Allowed {
+		return a.Controller.StartInstall(conditions)
+	}
+	if conditions.PlaybackActive && immediate && interruptPlayback {
+		playbackProvider.Stop()
+	}
+	return a.Controller.StartInstall(conditions)
+}
+
 func (a *applianceUpdates) InstallAutomatic(
 	ctx context.Context,
 	now time.Time,

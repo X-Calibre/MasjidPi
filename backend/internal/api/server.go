@@ -41,7 +41,7 @@ type updateController interface {
 	Check(context.Context) (updates.State, error)
 	Approve() (updates.State, error)
 	Postpone(time.Time) (updates.State, error)
-	Install(context.Context, bool, bool) (updates.State, error)
+	StartInstall(bool, bool) (updates.State, error)
 }
 
 type Server struct {

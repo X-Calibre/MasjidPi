@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+func TestDefaultGitHubReleasesURLUsesPublishedRepository(t *testing.T) {
+	const want = "https://api.github.com/repos/X-Calibre/MasjidPi/releases?per_page=30"
+	if DefaultGitHubReleasesURL != want {
+		t.Fatalf("DefaultGitHubReleasesURL = %q, want %q", DefaultGitHubReleasesURL, want)
+	}
+}
+
 func githubTestRelease(
 	tag string,
 	draft bool,

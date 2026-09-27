@@ -99,9 +99,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Release
 
-**Release candidate: v1.6.1**
+**Preparing v1.6.3**
 
-v1.6.1 completes the MasjidFrame product rename and branding, hardens Wi-Fi credential validation, and makes on-display updates continue independently of the initiating browser request while retaining update assets until A/B confirmation. See the [v1.6.1 acceptance record](docs/RELEASE_CANDIDATE_v1.6.1.md) for the remaining validation and publication gates. The current published stable release remains available from [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases).
+v1.6.3 checks shared Ayah, Hadith and Sunnah content whenever it refreshes MasjidBoard notices, normally every 30 minutes. See the [v1.6.3 acceptance record](docs/RELEASE_CANDIDATE_v1.6.3.md) for validation and publication gates. Published stable releases are available from [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases).
 
 ## Data sources and acknowledgements
 

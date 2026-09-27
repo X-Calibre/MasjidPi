@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -20,11 +21,14 @@ const dailyResponse = `let translations = {
 "sunnahHeading":{"en":"Sunnah"},"sunnah":{"en":"Sunnah text"},"sunnahRef":{"en":"Muslim"},
 "Thu Sep 03 2026 00:00:00 GMT+0200 (South Africa Standard Time)":{"en":""}}`
 
-func TestRefreshDailyIslamicContentFetchesOncePerJohannesburgDay(t *testing.T) {
+func TestRefreshDailyIslamicContentChecksAgainAndUpdatesChangedContent(t *testing.T) {
 	t.Parallel()
 	var requests atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		requests.Add(1)
+		if requests.Add(1) == 3 {
+			fmt.Fprint(w, strings.Replace(dailyResponse, "Hadith text", "New Hadith text", 1))
+			return
+		}
 		fmt.Fprint(w, dailyResponse)
 	}))
 	defer server.Close()
@@ -41,10 +45,13 @@ func TestRefreshDailyIslamicContentFetchesOncePerJohannesburgDay(t *testing.T) {
 	if err := service.RefreshDailyIslamicContent(context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	if requests.Load() != 1 || service.DailyIslamicContent() == nil {
+	if err := service.RefreshDailyIslamicContent(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if requests.Load() != 3 || service.DailyIslamicContent().Hadith.Text != "New Hadith text" {
 		t.Fatalf("requests = %d, content = %+v", requests.Load(), service.DailyIslamicContent())
 	}
-	if cached, err := (dailycontent.Store{Path: path}).Load(); err != nil || cached == nil {
+	if cached, err := (dailycontent.Store{Path: path}).Load(); err != nil || cached == nil || cached.Hadith.Text != "New Hadith text" {
 		t.Fatalf("cached content = %+v, %v", cached, err)
 	}
 }

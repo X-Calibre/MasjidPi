@@ -13,9 +13,18 @@ success() { :; }
 source "$ROOT/scripts/runtime.sh"
 
 config="$TMP/config.yaml"
+
 cat > "$config" <<'EOF'
 player:
   socket: "/tmp/masjidframe.sock"
+EOF
+
+migrate_runtime_socket_path "$config"
+grep -qx '  socket: "/run/masjidframe/mpv.sock"' "$config"
+
+cat > "$config" <<'EOF'
+player:
+  socket: "/run/masjidpi/mpv.sock"
 EOF
 
 migrate_runtime_socket_path "$config"
@@ -29,4 +38,4 @@ EOF
 migrate_runtime_socket_path "$config"
 grep -qx '  socket: "/srv/custom/mpv.sock"' "$config"
 
-printf '[PASS] runtime socket migration moves only the previous packaged default\n'
+printf '[PASS] runtime socket migration moves only previous packaged defaults\n'

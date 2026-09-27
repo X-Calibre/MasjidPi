@@ -26,8 +26,8 @@ done
 install -d -o root -g root -m 0755 \
     "$filesystem/opt/masjidframe/bin" \
     "$filesystem/opt/masjidframe/frontend" \
-    "$filesystem/persistent/masjidframe/etc" \
-    "$filesystem/persistent/masjidframe/var" \
+    "$filesystem/persistent/masjidpi/etc" \
+    "$filesystem/persistent/masjidpi/var" \
     "$filesystem/etc/masjidframe" \
     "$filesystem/var/lib/masjidframe" \
     "$filesystem/usr/lib/systemd/system" \
@@ -52,21 +52,21 @@ install -o root -g root -m 0644 \
 
 install -o root -g root -m 0644 \
     "$runtime_source/default.yaml" \
-    "$filesystem/persistent/masjidframe/etc/config.yaml"
+    "$filesystem/persistent/masjidpi/etc/config.yaml"
 
 printf '%s\n' \
     'MASJIDFRAME_COMPONENTS=listen,board' \
-    > "$filesystem/persistent/masjidframe/etc/components.env"
+    > "$filesystem/persistent/masjidpi/etc/components.env"
 
 chmod 0644 \
-    "$filesystem/persistent/masjidframe/etc/components.env"
+    "$filesystem/persistent/masjidpi/etc/components.env"
 
 chown root:root \
-    "$filesystem/persistent/masjidframe/etc/components.env"
+    "$filesystem/persistent/masjidpi/etc/components.env"
 
 install -o root -g root -m 0644 \
     "$runtime_source/catalogue.json" \
-    "$filesystem/persistent/masjidframe/var/catalogue.json"
+    "$filesystem/persistent/masjidpi/var/catalogue.json"
 
 install -o root -g root -m 0755 \
     "$runtime_source/scripts/masjidboard-display.sh" \

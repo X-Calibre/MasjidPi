@@ -142,6 +142,15 @@ button.app-tab {
 
 .radio-schedule-times input {
     width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+#radioScheduleSave {
+    margin-top: 16px;
+    min-height: 48px;
 }
 
 .radio-schedule-disabled {

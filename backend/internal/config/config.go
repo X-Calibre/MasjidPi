@@ -36,6 +36,17 @@ type PlaybackConfig struct {
 	RetryInterval string `yaml:"retry_interval"`
 }
 
+const (
+	legacyMasjidPiSocket = "/run/masjidpi/mpv.sock"
+	masjidFrameSocket    = "/run/masjidframe/mpv.sock"
+)
+
+func migrateLegacyDefaults(cfg *Config) {
+	if cfg.Player.Socket == legacyMasjidPiSocket {
+		cfg.Player.Socket = masjidFrameSocket
+	}
+}
+
 // Load reads a YAML configuration file from disk.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
@@ -49,6 +60,7 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("parse config: %w", err)
 	}
 
+	migrateLegacyDefaults(cfg)
 	applyDefaults(cfg)
 
 	if err := validate(cfg); err != nil {

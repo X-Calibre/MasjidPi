@@ -13,14 +13,15 @@ v1.6.4 refines the Listen and Board controls on the appliance. This record track
 ## Automated validation
 
 - [x] Draft pull request #113 runs Go formatting, vet, race-enabled tests, shell checks, installer/display tests and frontend tests successfully on the latest UI-fix commit.
-- [ ] Recheck CI on the final release-preparation commit and the merged main commit.
+- [x] The release-preparation commit `cb291b0` passed the complete pull-request CI workflow.
+- [ ] Recheck CI on the merged main commit.
 
 ## Appliance branch validation
 
 - [x] ARM64 test binary built from `fb2a72a` and temporarily installed on the Pi 3 with a full frontend copy; the subsequent preview spacing change from `1ebe65c` was copied to the same test appliance.
 - [x] The API reported `v1.6.4-rc.1`, the Touch Display 2 profile `appliance-720`, and the audio device name `MasjidFrame Built-In Audio`; both application and display services were active.
 - [x] The owner confirmed the larger Radio schedule controls after a browser refresh, the preview spacing, and the remaining Listen, schedule, Board preview and theme-description checks.
-- [ ] Restore the temporary test installation to the confirmed v1.6.3 baseline before validating an official update from v1.6.3.
+- [x] Restore the temporary test binary and original frontend to the confirmed v1.6.3 baseline. The API reports `v1.6.3-image`, the original frontend contains the v1.6.3 Radio schedule label, and both services are active. Restart the display browser before signed-update validation so it loads the restored assets.
 
 ## Release validation and publication
 

@@ -15,7 +15,7 @@ v1.6.3 refreshes MasjidBoard Live shared Ayah, Hadith and Sunnah content at the 
 - [x] Service test confirms disabled-content behavior and last-known-good fallback.
 - [x] Focused MasjidBoard service and app Go tests pass locally.
 - [x] Go formatting, vet, race-enabled tests and shell/frontend CI pass on the release-preparation pull request.
-- [ ] CI passes on the resulting main commit.
+- [x] Release workflow succeeds for the tagged main commit.
 
 ## Appliance validation
 
@@ -23,14 +23,16 @@ v1.6.3 refreshes MasjidBoard Live shared Ayah, Hadith and Sunnah content at the 
 - [x] The 12:47 SAST notice refresh ran for all three selected masjids with no daily-content error.
 - [ ] Confirm a changed Hadith is picked up by a periodic fetch without a reboot. The release owner accepted proceeding without waiting for this live observation; repeated same-day fetches and changed-content persistence are covered by the passing automated tests.
 - [ ] Verify unchanged items remain stable and a temporary source failure keeps the last good content.
-- [ ] Verify normal notice and timetable refresh, display and audio remain healthy.
+- [x] Verify normal notice and timetable refresh, display and audio remain healthy. The installed v1.6.3 image runs both services, and the owner confirmed board and audio operation.
+- [x] Install the published signed update through the WebUI on the Pi 3. The appliance reported `v1.6.3-image` in `system_a`, completed ten-minute probation, and confirmed the slot (`active_slot=a`, `rollback_slot=a`, `upgrade_available=0`, `bootcount=0`). After a normal reboot, both services remained active and no units had failed.
+- [x] Explain the cleared installation status after reboot: an automatic update check recognizes v1.6.3 as installed and clears the prior release offer and installation record; this does not indicate a rollback.
 
 ## Publication
 
 - [x] Version metadata is prepared as `v1.6.3` on the enhancement branch.
-- [ ] Merge the release-preparation pull request after CI and appliance validation.
-- [ ] Create immutable tag `v1.6.3` from the accepted main commit.
-- [ ] Verify the published ARM64 and AMD64 archives, SHA256SUMS and release metadata.
-- [ ] Build, sign and verify the Pi 3 A/B image and update bundle where applicable.
+- [x] Merge pull request #111 into main at `f47d8aeace519509d04fa6c4827b8d3746b5da3b`.
+- [x] Create immutable tag `v1.6.3` from the accepted main commit.
+- [x] Verify the published ARM64 and AMD64 archives, SHA256SUMS and release metadata.
+- [x] Build, sign and verify the Pi 3 A/B image and update bundle; upload the image, signed bundle and Pi 3 checksums to the release.
 
-Do not move or reuse the release tag. The release workflow publishes assets when the tag is created, so tagging follows acceptance.
+The published tag is immutable; do not move or reuse it.

@@ -99,9 +99,9 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Release
 
-**Preparing v1.6.3**
+**Current stable release: v1.6.3**
 
-v1.6.3 checks shared Ayah, Hadith and Sunnah content whenever it refreshes MasjidBoard notices, normally every 30 minutes. See the [v1.6.3 acceptance record](docs/RELEASE_CANDIDATE_v1.6.3.md) for validation and publication gates. Published stable releases are available from [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases).
+v1.6.3 checks shared Ayah, Hadith and Sunnah content whenever it refreshes MasjidBoard notices, normally every 30 minutes. The [v1.6.3 acceptance record](docs/RELEASE_CANDIDATE_v1.6.3.md) records release and appliance validation. Download the release from [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases/tag/v1.6.3).
 
 ## Data sources and acknowledgements
 

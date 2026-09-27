@@ -15,8 +15,13 @@
     function render(data) {
         const mode = data.radio_mode || "schedule";
         for (const [name, button] of Object.entries(buttons)) {
-            button.classList.toggle("active", name === mode);
-            button.setAttribute("aria-pressed", name === mode ? "true" : "false");
+            const active = Boolean(data.radio_enabled) && name === mode;
+            button.classList.toggle("active", active);
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+        }
+        if (!data.radio_enabled) {
+            status.textContent = "Radio is off. Choose Play on Schedule or Play Now to enable it.";
+            return;
         }
 
         if (mode === "stopped") {
@@ -41,6 +46,18 @@
     async function setMode(mode) {
         for (const button of Object.values(buttons)) button.disabled = true;
         try {
+            if (mode !== "stopped") {
+                const current = await fetch("/api/listen/status");
+                if (!current.ok) throw new Error(`Could not read Listen status (${current.status})`);
+                if (!(await current.json()).radio_enabled) {
+                    const power = await fetch("/api/listen/power", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ module: "radio", enabled: true })
+                    });
+                    if (!power.ok) throw new Error((await power.json().catch(() => ({}))).error || `Could not enable Radio (${power.status})`);
+                }
+            }
             const response = await fetch("/api/listen/radio-mode", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },

@@ -45,6 +45,51 @@ func TestALSAAudioDevicesReflectHotPlugChanges(t *testing.T) {
 	}
 }
 
+func TestBuiltInAudioLabelRequiresMatchingUSBIdentity(t *testing.T) {
+	for _, tc := range []struct {
+		name, vendor, product, want string
+	}{
+		{"appliance adapter", "0c76", "1203", "MasjidFrame Built-In Audio"},
+		{"different product", "0c76", "1204", "USB Audio"},
+		{"different vendor", "1234", "1203", "USB Audio"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			usbPath := filepath.Join(root, "usb", "1-1")
+			interfacePath := filepath.Join(usbPath, "1-1:1.0")
+			if err := os.MkdirAll(interfacePath, 0755); err != nil {
+				t.Fatal(err)
+			}
+			for file, value := range map[string]string{"idVendor": tc.vendor, "idProduct": tc.product} {
+				if err := os.WriteFile(filepath.Join(usbPath, file), []byte(value+"\n"), 0644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := os.WriteFile(filepath.Join(interfacePath, "uevent"), []byte("DRIVER=snd-usb-audio\n"), 0644); err != nil {
+				t.Fatal(err)
+			}
+			cardPath := filepath.Join(root, "sound", "card2")
+			if err := os.MkdirAll(cardPath, 0755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(cardPath, "id"), []byte("Device\n"), 0644); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(interfacePath, filepath.Join(cardPath, "device")); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(root, "sound", "pcmC2D0p"), nil, 0644); err != nil {
+				t.Fatal(err)
+			}
+			devices, err := discoverALSAAudioDevices(filepath.Join(root, "sound"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertAudioDevice(t, devices, "alsa/plughw:CARD=Device,DEV=0", tc.want)
+		})
+	}
+}
+
 func TestALSAAudioDevicesFallsBackWhenSysfsUnavailable(t *testing.T) {
 	want := []AudioDevice{{Name: "auto", Description: "Default audio output"}}
 	provider := NewALSAAudioDevices(filepath.Join(t.TempDir(), "missing"), fallbackAudioDevices{devices: want})

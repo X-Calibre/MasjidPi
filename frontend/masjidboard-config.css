@@ -168,6 +168,7 @@
 .display-layout-picker input[type="range"] { width:min(420px,100%); accent-color:var(--accent); }
 .display-layout-picker output { display:inline-block; min-width:88px; margin-left:12px; color:var(--text); font-weight:700; }
 .display-layout-picker .config-meta { margin: 8px 0 10px; }
+.display-preview-action { margin: 22px 0 12px; }
 
 .status-summary {
     display: grid;

@@ -118,6 +118,9 @@ async function setSourceVolume(source, volume) {
 }
 
 async function startListening() {
+    if (listenStatus && !listenStatus.masjid_enabled) {
+        await requestJSON("/api/listen/power", jsonOptions("PUT", { module: "masjid", enabled: true }));
+    }
     return requestJSON("/api/listen/start", { method: "POST" });
 }
 
@@ -312,19 +315,20 @@ function setOffline(offline) {
     playButton.disabled = offline || Boolean(listenStatus?.listening);
     stopButton.disabled = offline || !listenStatus?.listening;
     updateCatalogueButton.disabled = offline;
-    document.getElementById("masjidPowerSwitch").disabled = offline;
-    document.getElementById("radioPowerSwitch").disabled = offline;
 }
 
 function updateControlAvailability(status) {
     const radioEnabled = backendOnline && Boolean(status.radio_enabled);
     for (const id of [
-        "radioModeSchedule", "radioModePlayNow", "radioModeStop", "radioVolumeSlider",
-        "radioResumeDelaySlider", "radioScheduleEnabled", "radioStream"
+        "radioVolumeSlider", "radioResumeDelaySlider", "radioScheduleEnabled", "radioStream"
     ]) {
         const control = document.getElementById(id);
         if (control) control.disabled = !radioEnabled;
     }
+    for (const id of ["radioModeSchedule", "radioModePlayNow"]) {
+        document.getElementById(id).disabled = !backendOnline;
+    }
+    document.getElementById("radioModeStop").disabled = !radioEnabled;
     for (const id of ["radioScheduleStart", "radioScheduleStop"]) {
         const control = document.getElementById(id);
         if (control) control.disabled = !radioEnabled || !document.getElementById("radioScheduleEnabled")?.checked;

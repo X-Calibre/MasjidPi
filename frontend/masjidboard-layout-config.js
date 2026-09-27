@@ -4,7 +4,7 @@
     const endpoint = "/api/masjidboard/layout";
     const themeInputs = Array.from(document.querySelectorAll('input[name="boardTheme"]'));
     const saveStatus = document.getElementById("displaySaveStatus");
-    const meta = document.getElementById("displayLayoutMeta");
+    const displayPreviewLink = document.getElementById("displayPreviewLink");
     const slideDuration = document.getElementById("slideDuration");
     const slideDurationValue = document.getElementById("slideDurationValue");
     const showEconomicIndicators = document.getElementById("showEconomicIndicators");
@@ -15,7 +15,7 @@
         show_daily_sunnah: document.getElementById("showDailySunnah"),
     };
 
-    if (!saveStatus || !meta || !slideDuration || !slideDurationValue || !showEconomicIndicators || !showDuaAfterAdhan ||
+    if (!saveStatus || !slideDuration || !slideDurationValue || !showEconomicIndicators || !showDuaAfterAdhan ||
         Object.values(dailyContentInputs).some((input) => !input) || themeInputs.length === 0) return;
 
     let lastSavedState = null;
@@ -23,11 +23,6 @@
     let saving = false;
 
     const supportedThemes = new Set(["emerald", "midnight", "slate", "ruby", "light", "ivory", "sage", "sky", "rose", "black-white"]);
-    const themeNames = {
-        emerald: "Emerald", midnight: "Midnight", slate: "Slate",
-        ruby: "Ruby", light: "Light Gold", ivory: "Ivory", sage: "Sage",
-        sky: "Sky", rose: "Rose", "black-white": "Black & White",
-    };
 
     function showBanner(message, kind = "success") {
         window.MasjidFrameUI.notify(message, kind);
@@ -50,10 +45,6 @@
     function setTheme(theme) {
         const value = supportedThemes.has(theme) ? theme : "emerald";
         for (const input of themeInputs) input.checked = input.value === value;
-    }
-
-    function describe(theme) {
-        return `The ${themeNames[theme] || "Emerald"} theme is shared by the automatically selected standard and Touch Display 2 profiles.`;
     }
 
     function updateDurationLabel() { slideDurationValue.textContent = `${slideDuration.value} seconds`; }
@@ -89,7 +80,6 @@
         showDuaAfterAdhan.checked = state.show_dua_after_adhan;
         for (const [key, input] of Object.entries(dailyContentInputs)) input.checked = state[key];
         updateDurationLabel();
-        meta.textContent = describe(state.theme);
     }
 
     function setSaveStatus(message, className = "") {
@@ -108,8 +98,8 @@
             applyState(lastSavedState);
             setSaveStatus("Changes are saved automatically.");
         } catch (error) {
-            meta.textContent = `Could not load display settings: ${error.message}`;
             setSaveStatus("Settings could not be loaded.", "error");
+            showBanner(`Could not load display settings: ${error.message}`, "error");
         } finally {
             slideDuration.disabled = false;
             showEconomicIndicators.disabled = false;
@@ -154,6 +144,12 @@
     showEconomicIndicators.addEventListener("change", saveAutomatically);
     showDuaAfterAdhan.addEventListener("change", saveAutomatically);
     for (const input of Object.values(dailyContentInputs)) input.addEventListener("change", saveAutomatically);
-    for (const input of themeInputs) input.addEventListener("change", () => { meta.textContent = describe(selectedTheme()); saveAutomatically(); });
+    for (const input of themeInputs) input.addEventListener("change", saveAutomatically);
+    if (displayPreviewLink) {
+        fetch("/api/display/profile", {cache: "no-store"})
+            .then((response) => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+            .then((data) => { displayPreviewLink.classList.toggle("hidden", data.profile === "appliance-720"); })
+            .catch(() => {});
+    }
     load();
 })();

@@ -113,12 +113,38 @@ func alsaCardLabel(cardPath, cardID string) string {
 	case strings.Contains(lowerID, "analog"):
 		return "Analog Audio"
 	}
+	if isMasjidFrameBuiltInAudio(cardPath) {
+		return "MasjidFrame Built-In Audio"
+	}
 
 	uevent, _ := os.ReadFile(filepath.Join(cardPath, "device", "uevent"))
 	if strings.Contains(strings.ToLower(string(uevent)), "snd-usb-audio") {
 		return "USB Audio"
 	}
 	return cardID
+}
+
+// The Waveshare adapter used in the appliance reports a generic ALSA card ID.
+// Match its USB vendor/product ID rather than renaming every USB sound card.
+func isMasjidFrameBuiltInAudio(cardPath string) bool {
+	devicePath, err := filepath.EvalSymlinks(filepath.Join(cardPath, "device"))
+	if err != nil {
+		return false
+	}
+	for depth := 0; depth < 5; depth++ {
+		vendor, vendorErr := os.ReadFile(filepath.Join(devicePath, "idVendor"))
+		product, productErr := os.ReadFile(filepath.Join(devicePath, "idProduct"))
+		if vendorErr == nil && productErr == nil {
+			return strings.EqualFold(strings.TrimSpace(string(vendor)), "0c76") &&
+				strings.EqualFold(strings.TrimSpace(string(product)), "1203")
+		}
+		parent := filepath.Dir(devicePath)
+		if parent == devicePath {
+			break
+		}
+		devicePath = parent
+	}
+	return false
 }
 
 func AudioDeviceDescription(name string) string {

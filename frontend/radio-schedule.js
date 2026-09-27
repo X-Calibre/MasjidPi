@@ -3,82 +3,88 @@
     const start = document.getElementById("radioScheduleStart");
     const stop = document.getElementById("radioScheduleStop");
     const times = document.getElementById("radioScheduleTimes");
+    const saveButton = document.getElementById("radioScheduleSave");
     const status = document.getElementById("radioScheduleStatus");
 
-    if (!enabled || !start || !stop || !times || !status) return;
+    if (!enabled || !start || !stop || !times || !saveButton || !status) return;
 
-    let editing = false;
+    let saved = null;
+    let saving = false;
 
-    function renderEnabled() {
-        start.disabled = !enabled.checked;
-        stop.disabled = !enabled.checked;
+    function values() {
+        return { enabled: enabled.checked, start: start.value, stop: stop.value };
+    }
+
+    function isDirty() {
+        const current = values();
+        return saved && (current.enabled !== saved.enabled || current.start !== saved.start || current.stop !== saved.stop);
+    }
+
+    function updateControls() {
+        start.disabled = !enabled.checked || enabled.disabled;
+        stop.disabled = !enabled.checked || enabled.disabled;
         times.classList.toggle("radio-schedule-disabled", !enabled.checked);
+        saveButton.disabled = saving || enabled.disabled || !isDirty();
+        if (isDirty() && !saving) status.textContent = "Unsaved schedule changes.";
     }
 
     function renderStatus(data) {
         if (!data.radio_schedule_enabled) {
-            status.textContent = "Radio schedule disabled — radio may play at any time.";
+            status.textContent = "Daily Radio hours are off. In scheduled mode, Radio may play at any time.";
             return;
         }
-        status.textContent = data.radio_schedule_allows_now
-            ? `Radio is currently allowed (${data.radio_schedule_start}–${data.radio_schedule_stop}).`
-            : `Radio is currently silenced (${data.radio_schedule_start}–${data.radio_schedule_stop}).`;
+        const hours = `${data.radio_schedule_start} to ${data.radio_schedule_stop}`;
+        status.textContent = `Radio plays daily from ${hours} (appliance local time). It is currently ${data.radio_schedule_allows_now ? "within" : "outside"} these hours.`;
+    }
+
+    function refresh(data) {
+        const dirty = isDirty();
+        saved = {
+            enabled: Boolean(data.radio_schedule_enabled),
+            start: data.radio_schedule_start || "06:00",
+            stop: data.radio_schedule_stop || "22:00"
+        };
+        if (!dirty || saving) {
+            enabled.checked = saved.enabled;
+            start.value = saved.start;
+            stop.value = saved.stop;
+            renderStatus(data);
+        }
+        updateControls();
     }
 
     async function save() {
-        if (enabled.checked && start.value === stop.value) {
-            window.MasjidFrameUI?.notify?.("Radio start and stop times must differ.", "error");
-            await window.MasjidFrameRefreshListenStatus?.();
+        const next = values();
+        if (next.enabled && (!next.start || !next.stop || next.start === next.stop)) {
+            status.textContent = "Choose different start and stop times before saving.";
             return;
         }
-
+        saving = true;
+        updateControls();
         try {
             const response = await fetch("/api/listen/radio-schedule", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    enabled: enabled.checked,
-                    start: start.value,
-                    stop: stop.value
-                })
+                body: JSON.stringify(next)
             });
-            if (!response.ok) {
-                const body = await response.json().catch(() => ({}));
-                throw new Error(body.error || `Request failed (${response.status})`);
-            }
-            window.MasjidFrameUI?.notify?.(
-                enabled.checked ? `Radio schedule set to ${start.value}–${stop.value}.` : "Radio schedule disabled.",
-                "success"
-            );
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
+            saved = next;
+            window.MasjidFrameUI?.notify?.("Radio schedule saved.", "success");
+            renderStatus(body);
         } catch (err) {
+            status.textContent = `Could not save schedule: ${err.message}`;
             window.MasjidFrameUI?.notify?.(err.message, "error");
         } finally {
-            editing = false;
+            saving = false;
+            updateControls();
             await window.MasjidFrameRefreshListenStatus?.();
         }
     }
 
-    function refresh(data) {
-        if (!editing) {
-            enabled.checked = Boolean(data.radio_schedule_enabled);
-            if (data.radio_schedule_start) start.value = data.radio_schedule_start;
-            if (data.radio_schedule_stop) stop.value = data.radio_schedule_stop;
-            renderEnabled();
-        }
-        renderStatus(data);
-    }
-
-    enabled.addEventListener("change", async () => {
-        editing = true;
-        renderEnabled();
-        await save();
-    });
-
-    for (const input of [start, stop]) {
-        input.addEventListener("input", () => { editing = true; });
-        input.addEventListener("change", save);
-    }
-
-    renderEnabled();
+    enabled.addEventListener("change", updateControls);
+    for (const input of [start, stop]) input.addEventListener("change", updateControls);
+    saveButton.addEventListener("click", save);
+    updateControls();
     window.addEventListener("masjidframe:listen-status", event => refresh(event.detail));
 })();

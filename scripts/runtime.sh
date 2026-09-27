@@ -37,12 +37,16 @@ migrate_runtime_socket_path() {
         return
     fi
 
-    # The mpv IPC socket is disposable runtime state. Move only MasjidFrame's
-    # previous packaged default to tmpfs-backed /run; preserve custom paths.
-    if grep -qx '  socket: "/tmp/masjidframe.sock"' "$config_path"; then
-        sed -i 's|^  socket: "/tmp/masjidframe.sock"$|  socket: "/run/masjidframe/mpv.sock"|' \
+    # The mpv IPC socket is disposable runtime state. Move only previous
+    # packaged defaults to MasjidFrame's systemd-managed runtime directory;
+    # preserve explicitly configured custom paths.
+    if grep -Eqx '  socket: "(/tmp/masjidframe\.sock|/run/masjidpi/mpv\.sock)"' \
+        "$config_path"; then
+        sed -i \
+            -e 's|^  socket: "/tmp/masjidframe.sock"$|  socket: "/run/masjidframe/mpv.sock"|' \
+            -e 's|^  socket: "/run/masjidpi/mpv.sock"$|  socket: "/run/masjidframe/mpv.sock"|' \
             "$config_path"
-        info "Moved the mpv runtime socket from /tmp to /run."
+        info "Moved the mpv runtime socket to /run/masjidframe."
     fi
 }
 

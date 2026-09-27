@@ -11,8 +11,10 @@ case "$component" in
 /dev/mmcblk0p4  /persistent     ext4  defaults,rw,noatime                       0  2
 /persistent/network-manager/system-connections /etc/NetworkManager/system-connections none bind,x-systemd.requires-mounts-for=/persistent 0 0
 /persistent/network-manager/state /var/lib/NetworkManager none bind,x-systemd.requires-mounts-for=/persistent 0 0
-/persistent/masjidframe/etc /etc/masjidframe none bind,x-systemd.requires-mounts-for=/persistent 0 0
-/persistent/masjidframe/var /var/lib/masjidframe none bind,x-systemd.requires-mounts-for=/persistent 0 0
+# Keep the established on-disk data roots so upgrades from v1.6.0 preserve
+# configuration while exposing the renamed MasjidFrame runtime paths.
+/persistent/masjidpi/etc /etc/masjidframe none bind,x-systemd.requires-mounts-for=/persistent 0 0
+/persistent/masjidpi/var /var/lib/masjidframe none bind,x-systemd.requires-mounts-for=/persistent 0 0
 EOF_FSTAB
       ;;
    BOOT)

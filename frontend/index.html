@@ -54,18 +54,8 @@
             </nav>
 
             <div id="masjidPanel" class="listen-panel" role="tabpanel" aria-labelledby="masjidTab" data-listen-panel="masjid">
-                <div class="module-power-row">
-                    <div>
-                        <h2>Primary Masjid</h2>
-                        <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
-                    </div>
-                    <label class="module-power-control" for="masjidPowerSwitch">
-                        <span>Power</span>
-                        <input id="masjidPowerSwitch" type="checkbox" checked role="switch" aria-label="Masjid power">
-                        <span class="power-toggle" aria-hidden="true"></span>
-                    </label>
-                </div>
-                <div id="masjidPowerStatus" class="stream-count"></div>
+                <h2>Primary Masjid</h2>
+                <p class="section-intro">The selected masjid automatically interrupts the radio whenever it begins broadcasting.</p>
 
                 <div id="selectedMasjidSummary" class="selected-masjid-summary" aria-live="polite">
                     <span class="selected-masjid-label">Selected Masjid</span>
@@ -98,18 +88,8 @@
             </div>
 
             <div id="radioPanel" class="listen-panel hidden" role="tabpanel" aria-labelledby="radioTab" data-listen-panel="radio">
-                <div class="module-power-row">
-                    <div>
-                        <h2>Secondary Radio</h2>
-                        <p class="section-intro">Masjid playback always has priority over Radio.</p>
-                    </div>
-                    <label class="module-power-control" for="radioPowerSwitch">
-                        <span>Power</span>
-                        <input id="radioPowerSwitch" type="checkbox" checked role="switch" aria-label="Radio power">
-                        <span class="power-toggle" aria-hidden="true"></span>
-                    </label>
-                </div>
-                <div id="radioPowerStatus" class="stream-count"></div>
+                <h2>Secondary Radio</h2>
+                <p class="section-intro">Masjid playback always has priority over Radio.</p>
 
                 <div class="radio-mode-block">
                     <label>Radio Operation</label>
@@ -188,7 +168,6 @@
 <script src="radio-resume-delay.js"></script>
 <script src="radio-schedule.js"></script>
 <script src="radio-mode.js"></script>
-<script src="module-power.js"></script>
 <script src="selected-masjid.js"></script>
 <script>
 (() => {

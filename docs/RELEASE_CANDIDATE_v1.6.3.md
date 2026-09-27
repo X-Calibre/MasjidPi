@@ -14,13 +14,14 @@ v1.6.3 refreshes MasjidBoard Live shared Ayah, Hadith and Sunnah content at the 
 - [x] Service test confirms multiple checks on the same day and persistence of a changed Hadith.
 - [x] Service test confirms disabled-content behavior and last-known-good fallback.
 - [x] Focused MasjidBoard service and app Go tests pass locally.
-- [ ] Go formatting, vet, race-enabled tests and shell/frontend CI pass on the release-preparation pull request.
+- [x] Go formatting, vet, race-enabled tests and shell/frontend CI pass on the release-preparation pull request.
 - [ ] CI passes on the resulting main commit.
 
 ## Appliance validation
 
-- [ ] With daily items enabled, verify a startup fetch and another fetch on the normal 30-minute notice refresh.
-- [ ] Verify a changed Hadith appears on the Board after a successful fetch without a reboot.
+- [x] On the Pi 3, the temporary v1.6.3 binary started with all daily items enabled, the API and services remained healthy, and the startup fetch had the Hadith subsequently observed by the independent monitor at 12:30 SAST on 27 September 2026.
+- [x] The 12:47 SAST notice refresh ran for all three selected masjids with no daily-content error.
+- [ ] Confirm a changed Hadith is picked up by a periodic fetch without a reboot. The release owner accepted proceeding without waiting for this live observation; repeated same-day fetches and changed-content persistence are covered by the passing automated tests.
 - [ ] Verify unchanged items remain stable and a temporary source failure keeps the last good content.
 - [ ] Verify normal notice and timetable refresh, display and audio remain healthy.
 

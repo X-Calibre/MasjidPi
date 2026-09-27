@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# These single-quoted patterns intentionally match literal shell expressions.
+# shellcheck disable=SC2016
 
 set -Eeuo pipefail
 

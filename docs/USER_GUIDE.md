@@ -1,535 +1,101 @@
-# MasjidFrame User Guide
+# MasjidFrame Appliance User Guide
 
-This guide explains day-to-day use of MasjidFrame. It is intended for people using MasjidFrame as a home appliance rather than for developers.
+MasjidFrame brings live masjid audio, Islamic radio and a rotating MasjidBoard display into one home appliance. This guide starts with the portrait touchscreen appliance. Your appliance may have **Board**, **Listen**, or both enabled; controls for an unavailable component will not appear.
 
-For installation instructions, see [INSTALL.md](INSTALL.md).
+## Get started on the appliance
 
-## 1. MasjidFrame at a glance
+1. Connect the appliance to power and wait for the welcome screen. On a new portrait appliance, setup opens automatically.
+2. Choose a **2.4 GHz Wi-Fi** network. For a network that is not listed, choose **Add hidden network**, enter its exact name and select its security type. Enter the password with the on-screen keyboard, then select **Connect**.
+3. Choose your country, province or region, town or city, and time zone. Select **Find masjids**, choose a MasjidBoard, then finish setup. If the masjid catalogue is temporarily unavailable, use the on-screen retry or **Set up Board later** option.
+4. The appliance opens the Board. Subsequent boots go straight to the configured display.
 
-MasjidFrame can be installed with one or both of these capabilities:
+After connecting, the screen gives an IP address and, where your network supplies one, a network address. Keep either address for opening the full controls from your phone or computer. You can find them again under **Network** in the touchscreen controls. The appliance and your phone or computer must be able to reach each other on the local network.
 
-- **Listen** — plays your selected masjid's live audio and can optionally play an Islamic radio station while the masjid is offline.
-- **Board** — displays prayer times and other supported masjid information on a connected HDMI display.
-- **Listen + Board** — runs both capabilities on the same device.
+## Read the Board
 
-Open the MasjidFrame Web UI from another device on the same network:
+The Board rotates through prayer times, a countdown to the next event and available notices for your selected masjids. The first selected masjid supplies shared Daily Times. On the portrait display, each selected masjid gets its own Salaah Times slide, followed by its notices. Shared Ayah, Hadith, Sunnah and Economic Indicator pages appear after the masjid-specific content, when enabled.
 
-```text
-http://<masjidframe-ip-address>:8080
-```
+Some items appear only when the source masjid publishes them, including Jumu’ah details, programmes, funerals and Salaah changes. A notice shows its source masjid. The optional **Dua after Adhan** appears for five minutes after a listed Adhan for the first selected masjid; it is off by default. The Board can keep showing the last good timetable if a source is temporarily unavailable. Use **Board → Status** in the Web UI to check whether data is current or cached.
 
-The browser does not need to remain open. MasjidFrame continues operating as an appliance after you close the Web UI.
+## Control the appliance by touch
 
-The Web UI shows a **Listen** tab, a **Board** tab, or both, according to the components installed on the appliance. The **Theme** button changes only the Web UI between System, Light and Dark appearance. Board display themes are configured separately in Board settings.
+On the 720 × 1280 portrait display, swiping down from the **top** opens **Quick Settings**. Adjust display brightness and volume, or choose Scheduled Play, Play Now or Stop Radio. Swipe up from the **bottom** to open the main control sheet. The Board pauses its slide rotation while a sheet is open and resumes when you close it; idle sheets close after one minute. Close a sheet with its × button, its handle or a tap outside it.
 
-![MasjidFrame Web UI showing the Listen and Board navigation](images/user-guide/web-ui-navigation.png)
+| Main control tab | What you can do |
+|---|---|
+| **Masjid** | Choose a favourite masjid, play it, or stop Listen. Add favourites in the Web UI first. |
+| **Radio** | Choose a station, return to scheduled playback, play it temporarily, or stop Radio. |
+| **Theme** | Choose and save a Board colour theme. |
+| **Network** | View the appliance's access address or change Wi-Fi. |
+| **Updates** | Check for releases, approve or postpone an offered release, and install a verified update now. |
 
-## First-run MasjidFrame setup
+To change Wi-Fi later, open **Network → Change Wi-Fi network**. Opening or leaving the setup screen does not disconnect the existing network; a new connection takes effect after it succeeds. Use **Back to board** if you decide to keep the current connection.
 
-When a new portrait Board appliance has no saved Wi-Fi profile, its touchscreen opens the setup wizard automatically.
+## Open the full controls on another device
 
-1. Select a detected 2.4 GHz Wi-Fi network, or choose **Add hidden network** and enter its exact SSID.
-2. Use the built-in keyboard to enter the password. The normal keyboard includes a number row; select **#+=** for additional symbols.
-3. For a hidden network, choose whether it is password protected or open before connecting.
-4. After connection, note the displayed IP address and any network-issued FQDN.
-5. Choose the country, province/region and town/city, then select the initial masjid.
-6. Select **Start MasjidFrame** to open the Board.
-
-The completion screen directs you to the full Web UI from a phone, tablet or computer on the same Wi-Fi. Use the displayed address to configure Listen, audio, additional masjids and Board preferences. An FQDN is shown only when the local network supplies or resolves one; MasjidFrame does not assume that a `.local` address exists.
-
-After setup, normal boots open the configured Board directly.
-
-To change Wi-Fi later, swipe up on the Appliance Display and open the **Network** tab. This tab also shows the current IP address and any network-issued FQDN for opening the full Web UI from another device. Select **Change Wi-Fi network** to open the same visible/hidden-network setup screen with a **Back to board** action. Merely opening or leaving this screen does not alter the current connection; a network change occurs only after a new connection succeeds.
-
-## 2. Listen: how audio priority works
-
-Listen has two possible audio sources:
-
-1. **Masjid** — the primary source.
-2. **Radio** — an optional secondary source.
-
-The selected masjid always has priority. If Radio is playing and the selected masjid comes online, MasjidFrame stops Radio and switches to the masjid immediately.
-
-When the masjid goes offline again, Radio can resume according to the configured Radio operating mode, daily schedule and resume delay.
-
-This priority cannot be reversed: Radio never interrupts a live masjid broadcast.
-
-## 3. Understanding Now Playing
-
-The **Now Playing** section shows the current Listen state and active stream.
-
-Typical states include:
-
-- **Masjid** — the selected masjid is currently playing.
-- **Radio** — the selected Radio station is currently playing.
-- **Waiting** — Listen is active but no source should currently be playing, for example while waiting for the selected masjid or a permitted Radio condition.
-- **Stopped** — the Listen controller is stopped.
-
-The Masjid tab also shows the configured **Selected Masjid** independently of Now Playing. This remains visible when the masjid is offline or nothing is currently playing.
-
-Use **Start Listening** to start the Listen controller after it has been stopped. Use **Stop** to stop all current Listen playback without changing the saved Masjid and Radio selections or their module power settings.
-
-When a post-masjid Radio resume delay is active, Now Playing shows the remaining **Radio resumes in…** countdown next to the Waiting state.
-
-![Now Playing showing the active source and Listen controls](images/user-guide/listen-now-playing.png)
-
-## 4. Masjid tab
-
-### Masjid Power
-
-The Masjid Power switch enables or disables the Listen priority module.
-
-Turning **Masjid Power off**:
-
-- powers Radio off as well;
-- stops active playback;
-- cancels any pending Radio resume delay; and
-- stops the Listen controller completely.
-
-While Masjid Power is off, Listen should report **Stopped**, not Waiting.
-
-Turning Radio on while Masjid is off automatically turns Masjid on first, because Radio is only allowed to operate as the secondary source beneath Masjid priority.
-
-### Selecting a masjid
-
-Use **Search** to filter the masjid catalogue by name or location, then select a masjid from the list.
-
-The **Selected Masjid** summary near the top of the tab identifies the configured primary masjid even while its stream is offline.
-
-Masjid selection is saved immediately. Selecting a masjid does not require it to be online and does not by itself start a stopped Listen controller.
-
-### Favourites
-
-Frequently used masajid can be added to **Favourites** for quicker selection.
-
-Select a masjid and use **Add to Favourites** or **Remove from Favourites**. Use the up and down controls beside each favourite to choose their order. That saved order is also used by the simplified touch controls on the 7-inch Appliance Display.
-
-The main Masjid catalogue is alphabetical. Qur’aan Recitation, Takbeer and Sautun Noor remain pinned at the top for quick access.
-
-### Masjid Volume
-
-Masjid Volume is the software volume used when the masjid source is playing.
-
-Range:
+On a phone, tablet or computer on the same reachable network, enter the address shown on the appliance, for example:
 
 ```text
-0%–150%
+http://192.168.1.25:8080
 ```
 
-Values above 100% apply software amplification. The UI changes the volume indication when boost is active. Boost can cause clipping or distortion on already-loud streams, so use it only when required.
+The number above is an example; use **your appliance's address**. This is the MasjidFrame Web UI. Its **Listen**, **Board** and **Updates** pages offer more settings than the touch controls. You may close the browser afterward; the appliance keeps working. The Web UI's System, Light or Dark appearance is separate from the Board colour theme.
 
-Masjid Volume is independent of Radio Volume.
+### Choose which masjids appear on the Board
 
-![Masjid tab showing power, selection, favourites and source volume](images/user-guide/listen-masjid-tab.png)
+Open **Board → Masjids**. Choose the location scope and select **Save Locations**. Search the resulting list, choose one to three masjids, and place them in the desired order. Adding, removing and reordering selected masjids saves automatically. A selected masjid can have its detailed Friday Jumu’ah schedule enabled or disabled independently when source data is available.
 
-## 5. Radio tab
+### Choose the display content
 
-Radio is optional. If you do not want secondary Radio playback, leave Radio Power off.
+Open **Board → Display**. Select a theme, a slide duration from 5 to 60 seconds, and which shared content to show: Daily Ayah, Daily Hadith, Daily Sunnah, Islamic Economic Indicators and Dua after Adhan. Changes are saved automatically. The physical display profile is selected from the attached hardware; the browser preview does not change the attached screen.
 
-### Radio Power
+MasjidFrame checks enabled shared Ayah, Hadith and Sunnah content with its normal notice refresh, usually every **30 minutes**, and continues showing the last good content during a source outage. A source may leave an item unchanged across multiple checks.
 
-Turning **Radio Power on** enables secondary Radio operation. If Masjid Power is currently off, MasjidFrame automatically enables Masjid Power as well and notifies you.
+### Check the Board's data
 
-Turning Radio Power off prevents Radio playback but does not disable Masjid playback.
+Open **Board → Status** to see whether each selected timetable is **Current**, **Stale** or **Unavailable**. Select **Refresh Timetables** to request a new check. An upstream failure may prevent a refresh even when the cached Board remains visible.
 
-### Selecting a Radio station
+## Listen to a masjid and Radio
 
-Choose a station from the **Radio Station** list. The catalogue contains validated South African Islamic radio streams supported by the current MasjidFrame release.
+The selected masjid always takes priority. If it begins broadcasting while Radio is playing, MasjidFrame switches to the masjid. When the masjid goes offline, Radio can return according to its schedule and resume delay. **Now Playing** tells you whether the appliance is playing a masjid, playing Radio, waiting or stopped.
 
-The selected station is saved immediately. Selecting a station changes the configured Radio source but does not necessarily start playback; playback remains governed by the selected Radio operating mode and Masjid priority.
+In **Listen → Masjid**, choose your primary masjid, add frequently used masjids to **Favourites** and arrange them for the touchscreen. Turn **Masjid Power** on to use Listen. Turning it off stops Listen and turns Radio off. Selecting a masjid saves the selection, but does not start a stopped Listen controller; use **Start Listening** or **Play Masjid** when needed.
 
-### Radio Volume
+In **Listen → Radio**, choose a station and turn **Radio Power** on if you want Radio when the masjid is offline. Select one of these modes:
 
-Radio Volume is independent of Masjid Volume and uses the same:
+| Mode | Effect |
+|---|---|
+| **Play on Schedule** | Radio plays when permitted by its daily times, the masjid's offline state and the resume delay. Disable the daily time limit to allow Radio all day. |
+| **Play Now** | Temporarily plays Radio while the masjid is offline, even during quiet time or a pending resume delay. The next relevant event returns to scheduled behaviour. |
+| **Stop Radio** | Keeps Radio off until you select another mode. The masjid can still play. |
 
-```text
-0%–150%
-```
+The Radio resume delay is adjustable from 1 to 30 minutes. A daily Radio window can cross midnight. These settings affect Radio only; a live masjid remains available at any time. The separate Masjid and Radio volume controls range from 0% to 150%; values above 100% amplify software audio and can distort loud sources.
 
-software-volume range.
+In **Listen → Audio**, choose the sound output and use **Refresh Devices** after connecting USB audio. **Master Volume** is available only when the output exposes a controllable hardware mixer; the Masjid and Radio volume controls still work without one. Saved output and normal Listen settings survive a restart or update. **Play Now** is temporary and should not be relied on after a reboot.
 
-Values above 100% are boosted and may cause clipping.
+### Common setups
 
-### Radio operating modes
+- **Radio during the day:** Turn on Masjid and Radio, select **Play on Schedule**, enable **Limit Radio to Daily Times**, and set the start and stop times.
+- **Masjid only:** Turn on Masjid and turn off Radio.
+- **Silence the appliance:** Turn off Masjid Power. Radio turns off with it; the Board continues displaying content if enabled.
 
-Radio has three explicit operating modes.
+## Update the appliance
 
-#### Play on Schedule
+MasjidFrame checks for signed stable releases automatically, normally once a week. You can also open **Updates** on the touchscreen or in the Web UI and select **Check now**. When an update is offered, choose **Approve update** to allow the normal scheduled installation, or **Remind me in 7 days** to defer your decision. A verified update can also be started with **Install now**. That action may interrupt audio and restart the appliance; confirm the on-screen prompt when ready.
 
-This is normal automatic operation.
+During an update, the display or browser may briefly lose its connection while the appliance restarts. Leave power connected. The appliance checks its health after boot and confirms the new system after its probation period; a failed trial can roll back automatically. The **Installed version** on the Updates page or the version in the Web UI identifies the software now running. After a successful update, an automatic check can clear the old installation entry because that release is no longer an available update; this does not mean it was rolled back.
 
-Radio plays only when all applicable conditions permit it:
+## Troubleshooting
 
-- Masjid Power is on;
-- Radio Power is on;
-- the selected masjid is offline;
-- the post-masjid resume delay has expired; and
-- the current time is inside the configured Radio playback window when scheduling is enabled.
+| Symptom | First thing to check |
+|---|---|
+| The Board is blank | Confirm power and the display connection. Restart the appliance if needed. From the Web UI, check **Board → Status**. |
+| Prayer times look old | Check **Board → Status** and select **Refresh Timetables**. Cached data can remain on screen during a source outage. |
+| No masjid audio | Check Masjid Power, **Now Playing**, the selected masjid and the **Listen → Audio** output. A masjid that is offline cannot play. |
+| Radio does not start | Check Radio Power, **Stop Radio**, daily Radio times and the post-masjid resume countdown. Use **Play Now** for a temporary override. |
+| Master Volume is unavailable | The chosen output may have no supported hardware mixer. Adjust the separate Masjid and Radio volumes or your speakers' own control. |
+| The phone cannot open the Web UI | Read the current address under **Network**, and confirm your phone can reach the appliance on the same local network. Guest Wi-Fi isolation can block access. |
+| The touchscreen controls do not open | On the portrait appliance, swipe from the top for Quick Settings or from the bottom for the main controls. |
+| An update seems stuck | Allow time for downloading, installation, reboot and probation. Reopen **Updates** after the appliance is reachable again. |
 
-#### Play Now
-
-**Play Now** is a temporary manual override.
-
-It starts Radio immediately when the masjid is offline, even if Radio would normally be silent because of quiet time or a post-masjid resume delay.
-
-The override is deliberately temporary. Masjid priority still applies.
-
-For example, if quiet time began at 20:00 and you press Play Now at 20:15, Radio can play immediately. If the masjid subsequently comes online, it interrupts Radio. If the masjid then goes offline while quiet time still applies, Radio remains silent because the masjid event returns Radio to scheduled operation.
-
-Similarly, pressing Play Now immediately after a masjid broadcast can bypass the configured resume delay, but the next relevant event returns Radio to normal scheduled behaviour.
-
-Play Now is not intended to become a permanent configuration state.
-
-#### Stop Radio
-
-**Stop Radio** is persistent manual suppression.
-
-Once selected, Radio remains stopped until you explicitly select either:
-
-- **Play on Schedule**, or
-- **Play Now**.
-
-A schedule boundary or masjid broadcast does not automatically cancel Stop Radio.
-
-### Radio Resume Delay
-
-After a masjid broadcast ends, scheduled Radio playback does not need to resume immediately.
-
-The configurable delay is:
-
-```text
-1–30 minutes
-```
-
-in one-minute increments.
-
-The delay applies to normal scheduled operation. **Play Now** can manually bypass a pending delay.
-
-The transition in the other direction is intentionally different: when the selected masjid comes online, Radio-to-Masjid switching is immediate.
-
-### Daily Radio schedule
-
-Enable **Limit Radio to Daily Times** to define a daily Radio playback window.
-
-For example:
-
-```text
-Start: 06:00
-Stop:  20:00
-```
-
-Radio can then operate automatically during the day while remaining silent overnight.
-
-The schedule affects Radio only. Masjid broadcasts remain available regardless of the Radio quiet-time window.
-
-The schedule may cross midnight. For example, `22:00–02:00` permits Radio during that overnight window.
-
-![Radio tab showing power, operating modes, station, volume, delay and schedule](images/user-guide/listen-radio-tab.png)
-
-## 6. Audio tab
-
-The Audio tab contains settings for Listen audio output and master hardware volume.
-
-### Audio Output
-
-Choose the ALSA-compatible output device MasjidFrame should use for Listen playback.
-
-Available outputs depend on the hardware and operating system.
-
-Use **Refresh Devices** after connecting or disconnecting USB audio hardware. Newly connected outputs appear without restarting MasjidFrame. A saved output that is temporarily disconnected remains identified as unavailable and is restored automatically when it returns.
-
-### Master Volume
-
-Master Volume controls the selected audio device's hardware mixer where the device exposes a supported hardware volume control.
-
-This is separate from Masjid Volume and Radio Volume.
-
-Conceptually:
-
-```text
-Masjid Volume ─┐
-               ├─ software source level ─> Master Volume ─> audio hardware
-Radio Volume ──┘
-```
-
-Some output devices do not expose a controllable hardware mixer. On those devices, Master Volume may be unavailable. Masjid and Radio software volume controls continue to work.
-
-The selected Audio Output is saved and restored after service restart, appliance reboot and normal release upgrade.
-
-![Audio tab showing output selection and Master Volume](images/user-guide/listen-audio-tab.png)
-
-## 7. Common Listen configurations
-
-### Radio during the day, silence at night
-
-1. Turn Masjid Power on.
-2. Turn Radio Power on.
-3. Select your masjid and Radio station.
-4. Select **Play on Schedule**.
-5. In Radio, enable **Limit Radio to Daily Times**.
-6. Set the desired start and stop times.
-
-### Radio whenever the masjid is offline
-
-1. Turn Masjid and Radio Power on.
-2. Select **Play on Schedule**.
-3. Disable the daily Radio time limit if you want Radio available all day.
-4. Choose the desired post-masjid resume delay.
-
-The masjid will still interrupt Radio immediately whenever it broadcasts.
-
-### Masjid only, never Radio
-
-Leave **Masjid Power on** and turn **Radio Power off**.
-
-### Temporarily listen to Radio during quiet time
-
-With the masjid offline, press **Play Now**.
-
-Masjid priority remains active, and the next relevant event returns Radio to scheduled operation.
-
-### Silence all Listen audio
-
-Turn **Masjid Power off**. Radio is forced off and the Listen controller stops completely.
-
-## 8. Settings, restarts and power failures
-
-MasjidFrame persists normal appliance configuration so it can recover sensibly after a service restart or device reboot. Persisted Listen settings include the configured source selections and normal source-volume/settings state.
-
-Module power state and Radio scheduling configuration are designed as appliance settings rather than browser-only state.
-
-**Play Now is intentionally temporary.** Do not rely on it as a permanent post-reboot operating mode; use Play on Schedule and the Radio schedule for normal unattended operation.
-
-## 9. Board
-
-Board is available when the Board component is installed.
-
-### Selecting MasjidBoards
-
-The Board page contains **Masjids**, **Display** and **Status** tabs.
-
-In **Masjids**:
-
-1. Choose up to three locations to define which MasjidBoards are available.
-2. Select **Save Locations** after changing the location scope.
-3. Search the resulting catalogue and add between one and three MasjidBoards.
-4. Arrange the selected MasjidBoards in the required display order.
-
-Selected-Masjid additions, removals and ordering are saved automatically. Location-scope changes require the explicit **Save Locations** action because they rebuild the available catalogue.
-
-Each selected masjid has a **Detailed Jumu’ah schedule** option. It is enabled by default and can be disabled independently for a masjid. When enabled and valid details are supplied upstream, an attributed schedule card joins the notice rotation only during the Islamic Friday interval.
-
-In TV / Monitor mode, the first selected masjid supplies the shared Daily Times information. In the 7-inch Appliance Display, each selected masjid receives its own rotating Salaah Times slide, while shared Daily Times come from the first selected masjid.
-
-![Board Masjids tab showing locations and selected MasjidBoards](images/user-guide/board-masjids-tab.png)
-
-### Layout
-
-MasjidFrame supports dedicated HDMI presentation including:
-
-- **TV / Monitor (responsive landscape)**
-- **7-inch Appliance Display** — a purpose-built 720 × 1280 portrait layout for the Raspberry Pi Touch Display 2
-
-The presentation adapts to the number of configured masjids.
-
-The local HDMI profile is selected automatically from the attached hardware. It is not a saved layout choice. The **Display** tab configures:
-
-- slide duration from 5 to 60 seconds;
-- one of ten Board colour themes; and
-- optional Islamic Economic Indicators;
-- independently enabled Daily Ayah, Daily Hadith and Daily Sunnah cards; and
-- the optional Dua-after-Adhan card.
-
-Slide duration, theme and optional-content settings are saved automatically. **Open Display Preview** opens the standard browser presentation, while **Appliance Preview** opens the portrait appliance presentation without changing the physical display.
-
-![Board Display tab showing layout, duration, information and theme settings](images/user-guide/board-display-tab.png)
-
-![TV / Monitor responsive Board layout](images/user-guide/board-tv-monitor-layout.png)
-
-![7-inch Appliance Display layout](images/user-guide/board-7-inch-layout.png)
-
-#### 7-inch touch controls
-
-On the 7-inch Appliance Display, the screen has two touch-control sheets. Opening either sheet pauses slide rotation, and both close automatically after 60 seconds without activity.
-
-Swipe down from the top edge to open **Quick Settings**. This panel occupies approximately two-thirds of the screen and provides:
-
-- persistent display brightness;
-- Master, Masjid and Radio volume sliders; and
-- Scheduled Play, Play Now and Stop Radio controls.
-
-Swipe up from the bottom edge to open the main control sheet. It retains:
-
-- a **Masjid** tab for choosing a favourited masjid, starting playback and stopping Listen;
-- a **Radio** tab for choosing a station and selecting Scheduled Play, Play Now or Stop Radio;
-- a **Theme** tab for immediately applying and saving a Board colour theme; and
-- a **Network** tab showing access addresses and the Change Wi-Fi network action.
-
-Close Quick Settings by swiping upward from its header or lower handle, tapping ×, or tapping outside it. Close the main sheet by swiping downward from its handle/header, tapping ×, or tapping outside it.
-
-The first-run setup and Change Wi-Fi screens use the dedicated 720 × 1280 Raspberry Pi Touch Display 2 portrait layout. Touch Display 2 brightness uses the display driver's standard Linux backlight interface and is restored when MasjidFrame starts.
-
-Masjids must first be added to Favourites through the full Web UI. Selecting a Masjid or Radio source in the main panel does not start it until the corresponding playback action is selected.
-
-![7-inch touch controls showing the Masjid tab](images/user-guide/board-touch-masjid-tab.png)
-
-![7-inch touch controls showing the Radio tab](images/user-guide/board-touch-radio-tab.png)
-
-![7-inch touch controls showing the Theme tab](images/user-guide/board-touch-theme-tab.png)
-
-### Themes
-
-Board includes ten curated colour themes: Emerald, Midnight, Slate, Ruby, Light Gold, Ivory, Sage, Sky, Rose and Black & White. Theme and display-mode changes can be made from the Web UI without restarting the display service. The 7-inch Appliance Display can also change the saved theme from its touch control sheet.
-
-The Board theme is an appliance setting shared by the HDMI display, browser preview and touch panel. It is separate from the System/Light/Dark theme used by the configuration Web UI.
-
-### Listen source notifications
-
-When Listen switches to a masjid or Radio station, both Board layouts show a notification naming the new source for 10 seconds. A notification is not shown merely because the Board page loaded or reconnected.
-
-While Radio is waiting for the configured post-masjid resume delay, the notification names the selected station, shows the live countdown and remains visible until the waiting state ends. It is then replaced by the Radio-playing notification or cleared if playback is cancelled or superseded.
-
-![Board notification showing a Listen source transition](images/user-guide/board-source-notification.png)
-
-### Display information
-
-Depending on available upstream data, Board can show:
-
-- prayer and Jumu'ah times;
-- Daily Times;
-- Gregorian and Islamic dates;
-- next-event countdowns;
-- community announcements, weekly programmes, class-time changes and Ramadan/Taraweeh programmes;
-- structured Nikah, funeral, Eid, Taleem, Jamaat, contribution and well-wishes cards;
-- detailed Friday-only Jumu’ah schedule cards;
-- non-duplicate special-day Dhuhr times in the primary masjid's Daily Times;
-- shared Daily Ayah, Daily Hadith and Daily Sunnah cards;
-- an optional bilingual Dua after Adhan card; and
-- optional Islamic Economic Indicators sourced from Jamiatul Ulama South Africa.
-
-Not every masjid supplies every type of content.
-
-Notice cards identify their upstream masjid with **Source:**. Islamic Economic Indicators retain their own Jamiat attribution and update information.
-
-The **Dua after Adhan** option is under **Board → Display → After Adhan**. It is disabled by default. When enabled, MasjidFrame shows its own Arabic-and-English card for five minutes beginning at a listed Adhan time for the primary selected masjid, using that masjid's timezone. During this priority window, the Appliance card remains continuously visible and the Landscape card occupies the complete notice column; ordinary slides or notice cards resume automatically afterward. The card does not show a source attribution because it is built-in MasjidFrame content rather than a selected masjid notice.
-
-Community cards are shown one selected masjid at a time and use a consistent priority order. Funeral and urgent/time-sensitive notices appear before general announcements and programmes. Shared Daily Ayah, Hadith, Sunnah and Economic Indicator pages appear after all masjid-specific content.
-
-When the primary masjid publishes an Istiwaa caution/Zawaal interval, the clock and current date flash red throughout that interval. The warning begins at the published caution time (or Istiwaa when no caution time is available) and ends at the published Zawaal end time.
-
-A provider-supplied special Dhuhr time, such as **Dhuhr (Sundays & Public Holidays)**, is always listed in the primary masjid's Daily Times so it can be seen in advance. MasjidFrame suppresses it when it is identical to the normal Dhuhr Adhan or Jamaah time.
-
-Arabic and mixed-language notices use automatic text direction. MasjidFrame treats upstream notice headings conservatively: only recognised Salaah-change, class-time, weekly-programme and Ramadan/Taraweeh headings receive a specialised label; other text remains a general announcement.
-
-### Board status
-
-The **Status** tab reports each selected MasjidBoard as Current, Stale or Unavailable, together with its most recent update information. Use **Refresh Timetables** to request an immediate refresh.
-
-![Board Status tab showing current and cached timetable state](images/user-guide/board-status-tab.png)
-
-### Upstream outages
-
-MasjidFrame maintains last-known-good timetable data so the Board can continue displaying cached information during temporary upstream failures. The status shown in the configuration interface should be used to determine whether current or cached data is being displayed.
-
-## 10. Updating MasjidFrame
-
-Normal users should install official releases rather than development branches.
-
-See [INSTALL.md](INSTALL.md) for the supported installation and update procedure.
-
-Release candidates use a version such as:
-
-```text
-vX.Y.Z-rc.N
-```
-
-These are prerelease builds intended for validation before the corresponding stable release. They may contain known or undiscovered defects and should not replace a validated production installation unless you specifically intend to test the RC.
-
-Normal upgrades preserve MasjidFrame's persistent configuration and runtime data.
-
-## 11. Troubleshooting
-
-### Nothing is playing
-
-Check:
-
-1. Is Masjid Power on?
-2. Does Now Playing say **Stopped** or **Waiting**?
-3. Is the selected masjid currently online?
-4. If you expect Radio, is Radio Power on?
-5. Is Radio set to Stop Radio?
-6. Is the current time outside the Radio schedule?
-7. Is a post-masjid resume delay still active?
-
-### The masjid is offline
-
-MasjidFrame can only play a masjid when its upstream live stream is available. The Selected Masjid indicator shows which masjid remains configured even while it is offline.
-
-If Radio is enabled and permitted by its operating mode, it can play while the masjid is offline.
-
-### Radio does not resume after the masjid
-
-Check:
-
-- Radio Power;
-- Radio operating mode;
-- Radio Resume Delay;
-- the daily Radio schedule; and
-- whether Stop Radio was selected.
-
-Use **Play Now** if you deliberately want to bypass the current delay or quiet-time restriction once.
-
-### Master Volume is unavailable
-
-Some ALSA outputs do not expose a hardware mixer that MasjidFrame can control. This does not prevent playback. Use the Masjid and Radio software-volume controls and, where necessary, the volume control provided by the amplifier, television or speakers.
-
-### No audio
-
-Check the selected **Audio Output** in Config and verify the external amplifier, television or speakers are powered and set to the correct input.
-
-For system-level diagnosis:
-
-```bash
-sudo systemctl status masjidframe --no-pager
-```
-
-and:
-
-```bash
-sudo journalctl -u masjidframe --no-pager -n 100
-```
-
-Listen controller status can be inspected with:
-
-```bash
-curl -s http://127.0.0.1:8080/api/listen/status
-```
-
-### Board is not displaying
-
-Check the main service and Board display service:
-
-```bash
-sudo systemctl status masjidframe --no-pager
-sudo systemctl status masjidframe-display --no-pager
-```
-
-Board status is available at:
-
-```bash
-curl -s http://127.0.0.1:8080/api/masjidboard/status
-```
-
-### Touch controls do not open
-
-The swipe-up controls are available on the **7-inch Appliance Display** profile. Confirm that the 720 × 1280 Raspberry Pi Touch Display 2 was detected and that the small **Swipe up for controls** hint is visible.
-
-Swipe upward from the lower display area. The panel closes automatically after 60 seconds without activity.
-
-## 12. Further documentation
-
-- [Installation Guide](INSTALL.md)
-- [Project README](../README.md)
-- [Development Roadmap](../ROADMAP.md)
-
-MasjidFrame is an independent project. Live masjid streams and timetable/content data depend on the external services identified in the project README.
+For installation, advanced diagnostics and supported systems, see the [Installation Guide](INSTALL.md). MasjidFrame depends on external live streams and timetable providers; their content and availability vary.

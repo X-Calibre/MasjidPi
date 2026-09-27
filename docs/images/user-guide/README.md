@@ -1,22 +1,17 @@
-# User Guide Screenshot Checklist
+# v1.6.3 appliance screenshot plan
 
-Add screenshots as PNG files using the exact names below. Capture the configuration Web UI at a comfortable desktop width and the appliance display screenshots at their intended viewport. Avoid browser developer tools, pointer overlays, temporary error banners and private network details where practical.
+The existing images in this folder are historical. In particular, the 600 × 1024 appliance images show a discontinued layout. The current guide intentionally does not embed those images. Capture the following from the running **v1.6.3-image** appliance and its Web UI before adding image links to the guide. Avoid private Wi-Fi names, addresses and personal notices in published images; redact a copy when needed.
 
-| Filename | Required content |
-|---|---|
-| `web-ui-navigation.png` | Web UI header showing the Listen and Board tabs plus the configuration Theme button. |
-| `listen-now-playing.png` | Now Playing with an active named Masjid or Radio source and the Start/Stop controls. |
-| `listen-masjid-tab.png` | Masjid tab showing power, Selected Masjid, volume, favourites, search and catalogue selection. |
-| `listen-radio-tab.png` | Radio tab showing power, all three operating modes, volume, station, resume delay and schedule. |
-| `listen-audio-tab.png` | Audio tab showing the selected output and Master Volume state. |
-| `board-masjids-tab.png` | Board Masjids tab showing configured locations and the ordered selected-Masjid list. |
-| `board-display-tab.png` | Board Display tab showing automatic profile information, slide duration, themes, daily Islamic-content switches, Dua after Adhan and Economic Indicators. |
-| `board-tv-monitor-layout.png` | Representative TV / Monitor Board at 1920 × 1080. |
-| `board-7-inch-layout.png` | Historical 600 × 1024 Appliance Display screenshot; the profile is no longer supported. |
-| `board-touch-masjid-tab.png` | 7-inch control panel with the Masjid tab active. |
-| `board-touch-radio-tab.png` | 7-inch control panel with the Radio tab active. |
-| `board-touch-theme-tab.png` | 7-inch control panel with the Theme tab active and all ten themes visible. |
-| `board-source-notification.png` | Board showing a named Masjid/Radio transition notification or the persistent Radio-resume countdown. |
-| `board-status-tab.png` | Board Status tab showing selected boards and Current/Stale/Unavailable information. |
+| Suggested name | Capture | Preferred size |
+|---|---|---|
+| `setup-wifi-v1.6.3.png` | Portrait welcome/Connect to Wi-Fi screen, with a non-private network list or no networks shown. | 720 × 1280 |
+| `board-portrait-v1.6.3.png` | Current Board with a representative Salaah Times slide. | 720 × 1280 |
+| `quick-settings-v1.6.3.png` | Top swipe sheet with brightness, volumes and Radio actions. | 720 × 1280 |
+| `touch-controls-v1.6.3.png` | Bottom swipe sheet, showing Masjid, Radio, Theme, Network and Updates tabs. | 720 × 1280 |
+| `updates-touch-v1.6.3.png` | Updates tab showing the installed version; an available release is optional. | 720 × 1280 |
+| `board-config-v1.6.3.png` | Web UI Board configuration with selected masjids. | Native desktop/browser resolution |
+| `board-display-v1.6.3.png` | Web UI Display settings showing theme and daily-content controls. | Native desktop/browser resolution |
+| `listen-controls-v1.6.3.png` | Web UI Listen controls with Now Playing. | Native desktop/browser resolution |
+| `updates-web-v1.6.3.png` | Web UI Updates page. | Native desktop/browser resolution |
 
-Use the Emerald Board theme for the layout and touch-control screenshots unless another theme is specifically needed to demonstrate contrast. Keep browser zoom at 100% and do not resize the 600 × 1024 appliance screenshots after capture.
+Capture real application output at 100% browser zoom. Do not stretch a 600 × 1024 image into the 720 × 1280 slot. Use a browser preview of the appliance profile at 720 × 1280 when a physical screen capture is unavailable, but ensure it displays the same v1.6.3 interface and label previews as such. Once captures are verified, link them near their corresponding guide sections and remove historical images that have been superseded.

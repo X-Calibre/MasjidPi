@@ -257,17 +257,6 @@ func (s *Service) Refresh(ctx context.Context) []runtime.Result {
 	return append([]runtime.Result(nil), results...)
 }
 
-var dailyContentRefreshLocation = time.FixedZone("Africa/Johannesburg", 2*60*60)
-
-func dailyContentRefreshDue(current *dailycontent.Content, now time.Time) bool {
-	if current == nil || !current.Valid() {
-		return true
-	}
-	fetched := current.FetchedAt.In(dailyContentRefreshLocation)
-	localNow := now.In(dailyContentRefreshLocation)
-	return fetched.Year() != localNow.Year() || fetched.YearDay() != localNow.YearDay()
-}
-
 func (s *Service) RefreshDailyIslamicContent(ctx context.Context) (refreshErr error) {
 	defer func() {
 		if refreshErr == nil {
@@ -282,19 +271,24 @@ func (s *Service) RefreshDailyIslamicContent(ctx context.Context) (refreshErr er
 	}()
 	s.mu.RLock()
 	enabled := s.selection.ShowAnyDailyIslamicContent()
-	current := s.dailyContent
 	client, store := s.dailyContentClient, s.dailyContentStore
 	s.mu.RUnlock()
-	now := time.Now
-	if client.Now != nil {
-		now = client.Now
-	}
-	if !enabled || !dailyContentRefreshDue(current, now()) {
+	if !enabled {
 		return nil
 	}
 	content, err := client.Fetch(ctx)
 	if err != nil {
 		return err
+	}
+	s.mu.RLock()
+	current := s.dailyContent
+	unchanged := current != nil && current.Ayah == content.Ayah &&
+		current.Hadith == content.Hadith && current.Sunnah == content.Sunnah &&
+		current.ContentDate == content.ContentDate && current.Language == content.Language &&
+		current.SourceURL == content.SourceURL
+	s.mu.RUnlock()
+	if unchanged {
+		return nil
 	}
 	if err := store.Save(content); err != nil {
 		return err

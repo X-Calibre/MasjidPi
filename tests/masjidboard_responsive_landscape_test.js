@@ -21,9 +21,12 @@ assert.match(detailedJS, /items\.length > 10/, "the eleventh Daily Times item mu
 assert.match(detailedCSS, /@media \(min-width:1101px\)/);
 assert.doesNotMatch(detailedCSS, /@media \(min-width:1101px\) and \(max-width:2000px\)/);
 assert.match(detailedCSS, /@media \(max-width:1500px\)[^}]*\.landscape-layout \.time-value-stack:has\(\.event-countdown\) \{ gap:0; \}/s);
-assert.match(configHTML, /Local display profile/);
-assert.match(configHTML, /The 7-inch Raspberry Pi Touch Display 2 is detected at startup/);
+assert.doesNotMatch(configHTML, /Local display profile/);
+assert.doesNotMatch(configHTML, /The 7-inch Raspberry Pi Touch Display 2 is detected at startup/);
 assert.match(configHTML, /masjidboard\.html\?profile=appliance-720/);
+assert.match(configHTML, /Preview MasjidFrame Display/);
+assert.match(configJS, /fetch\("\/api\/display\/profile"/);
+assert.match(configJS, /displayPreviewLink\.classList\.toggle\("hidden", data\.profile === "appliance-720"\)/);
 assert.doesNotMatch(configHTML, /masjidboard\.html\?profile=appliance"/);
 assert.doesNotMatch(configHTML, /id="displayLayout"/);
 assert.doesNotMatch(configJS, /portrait/);

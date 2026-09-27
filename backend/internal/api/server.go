@@ -173,6 +173,7 @@ func New(config Config, dependencies Dependencies) *Server {
 		mux.HandleFunc("/api/masjidboard/selection", server.masjidBoardSelection)
 		mux.HandleFunc("/api/masjidboard/layout", server.masjidBoardLayout)
 		mux.HandleFunc("/api/display/settings", server.displaySettingsHandler)
+		mux.HandleFunc("/api/display/profile", server.displayProfileHandler)
 	}
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {

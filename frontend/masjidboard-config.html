@@ -51,9 +51,8 @@
     </div>
     <div id="boardPanelDisplay" class="board-panel" data-board-panel="display" hidden>
     <section class="card">
-        <div class="section-heading-row"><div><h2>Display</h2><p class="config-intro">MasjidFrame selects the local display profile automatically. Configure the shared colour theme, slide duration and additional information here.</p></div></div>
+        <div class="section-heading-row"><div><h2>Display</h2></div></div>
         <div class="display-layout-picker">
-            <label>Local display profile</label><div><strong>Automatic</strong><small class="config-meta">The 7-inch Raspberry Pi Touch Display 2 is detected at startup; other displays use the standard landscape profile.</small></div>
             <label for="slideDuration">Slide duration</label><div><input id="slideDuration" type="range" min="5" max="60" step="1" value="15"><output id="slideDurationValue" for="slideDuration">15 seconds</output></div>
             <label for="showEconomicIndicators">Additional information</label><label class="display-option-toggle"><input id="showEconomicIndicators" type="checkbox"><span><strong>Islamic Economic Indicators</strong><small>Show current Nisaab, Krugerrand, gold, silver and Mahr values from Jamiatul Ulama South Africa.</small></span></label>
             <label>Daily Islamic content</label><div>
@@ -62,22 +61,21 @@
                 <label class="display-option-toggle"><input id="showDailySunnah" type="checkbox" checked><span><strong>Daily Sunnah</strong><small>Show the daily Sunnah and its reference.</small></span></label>
             </div>
             <label for="showDuaAfterAdhan">After Adhan</label><label class="display-option-toggle"><input id="showDuaAfterAdhan" type="checkbox"><span><strong>Dua after Adhan</strong><small>Show MasjidFrame's bilingual Dua card for five minutes after a listed Adhan time.</small></span></label>
-            <div id="displayLayoutMeta" class="config-meta">Loading current display settings…</div>
-            <div><a class="nav-button preview-button" href="masjidboard.html?profile=appliance-720" target="_blank" rel="noopener">Open Touch Display 2 Preview</a></div>
+            <div><a class="nav-button preview-button" href="masjidboard.html?profile=appliance-720" target="_blank" rel="noopener">Preview MasjidFrame Display</a></div>
         </div>
         <fieldset class="board-theme-picker">
             <legend>Colour Theme</legend>
             <div class="board-theme-grid">
-                <label class="board-theme-option theme-emerald"><input type="radio" name="boardTheme" value="emerald"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Emerald</strong><small>Green &amp; gold</small></label>
-                <label class="board-theme-option theme-midnight"><input type="radio" name="boardTheme" value="midnight"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Midnight</strong><small>Navy &amp; blue</small></label>
-                <label class="board-theme-option theme-slate"><input type="radio" name="boardTheme" value="slate"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Slate</strong><small>Charcoal &amp; gold</small></label>
-                <label class="board-theme-option theme-ruby"><input type="radio" name="boardTheme" value="ruby"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Ruby</strong><small>Burgundy &amp; rose</small></label>
-                <label class="board-theme-option theme-light"><input type="radio" name="boardTheme" value="light"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Light Gold</strong><small>Warm cream &amp; gold</small></label>
+                <label class="board-theme-option theme-emerald"><input type="radio" name="boardTheme" value="emerald"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Emerald</strong><small>MasjidFrame green</small></label>
+                <label class="board-theme-option theme-midnight"><input type="radio" name="boardTheme" value="midnight"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Midnight</strong><small>Deep blue</small></label>
+                <label class="board-theme-option theme-slate"><input type="radio" name="boardTheme" value="slate"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Slate</strong><small>Neutral gold</small></label>
+                <label class="board-theme-option theme-ruby"><input type="radio" name="boardTheme" value="ruby"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Ruby</strong><small>Warm red</small></label>
+                <label class="board-theme-option theme-light"><input type="radio" name="boardTheme" value="light"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Light Gold</strong><small>Warm gold</small></label>
                 <label class="board-theme-option theme-ivory"><input type="radio" name="boardTheme" value="ivory"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Ivory</strong><small>Ivory &amp; emerald</small></label>
-                <label class="board-theme-option theme-sage"><input type="radio" name="boardTheme" value="sage"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Sage</strong><small>Pale &amp; forest green</small></label>
-                <label class="board-theme-option theme-sky"><input type="radio" name="boardTheme" value="sky"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Sky</strong><small>Pale &amp; deep blue</small></label>
+                <label class="board-theme-option theme-sage"><input type="radio" name="boardTheme" value="sage"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Sage</strong><small>Soft forest green</small></label>
+                <label class="board-theme-option theme-sky"><input type="radio" name="boardTheme" value="sky"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Sky</strong><small>Cool blue</small></label>
                 <label class="board-theme-option theme-rose"><input type="radio" name="boardTheme" value="rose"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Rose</strong><small>Blush &amp; burgundy</small></label>
-                <label class="board-theme-option theme-black-white"><input type="radio" name="boardTheme" value="black-white"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Black &amp; White</strong><small>Monochrome</small></label>
+                <label class="board-theme-option theme-black-white"><input type="radio" name="boardTheme" value="black-white"><span class="theme-swatch"><i></i><i></i><i></i></span><strong>Black &amp; White</strong><small>Maximum contrast</small></label>
             </div>
         </fieldset>
         <small id="displaySaveStatus" class="config-save-status" aria-live="polite">Changes are saved automatically.</small>

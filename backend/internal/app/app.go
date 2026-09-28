@@ -332,6 +332,11 @@ func monitorCatalogueRefresh(ctx context.Context, interval time.Duration, catalo
 
 func preferredFirstRunAudioDevice(devices []player.AudioDevice) (string, bool) {
 	for _, device := range devices {
+		if device.Name != "" && device.Description == "MasjidFrame Built-In Audio" && !device.Unavailable {
+			return device.Name, true
+		}
+	}
+	for _, device := range devices {
 		if device.Name != "" && device.Description == "USB Audio" && !device.Unavailable {
 			return device.Name, true
 		}

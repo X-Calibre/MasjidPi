@@ -44,8 +44,7 @@ body.appliance-layout {
 }
 .appliance-layout .board-topbar,
 .appliance-layout .display-state,
-.appliance-layout .additional-times,
-.appliance-layout .empty-state { display:none!important; }
+.appliance-layout .additional-times { display:none!important; }
 /* Font test history/revert points: Atkinson Hyperlegible Next replaced the
    original Inter/system UI stack. Both remain available after Fira Sans. */
 .appliance-layout .appliance-state { position:absolute; inset:0; display:block; color:var(--appliance-text); background:var(--appliance-bg); touch-action:none; font-family:var(--board-font-family); }

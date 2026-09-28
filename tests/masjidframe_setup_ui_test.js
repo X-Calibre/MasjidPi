@@ -24,7 +24,7 @@ assert.match(html, /id="returnToBoard"[^>]*href="\/masjidboard\.html\?profile=ap
 assert.match(html, /setup-720\.css\?v=20260907-keyboard-width/);
 assert.match(html, /masjidboard-themes\.css\?v=20260906-light-themes/);
 assert.match(html, /<body data-board-theme="emerald">/);
-assert.match(html, /setup\.js\?v=20260918-board-recovery/);
+assert.match(html, /setup\.js\?v=20260928-board-step-transition/);
 assert.match(html, /id="locationStep"/);
 assert.match(html, /id="retryLocationsButton"[^>]*>Try again</);
 assert.match(html, /id="deferBoardSetupButton"[^>]*>Set up Board later</);

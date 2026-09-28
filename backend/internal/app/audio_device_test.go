@@ -23,6 +23,25 @@ func TestPreferredFirstRunAudioDeviceSelectsFirstAvailableUSBDevice(t *testing.T
 	}
 }
 
+func TestPreferredFirstRunAudioDevicePrefersBuiltInAudio(t *testing.T) {
+	devices := []player.AudioDevice{
+		{Name: "auto", Description: "Default audio output"},
+		{Name: "alsa/plughw:CARD=OtherUSB,DEV=0", Description: "USB Audio"},
+		{Name: "alsa/plughw:CARD=Device,DEV=0", Description: "MasjidFrame Built-In Audio"},
+	}
+
+	name, ok := preferredFirstRunAudioDevice(devices)
+	if !ok || name != "alsa/plughw:CARD=Device,DEV=0" {
+		t.Fatalf("preferredFirstRunAudioDevice() = %q, %t, want built-in audio", name, ok)
+	}
+
+	devices[2].Unavailable = true
+	name, ok = preferredFirstRunAudioDevice(devices)
+	if !ok || name != "alsa/plughw:CARD=OtherUSB,DEV=0" {
+		t.Fatalf("unavailable built-in device: got %q, %t, want USB fallback", name, ok)
+	}
+}
+
 func TestPreferredFirstRunAudioDeviceIgnoresUnavailableUSBDevice(t *testing.T) {
 	devices := []player.AudioDevice{
 		{

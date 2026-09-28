@@ -452,6 +452,8 @@
 
     function showLocationStep() {
         document.body.classList.remove("masjid-step-open");
+        networkStep.hidden = true;
+        passwordStep.hidden = true;
         successStep.hidden = true;
         masjidStep.hidden = true;
         locationStep.hidden = false;

@@ -240,7 +240,9 @@ func parseCityHierarchyRows(raw []byte) ([]HierarchyEntry, error) {
 			if err := json.Unmarshal(pair[1], &countText); err != nil {
 				return nil, fmt.Errorf("row %d count: %w", i, err)
 			}
-			entry, err := hierarchyEntry(name, countText, false, i)
+			// FindMasjid sometimes includes a blank city bucket. Keep its count
+			// so the hierarchy updater can record it as unresolved.
+			entry, err := hierarchyEntry(name, countText, true, i)
 			if err != nil {
 				return nil, err
 			}
@@ -270,7 +272,7 @@ func parseCityHierarchyRows(raw []byte) ([]HierarchyEntry, error) {
 		if err := json.Unmarshal(countRaw, &countText); err != nil {
 			return nil, fmt.Errorf("row %d count: %w", i, err)
 		}
-		entry, err := hierarchyEntry(name, countText, false, i)
+		entry, err := hierarchyEntry(name, countText, true, i)
 		if err != nil {
 			return nil, err
 		}

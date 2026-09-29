@@ -184,3 +184,20 @@ func TestCityHierarchyRejectsMissingObjectFields(t *testing.T) {
 		t.Fatal("parseCityHierarchyRows() expected error for missing count")
 	}
 }
+
+func TestCityHierarchyPreservesBlankCityBuckets(t *testing.T) {
+	for name, raw := range map[string]string{
+		"pairs":   `[["","2"],["Johannesburg","5"]]`,
+		"objects": `[{"city":"","COUNT(*)":"2"},{"city":"Johannesburg","COUNT(*)":"5"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			entries, err := parseCityHierarchyRows([]byte(raw))
+			if err != nil {
+				t.Fatalf("parseCityHierarchyRows() error = %v", err)
+			}
+			if len(entries) != 2 || entries[0].Name != "" || entries[0].Count != 2 || entries[1].Name != "Johannesburg" {
+				t.Fatalf("entries = %+v", entries)
+			}
+		})
+	}
+}

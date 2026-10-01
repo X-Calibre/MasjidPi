@@ -1,21 +1,31 @@
-# v1.6.7 appliance screenshot plan
+# v1.6.7 user-guide screenshots
 
-The existing images in this folder are historical. In particular, the 600 × 1024 appliance images show a discontinued layout. The current guide intentionally does not embed those images. Capture the following from the running **v1.6.7-image** appliance and its Web UI before adding image links to the guide. Avoid private Wi-Fi names, addresses and personal notices in published images; redact a copy when needed.
+All 13 v1.6.7 screenshots have been captured, reviewed, uploaded and embedded beside the corresponding instructions in the [MasjidFrame Appliance User Guide](../../USER_GUIDE.md).
 
-| Suggested name | Capture | Preferred size |
+The seven portrait images are 720 × 1280 browser previews of the appliance interface running **v1.6.7-image**. The six Web UI images use their original browser capture dimensions. The guide labels appliance previews and identifies the deferred-Board image as staged.
+
+| Filename | Captured content | Capture type |
 |---|---|---|
-| `setup-wifi-v1.6.7.png` | Portrait welcome/Connect to Wi-Fi screen, with a non-private network list or no networks shown. | 720 × 1280 |
-| `setup-location-v1.6.7.png` | Step 2 alone, with location selectors and masjid selection available. | 720 × 1280 |
-| `board-deferred-v1.6.7.png` | MasjidBoard is not configured screen with Set up MasjidBoard recovery action. | 720 × 1280 |
-| `board-portrait-v1.6.7.png` | Current Board with a representative Salaah Times slide. | 720 × 1280 |
-| `quick-settings-v1.6.7.png` | Top swipe sheet with brightness, volumes and Radio actions. | 720 × 1280 |
-| `touch-controls-v1.6.7.png` | Bottom swipe sheet, showing Masjid, Radio, Theme, Network and Updates tabs. | 720 × 1280 |
-| `updates-touch-v1.6.7.png` | Updates tab showing the installed version; an available release is optional. | 720 × 1280 |
-| `board-config-v1.6.7.png` | Web UI Board configuration with selected masjids. | Native desktop/browser resolution |
-| `board-display-v1.6.7.png` | Web UI Display settings showing theme and daily-content controls, with Preview MasjidFrame Display and no generic preview button when Touch Display 2 is detected. | Native desktop/browser resolution |
-| `listen-controls-v1.6.7.png` | Web UI Listen controls with Now Playing, Start Listening/Stop, and no Power switches. | Native desktop/browser resolution |
-| `radio-schedule-v1.6.7.png` | Daily Radio hours with larger time fields, Limit Radio to these hours and Save schedule. | Native desktop/browser resolution |
-| `audio-output-v1.6.7.png` | Audio output selection showing MasjidFrame Built-In Audio selected on supported hardware. | Native desktop/browser resolution |
-| `updates-web-v1.6.7.png` | Web UI Updates page. | Native desktop/browser resolution |
+| `setup-wifi-v1.6.7.png` | Welcome/Connect to Wi-Fi screen with network list, Refresh and Add hidden network. Network names are intentionally blurred for privacy. | Portrait browser preview |
+| `setup-location-v1.6.7.png` | Step 2 location selectors showing South Africa, Gauteng, Laudium and Africa/Johannesburg, before selecting Find masjids. | Portrait browser preview |
+| `board-deferred-v1.6.7.png` | MasjidBoard is not configured message with Set up MasjidBoard recovery action. | Staged portrait browser preview |
+| `board-portrait-v1.6.7.png` | Board with a representative Salaah Times slide. | Portrait browser preview |
+| `quick-settings-v1.6.7.png` | Top swipe sheet with brightness, volume controls and Radio actions. | Portrait browser preview |
+| `touch-controls-v1.6.7.png` | Bottom swipe sheet with the Masjid tab active and Masjid, Radio, Theme, Network and Updates tabs visible. | Portrait browser preview |
+| `updates-touch-v1.6.7.png` | Touchscreen Updates tab showing the installed version, update status and Check now. | Portrait browser preview |
+| `board-config-v1.6.7.png` | Board configuration with locations, selected masjids and ordering controls. | Web UI |
+| `board-display-v1.6.7.png` | Display settings with themes, daily-content options and Preview MasjidFrame Display; the generic preview button is absent. | Web UI |
+| `listen-controls-v1.6.7.png` | Now Playing, Start Listening/Stop, masjid selection and favourites, without Power switches. | Web UI |
+| `radio-schedule-v1.6.7.png` | Radio modes, Daily Radio hours, larger time fields and Save schedule. | Web UI |
+| `audio-output-v1.6.7.png` | MasjidFrame Built-In Audio selected, Refresh Devices and Master Volume. | Web UI |
+| `updates-web-v1.6.7.png` | Updates page showing the installed version, update status and Check now. | Web UI |
 
-Capture real application output at 100% browser zoom. Do not stretch a 600 × 1024 image into the 720 × 1280 slot. Use a browser preview of the appliance profile at 720 × 1280 when a physical screen capture is unavailable, but ensure it displays the same v1.6.7 interface and label previews as such. Once captures are verified, link them near their corresponding guide sections and remove historical images that have been superseded.
+## Capture notes
+
+The deferred-Board capture temporarily exposed the application's existing unconfigured message in the browser. Saved masjid selections were unchanged. It illustrates that message and recovery action; it is not evidence of an appliance actually running with Board setup deferred.
+
+Captures were taken at 100% browser zoom. Portrait images retain their original 720 × 1280 dimensions. For replacement captures, avoid private Wi-Fi names, addresses and personal notices, redact a copy when needed, and keep preview or staging labels accurate.
+
+## Historical images
+
+Older images remain in this folder as historical references and are not embedded in the current guide. In particular, the 600 × 1024 appliance images show a discontinued layout. Use the versioned v1.6.7 filenames above for the current guide.

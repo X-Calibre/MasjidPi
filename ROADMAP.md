@@ -54,6 +54,26 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 - Consider richer current-programme metadata where stations expose reliable information.
 - Explore advanced audio controls only if they remain simple on appliance hardware.
 
+### SmartBilal integration (deferred)
+
+Investigate SmartBilal as an additional Listen upstream in a future release; this is outside the v1.6.8 UI work.
+
+Findings from the 2 October 2026 investigation:
+
+- Public masjid profile pages expose structured masjid IDs, names, regions, stream URLs and a live flag. Example: [Nur ul Islam Masjid Lenasia](https://media.smartbilal.com/masjid/nurulislam).
+- A sampled active stream decoded as Opus audio in Ogg, compatible with mpv.
+- The observed [Icecast status endpoint](http://41.185.71.90:8000/status-json.xsl) lists active mounts. Offline streams are absent, and active entries have generic names, so it cannot supply a complete, named masjid catalogue.
+- No complete public catalogue API or sitemap was found in the inspected pages and web application. This does not establish that none exists.
+
+Before implementation:
+
+- Establish a supported catalogue API or maintained export with stable IDs, names, locations and stream URLs, including offline masjids. Confirm pagination, completeness and refresh behavior.
+- Evaluate curated public profile links as an initial alternative, clearly distinguishing a maintained subset from automatic complete discovery.
+- Add provider-specific availability monitoring; SmartBilal cannot rely on LiveMasjid's MQTT status feed. Validate polling cadence, status freshness and broadcast start/stop detection.
+- Validate playback, reconnects, network failures and Radio interruption/resumption on Raspberry Pi hardware.
+- Keep provider identities distinct and reconcile masjids available through multiple upstreams without duplicate favourites or ambiguous status.
+- Cache last-known-good catalogue data and retain it during upstream failures.
+
 ## Platform targets
 
 ### Linux x86-64 appliance

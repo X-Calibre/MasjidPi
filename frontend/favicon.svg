@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 -54 488 488" role="img" aria-labelledby="title desc">
+  <title id="title">MasjidFrame dome and wireless symbol</title>
+  <desc id="desc">A pointed Islamic dome formed from layered wireless signal bands.</desc>
+  <path fill="#006B4F" d="M220 0C240 60 380 85 420 277C375 205 295 130 220 89C145 130 65 205 20 277C60 85 200 60 220 0Z"/>
+  <path fill="#123C73" d="M33 332A187 160 0 0 1 407 332A187 114 0 0 0 33 332Z"/>
+  <path fill="#006B4F" d="M79 333A141 82 0 0 1 361 333H317A97 49 0 0 0 123 333H79Z"/>
+  <rect x="0" y="351" width="158" height="27" rx="13.5" fill="#006B4F"/>
+  <rect x="282" y="351" width="158" height="27" rx="13.5" fill="#006B4F"/>
+  <circle cx="220" cy="350" r="29" fill="#C9A227"/>
+</svg>

@@ -63,7 +63,18 @@ Findings from the 2 October 2026 investigation:
 - Public masjid profile pages expose structured masjid IDs, names, regions, stream URLs and a live flag. Example: [Nur ul Islam Masjid Lenasia](https://media.smartbilal.com/masjid/nurulislam).
 - A sampled active stream decoded as Opus audio in Ogg, compatible with mpv.
 - The observed [Icecast status endpoint](http://41.185.71.90:8000/status-json.xsl) lists active mounts. Offline streams are absent, and active entries have generic names, so it cannot supply a complete, named masjid catalogue.
-- No complete public catalogue API or sitemap was found in the inspected pages and web application. This does not establish that none exists.
+- Initial website inspection found no complete catalogue API or sitemap. Subsequent static inspection of the user-supplied SmartBilal 2.0.8 Android APK identified working catalogue APIs; the website-only finding is superseded by the results below.
+
+Android APK follow-up on 2 October 2026:
+
+- The production API base is `https://media.smartbilal.com/api/`. Catalogue and detail requests tested without credentials returned data; the app also supports bearer authentication for other requests.
+- `GET /api/v3/dashboard` exposes top-level categories. `GET /api/v2/dashboardList?page=1&type=collectionGroup&category_id=9` returned South Africa's regional groups, including offline masjids.
+- The South Africa response contained 350 entries across 17 groups, representing 332 unique provider IDs. These are catalogue entries, not 332 independently verified playable streams; duplicate category membership must be reconciled.
+- The grouped South Africa response was identical for `page=1` and `page=2`. Do not assume the page parameter advances grouped results; validate endpoint-specific pagination and traversal before claiming completeness.
+- `GET /api/users/1471` returned Nur ul Islam's stream metadata, including mount `m15`, its channel URL and `is_live: false`.
+- Tests of the list/filter endpoints used the app's `x-api-version: 36` header. An unqualified list request returned an empty result, so reproduce the appropriate request type and category rather than treating that as an empty catalogue.
+- The APK references MQTT and stream-start/stream-stop events. This is static evidence only; broker access, subscriptions, credentials and event behavior have not been validated.
+- These internal app APIs provide a promising enumeration path, but worldwide completeness, long-term stability and supported third-party use remain unconfirmed.
 
 Before implementation:
 

@@ -346,9 +346,9 @@ body.appliance-720-layout {
     font-size:20px;
     line-height:1.25;
 }
-.appliance-720-layout .appliance-community-dua_after_adhan .appliance-community-field:first-child .appliance-community-field-value {
-    font-size:33px;
-    line-height:1.55;
+.appliance-720-layout .appliance-community-dua_after_adhan .appliance-dua-arabic .appliance-community-field-value {
+    font-size:40px;
+    line-height:1.85;
 }
 
 

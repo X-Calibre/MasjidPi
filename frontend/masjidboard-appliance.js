@@ -222,9 +222,16 @@
             const list = element("div", "appliance-community-fields");
             for (const field of fields) {
                 const row = element("div", "appliance-community-field");
+                if (item.type === "dua_after_adhan") {
+                    row.classList.add("appliance-dua-" + field.label.toLowerCase());
+                }
                 row.append(element("span", "appliance-community-field-label", field.label));
                 const value = element("span", "appliance-community-field-value", field.value);
                 value.dir = "auto";
+                if (item.type === "dua_after_adhan" && field.label === "Arabic") {
+                    value.dir = "rtl";
+                    value.lang = "ar";
+                }
                 row.append(value);
                 list.append(row);
             }

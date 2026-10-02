@@ -1,4 +1,12 @@
 @font-face {
+    font-family:"MasjidFrame Naskh";
+    src:url("fonts/noto-naskh-arabic/NotoNaskhArabic.ttf") format("truetype");
+    font-style:normal;
+    font-weight:400 700;
+    font-display:swap;
+}
+
+@font-face {
     font-family:"Atkinson Hyperlegible Next";
     src:url("fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext[wght].woff2") format("woff2");
     font-style:normal;

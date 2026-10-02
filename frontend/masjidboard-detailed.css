@@ -122,9 +122,38 @@ html.landscape-layout {
     text-align:right;
     font-family:"Noto Naskh Arabic","Noto Sans Arabic",Fira Sans,sans-serif;
 }
-.detailed-community-dua_after_adhan .detailed-community-field:first-child .detailed-community-field-value {
-    font-size:clamp(1.3rem,1.55vw,1.75rem);
-    line-height:1.65;
+/* Full-width bilingual text leaves room for Arabic vowel marks. */
+.detailed-community-dua_after_adhan .detailed-community-fields {
+    margin-top:clamp(14px,1.5vh,22px);
+    padding-top:0;
+    gap:clamp(14px,1.5vh,22px);
+}
+.detailed-community-dua_after_adhan .detailed-community-field {
+    grid-template-columns:minmax(0,1fr);
+    gap:0;
+    padding-top:0;
+    border-top:0;
+}
+.detailed-community-dua_after_adhan .detailed-community-field-label { display:none; }
+.detailed-community-dua_after_adhan .detailed-dua-arabic .detailed-community-field-value {
+    font-family:"MasjidFrame Naskh","Noto Naskh Arabic",serif;
+    font-size:clamp(1.5rem,1.7vw,2rem);
+    font-weight:500;
+    line-height:1.85;
+    letter-spacing:normal;
+    overflow-wrap:normal;
+    text-align:center;
+}
+.detailed-community-dua_after_adhan .detailed-dua-translation {
+    padding-top:clamp(14px,1.5vh,22px);
+    border-top:1px solid var(--line);
+    line-height:1.5;
+}
+.detailed-community-dua_after_adhan .detailed-dua-note .detailed-community-field-value {
+    color:var(--muted);
+    font-size:clamp(.85rem,.9vw,1rem);
+    font-weight:400;
+    line-height:1.4;
 }
 .detailed-community-empty {
     height:100%;

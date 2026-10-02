@@ -333,12 +333,38 @@ body.appliance-layout {
     text-align:right;
     font-family:"Noto Naskh Arabic","Noto Sans Arabic",Fira Sans,sans-serif;
 }
-.appliance-community-dua_after_adhan .appliance-community-field {
-    grid-template-columns:110px minmax(0,1fr);
+/* Full-width bilingual text leaves room for Arabic vowel marks. */
+.appliance-community-dua_after_adhan .appliance-community-fields {
+    margin-top:20px;
+    padding-top:0;
+    gap:20px;
 }
-.appliance-community-dua_after_adhan .appliance-community-field:first-child .appliance-community-field-value {
+.appliance-community-dua_after_adhan .appliance-community-field {
+    grid-template-columns:minmax(0,1fr);
+    gap:0;
+    padding-top:0;
+    border-top:0;
+}
+.appliance-community-dua_after_adhan .appliance-community-field-label { display:none; }
+.appliance-community-dua_after_adhan .appliance-dua-arabic .appliance-community-field-value {
+    font-family:"MasjidFrame Naskh","Noto Naskh Arabic",serif;
     font-size:28px;
-    line-height:1.65;
+    font-weight:500;
+    line-height:1.85;
+    letter-spacing:normal;
+    overflow-wrap:normal;
+    text-align:center;
+}
+.appliance-community-dua_after_adhan .appliance-dua-translation {
+    padding-top:20px;
+    border-top:1px solid var(--appliance-line);
+    line-height:1.5;
+}
+.appliance-community-dua_after_adhan .appliance-dua-note .appliance-community-field-value {
+    color:var(--appliance-muted);
+    font-size:18px;
+    font-weight:400;
+    line-height:1.4;
 }
 .appliance-community-card.compact {
     padding:24px 24px 20px;

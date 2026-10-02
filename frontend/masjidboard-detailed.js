@@ -235,6 +235,9 @@
             const list = makeElement("div", "detailed-community-fields");
             for (const field of fields) {
                 const row = makeElement("div", "detailed-community-field");
+                if (item.type === "dua_after_adhan") {
+                    row.classList.add("detailed-dua-" + field.label.toLowerCase());
+                }
                 row.append(makeElement("span", "detailed-community-field-label", field.label));
                 const value = makeElement("span", "detailed-community-field-value");
                 if (item.type === "economic" && field.value.startsWith("R")) {
@@ -246,6 +249,10 @@
                 } else {
                     value.textContent = field.value;
                     value.dir = "auto";
+                    if (item.type === "dua_after_adhan" && field.label === "Arabic") {
+                        value.dir = "rtl";
+                        value.lang = "ar";
+                    }
                 }
                 row.append(value);
                 list.append(row);

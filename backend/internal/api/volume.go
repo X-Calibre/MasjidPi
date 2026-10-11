@@ -37,7 +37,7 @@ func (s *Server) volume(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 		}
-		writeJSON(w, http.StatusOK, devices)
+		writeJSON(w, http.StatusOK, restrictApplianceAudioDevices(devices))
 		return
 	}
 

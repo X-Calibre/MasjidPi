@@ -89,6 +89,11 @@ http://<masjidframe-ip-address>:8080
 
 See the [Installation Guide](docs/INSTALL.md) for supported systems, installer behavior, updates and troubleshooting. Hardware compatibility and measured Raspberry Pi performance are documented in the [Hardware Guide](docs/HARDWARE.md).
 
+Original Pi Zero/Zero W devices have a separate [ARMv6 Listen-only installer](docs/INSTALL.md#armv6-raspberry-pi-listen-only).
+It requires an ARMv6 application package from a future release, or a source
+build from a checkout containing the installer. v1.6.9 has no ARMv6 package;
+physical-device validation is pending.
+
 ## Documentation
 
 - [User Guide](docs/USER_GUIDE.md) — illustrated appliance setup, touch controls, Listen, Radio, Board, updates and troubleshooting

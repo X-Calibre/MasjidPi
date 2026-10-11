@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
@@ -26,6 +27,9 @@ func monitorUpdateChecks(
 	checker updateChecker,
 	log updateCheckLogger,
 ) {
+	if applianceUpdatesDisabled() {
+		return
+	}
 	checkUpdatesIfDue(
 		ctx,
 		checker,
@@ -51,6 +55,10 @@ func monitorUpdateChecks(
 			)
 		}
 	}
+}
+
+func applianceUpdatesDisabled() bool {
+	return os.Getenv("MASJIDFRAME_APPLIANCE_UPDATES") == "disabled"
 }
 
 func persistedReleaseNeedsRefresh(state updates.State) bool {

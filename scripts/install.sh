@@ -21,6 +21,12 @@ source "$SCRIPT_DIR/selftest.sh"
 source "$SCRIPT_DIR/update.sh"
 source "$SCRIPT_DIR/preflight.sh"
 
+# The dedicated entry point opts into ARMv6 support; the general installer
+# retains its existing supported architectures and component selection.
+if [[ "${MASJIDFRAME_ARMV6_LISTEN:-0}" == "1" ]]; then
+    source "$SCRIPT_DIR/armv6-listen.sh"
+fi
+
 SOURCE_MODE=false
 INSTALL_SUCCEEDED=false
 

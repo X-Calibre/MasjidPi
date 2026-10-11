@@ -22,6 +22,12 @@ get_go_arch() {
             echo linux-armv6l
             ;;
 
+        armv6l)
+            [[ "${MASJIDFRAME_ARMV6_LISTEN:-0}" == "1" ]] \
+                || die "Use the dedicated ARMv6 Listen installer."
+            echo linux-armv6l
+            ;;
+
         *)
             die "Unsupported CPU architecture."
             ;;

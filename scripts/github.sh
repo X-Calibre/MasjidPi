@@ -46,6 +46,11 @@ prepare_release() {
         armv7l)
             die "No official MasjidFrame release is available for armv7l. Use --source instead."
             ;;
+        armv6l)
+            [[ "${MASJIDFRAME_ARMV6_LISTEN:-0}" == "1" ]] \
+                || die "Use the dedicated ARMv6 Listen installer."
+            RELEASE_ARCH="armv6"
+            ;;
         *)
             die "Unsupported release architecture: $ARCH"
             ;;

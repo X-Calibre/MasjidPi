@@ -55,7 +55,7 @@ jobs:
             mkdir -p "$package_dir"
 
             pushd backend >/dev/null
-            CGO_ENABLED=0 GOOS=linux GOARCH="$goarch" \
+            CGO_ENABLED=0 GOOS=linux GOARCH="$goarch" GOARM=6 \
               go build -trimpath \
                 -ldflags "-X github.com/X-Calibre/MasjidFrame/backend/internal/version.Version=${VERSION}" \
                 -o "../$binary" ./cmd/masjidframe
@@ -106,6 +106,8 @@ jobs:
             require_file "$package_dir/frontend/masjidframe-splash-logo.png"
             require_file "$package_dir/frontend/masjidframe-splash-logo-portrait.png"
             require_file "$package_dir/scripts/install.sh"
+            require_file "$package_dir/scripts/install-listen-armv6.sh"
+            require_file "$package_dir/scripts/armv6-listen.sh"
             require_file "$package_dir/scripts/masjidboard-display.sh"
             require_file "$package_dir/scripts/masjidboard-warmup.sh"
             require_file "$package_dir/scripts/masjidframe.service"
@@ -125,6 +127,8 @@ jobs:
           # - amd64: 64-bit x86 Linux systems
           build_package arm64 arm64
           build_package amd64 amd64
+          # Original Pi Zero/Zero W and other ARMv6 Pis: Listen only.
+          build_package armv6 arm
 
           (
             cd dist
@@ -152,6 +156,7 @@ jobs:
           gh release create "$VERSION" \
             dist/masjidframe-${VERSION}-linux-arm64.tar.gz \
             dist/masjidframe-${VERSION}-linux-amd64.tar.gz \
+            dist/masjidframe-${VERSION}-linux-armv6.tar.gz \
             dist/SHA256SUMS \
             --title "$VERSION" \
             --generate-notes \

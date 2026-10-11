@@ -276,6 +276,9 @@ func Run() error {
 }
 
 func newAPIServer(cfg *config.Config, paths config.Paths, installed components.Installed, dependencies api.Dependencies) *api.Server {
+	if applianceUpdatesDisabled() {
+		dependencies.Updates = nil
+	}
 	return api.New(api.Config{
 		Address:                  cfg.HTTP.Address,
 		Frontend:                 paths.Frontend,

@@ -9,6 +9,10 @@ Official release packages are built for:
 - **Linux ARM64 (`aarch64`)**
 - **Linux AMD64 (`x86_64`)**
 
+The release workflow also provides an **ARMv6 Listen-only** target for future
+releases. v1.6.9 has no ARMv6 package. See the dedicated
+[ARMv6 installation instructions](INSTALL.md#armv6-raspberry-pi-listen-only).
+
 MasjidFrame requires `systemd`. Listen requires an ALSA-compatible audio device. Board requires a DRM/KMS display environment supported by the Cog/WPE packages installed by MasjidFrame.
 
 ## Raspberry Pi compatibility
@@ -17,7 +21,7 @@ Raspberry Pi 3B and Raspberry Pi 4 are production-validated. Other entries are e
 
 | Raspberry Pi | Listen | Listen + Board | Status |
 |---|---:|---:|---|
-| Zero W / Pi 1 | No | No | ARMv6 is not supported by current release packages. |
+| Zero / Zero W / Pi 1 | Unvalidated | No | Dedicated ARMv6 Listen installer; cross-build verified, physical playback pending. v1.6.9 has no ARMv6 package. |
 | Pi 2 Model B v1.1 | Unvalidated | Unvalidated | Older 32-bit Cortex-A7 platform. |
 | Pi 2 Model B v1.2 | Expected | Expected with constraints | Cortex-A53 platform, but not physically validated. |
 | Zero 2 W | Expected | Unvalidated | CPU should be sufficient; 512 MB RAM requires validation for Board. |

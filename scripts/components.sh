@@ -116,6 +116,9 @@ component_profile() {
 save_components() {
     install -d -m 0755 /etc/masjidframe
     printf 'MASJIDFRAME_COMPONENTS=%s\n' "$(component_profile)" > "$COMPONENTS_FILE"
+    if [[ "${MASJIDFRAME_ARMV6_LISTEN:-0}" == "1" ]]; then
+        printf 'MASJIDFRAME_APPLIANCE_UPDATES=disabled\n' >> "$COMPONENTS_FILE"
+    fi
     chmod 0644 "$COMPONENTS_FILE"
     success "Installed component profile saved to $COMPONENTS_FILE."
 }

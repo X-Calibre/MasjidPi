@@ -224,6 +224,45 @@ html.landscape-layout {
 .detailed-community-daily_hadith .detailed-community-source,
 .detailed-community-daily_sunnah .detailed-community-source { margin-top:auto; font-weight:700; }
 
+/* Daily Islamic content shares one landscape page. Measured body sizing
+   leaves headings and references stable while making short text readable. */
+.detailed-community-card.detailed-daily-card {
+    padding:clamp(14px,1vw,20px);
+}
+.detailed-daily-card > :not(.detailed-community-body) { flex-shrink:0; }
+.detailed-daily-card .detailed-community-title {
+    font-size:clamp(1.25rem,1.4vw,1.75rem);
+    line-height:1.12;
+}
+.detailed-daily-card .detailed-community-body {
+    flex:1 1 0;
+    min-height:0;
+    margin:10px 0;
+    display:flex;
+    align-items:safe center;
+    font-size:16px;
+    line-height:1.25;
+    color:var(--text);
+    overflow:auto;
+}
+.detailed-daily-text { display:block; width:100%; }
+.detailed-daily-card .detailed-community-fields {
+    margin-top:0;
+    padding-top:0;
+    gap:4px;
+}
+.detailed-daily-card .detailed-community-field {
+    grid-template-columns:minmax(0,1fr);
+    padding-top:6px;
+    gap:0;
+    font-size:clamp(.8rem,.8vw,.95rem);
+}
+.detailed-daily-card .detailed-community-field-label { display:none; }
+.detailed-daily-card .detailed-community-source {
+    margin-top:8px;
+    font-size:clamp(.72rem,.75vw,.88rem);
+}
+
 /* Salaah changes contain only two short values, so use the available card
    space for prominent text and a clearly separated label/value grid. */
 .detailed-community-salaah_change {

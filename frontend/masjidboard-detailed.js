@@ -141,7 +141,8 @@
 
     function packCommunityPages(items) {
         const pages = [];
-        const regularItems = items.filter((item) => item.type !== "economic");
+        const dailyItems = items.filter(isDailyItem);
+        const regularItems = items.filter((item) => item.type !== "economic" && !isDailyItem(item));
         let index = 0;
         while (index < regularItems.length) {
             const remaining = regularItems.length - index;
@@ -181,10 +182,17 @@
                 index += 2;
             }
         }
+        if (dailyItems.length) {
+            pages.push({layout: "daily", entries: dailyItems.map((item) => ({item, span: 1}))});
+        }
         for (const item of items.filter((entry) => entry.type === "economic")) {
             pages.push({layout: "single", entries: [{item, span: 1}]});
         }
         return pages;
+    }
+
+    function isDailyItem(item) {
+        return ["daily_ayah", "daily_hadith", "daily_sunnah"].includes(item.type);
     }
 
     function renderCommunityCard(item, span) {
@@ -214,6 +222,10 @@
 		}
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);
+            if (isDailyItem(item)) {
+                body.replaceChildren(makeElement("span", "detailed-daily-text", item.body));
+                card.classList.add("detailed-daily-card");
+            }
             body.dir = "auto";
             card.append(body);
         }
@@ -292,6 +304,58 @@
         const page = communityPages[pageIndex];
         communityCards.className = `detailed-community-cards community-layout-${page.layout}`;
         communityCards.replaceChildren(...communityPageNodes[pageIndex]);
+        communityCards.style.gridTemplateRows = page.layout === "daily"
+            ? page.entries.map(({item}) => `${Math.max(1, Math.min(2.5, Math.sqrt(plainText(item.body).length / 100)))}fr`).join(" ")
+            : "";
+        scheduleDailyFit();
+    }
+
+    let dailyFitPending = false;
+    let dailyFitSignature = "";
+    function scheduleDailyFit() {
+        if (dailyFitPending) return;
+        dailyFitPending = true;
+        window.requestAnimationFrame(() => {
+            dailyFitPending = false;
+            if (!communityCards || !communityCards.clientHeight || !communityPages.length) return;
+            const pageIndex = communityPage % communityPages.length;
+            const signature = `${communitySignature}:${pageIndex}:${communityCards.clientWidth}:${communityCards.clientHeight}`;
+            if (signature === dailyFitSignature) return;
+            dailyFitSignature = signature;
+            let fits = true;
+            for (const card of communityCards.querySelectorAll(".detailed-daily-card")) {
+                const body = card.querySelector(".detailed-community-body");
+                const text = card.querySelector(".detailed-daily-text");
+                const fitsAt = (size) => {
+                    body.style.fontSize = `${size}px`;
+                    return text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth && card.scrollHeight <= card.clientHeight;
+                };
+                let low = 16;
+                let high = 32;
+                if (!fitsAt(low)) fits = false;
+                while (high - low > 1) {
+                    const middle = Math.floor((low + high) / 2);
+                    if (fitsAt(middle)) low = middle;
+                    else high = middle;
+                }
+                fitsAt(fitsAt(high) ? high : low);
+            }
+            const page = communityPages[pageIndex];
+            if (!fits && page.layout === "daily" && page.entries.length > 1) {
+                communityPages.splice(pageIndex, 1, ...page.entries.map((entry) => ({layout: "daily", entries: [entry]})));
+                dailyFitSignature = "";
+                buildCommunityPageNodes();
+                renderCommunityPage();
+            }
+        });
+    }
+
+    window.addEventListener("resize", () => { dailyFitSignature = ""; scheduleDailyFit(); });
+    if (typeof ResizeObserver !== "undefined" && communityCards) {
+        new ResizeObserver(() => scheduleDailyFit()).observe(communityCards);
+    }
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { dailyFitSignature = ""; scheduleDailyFit(); });
     }
 
     function buildCommunityPageNodes() {

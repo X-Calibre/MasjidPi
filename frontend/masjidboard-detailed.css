@@ -282,6 +282,53 @@ html.landscape-layout {
     font-size:clamp(.72rem,.75vw,.88rem);
 }
 
+/* Match the portrait banking card's hierarchy within the narrow sidebar. */
+.detailed-community-contribution .detailed-community-title {
+    font-size:clamp(1.7rem,1.9vw,2.25rem);
+    line-height:1.12;
+}
+.detailed-community-contribution .detailed-community-fields {
+    flex:1 0 auto;
+    margin-top:20px;
+    padding-top:0;
+    gap:14px;
+    align-content:space-evenly;
+}
+.detailed-community-contribution .detailed-community-field {
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    padding-top:12px;
+}
+.detailed-community-contribution .detailed-community-field-label {
+    font-size:clamp(1rem,1.15vw,1.4rem);
+    line-height:1.2;
+}
+.detailed-community-contribution .detailed-community-field-value {
+    font-size:clamp(1.4rem,1.55vw,1.9rem);
+    line-height:1.2;
+    font-weight:750;
+    overflow-wrap:anywhere;
+}
+.detailed-community-contribution .detailed-contribution-account-number .detailed-community-field-value {
+    font-size:clamp(1.65rem,1.85vw,2.25rem);
+    font-variant-numeric:tabular-nums;
+}
+.detailed-community-contribution .detailed-contribution-fields-many {
+    gap:10px;
+}
+.detailed-community-contribution .detailed-contribution-fields-many .detailed-community-field-value {
+    font-size:clamp(1.2rem,1.35vw,1.6rem);
+}
+.detailed-community-contribution .detailed-contribution-fields-many .detailed-contribution-account-number .detailed-community-field-value {
+    font-size:clamp(1.4rem,1.55vw,1.9rem);
+}
+.detailed-community-contribution .detailed-community-source {
+    flex-shrink:0;
+    margin-top:auto;
+    padding-top:16px;
+    font-size:clamp(.85rem,.95vw,1.05rem);
+}
+
 /* Salaah changes contain only two short values, so use the available card
    space for prominent text and a clearly separated label/value grid. */
 .detailed-community-salaah_change {

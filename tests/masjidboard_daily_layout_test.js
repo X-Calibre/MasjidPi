@@ -57,3 +57,13 @@ fitContext.scheduleDailyFit(); callback();
 assert.equal(arabicRow.value.style.fontSize,'40px');
 assert.equal(translationRow.value.style.fontSize,'25px', 'Translation must fit independently of Arabic');
 console.log('MasjidBoard independent Dua text sizing tests passed');
+for (let count=0; count<=5; count++) {
+    const notices=Array.from({length:count},()=>({type:'announcement',body:'Short notice'}));
+    const banking=context.packCommunityPages([...notices,{type:'contribution',fields:{bank:'FNB',account_number:'62599032978'}}]);
+    const last=banking[banking.length-1];
+    assert.equal(last.layout,'single');
+    assert.equal(last.entries.length,1);
+    assert.equal(last.entries[0].item.type,'contribution','Banking details must receive the full sidebar height');
+    assert.equal(banking.flatMap(page=>page.entries).length,count+1,'All preceding notices must be preserved');
+}
+console.log('MasjidBoard landscape contributions pagination tests passed');

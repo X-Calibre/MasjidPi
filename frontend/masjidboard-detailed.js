@@ -146,6 +146,19 @@
         let index = 0;
         while (index < regularItems.length) {
             const remaining = regularItems.length - index;
+            if (regularItems[index].type === "contribution") {
+                pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
+                index += 1;
+                continue;
+            }
+            // Banking details need a full card; finish preceding notices first.
+            const contributionIndex = regularItems.findIndex((item, itemIndex) => itemIndex > index && item.type === "contribution");
+            if (contributionIndex > index && contributionIndex < index + 3) {
+                const entries = regularItems.slice(index, contributionIndex).map((item) => ({item, span: 1}));
+                pages.push({layout: entries.length === 1 ? "single" : "halves", entries});
+                index = contributionIndex;
+                continue;
+            }
             if (remaining === 1) {
                 pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
                 index += 1;
@@ -245,8 +258,14 @@
         );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");
+            if (item.type === "contribution" && fields.length > 4) {
+                list.classList.add("detailed-contribution-fields-many");
+            }
             for (const field of fields) {
                 const row = makeElement("div", "detailed-community-field");
+                if (item.type === "contribution" && field.label === "Account Number") {
+                    row.classList.add("detailed-contribution-account-number");
+                }
                 if (item.type === "dua_after_adhan") {
                     row.classList.add("detailed-dua-" + field.label.toLowerCase());
                 }

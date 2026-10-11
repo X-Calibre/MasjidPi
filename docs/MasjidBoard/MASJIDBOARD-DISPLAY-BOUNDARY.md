@@ -91,7 +91,11 @@ The Appliance overlay may:
 - choose scheduled/immediate/stopped Radio mode;
 - start or stop Listen;
 - adjust source and supported Master volumes; and
-- change the saved Board theme.
+- change the saved Board theme;
+- display network addresses and reopen the dedicated Wi-Fi setup flow; and
+- check, approve, postpone or start appliance updates through their dedicated API.
+
+The setup wizard owns network replacement; the read-only timetable API does not administer Wi-Fi or updates.
 
 Catalogue search, Radio schedule editing, Board selection and audio-device configuration remain in the full Web UI.
 

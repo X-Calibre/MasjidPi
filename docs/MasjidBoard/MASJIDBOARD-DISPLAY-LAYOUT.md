@@ -108,6 +108,16 @@ A provider-supplied special Dhuhr entry is appended to Daily Times when it has a
 
 The standard profile contains no appliance Listen controls.
 
+### v1.6.9 card layout and fitting
+
+- Enabled daily Ayah, Hadith and Sunnah share a landscape slide in that order. Content length determines relative card height. Each body is fitted to its available space; if the group fails the minimum-size check, the cards move to separate daily slides.
+- Funeral, Nikaah, Eid and contributions use full-height landscape notice pages. Short notices may share two-card pages; failed minimum-size checks split paired notices into individual pages. Existing masjid and priority boundaries remain intact.
+- Funeral Notice and Nikaah Notice category labels appear above the names in both profiles. Other content titles remain visible.
+- Contributions use labels above larger values, a prominent account number and evenly distributed fields. Landscape Economic Indicators use the portrait-style rounded table, larger amounts, evenly spaced rows and a bottom note/footer.
+- Landscape Dua after Adhan gives approximately 60% of its text area to Arabic and 40% to English, fits each block independently and places the Wasilah explanation at the bottom.
+- Notice details are grouped without dropping supplied fields. Dawah/Gasht, three-day Jamaat and new-moon details use related sections. Paragraph notices retain appropriate text direction and use fitted text. Portrait programme notices use full-height cards.
+- Landscape fitting limits follow the existing viewport scale; at 3840 × 2160 CSS pixels they double relative to 1920 × 1080. Spacing uses relative units. Fitting is scheduled after content/size changes rather than every clock tick. Automated sizing checks pass at both resolutions; native 4K visual confirmation remains pending.
+
 ## Appliance profile presentation
 
 The Appliance profile targets the Raspberry Pi Touch Display 2 at its native
@@ -124,7 +134,9 @@ The Appliance profile adds a touch sheet opened by swiping up and closed by swip
 
 - Masjid controls for favourite selection, playback and Masjid volume;
 - Radio controls for station selection, Scheduled Play, Play Now, Stop and Radio volume;
-- Theme selection; and
+- Theme selection;
+- Network addresses and Change Wi-Fi;
+- Update checks, approval, reminders and installation; and
 - Master volume where the active audio device supports it.
 
 The slideshow pauses while the touch sheet is open and resumes when it closes.
@@ -169,7 +181,7 @@ Profile and orientation are separate concepts. The current implementation maps:
 
 ```text
 standard  -> responsive landscape presentation
-appliance -> dedicated 7-inch portrait presentation
+appliance-720 -> dedicated 720x1280 portrait presentation
 ```
 
 A future conventional portrait monitor/TV presentation may be added without redefining the Appliance profile. Hardware detection remains a responsibility of the local display runtime rather than the presentation API.

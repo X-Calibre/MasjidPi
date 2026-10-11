@@ -2,7 +2,22 @@
 
 This living checklist records completed v1.5.2 hardware evidence and validation that remains useful for later releases. Release-specific sign-off belongs in the matching release acceptance record.
 
-## Planned for v1.6.1
+## v1.6.9 release review
+
+See [RELEASE_CANDIDATE_v1.6.9.md](RELEASE_CANDIDATE_v1.6.9.md) for the release-specific evidence and remaining checks.
+
+- [x] Automated backend, JavaScript, GitHub tests and code analysis passed.
+- [x] Pi 4 portrait and landscape browser previews were reviewed and accepted.
+- [x] Full HD and 4K text-sizing checks passed.
+- [x] Pi 3 image provenance and update signature were verified and release assets published.
+- [ ] Visually verify native 4K rendering at 100% browser zoom.
+- [ ] Verify both appliance audio outputs on physical hardware.
+- [ ] Install v1.6.9 through the Pi 3 updater and verify probation, persistence and a normal reboot.
+- [ ] Complete v1.6.9 hardware soak validation.
+
+## Historical planned checks for v1.6.1
+
+These unchecked entries preserve the original plan; they are not a current v1.6.9 acceptance verdict.
 
 ### Product identity
 
@@ -187,4 +202,4 @@ The original ARMv6 Raspberry Pi Zero W and Raspberry Pi 1 are not current releas
 - Do not remove `console=tty1`; physical testing showed that configuration caused a failed boot/display state.
 - Do not mask `getty@tty1.service`; disabling it is sufficient for the dedicated Board boot experience.
 - Cog must start only after Plymouth releases DRM.
-- Temporary splash artwork remains scheduled for replacement with final product branding.
+- Approved MasjidFrame logo and favicon branding shipped in v1.6.8; retain historical splash-validation evidence separately.

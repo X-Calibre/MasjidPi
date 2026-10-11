@@ -80,14 +80,13 @@ visibility and Islamic Economic Indicators visibility are shared preferences.
 
 ## Configuration UI
 
-The Board Display page does not offer a layout selector. It reports automatic
-local profile selection and provides one direct Touch Display 2 preview link.
+The Board Display page does not offer a layout selector. It uses backend hardware detection to choose the preview link without displaying generic automatic-profile explanatory text. With Touch Display 2 detected, **Preview MasjidFrame Display** opens `appliance-720` and the generic preview button is hidden.
 
 ## Hardware ownership
 
-The display launcher owns local hardware detection. The backend does not infer
-attached display hardware, and the frontend does not infer a profile from
-viewport dimensions.
+The display launcher detects local hardware for Cog startup. The backend also checks connected DSI modes through `/api/display/profile` to select the Web UI preview. The frontend does not infer the display profile from viewport dimensions.
+
+Appliance audio filtering is separate from the browser profile: it is enabled when the appliance release record exists or a connected Touch Display 2 is detected. Only the detected Waveshare built-in adapter and Pi Headphones ALSA card are offered, labelled MasjidFrame Built-In Audio and External Stereo Output. Opening a portrait preview on another installation does not enable this filtering.
 
 The current mapping is:
 

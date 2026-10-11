@@ -662,7 +662,7 @@ The default Landscape display supports an explicit development-only fixture mode
 /masjidboard.html?notice-fixtures=1
 ```
 
-This injects anonymised funeral, Nikah, Eid, long-announcement, Arabic and compact community samples into the frontend card renderer. The set exercises two-thirds/one-third, three-card and full-panel pages. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.
+This injects anonymised funeral, Nikah, Eid, long-announcement, Arabic and compact community samples into the frontend card renderer. In v1.6.9, detailed funeral, Nikaah and Eid fixtures use full-height landscape pages; shorter notices can share two-card pages and separate when the minimum-size check fails. Portrait notices use full-height slides. Shared daily-content grouping is tested separately. The fixtures are derived from the historical content shapes documented above, are labelled as non-live layout fixtures, and never enter the provider, normalised model, runtime cache or display API.
 
 For focused testing of the latest Dawah/Gasht, three-day Jamaat and contribution cards, use:
 

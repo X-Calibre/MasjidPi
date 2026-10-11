@@ -1,5 +1,11 @@
 # MasjidFrame Installation Guide
 
+## Raspberry Pi 3 A/B appliance image
+
+The [v1.6.9 release](https://github.com/X-Calibre/MasjidPi/releases/tag/v1.6.9) includes `masjidframe-v1.6.9-pi3-ab.img.zst` and its `.sha256` checksum for a fresh SD-card installation. Verify the checksum before flashing. Flashing replaces the destination card contents; use the correct card. Existing A/B appliances can use Updates → Check now and the signed update flow described in the [User Guide](USER_GUIDE.md#update-the-appliance), subject to rollout eligibility. The fresh image reports `v1.6.9-image`.
+
+The application-package installer below is for an existing supported Linux installation; it is separate from the full A/B image and signed appliance updater.
+
 ## Recommended: official release
 
 For a supported 64-bit Linux system, install the latest official release with:

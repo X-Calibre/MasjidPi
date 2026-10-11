@@ -18,7 +18,8 @@ It can run either capability independently or install both together:
 - Resume Radio after a configurable delay or within a daily schedule
 - Use scheduled, immediate or stopped Radio modes
 - Set independent Masjid and Radio volumes
-- Select an ALSA audio output and recover from device interruptions
+- Select MasjidFrame Built-In Audio or External Stereo Output on appliances; other installations retain their ALSA output choices
+- Recover from audio-device interruptions
 - Automatically select MasjidFrame Built-In Audio on first run when the supported built-in USB audio device is detected
 - Restore saved settings and unattended playback after reboot
 
@@ -50,13 +51,15 @@ See the [User Guide](docs/USER_GUIDE.md#update-the-appliance) for update timing 
 
 ## Screenshots
 
-Current v1.6.7 interface. Portrait images are 720 × 1280 appliance browser previews.
+Screenshots from v1.6.7, retained as earlier-version examples. They do not show all v1.6.9 card and audio-output changes. Portrait images are 720 × 1280 appliance browser previews.
 
-| Portrait Board preview | Quick Settings preview |
+| Portrait Board preview — v1.6.7 | Quick Settings preview — v1.6.7 |
 |---|---|
 | ![Portrait MasjidBoard Salaah Times](docs/images/user-guide/board-portrait-v1.6.7.png) | ![Touchscreen Quick Settings](docs/images/user-guide/quick-settings-v1.6.7.png) |
 
 ![MasjidFrame Listen Web UI](docs/images/user-guide/listen-controls-v1.6.7.png)
+
+*Listen Web UI screenshot from v1.6.7.*
 
 See the [illustrated User Guide](docs/USER_GUIDE.md) for setup, touch controls, Board configuration, Radio scheduling, audio output and updates.
 
@@ -64,7 +67,7 @@ See the [illustrated User Guide](docs/USER_GUIDE.md) for setup, touch controls, 
 
 MasjidFrame supports 64-bit ARM Linux and 64-bit x86 Linux. Raspberry Pi 3B and Raspberry Pi 4 are the production-validated appliance platforms.
 
-For the Raspberry Pi 3 A/B appliance, the [v1.6.7 release](https://github.com/X-Calibre/MasjidPi/releases/tag/v1.6.7) includes a full SD-card image, a signed update bundle and checksums. Existing A/B appliances can use the touchscreen or Web UI Updates controls.
+For the Raspberry Pi 3 A/B appliance, the [v1.6.9 release](https://github.com/X-Calibre/MasjidPi/releases/tag/v1.6.9) includes a full SD-card image, a signed update bundle and checksums. Existing A/B appliances can use the touchscreen or Web UI Updates controls.
 
 For installation on an existing supported Linux system, install the latest stable application release:
 
@@ -117,11 +120,13 @@ Contributions are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Release
 
-**Current stable release: v1.6.7**
+**Current stable release: v1.6.9**
 
-v1.6.7 improves MasjidBoard Live discovery when a provider response contains blank city buckets. Release assets include Linux ARM64 and AMD64 application packages, a Raspberry Pi 3 A/B image and a signed Raspberry Pi 3 update bundle.
+v1.6.9 refines portrait and landscape notice cards, groups landscape Ayah/Hadith/Sunnah with dynamically fitted text, scales landscape text fitting to 4K, adds Funeral Notice and Nikaah Notice labels, and limits appliance audio choices to MasjidFrame Built-In Audio and External Stereo Output. Release assets include Linux ARM64 and AMD64 application packages, a Raspberry Pi 3 A/B image and a signed Raspberry Pi 3 update bundle.
 
-Download assets and read the changelog on [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases/tag/v1.6.7).
+See the [v1.6.9 acceptance record](docs/RELEASE_CANDIDATE_v1.6.9.md) for build evidence and pending hardware checks.
+
+Download assets and read the changelog on [GitHub Releases](https://github.com/X-Calibre/MasjidPi/releases/tag/v1.6.9).
 
 ## Data sources and acknowledgements
 

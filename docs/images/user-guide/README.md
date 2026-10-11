@@ -1,4 +1,4 @@
-# v1.6.7 user-guide screenshots
+# v1.6.7 screenshots used in the v1.6.9 user guide
 
 All 13 v1.6.7 screenshots have been captured, reviewed, uploaded and embedded beside the corresponding instructions in the [MasjidFrame Appliance User Guide](../../USER_GUIDE.md).
 
@@ -28,4 +28,4 @@ Captures were taken at 100% browser zoom. Portrait images retain their original 
 
 ## Historical images
 
-Older images remain in this folder as historical references and are not embedded in the current guide. In particular, the 600 × 1024 appliance images show a discontinued layout. Use the versioned v1.6.7 filenames above for the current guide.
+Older images remain in this folder as historical references and are not embedded in the current guide. In particular, the 600 × 1024 appliance images show a discontinued layout. The v1.6.9 guide retains the versioned v1.6.7 filenames above and labels every caption as a v1.6.7 screenshot. These are earlier-version examples; no new v1.6.9 screenshots are claimed.

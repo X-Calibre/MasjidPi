@@ -199,6 +199,25 @@ Never commit Wi-Fi credentials.
 Generated images, compressed deployment artefacts, SBOM data and IDP metadata
 are written below `work/`.
 
+## v1.6.9 image and signed update
+
+The published v1.6.9 tag identifies source commit `22bc292561ed42b85614108ef15c57f0710509a0`. Its tracked `version.json` still contains v1.6.8. Build this immutable release with an explicit runtime-version override; do not edit the tagged source tree or move the release tag:
+
+```bash
+git fetch origin main --tags
+git switch --detach v1.6.9
+MASJIDFRAME_IMAGE_VERSION=v1.6.9-image ./appliance-image/build-pi3-ab-prototype.sh
+./appliance-image/update/build-update-bundle.sh v1.6.9
+minisign -Vm work/update-bundles/masjidframe-update-v1.6.9-pi3.tar.zst \
+    -p appliance-image/update/masjidframe-update.pub
+```
+
+Build from a clean checkout. The bundle builder compares source commit, build version, image metadata and embedded runtime version before signing. The default private key stays local and must never be committed.
+
+The compressed fresh-install image is generated at `work/deploy-v1.6.9/masjidframe-pi3-ab-prototype.img.zst`; the published name is `masjidframe-v1.6.9-pi3-ab.img.zst`, accompanied by its `.sha256` file. The signed update and `.minisig` are generated under `work/update-bundles/`. Application-package `SHA256SUMS` is separate from the image checksum.
+
+See [the v1.6.9 acceptance record](../docs/RELEASE_CANDIDATE_v1.6.9.md) for verified publication and pending hardware validation.
+
 ## Hardware validation
 
 The integrated image has been tested on a Raspberry Pi 3 Model B Rev 1.2.

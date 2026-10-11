@@ -1,6 +1,8 @@
 # MasjidFrame Appliance User Guide
 
-MasjidFrame brings live masjid audio, Islamic radio and a rotating MasjidBoard display into one home appliance. This guide describes v1.6.7 and starts with the portrait touchscreen appliance. Your appliance may have **Board**, **Listen**, or both enabled; controls for an unavailable component will not appear.
+MasjidFrame brings live masjid audio, Islamic radio and a rotating MasjidBoard display into one home appliance. This guide describes v1.6.9 and starts with the portrait touchscreen appliance. Your appliance may have **Board**, **Listen**, or both enabled; controls for an unavailable component will not appear.
+
+All screenshots in this guide are from **v1.6.7** and are retained as earlier-version examples. The instructions describe v1.6.9; the screenshots do not show every revised notice card or the restricted appliance audio-output list.
 
 ## Get started on the appliance
 
@@ -11,15 +13,15 @@ MasjidFrame brings live masjid audio, Islamic radio and a rotating MasjidBoard d
 
 ![MasjidFrame Wi-Fi setup with available networks and Add hidden network](images/user-guide/setup-wifi-v1.6.7.png)
 
-*Wi-Fi setup — 720 × 1280 appliance browser preview. Network names are blurred for privacy.*
+*Wi-Fi setup — 720 × 1280 appliance browser preview. Network names are blurred for privacy. Screenshot from v1.6.7.*
 
 ![MasjidFrame location setup with South Africa, Gauteng, Laudium and Africa/Johannesburg selected](images/user-guide/setup-location-v1.6.7.png)
 
-*Location setup — 720 × 1280 appliance browser preview, before selecting Find masjids.*
+*Location setup — 720 × 1280 appliance browser preview, before selecting Find masjids. Screenshot from v1.6.7.*
 
 ![MasjidBoard is not configured message with Set up MasjidBoard action](images/user-guide/board-deferred-v1.6.7.png)
 
-*Deferred Board setup — staged 720 × 1280 browser preview of the application's existing message. The message was temporarily shown in the browser; saved masjid selections were unchanged.*
+*Deferred Board setup — staged 720 × 1280 browser preview of the application's existing message. The message was temporarily shown in the browser; saved masjid selections were unchanged. Screenshot from v1.6.7.*
 
 After connecting, the screen gives an IP address and, where your network supplies one, a network address. Keep either address for opening the full controls from your phone or computer. You can find them again under **Network** in the touchscreen controls. The appliance and your phone or computer must be able to reach each other on the local network.
 
@@ -27,11 +29,15 @@ After connecting, the screen gives an IP address and, where your network supplie
 
 The Board rotates through prayer times, a countdown to the next event and available notices for your selected masjids. The first selected masjid supplies shared Daily Times. On the portrait display, each selected masjid gets its own Salaah Times slide, followed by its notices. Shared Ayah, Hadith, Sunnah and Economic Indicator pages appear after the masjid-specific content, when enabled.
 
+In landscape, enabled Ayah, Hadith and Sunnah cards appear together in that order, with more height given to longer content and text sized to fit. If the cards cannot fit at the minimum readable size, they appear on separate daily slides. Portrait keeps separate daily-content slides.
+
+Funeral and Nikaah cards show **Funeral Notice** and **Nikaah Notice** above the names. Detailed landscape funeral, Nikaah, Eid and contribution cards use the full notice column; shorter notices may share a two-card slide and separate if their text cannot fit. Portrait notices use full-height cards with grouped details and larger fitted text. Contributions stack labels above values in both layouts. The landscape Economic Indicators table follows the portrait style, and Dua after Adhan sizes its Arabic and English sections independently.
+
 Some items appear only when the source masjid publishes them, including Jumu’ah details, programmes, funerals and Salaah changes. A notice shows its source masjid. The optional **Dua after Adhan** appears for five minutes after a listed Adhan for the first selected masjid; it is off by default. The Board can keep showing the last good timetable if a source is temporarily unavailable. Use **Board → Status** in the Web UI to check whether data is current or cached.
 
 ![Portrait MasjidBoard showing a representative Salaah Times slide](images/user-guide/board-portrait-v1.6.7.png)
 
-*Salaah Times — 720 × 1280 appliance browser preview.*
+*Salaah Times — 720 × 1280 appliance browser preview. Screenshot from v1.6.7.*
 
 ## Control the appliance by touch
 
@@ -39,11 +45,11 @@ On the 720 × 1280 portrait display, swiping down from the **top** opens **Quick
 
 ![Quick Settings sheet with brightness, volume and Radio actions](images/user-guide/quick-settings-v1.6.7.png)
 
-*Quick Settings — 720 × 1280 appliance browser preview.*
+*Quick Settings — 720 × 1280 appliance browser preview. Screenshot from v1.6.7.*
 
 ![Touchscreen main controls with Masjid, Radio, Theme, Network and Updates tabs](images/user-guide/touch-controls-v1.6.7.png)
 
-*Main control sheet, Masjid tab — 720 × 1280 appliance browser preview.*
+*Main control sheet, Masjid tab — 720 × 1280 appliance browser preview. Screenshot from v1.6.7.*
 
 | Main control tab | What you can do |
 |---|---|
@@ -71,7 +77,7 @@ Open **Board → Masjids**. Choose the location scope and select **Save Location
 
 ![Web UI Board configuration showing selected masjids and ordering controls](images/user-guide/board-config-v1.6.7.png)
 
-*Board → Masjids in the Web UI.*
+*Board → Masjids in the Web UI. Screenshot from v1.6.7.*
 
 ### Choose the display content
 
@@ -81,7 +87,7 @@ MasjidFrame checks enabled shared Ayah, Hadith and Sunnah content with its norma
 
 ![Web UI Display settings with themes, daily content controls and Preview MasjidFrame Display](images/user-guide/board-display-v1.6.7.png)
 
-*Board → Display in the Web UI.*
+*Board → Display in the Web UI. Screenshot from v1.6.7.*
 
 ### Check the Board's data
 
@@ -95,7 +101,7 @@ In **Listen → Masjid**, choose your primary masjid, add frequently used masjid
 
 ![Web UI Listen page showing Now Playing, Start Listening, Stop and masjid favourites](images/user-guide/listen-controls-v1.6.7.png)
 
-*Listen → Masjid in the Web UI.*
+*Listen → Masjid in the Web UI. Screenshot from v1.6.7.*
 
 In **Listen → Radio**, choose a station and select one of these modes. **Play on Schedule** and **Play Now** enable Radio. If Listen is stopped, also select **Start Listening** in the Web UI; touchscreen Radio actions start Listen automatically. The touchscreen calls **Play on Schedule** **Scheduled Play**.
 
@@ -109,13 +115,22 @@ The Radio resume delay is adjustable from 1 to 30 minutes. Under **Daily Radio h
 
 ![Web UI Radio controls with daily hours, time fields and Save schedule](images/user-guide/radio-schedule-v1.6.7.png)
 
-*Listen → Radio in the Web UI.*
+*Listen → Radio in the Web UI. Screenshot from v1.6.7.*
 
-In **Listen → Audio**, choose the sound output and use **Refresh Devices** after connecting USB audio. On first run, MasjidFrame automatically selects **MasjidFrame Built-In Audio** when the supported built-in USB audio device is detected. An existing saved output selection is preserved. **Master Volume** is available only when the output exposes a controllable hardware mixer; the Masjid and Radio volume controls still work without one. Saved output and normal Listen settings survive a restart or update. **Play Now** is temporary and should not be relied on after a reboot.
+In **Listen → Audio**, choose the sound output. In appliance mode, only these detected outputs are offered:
+
+| Output | Connection |
+|---|---|
+| **MasjidFrame Built-In Audio** | The supported Waveshare USB audio adapter. |
+| **External Stereo Output** | The Raspberry Pi 3.5 mm stereo jack, for external speakers or an amplifier. |
+
+HDMI, the default output and unrelated USB devices are hidden in appliance mode. A missing output is not offered; **Refresh Devices** checks the available devices again. Other Linux installations retain their usual output list. A portrait browser preview alone does not change the device list.
+
+On first run, MasjidFrame automatically selects **MasjidFrame Built-In Audio** when the supported built-in USB audio device is detected. An existing saved output selection is preserved. **Master Volume** is available only when the output exposes a controllable hardware mixer; the Masjid and Radio volume controls still work without one. Saved output and normal Listen settings survive a restart or update. **Play Now** is temporary and should not be relied on after a reboot.
 
 ![Web UI Audio output with MasjidFrame Built-In Audio selected and Master Volume](images/user-guide/audio-output-v1.6.7.png)
 
-*Listen → Audio in the Web UI.*
+*Listen → Audio in the Web UI. Screenshot from v1.6.7.*
 
 ### Common setups
 
@@ -129,11 +144,11 @@ MasjidFrame checks for signed stable releases automatically, normally once a wee
 
 ![Touchscreen Updates tab showing v1.6.7-image and Check now](images/user-guide/updates-touch-v1.6.7.png)
 
-*Updates on the touchscreen — 720 × 1280 appliance browser preview.*
+*Updates on the touchscreen — 720 × 1280 appliance browser preview. Screenshot from v1.6.7.*
 
 ![Web UI Updates page showing installed version and Check now](images/user-guide/updates-web-v1.6.7.png)
 
-*Updates in the Web UI.*
+*Updates in the Web UI. Screenshot from v1.6.7.*
 
 During an update, the display or browser may briefly lose its connection while the appliance restarts. Leave power connected. The appliance checks its health after boot and confirms the new system after its probation period; a failed trial can roll back automatically. The **Installed version** on the Updates page or the version in the Web UI identifies the software now running. After a successful update, an automatic check can clear the old installation entry because that release is no longer an available update; this does not mean it was rolled back.
 

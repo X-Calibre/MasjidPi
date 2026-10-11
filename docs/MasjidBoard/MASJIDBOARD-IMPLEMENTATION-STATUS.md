@@ -1,6 +1,6 @@
 # MasjidBoard Implementation Status
 
-**Status:** Implemented in MasjidFrame v1.5.2
+**Status:** Current implementation reviewed for MasjidFrame v1.6.9
 
 This document summarises the current production implementation. Provider research and superseded design proposals are retained separately as historical records.
 
@@ -32,7 +32,7 @@ Board installations use Cog/WPE directly on DRM/KMS. The systemd-managed runtime
 The launcher selects:
 
 - the standard responsive landscape profile for ordinary displays; or
-- the portrait Appliance profile for the validated Waveshare display/touchscreen combination.
+- the `appliance-720` portrait profile for the Raspberry Pi Touch Display 2 at 720 × 1280.
 
 Display profile is detected from hardware and is not a saved Board preference.
 
@@ -97,6 +97,8 @@ Arabic and mixed-direction text is sanitized and rendered with automatic directi
 
 The optional built-in Dua after Adhan is disabled by default. When enabled, it takes over the Appliance slide or complete landscape notice column for five minutes beginning at a primary-masjid Adhan time.
 
+The v1.6.9 presentation refinements are documented in [MASJIDBOARD-DISPLAY-LAYOUT.md](MASJIDBOARD-DISPLAY-LAYOUT.md): grouped landscape daily content, fitted notice text, full-height detailed cards, revised contributions/Economic Indicators/Dua cards, Funeral/Nikaah category labels and viewport-scaled landscape fitting through 4K.
+
 ## Saved preferences
 
 Saved Board preferences include:
@@ -113,6 +115,8 @@ The display profile itself is not persisted.
 ## Validation
 
 v1.5.2 validation includes automated Go, race, shell, installer and JavaScript checks plus Raspberry Pi 4 source-install testing. Portrait and landscape rendering, detailed Jumu'ah, structured community content, Dua priority, Zawaal warning, special Dhuhr suppression, 11-item Daily Times layout, persistence and service health were verified.
+
+v1.6.9 automated checks and Pi 4 portrait/landscape browser reviews passed. Native 4K rendering and physical appliance audio-output validation remain pending. See [../RELEASE_CANDIDATE_v1.6.9.md](../RELEASE_CANDIDATE_v1.6.9.md).
 
 See [../VALIDATION_CHECKLIST.md](../VALIDATION_CHECKLIST.md) and [../RELEASE_CANDIDATE_v1.5.2.md](../RELEASE_CANDIDATE_v1.5.2.md).
 

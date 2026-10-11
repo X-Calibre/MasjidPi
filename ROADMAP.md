@@ -4,7 +4,9 @@ MasjidFrame is a lightweight appliance for live masjid audio and prayer-time inf
 
 ## Current release
 
-**v1.6.3 is the current stable release.**
+**v1.6.9 is the current stable release.**
+
+v1.6.9 adds refined portrait and landscape cards, grouped landscape daily content, viewport-scaled text fitting and the two appliance audio-output choices. See the [release acceptance record](docs/RELEASE_CANDIDATE_v1.6.9.md).
 
 MasjidFrame currently provides:
 
@@ -26,6 +28,9 @@ Completed release details belong in [GitHub Releases](https://github.com/X-Calib
 
 ### Reliability and validation
 
+- Validate the published v1.6.9 signed update on the Pi 3B, including probation, persistence and reboot.
+- Confirm both appliance audio-output choices on physical hardware.
+- Visually verify landscape rendering at a native 3840 × 2160 CSS viewport and 100% zoom.
 - Continue longer-duration Raspberry Pi 3B and Pi 4 soak monitoring.
 - Test HDMI disconnect and reconnect behavior.
 - Validate suitable 512 MB ARM64 devices, particularly Pi Zero 2 W and Pi 3A+.

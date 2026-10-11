@@ -61,6 +61,8 @@ The local display service uses Cog/WPE directly on DRM/KMS. Display detection, o
 
 Listen works with ALSA-compatible outputs. Hardware Master Volume is available only when the selected output exposes a controllable mixer. Masjid and Radio software volumes remain available independently.
 
+On v1.6.9 appliances, the Audio selector offers only the detected **MasjidFrame Built-In Audio** Waveshare USB adapter (USB ID `0c76:1203`) and **External Stereo Output**, the Pi 3.5 mm stereo jack. Other devices, including HDMI and default output, are hidden. Other Linux installations retain general ALSA choices. Physical validation of both v1.6.9 appliance paths remains pending.
+
 USB audio hot-plug fallback and restoration have been validated with a Logitech H390. Individual sound cards, HDMI sinks and speaker/amplifier combinations should still be tested as complete hardware paths.
 
 ## Remaining hardware validation

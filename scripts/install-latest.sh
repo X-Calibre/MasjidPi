@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 REPO_OWNER="X-Calibre"
-REPO_NAME="MasjidFrame"
+REPO_NAME="MasjidPi"
 RELEASE_API="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
 
 info() { printf 'MasjidFrame: %s\n' "$*"; }

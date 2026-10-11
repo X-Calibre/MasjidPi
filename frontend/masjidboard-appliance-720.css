@@ -264,6 +264,60 @@ body.appliance-720-layout {
     font-size:36px;
 }
 
+/* Portrait notices share the full-height card and use its space for legibility. */
+.appliance-720-layout .appliance-refined-notice .appliance-community-fields {
+    flex:1 0 auto;
+    margin-top:24px;
+    padding-top:0;
+    gap:14px;
+    align-content:space-evenly;
+}
+.appliance-720-layout .appliance-refined-notice .appliance-community-field {
+    grid-template-columns:minmax(0,1fr);
+    gap:6px;
+    padding-top:12px;
+}
+.appliance-720-layout .appliance-refined-notice .appliance-community-field-label {
+    font-size:24px;
+    line-height:1.2;
+}
+.appliance-720-layout .appliance-refined-notice .appliance-community-field-value {
+    font-size:var(--notice-value-size,32px);
+    line-height:1.2;
+    white-space:pre-line;
+}
+.appliance-720-layout .appliance-refined-notice .appliance-notice-family {
+    border-top:0;
+    padding-top:0;
+}
+.appliance-720-layout .appliance-refined-notice .appliance-notice-family .appliance-community-field-label { display:none; }
+.appliance-720-layout .appliance-refined-notice .appliance-notice-primary .appliance-community-field-value {
+    font-size:calc(var(--notice-value-size,32px) * 1.15);
+    color:var(--appliance-text);
+}
+.appliance-720-layout .appliance-refined-notice .appliance-community-body {
+    flex:1 1 0;
+    min-height:0;
+    display:flex;
+    align-items:safe center;
+    overflow:auto;
+    margin:24px 0 0;
+    line-height:1.35;
+    color:var(--appliance-text);
+}
+.appliance-720-layout .appliance-refined-notice .appliance-community-body:has(+ .appliance-community-fields) {
+    flex:0 0 auto;
+}
+.appliance-720-layout .appliance-refined-notice .appliance-notice-arabic {
+    line-height:1.6;
+}
+.appliance-notice-text { display:block; width:100%; flex-shrink:0; }
+.appliance-720-layout .appliance-refined-notice .appliance-community-source {
+    flex-shrink:0;
+    margin-top:auto;
+    padding-top:18px;
+}
+
 /* Give Salaah Time Change cards a clearer reading rhythm at arm's length.
    Compact single cards get extra height; paired cards retain their two-row flow. */
 .appliance-720-layout .appliance-community-slide.compact-single {

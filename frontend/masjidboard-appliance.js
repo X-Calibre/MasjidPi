@@ -175,8 +175,30 @@
         return slide;
     }
 
+    function isRefinedNotice(item) {
+        return ["funeral", "nikah", "eid", "announcement", "urgent_announcement", "programme", "class_change", "class_time_change", "well_wishes", "dawah", "three_day_jamaat", "new_moon"].includes(item.type);
+    }
+
+    function portraitNoticeFields(item) {
+        const fields = orderedFields(item);
+        const groups = {
+            dawah: [["Masjid Taleem"], ["Gasht Out", "Out Time"], ["Gasht In", "In Time"]],
+            three_day_jamaat: [["First Jamaat", "First Date"], ["Second Jamaat", "Second Date"]],
+            new_moon: [["Birth Date", "Birth"], ["Best Visibility", "Visibility Date"]],
+        }[item.type];
+        if (!groups) return fields;
+        const used = new Set();
+        const grouped = groups.map((labels) => {
+            const selected = labels.flatMap((label) => fields.filter((field) => field.label === label));
+            selected.forEach((field) => used.add(field));
+            return {label: labels[0], value: selected.map((field) => field.value).join("\n")};
+        }).filter((field) => field.value);
+        return [...grouped, ...fields.filter((field) => !used.has(field))];
+    }
+
     function communityCard(item, compact) {
         const card = element("article", "appliance-community-card appliance-community-" + item.type + (compact ? " compact" : ""));
+        if (isRefinedNotice(item)) card.classList.add("appliance-refined-notice");
 		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
 		if (contentLength > 300) card.classList.add("content-long");
 		if (contentLength > 600) card.classList.add("content-very-long");
@@ -202,6 +224,10 @@
 		}
         if (item.body) {
             const body = element("p", "appliance-community-body", item.body);
+            if (isRefinedNotice(item)) {
+                body.replaceChildren(element("span", "appliance-notice-text", item.body));
+                if (/[\u0600-\u06ff]/.test(item.body)) body.classList.add("appliance-notice-arabic");
+            }
             body.dir = "auto";
             card.append(body);
         }
@@ -215,7 +241,7 @@
             card.append(main);
         }
 
-        const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
+        const fields = item.type === "salaah_change" ? [] : (isRefinedNotice(item) ? portraitNoticeFields(item) : orderedFields(item)).filter((field) =>
             item.type !== "daily_ayah" || field.label !== "Ayah"
         );
         if (fields.length > 0) {
@@ -225,6 +251,12 @@
             }
             for (const field of fields) {
                 const row = element("div", "appliance-community-field");
+                if ((item.type === "funeral" && field.label === "Relation") || (item.type === "nikah" && ["Groom", "Family"].includes(field.label))) {
+                    row.classList.add("appliance-notice-family");
+                }
+                if ((item.type === "funeral" && ["Janazah", "Venue"].includes(field.label)) || (item.type === "eid" && field.label === "Salaah") || (item.type === "nikah" && field.label === "Time")) {
+                    row.classList.add("appliance-notice-primary");
+                }
                 if (item.type === "contribution" && field.label === "Account Number") {
                     row.classList.add("appliance-contribution-account-number");
                 }
@@ -253,10 +285,10 @@
 
     function communitySlide(entries) {
         const paired = entries.length === 2;
-        const compactSingle = entries.length === 1 && isCompactCommunityItem(entries[0]);
+        const compactSingle = entries.length === 1 && !isRefinedNotice(entries[0]) && isCompactCommunityItem(entries[0]);
         const layout = paired ? "paired" : compactSingle ? "single compact-single" : "single";
         const slide = element("article", "appliance-slide appliance-community-slide " + layout);
-        for (const item of entries) slide.append(communityCard(item, isCompactCommunityItem(item)));
+        for (const item of entries) slide.append(communityCard(item, !isRefinedNotice(item) && isCompactCommunityItem(item)));
         return slide;
     }
 
@@ -270,7 +302,7 @@
         }
 
         for (const item of items) {
-            if (!isCompactCommunityItem(item)) {
+            if (isRefinedNotice(item) || !isCompactCommunityItem(item)) {
                 flushCompact();
                 result.push(communitySlide([item]));
                 continue;
@@ -367,8 +399,34 @@
 
         activeSlide = nextIndex;
         window.requestAnimationFrame(() => fitDailyContentText(nextSlide));
+        window.requestAnimationFrame(() => fitPortraitNotices(nextSlide));
         Array.from(dotsHost.children).forEach((dot, itemIndex) => dot.classList.toggle("active", itemIndex === activeSlide));
         if (restart) startTimer();
+    }
+
+    function fitPortraitNotices(slide) {
+        if (!slide) return;
+        for (const card of slide.querySelectorAll(".appliance-refined-notice")) {
+            const body = card.querySelector(".appliance-community-body");
+            const text = card.querySelector(".appliance-notice-text");
+            const fitsAt = (size) => {
+                card.style.setProperty("--notice-value-size", `${size}px`);
+                if (body) body.style.fontSize = `${size}px`;
+                return card.scrollHeight <= card.clientHeight && (!text || text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth);
+            };
+            let low = 24;
+            let high = body && !card.querySelector(".appliance-community-fields") ? 46 : 38;
+            while (high - low > 1) {
+                const middle = Math.floor((low + high) / 2);
+                if (fitsAt(middle)) low = middle;
+                else high = middle;
+            }
+            fitsAt(fitsAt(high) ? high : low);
+        }
+    }
+    window.addEventListener("resize", () => window.requestAnimationFrame(() => fitPortraitNotices(slides[activeSlide])));
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => window.requestAnimationFrame(() => fitPortraitNotices(slides[activeSlide])));
     }
 
     function updateDateVisibility() {

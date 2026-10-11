@@ -329,6 +329,64 @@ html.landscape-layout {
     font-size:clamp(.85rem,.95vw,1.05rem);
 }
 
+/* Landscape notices retain the portrait hierarchy at sidebar scale. */
+.detailed-community-card.detailed-refined-notice {
+    padding:clamp(16px,1.2vw,24px);
+}
+.detailed-refined-notice .detailed-community-title {
+    font-size:clamp(1.5rem,1.7vw,2rem);
+    line-height:1.12;
+    flex-shrink:0;
+}
+.detailed-refined-notice .detailed-community-fields {
+    flex:1 0 auto;
+    margin-top:16px;
+    padding-top:0;
+    gap:12px;
+    align-content:space-evenly;
+}
+.detailed-refined-notice .detailed-community-field {
+    grid-template-columns:minmax(0,1fr);
+    gap:5px;
+    padding-top:9px;
+}
+.detailed-refined-notice .detailed-community-field-label {
+    font-size:clamp(.9rem,1vw,1.2rem);
+    line-height:1.2;
+}
+.detailed-refined-notice .detailed-community-field-value {
+    font-size:var(--notice-value-size,22px);
+    line-height:1.2;
+    white-space:pre-line;
+}
+.detailed-refined-notice .detailed-notice-family {
+    border-top:0;
+    padding-top:0;
+}
+.detailed-refined-notice .detailed-notice-family .detailed-community-field-label { display:none; }
+.detailed-refined-notice .detailed-notice-primary .detailed-community-field-value {
+    font-size:calc(var(--notice-value-size,22px) * 1.15);
+}
+.detailed-refined-notice .detailed-community-body {
+    flex:1 1 0;
+    min-height:0;
+    margin:16px 0 0;
+    display:flex;
+    align-items:safe center;
+    overflow:auto;
+    line-height:1.35;
+    color:var(--text);
+}
+.detailed-refined-notice .detailed-community-body:has(+ .detailed-community-fields) { flex:0 0 auto; }
+.detailed-refined-notice .detailed-notice-arabic { line-height:1.6; }
+.detailed-notice-text { display:block; width:100%; flex-shrink:0; }
+.detailed-refined-notice .detailed-community-source {
+    flex-shrink:0;
+    margin-top:auto;
+    padding-top:12px;
+    font-size:clamp(.75rem,.8vw,.95rem);
+}
+
 /* Salaah changes contain only two short values, so use the available card
    space for prominent text and a clearly separated label/value grid. */
 .detailed-community-salaah_change {

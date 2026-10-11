@@ -51,7 +51,7 @@ const makeDuaRow = (arabic, height, multiplier) => {
 };
 const arabicRow = makeDuaRow(true, 400, 10);
 const translationRow = makeDuaRow(false, 150, 6);
-fitContext.communityCards.querySelectorAll = selector => selector === '.detailed-daily-card' ? [] : [arabicRow, translationRow];
+fitContext.communityCards.querySelectorAll = selector => selector === '.detailed-dua-arabic, .detailed-dua-translation' ? [arabicRow, translationRow] : [];
 fitContext.communitySignature='dua';
 fitContext.scheduleDailyFit(); callback();
 assert.equal(arabicRow.value.style.fontSize,'40px');
@@ -67,3 +67,25 @@ for (let count=0; count<=5; count++) {
     assert.equal(banking.flatMap(page=>page.entries).length,count+1,'All preceding notices must be preserved');
 }
 console.log('MasjidBoard landscape contributions pagination tests passed');
+for(const type of ['funeral','nikah','eid']) {
+    const notices=context.packCommunityPages([{type:'announcement',body:'Short'},{type,fields:{}},{type:'well_wishes',body:'Short'}]);
+    assert.equal(notices.length,3);
+    assert.equal(notices[1].layout,'single');
+    assert.equal(notices[1].entries[0].item.type,type);
+}
+const paired=context.packCommunityPages([{type:'programme',body:'Thursday after Esha'},{type:'well_wishes',body:'Please make dua'}]);
+assert.equal(paired.length,1);
+assert.equal(paired[0].layout,'halves','Short notices may share two readable cards');
+console.log('Landscape notice full-height and paired pagination tests passed');
+const noticeBody={style:{},clientHeight:150,clientWidth:400};
+const noticeText={get scrollHeight(){return parseInt(noticeBody.style.fontSize)*6;},scrollWidth:350};
+const noticeCard={style:{setProperty:()=>{}},clientHeight:300,scrollHeight:300,querySelector:selector=>selector === '.detailed-community-body' ? noticeBody : selector === '.detailed-notice-text' ? noticeText : null};
+fitContext.communityCards.querySelectorAll=selector=>selector === '.detailed-refined-notice' ? [noticeCard] : [];
+fitContext.communitySignature='notice';
+fitContext.scheduleDailyFit();callback();
+assert.equal(noticeBody.style.fontSize,'25px','Landscape announcement text must use the largest fitting size');
+context.orderedFields=item=>item.testFields;
+const groups=context.landscapeNoticeFields({type:'dawah',testFields:[{label:'Gasht Out',value:'Thursday'},{label:'Out Time',value:'After Asr'},{label:'Additional detail',value:'Preserve me'}]});
+assert.equal(groups[0].value,'Thursday\nAfter Asr');
+assert.equal(groups[1].value,'Preserve me');
+console.log('Landscape notice text sizing and field preservation tests passed');

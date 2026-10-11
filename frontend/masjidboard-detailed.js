@@ -139,57 +139,42 @@
         return item.type === "jumuah_schedule" || item.type === "dua_after_adhan" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
     }
 
+    function isRefinedNotice(item) {
+        return ["funeral", "nikah", "eid", "announcement", "urgent_announcement", "programme", "class_change", "class_time_change", "well_wishes", "dawah", "three_day_jamaat", "new_moon"].includes(item.type);
+    }
+
+    function landscapeNoticeFields(item) {
+        const fields = orderedFields(item);
+        const groups = {
+            dawah: [["Masjid Taleem"], ["Gasht Out", "Out Time"], ["Gasht In", "In Time"]],
+            three_day_jamaat: [["First Jamaat", "First Date"], ["Second Jamaat", "Second Date"]],
+            new_moon: [["Birth Date", "Birth"], ["Best Visibility", "Visibility Date"]],
+        }[item.type];
+        if (!groups) return fields;
+        const used = new Set();
+        const grouped = groups.map((labels) => {
+            const selected = labels.flatMap((label) => fields.filter((field) => field.label === label));
+            selected.forEach((field) => used.add(field));
+            return {label: labels[0], value: selected.map((field) => field.value).join("\n")};
+        }).filter((field) => field.value);
+        return [...grouped, ...fields.filter((field) => !used.has(field))];
+    }
+
+    function isFullHeightNotice(item) {
+        return ["contribution", "funeral", "nikah", "eid", "jumuah_schedule", "dua_after_adhan"].includes(item.type) || isDetailedCommunityItem(item);
+    }
+
     function packCommunityPages(items) {
         const pages = [];
         const dailyItems = items.filter(isDailyItem);
         const regularItems = items.filter((item) => item.type !== "economic" && !isDailyItem(item));
         let index = 0;
         while (index < regularItems.length) {
-            const remaining = regularItems.length - index;
-            if (regularItems[index].type === "contribution") {
-                pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
-                index += 1;
-                continue;
-            }
-            // Banking details need a full card; finish preceding notices first.
-            const contributionIndex = regularItems.findIndex((item, itemIndex) => itemIndex > index && item.type === "contribution");
-            if (contributionIndex > index && contributionIndex < index + 3) {
-                const entries = regularItems.slice(index, contributionIndex).map((item) => ({item, span: 1}));
-                pages.push({layout: entries.length === 1 ? "single" : "halves", entries});
-                index = contributionIndex;
-                continue;
-            }
-            if (remaining === 1) {
-                pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
-                index += 1;
-                continue;
-            }
-            if (remaining === 2) {
-                pages.push({layout: "halves", entries: [
-                    {item: regularItems[index], span: 1}, {item: regularItems[index + 1], span: 1},
-                ]});
-                index += 2;
-                continue;
-            }
-
             const first = regularItems[index];
             const second = regularItems[index + 1];
-            const third = regularItems[index + 2];
-            const firstDetailed = isDetailedCommunityItem(first);
-            const secondDetailed = isDetailedCommunityItem(second);
-            const thirdDetailed = isDetailedCommunityItem(third);
-
-            if (firstDetailed && !secondDetailed) {
-                pages.push({layout: "thirds", entries: [{item: first, span: 2}, {item: second, span: 1}]});
-                index += 2;
-            } else if (!firstDetailed && secondDetailed) {
-                pages.push({layout: "thirds", entries: [{item: first, span: 1}, {item: second, span: 2}]});
-                index += 2;
-            } else if (!firstDetailed && !secondDetailed && !thirdDetailed) {
-                pages.push({layout: "thirds", entries: [
-                    {item: first, span: 1}, {item: second, span: 1}, {item: third, span: 1},
-                ]});
-                index += 3;
+            if (isFullHeightNotice(first) || !second || isFullHeightNotice(second)) {
+                pages.push({layout: "single", entries: [{item: first, span: 1}]});
+                index += 1;
             } else {
                 pages.push({layout: "halves", entries: [{item: first, span: 1}, {item: second, span: 1}]});
                 index += 2;
@@ -210,6 +195,7 @@
 
     function renderCommunityCard(item, span) {
         const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
+        if (isRefinedNotice(item)) card.classList.add("detailed-refined-notice");
 		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
 		if (contentLength > 300) card.classList.add("content-long");
 		if (contentLength > 600) card.classList.add("content-very-long");
@@ -239,6 +225,10 @@
                 body.replaceChildren(makeElement("span", "detailed-daily-text", item.body));
                 card.classList.add("detailed-daily-card");
             }
+            if (isRefinedNotice(item)) {
+                body.replaceChildren(makeElement("span", "detailed-notice-text", item.body));
+                if (/[\u0600-\u06ff]/.test(item.body)) body.classList.add("detailed-notice-arabic");
+            }
             body.dir = "auto";
             card.append(body);
         }
@@ -252,7 +242,7 @@
             card.append(main);
         }
 
-        const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
+        const fields = item.type === "salaah_change" ? [] : (isRefinedNotice(item) ? landscapeNoticeFields(item) : orderedFields(item)).filter((field) =>
             (item.type !== "economic" || field.label !== "Updated at") &&
             (item.type !== "daily_ayah" || field.label !== "Ayah")
         );
@@ -263,6 +253,12 @@
             }
             for (const field of fields) {
                 const row = makeElement("div", "detailed-community-field");
+                if ((item.type === "funeral" && field.label === "Relation") || (item.type === "nikah" && ["Groom", "Family"].includes(field.label))) {
+                    row.classList.add("detailed-notice-family");
+                }
+                if ((item.type === "funeral" && ["Janazah", "Venue"].includes(field.label)) || (item.type === "eid" && field.label === "Salaah") || (item.type === "nikah" && field.label === "Time")) {
+                    row.classList.add("detailed-notice-primary");
+                }
                 if (item.type === "contribution" && field.label === "Account Number") {
                     row.classList.add("detailed-contribution-account-number");
                 }
@@ -362,6 +358,25 @@
                 }
                 fitsAt(fitsAt(high) ? high : low);
             }
+            let noticesFit = true;
+            for (const card of communityCards.querySelectorAll(".detailed-refined-notice")) {
+                const body = card.querySelector(".detailed-community-body");
+                const text = card.querySelector(".detailed-notice-text");
+                const fitsAt = (size) => {
+                    card.style.setProperty("--notice-value-size", `${size}px`);
+                    if (body) body.style.fontSize = `${size}px`;
+                    return card.scrollHeight <= card.clientHeight && (!text || text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth);
+                };
+                let low = 18;
+                let high = body && !card.querySelector(".detailed-community-fields") ? 32 : 28;
+                if (!fitsAt(low)) noticesFit = false;
+                while (high - low > 1) {
+                    const middle = Math.floor((low + high) / 2);
+                    if (fitsAt(middle)) low = middle;
+                    else high = middle;
+                }
+                fitsAt(fitsAt(high) ? high : low);
+            }
             let fits = true;
             for (const card of communityCards.querySelectorAll(".detailed-daily-card")) {
                 const body = card.querySelector(".detailed-community-body");
@@ -381,8 +396,8 @@
                 fitsAt(fitsAt(high) ? high : low);
             }
             const page = communityPages[pageIndex];
-            if (!fits && page.layout === "daily" && page.entries.length > 1) {
-                communityPages.splice(pageIndex, 1, ...page.entries.map((entry) => ({layout: "daily", entries: [entry]})));
+            if (page.entries.length > 1 && ((!fits && page.layout === "daily") || !noticesFit)) {
+                communityPages.splice(pageIndex, 1, ...page.entries.map((entry) => ({layout: page.layout === "daily" ? "daily" : "single", entries: [entry]})));
                 dailyFitSignature = "";
                 buildCommunityPageNodes();
                 renderCommunityPage();

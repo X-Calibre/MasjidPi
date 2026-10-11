@@ -139,47 +139,49 @@
         return item.type === "jumuah_schedule" || item.type === "dua_after_adhan" || plainText(item.body).length > 180 || orderedFields(item).length > 5;
     }
 
+    function isRefinedNotice(item) {
+        return ["funeral", "nikah", "eid", "announcement", "urgent_announcement", "programme", "class_change", "class_time_change", "well_wishes", "dawah", "three_day_jamaat", "new_moon"].includes(item.type);
+    }
+
+    function landscapeNoticeFields(item) {
+        const fields = orderedFields(item);
+        const groups = {
+            dawah: [["Masjid Taleem"], ["Gasht Out", "Out Time"], ["Gasht In", "In Time"]],
+            three_day_jamaat: [["First Jamaat", "First Date"], ["Second Jamaat", "Second Date"]],
+            new_moon: [["Birth Date", "Birth"], ["Best Visibility", "Visibility Date"]],
+        }[item.type];
+        if (!groups) return fields;
+        const used = new Set();
+        const grouped = groups.map((labels) => {
+            const selected = labels.flatMap((label) => fields.filter((field) => field.label === label));
+            selected.forEach((field) => used.add(field));
+            return {label: labels[0], value: selected.map((field) => field.value).join("\n")};
+        }).filter((field) => field.value);
+        return [...grouped, ...fields.filter((field) => !used.has(field))];
+    }
+
+    function isFullHeightNotice(item) {
+        return ["contribution", "funeral", "nikah", "eid", "jumuah_schedule", "dua_after_adhan"].includes(item.type) || isDetailedCommunityItem(item);
+    }
+
     function packCommunityPages(items) {
         const pages = [];
-        const regularItems = items.filter((item) => item.type !== "economic");
+        const dailyItems = items.filter(isDailyItem);
+        const regularItems = items.filter((item) => item.type !== "economic" && !isDailyItem(item));
         let index = 0;
         while (index < regularItems.length) {
-            const remaining = regularItems.length - index;
-            if (remaining === 1) {
-                pages.push({layout: "single", entries: [{item: regularItems[index], span: 1}]});
-                index += 1;
-                continue;
-            }
-            if (remaining === 2) {
-                pages.push({layout: "halves", entries: [
-                    {item: regularItems[index], span: 1}, {item: regularItems[index + 1], span: 1},
-                ]});
-                index += 2;
-                continue;
-            }
-
             const first = regularItems[index];
             const second = regularItems[index + 1];
-            const third = regularItems[index + 2];
-            const firstDetailed = isDetailedCommunityItem(first);
-            const secondDetailed = isDetailedCommunityItem(second);
-            const thirdDetailed = isDetailedCommunityItem(third);
-
-            if (firstDetailed && !secondDetailed) {
-                pages.push({layout: "thirds", entries: [{item: first, span: 2}, {item: second, span: 1}]});
-                index += 2;
-            } else if (!firstDetailed && secondDetailed) {
-                pages.push({layout: "thirds", entries: [{item: first, span: 1}, {item: second, span: 2}]});
-                index += 2;
-            } else if (!firstDetailed && !secondDetailed && !thirdDetailed) {
-                pages.push({layout: "thirds", entries: [
-                    {item: first, span: 1}, {item: second, span: 1}, {item: third, span: 1},
-                ]});
-                index += 3;
+            if (isFullHeightNotice(first) || !second || isFullHeightNotice(second)) {
+                pages.push({layout: "single", entries: [{item: first, span: 1}]});
+                index += 1;
             } else {
                 pages.push({layout: "halves", entries: [{item: first, span: 1}, {item: second, span: 1}]});
                 index += 2;
             }
+        }
+        if (dailyItems.length) {
+            pages.push({layout: "daily", entries: dailyItems.map((item) => ({item, span: 1}))});
         }
         for (const item of items.filter((entry) => entry.type === "economic")) {
             pages.push({layout: "single", entries: [{item, span: 1}]});
@@ -187,8 +189,13 @@
         return pages;
     }
 
+    function isDailyItem(item) {
+        return ["daily_ayah", "daily_hadith", "daily_sunnah"].includes(item.type);
+    }
+
     function renderCommunityCard(item, span) {
         const card = makeElement("article", `detailed-community-card detailed-community-${item.type} community-span-${span}`);
+        if (isRefinedNotice(item)) card.classList.add("detailed-refined-notice");
 		const contentLength = plainText(item.title).length + plainText(item.body).length + orderedFields(item).reduce((total, field) => total + field.value.length, 0);
 		if (contentLength > 300) card.classList.add("content-long");
 		if (contentLength > 600) card.classList.add("content-very-long");
@@ -214,6 +221,14 @@
 		}
         if (item.body) {
             const body = makeElement("p", "detailed-community-body", item.body);
+            if (isDailyItem(item)) {
+                body.replaceChildren(makeElement("span", "detailed-daily-text", item.body));
+                card.classList.add("detailed-daily-card");
+            }
+            if (isRefinedNotice(item)) {
+                body.replaceChildren(makeElement("span", "detailed-notice-text", item.body));
+                if (/[\u0600-\u06ff]/.test(item.body)) body.classList.add("detailed-notice-arabic");
+            }
             body.dir = "auto";
             card.append(body);
         }
@@ -227,14 +242,26 @@
             card.append(main);
         }
 
-        const fields = item.type === "salaah_change" ? [] : orderedFields(item).filter((field) =>
+        const fields = item.type === "salaah_change" ? [] : (isRefinedNotice(item) ? landscapeNoticeFields(item) : orderedFields(item)).filter((field) =>
             (item.type !== "economic" || field.label !== "Updated at") &&
             (item.type !== "daily_ayah" || field.label !== "Ayah")
         );
         if (fields.length > 0) {
             const list = makeElement("div", "detailed-community-fields");
+            if (item.type === "contribution" && fields.length > 4) {
+                list.classList.add("detailed-contribution-fields-many");
+            }
             for (const field of fields) {
                 const row = makeElement("div", "detailed-community-field");
+                if ((item.type === "funeral" && field.label === "Relation") || (item.type === "nikah" && ["Groom", "Family"].includes(field.label))) {
+                    row.classList.add("detailed-notice-family");
+                }
+                if ((item.type === "funeral" && ["Janazah", "Venue"].includes(field.label)) || (item.type === "eid" && field.label === "Salaah") || (item.type === "nikah" && field.label === "Time")) {
+                    row.classList.add("detailed-notice-primary");
+                }
+                if (item.type === "contribution" && field.label === "Account Number") {
+                    row.classList.add("detailed-contribution-account-number");
+                }
                 if (item.type === "dua_after_adhan") {
                     row.classList.add("detailed-dua-" + field.label.toLowerCase());
                 }
@@ -253,6 +280,9 @@
                         value.dir = "rtl";
                         value.lang = "ar";
                     }
+                    if (item.type === "dua_after_adhan" && ["Arabic", "Translation"].includes(field.label)) {
+                        value.replaceChildren(makeElement("span", "detailed-dua-text", field.value));
+                    }
                 }
                 row.append(value);
                 list.append(row);
@@ -260,12 +290,12 @@
             card.append(list);
         }
         if (item.type === "economic") {
-            if (item.notes) {
-                const notes = makeElement("p", "detailed-community-body", item.notes);
-                notes.dir = "auto";
-                card.append(notes);
-            }
             const footer = makeElement("footer", "detailed-community-footer");
+            if (item.notes) {
+                const notes = makeElement("p", "detailed-economic-note", item.notes);
+                notes.dir = "auto";
+                footer.append(notes);
+            }
             if (item.fields.updated_at) {
                 footer.append(makeElement("div", "detailed-community-retrieved", `Updated at ${item.fields.updated_at}`));
             }
@@ -292,6 +322,100 @@
         const page = communityPages[pageIndex];
         communityCards.className = `detailed-community-cards community-layout-${page.layout}`;
         communityCards.replaceChildren(...communityPageNodes[pageIndex]);
+        communityCards.style.gridTemplateRows = page.layout === "daily"
+            ? page.entries.map(({item}) => `${Math.max(1, Math.min(2.5, Math.sqrt(plainText(item.body).length / 100)))}fr`).join(" ")
+            : "";
+        scheduleDailyFit();
+    }
+
+    let dailyFitPending = false;
+    let dailyFitSignature = "";
+    function scheduleDailyFit() {
+        if (dailyFitPending) return;
+        dailyFitPending = true;
+        window.requestAnimationFrame(() => {
+            dailyFitPending = false;
+            if (!communityCards || !communityCards.clientHeight || !communityPages.length) return;
+            const pageIndex = communityPage % communityPages.length;
+            const signature = `${communitySignature}:${pageIndex}:${communityCards.clientWidth}:${communityCards.clientHeight}`;
+            if (signature === dailyFitSignature) return;
+            dailyFitSignature = signature;
+            // The root font follows the 1920x1080 reference design (16px)
+            // and doubles at 4K. Keep measured font limits on the same scale.
+            const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+            const fontScale = rootFontSize / 16;
+            const scaledFont = (size) => Math.round(size * fontScale);
+            for (const row of communityCards.querySelectorAll(".detailed-dua-arabic, .detailed-dua-translation")) {
+                const value = row.querySelector(".detailed-community-field-value");
+                const text = row.querySelector(".detailed-dua-text");
+                if (!text) continue;
+                const arabic = row.classList.contains("detailed-dua-arabic");
+                let low = scaledFont(arabic ? 28 : 18);
+                let high = scaledFont(arabic ? 48 : 30);
+                const fitsAt = (size) => {
+                    value.style.fontSize = `${size}px`;
+                    return text.scrollHeight <= value.clientHeight && text.scrollWidth <= value.clientWidth;
+                };
+                while (high - low > 1) {
+                    const middle = Math.floor((low + high) / 2);
+                    if (fitsAt(middle)) low = middle;
+                    else high = middle;
+                }
+                fitsAt(fitsAt(high) ? high : low);
+            }
+            let noticesFit = true;
+            for (const card of communityCards.querySelectorAll(".detailed-refined-notice")) {
+                const body = card.querySelector(".detailed-community-body");
+                const text = card.querySelector(".detailed-notice-text");
+                const fitsAt = (size) => {
+                    card.style.setProperty("--notice-value-size", `${size}px`);
+                    if (body) body.style.fontSize = `${size}px`;
+                    return card.scrollHeight <= card.clientHeight && (!text || text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth);
+                };
+                let low = scaledFont(18);
+                let high = scaledFont(body && !card.querySelector(".detailed-community-fields") ? 32 : 28);
+                if (!fitsAt(low)) noticesFit = false;
+                while (high - low > 1) {
+                    const middle = Math.floor((low + high) / 2);
+                    if (fitsAt(middle)) low = middle;
+                    else high = middle;
+                }
+                fitsAt(fitsAt(high) ? high : low);
+            }
+            let fits = true;
+            for (const card of communityCards.querySelectorAll(".detailed-daily-card")) {
+                const body = card.querySelector(".detailed-community-body");
+                const text = card.querySelector(".detailed-daily-text");
+                const fitsAt = (size) => {
+                    body.style.fontSize = `${size}px`;
+                    return text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth && card.scrollHeight <= card.clientHeight;
+                };
+                let low = scaledFont(16);
+                let high = scaledFont(32);
+                if (!fitsAt(low)) fits = false;
+                while (high - low > 1) {
+                    const middle = Math.floor((low + high) / 2);
+                    if (fitsAt(middle)) low = middle;
+                    else high = middle;
+                }
+                fitsAt(fitsAt(high) ? high : low);
+            }
+            const page = communityPages[pageIndex];
+            if (page.entries.length > 1 && ((!fits && page.layout === "daily") || !noticesFit)) {
+                communityPages.splice(pageIndex, 1, ...page.entries.map((entry) => ({layout: page.layout === "daily" ? "daily" : "single", entries: [entry]})));
+                dailyFitSignature = "";
+                buildCommunityPageNodes();
+                renderCommunityPage();
+            }
+        });
+    }
+
+    window.addEventListener("resize", () => { dailyFitSignature = ""; scheduleDailyFit(); });
+    if (typeof ResizeObserver !== "undefined" && communityCards) {
+        new ResizeObserver(() => scheduleDailyFit()).observe(communityCards);
+    }
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { dailyFitSignature = ""; scheduleDailyFit(); });
     }
 
     function buildCommunityPageNodes() {

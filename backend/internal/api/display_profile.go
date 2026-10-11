@@ -5,6 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/X-Calibre/MasjidFrame/backend/internal/player"
+	"github.com/X-Calibre/MasjidFrame/backend/internal/updates"
 )
 
 // Use the same connected 720x1280 DSI check as the local display launcher.
@@ -26,6 +29,20 @@ func detectedDisplayProfile(drmPath string) string {
 		}
 	}
 	return "standard"
+}
+
+func applianceAudioMode(drmPath, releasePath string) bool {
+	if _, err := os.Stat(releasePath); err == nil {
+		return true
+	}
+	return detectedDisplayProfile(drmPath) == "appliance-720"
+}
+
+func restrictApplianceAudioDevices(devices []player.AudioDevice) []player.AudioDevice {
+	if applianceAudioMode("/sys/class/drm", updates.DefaultReleaseRecordPath) {
+		return player.ApplianceAudioDevices(devices)
+	}
+	return devices
 }
 
 func (s *Server) displayProfileHandler(w http.ResponseWriter, r *http.Request) {

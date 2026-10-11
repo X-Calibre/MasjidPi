@@ -345,7 +345,7 @@
     function communityTypeLabel(type) {
         const labels = {
             announcement: "Announcement", urgent_announcement: "Urgent Announcement", eid: "Eid Notice", funeral: "Funeral Notice",
-            nikah: "Nikah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change",
+            nikah: "Nikaah Notice", well_wishes: "Well Wishes", salaah_change: "Salaah Time Change",
             programme: "Programme", new_moon: "New Moon", dawah: "Dawah / Gasht",
             three_day_jamaat: "Three-Day Jamaat", contribution: "Contributions",
             economic: "Islamic Economic Indicators",
@@ -372,6 +372,8 @@
                 const fields = notice && notice.fields && typeof notice.fields === "object" ? notice.fields : {};
                 add({
                     type: plainText(notice.type).toLowerCase() || "general",
+                    typeLabel: ["funeral", "nikah"].includes(plainText(notice.type).toLowerCase())
+                        ? communityTypeLabel(plainText(notice.type).toLowerCase()) : "",
                     title: noticeTitle(notice),
                     body: Object.keys(fields).length === 0 ? plainText(notice.content) : "",
                     fields,
@@ -454,6 +456,7 @@
         const items = [
             {
                 type: "funeral",
+                typeLabel: "Funeral Notice",
                 title: "Marhoom Abdullah Ismail",
                 body: "",
                 fields: {
@@ -468,6 +471,7 @@
             },
             {
                 type: "nikah",
+                typeLabel: "Nikaah Notice",
                 title: "Muhammad & Ayesha",
                 body: "",
                 fields: {

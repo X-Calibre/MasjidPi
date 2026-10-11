@@ -38,8 +38,8 @@ assert.doesNotMatch(html, /data-touch-tab="display"/);
 assert.doesNotMatch(html, /applianceDisplayPanel|White balance|data-temperature|display-adjustments\.js/);
 assert.doesNotMatch(setup, /display-adjustments\.js/);
 assert.match(html, /masjidboard-touch-controls\.js\?v=20260911-stream-sorting/);
-assert.match(html, /masjidboard-appliance-720\.css\?v=20261002-dua-layout/);
-assert.match(html, /masjidboard-appliance\.js\?v=20261002-dua-layout/);
+assert.match(html, /masjidboard-appliance-720\.css\?v=20261011-notice-layout/);
+assert.match(html, /masjidboard-appliance\.js\?v=20261011-notice-layout/);
 assert.match(html, /masjidboard-appliance\.css\?v=20261002-dua-layout/);
 
 assert.match(controller, /profile !== "appliance-720"/);

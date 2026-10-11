@@ -265,6 +265,9 @@
                         value.dir = "rtl";
                         value.lang = "ar";
                     }
+                    if (item.type === "dua_after_adhan" && ["Arabic", "Translation"].includes(field.label)) {
+                        value.replaceChildren(makeElement("span", "detailed-dua-text", field.value));
+                    }
                 }
                 row.append(value);
                 list.append(row);
@@ -322,6 +325,24 @@
             const signature = `${communitySignature}:${pageIndex}:${communityCards.clientWidth}:${communityCards.clientHeight}`;
             if (signature === dailyFitSignature) return;
             dailyFitSignature = signature;
+            for (const row of communityCards.querySelectorAll(".detailed-dua-arabic, .detailed-dua-translation")) {
+                const value = row.querySelector(".detailed-community-field-value");
+                const text = row.querySelector(".detailed-dua-text");
+                if (!text) continue;
+                const arabic = row.classList.contains("detailed-dua-arabic");
+                let low = arabic ? 28 : 18;
+                let high = arabic ? 48 : 30;
+                const fitsAt = (size) => {
+                    value.style.fontSize = `${size}px`;
+                    return text.scrollHeight <= value.clientHeight && text.scrollWidth <= value.clientWidth;
+                };
+                while (high - low > 1) {
+                    const middle = Math.floor((low + high) / 2);
+                    if (fitsAt(middle)) low = middle;
+                    else high = middle;
+                }
+                fitsAt(fitsAt(high) ? high : low);
+            }
             let fits = true;
             for (const card of communityCards.querySelectorAll(".detailed-daily-card")) {
                 const body = card.querySelector(".detailed-community-body");

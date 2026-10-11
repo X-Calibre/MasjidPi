@@ -27,7 +27,7 @@ const text = {get scrollHeight(){ measurements++; return Number.parseInt(body.st
 const card = {clientHeight:200, scrollHeight:200, querySelector: selector => selector === '.detailed-daily-text' ? text : body};
 const fitContext = {
     window:{requestAnimationFrame: fn => {callback = fn;}, addEventListener:()=>{}},
-    document:{}, communityCards:{clientHeight:300,clientWidth:400,querySelectorAll:()=>[card]},
+    document:{}, communityCards:{clientHeight:300,clientWidth:400,querySelectorAll:selector=>selector === ".detailed-daily-card" ? [card] : []},
     communityPage:0,communitySignature:'content',communityPages:[{layout:'daily',entries:[{item:daily[0]}]}],
 };
 vm.createContext(fitContext);
@@ -44,3 +44,16 @@ fitContext.communityCards.clientHeight=400;
 fitContext.scheduleDailyFit(); callback();
 assert.equal(body.style.fontSize, '32px', 'Resize must allow larger text');
 console.log('MasjidBoard daily text sizing and measurement caching tests passed');
+const makeDuaRow = (arabic, height, multiplier) => {
+    const value = {style:{},clientHeight:height,clientWidth:400};
+    const text = {get scrollHeight(){return parseInt(value.style.fontSize)*multiplier;},scrollWidth:350};
+    return {value,classList:{contains:()=>arabic},querySelector:selector=>selector === '.detailed-dua-text' ? text : value};
+};
+const arabicRow = makeDuaRow(true, 400, 10);
+const translationRow = makeDuaRow(false, 150, 6);
+fitContext.communityCards.querySelectorAll = selector => selector === '.detailed-daily-card' ? [] : [arabicRow, translationRow];
+fitContext.communitySignature='dua';
+fitContext.scheduleDailyFit(); callback();
+assert.equal(arabicRow.value.style.fontSize,'40px');
+assert.equal(translationRow.value.style.fontSize,'25px', 'Translation must fit independently of Arabic');
+console.log('MasjidBoard independent Dua text sizing tests passed');

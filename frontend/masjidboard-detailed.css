@@ -50,7 +50,7 @@ html.landscape-layout {
     min-height:0;
     display:grid;
     grid-template-rows:repeat(3,minmax(0,1fr));
-    gap:clamp(10px,1vh,14px);
+    gap:clamp(0.625rem,1vh,0.875rem);
 }
 .detailed-community-cards.community-layout-single { grid-template-rows:minmax(0,1fr); }
 .detailed-community-cards.community-layout-halves { grid-template-rows:repeat(2,minmax(0,1fr)); }
@@ -59,7 +59,7 @@ html.landscape-layout {
 .detailed-community-empty {
     min-height:0;
     overflow:hidden;
-    border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));
+    border:0.0625rem solid color-mix(in srgb,var(--accent) 24%,var(--line));
     border-radius:var(--radius);
     background:linear-gradient(155deg,var(--panel-soft),var(--panel));
 }
@@ -67,7 +67,7 @@ html.landscape-layout {
     position:relative;
     display:flex;
     flex-direction:column;
-    padding:clamp(18px,1.65vw,28px);
+    padding:clamp(1.125rem,1.65vw,1.75rem);
 }
 .detailed-community-type {
     color:var(--accent);
@@ -86,7 +86,7 @@ html.landscape-layout {
     text-wrap:balance;
 }
 .detailed-community-body {
-    margin:clamp(12px,1.35vh,18px) 0 0;
+    margin:clamp(0.75rem,1.35vh,1.125rem) 0 0;
     color:var(--muted);
     font-size:clamp(1rem,1.1vw,1.25rem);
     font-weight:560;
@@ -95,24 +95,24 @@ html.landscape-layout {
     overflow-wrap:anywhere;
 }
 .detailed-community-fields {
-    margin-top:clamp(14px,1.45vh,20px);
-    padding-top:clamp(12px,1.4vh,18px);
+    margin-top:clamp(0.875rem,1.45vh,1.25rem);
+    padding-top:clamp(0.75rem,1.4vh,1.125rem);
     display:grid;
-    gap:clamp(8px,.8vh,11px);
+    gap:clamp(0.5rem,.8vh,0.6875rem);
 }
 .detailed-community-field {
     display:grid;
-    grid-template-columns:minmax(92px,.38fr) minmax(0,1fr);
-    gap:10px;
-    padding-top:clamp(8px,.75vh,10px);
-    border-top:1px solid var(--line);
+    grid-template-columns:minmax(5.75rem,.38fr) minmax(0,1fr);
+    gap:0.625rem;
+    padding-top:clamp(0.5rem,.75vh,0.625rem);
+    border-top:0.0625rem solid var(--line);
     font-size:clamp(.9rem,.98vw,1.1rem);
     line-height:1.2;
 }
 .detailed-community-field-label { color:var(--muted); }
 .detailed-community-field-value { color:var(--text); font-weight:710; overflow-wrap:anywhere; }
 .detailed-community-source {
-    margin-top:clamp(11px,1.2vh,16px);
+    margin-top:clamp(0.6875rem,1.2vh,1rem);
     color:var(--muted);
     font-size:clamp(.78rem,.88vw,.98rem);
     font-weight:610;
@@ -127,9 +127,9 @@ html.landscape-layout {
     flex:1 1 0;
     min-height:0;
     grid-template-rows:minmax(0,3fr) minmax(0,2fr) auto;
-    margin-top:clamp(14px,1.5vh,22px);
+    margin-top:clamp(0.875rem,1.5vh,1.375rem);
     padding-top:0;
-    gap:clamp(14px,1.5vh,22px);
+    gap:clamp(0.875rem,1.5vh,1.375rem);
 }
 .detailed-community-dua_after_adhan .detailed-community-field {
     min-height:0;
@@ -157,16 +157,16 @@ html.landscape-layout {
     text-align:center;
 }
 .detailed-community-dua_after_adhan .detailed-dua-translation {
-    padding-top:clamp(14px,1.5vh,22px);
-    border-top:1px solid var(--line);
+    padding-top:clamp(0.875rem,1.5vh,1.375rem);
+    border-top:0.0625rem solid var(--line);
     line-height:1.5;
 }
 .detailed-community-dua_after_adhan .detailed-dua-translation .detailed-community-field-value {
     line-height:1.35;
 }
 .detailed-community-dua_after_adhan .detailed-dua-note {
-    padding-top:12px;
-    border-top:1px solid var(--line);
+    padding-top:0.75rem;
+    border-top:0.0625rem solid var(--line);
 }
 .detailed-community-dua_after_adhan .detailed-dua-note .detailed-community-field-value {
     color:var(--muted);
@@ -180,16 +180,16 @@ html.landscape-layout {
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    padding:30px;
+    padding:1.875rem;
     text-align:center;
 }
 .detailed-community-empty strong { color:var(--text); font-size:clamp(1.4rem,2vw,2.1rem); }
-.detailed-community-empty span { max-width:260px; margin-top:10px; color:var(--muted); font-size:clamp(.82rem,.95vw,1rem); line-height:1.4; }
+.detailed-community-empty span { max-width:16.25rem; margin-top:0.625rem; color:var(--muted); font-size:clamp(.82rem,.95vw,1rem); line-height:1.4; }
 
 /* One-slot cards trade some air for density; two-slot and full-height cards
    retain the more spacious typography used for detailed content. */
 .community-layout-thirds .community-span-1 {
-    padding:clamp(12px,1vw,17px);
+    padding:clamp(0.75rem,1vw,1.0625rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-type {
     font-size:clamp(.72rem,.78vw,.88rem);
@@ -199,31 +199,31 @@ html.landscape-layout {
     font-size:clamp(1.3rem,1.5vw,1.72rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-body {
-    margin-top:clamp(7px,.7vh,10px);
+    margin-top:clamp(0.4375rem,.7vh,0.625rem);
     font-size:clamp(.88rem,.93vw,1.04rem);
     line-height:1.28;
 }
 .community-layout-thirds .community-span-1 .detailed-community-fields {
-    margin-top:clamp(7px,.65vh,10px);
-    padding-top:clamp(5px,.45vh,7px);
-    gap:clamp(3px,.3vh,5px);
+    margin-top:clamp(0.4375rem,.65vh,0.625rem);
+    padding-top:clamp(0.3125rem,.45vh,0.4375rem);
+    gap:clamp(0.1875rem,.3vh,0.3125rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-field {
-    grid-template-columns:minmax(78px,.36fr) minmax(0,1fr);
-    gap:7px;
-    padding-top:clamp(4px,.35vh,6px);
+    grid-template-columns:minmax(4.875rem,.36fr) minmax(0,1fr);
+    gap:0.4375rem;
+    padding-top:clamp(0.25rem,.35vh,0.375rem);
     font-size:clamp(.8rem,.83vw,.94rem);
 }
 .community-layout-thirds .community-span-1 .detailed-community-source {
-    margin-top:clamp(6px,.55vh,8px);
+    margin-top:clamp(0.375rem,.55vh,0.5rem);
     font-size:clamp(.68rem,.72vw,.82rem);
 }
 
 .detailed-community-daily_ayah .detailed-community-title,
 .detailed-community-daily_hadith .detailed-community-title,
-.detailed-community-daily_sunnah .detailed-community-title { margin-top:clamp(5px,.5vh,8px); }
+.detailed-community-daily_sunnah .detailed-community-title { margin-top:clamp(0.3125rem,.5vh,0.5rem); }
 .detailed-daily-ayah-number {
-	margin-top:clamp(2px,.25vh,4px);
+	margin-top:clamp(0.125rem,.25vh,0.25rem);
 	font-size:clamp(.78rem,.86vw,.98rem);
 	font-weight:700;
 	color:var(--muted);
@@ -246,7 +246,7 @@ html.landscape-layout {
 /* Daily Islamic content shares one landscape page. Measured body sizing
    leaves headings and references stable while making short text readable. */
 .detailed-community-card.detailed-daily-card {
-    padding:clamp(14px,1vw,20px);
+    padding:clamp(0.875rem,1vw,1.25rem);
 }
 .detailed-daily-card > :not(.detailed-community-body) { flex-shrink:0; }
 .detailed-daily-card .detailed-community-title {
@@ -256,10 +256,10 @@ html.landscape-layout {
 .detailed-daily-card .detailed-community-body {
     flex:1 1 0;
     min-height:0;
-    margin:10px 0;
+    margin:0.625rem 0;
     display:flex;
     align-items:safe center;
-    font-size:16px;
+    font-size:1rem;
     line-height:1.25;
     color:var(--text);
     overflow:auto;
@@ -268,17 +268,17 @@ html.landscape-layout {
 .detailed-daily-card .detailed-community-fields {
     margin-top:0;
     padding-top:0;
-    gap:4px;
+    gap:0.25rem;
 }
 .detailed-daily-card .detailed-community-field {
     grid-template-columns:minmax(0,1fr);
-    padding-top:6px;
+    padding-top:0.375rem;
     gap:0;
     font-size:clamp(.8rem,.8vw,.95rem);
 }
 .detailed-daily-card .detailed-community-field-label { display:none; }
 .detailed-daily-card .detailed-community-source {
-    margin-top:8px;
+    margin-top:0.5rem;
     font-size:clamp(.72rem,.75vw,.88rem);
 }
 
@@ -289,15 +289,15 @@ html.landscape-layout {
 }
 .detailed-community-contribution .detailed-community-fields {
     flex:1 0 auto;
-    margin-top:20px;
+    margin-top:1.25rem;
     padding-top:0;
-    gap:14px;
+    gap:0.875rem;
     align-content:space-evenly;
 }
 .detailed-community-contribution .detailed-community-field {
     grid-template-columns:minmax(0,1fr);
-    gap:8px;
-    padding-top:12px;
+    gap:0.5rem;
+    padding-top:0.75rem;
 }
 .detailed-community-contribution .detailed-community-field-label {
     font-size:clamp(1rem,1.15vw,1.4rem);
@@ -314,7 +314,7 @@ html.landscape-layout {
     font-variant-numeric:tabular-nums;
 }
 .detailed-community-contribution .detailed-contribution-fields-many {
-    gap:10px;
+    gap:0.625rem;
 }
 .detailed-community-contribution .detailed-contribution-fields-many .detailed-community-field-value {
     font-size:clamp(1.2rem,1.35vw,1.6rem);
@@ -325,13 +325,13 @@ html.landscape-layout {
 .detailed-community-contribution .detailed-community-source {
     flex-shrink:0;
     margin-top:auto;
-    padding-top:16px;
+    padding-top:1rem;
     font-size:clamp(.85rem,.95vw,1.05rem);
 }
 
 /* Landscape notices retain the portrait hierarchy at sidebar scale. */
 .detailed-community-card.detailed-refined-notice {
-    padding:clamp(16px,1.2vw,24px);
+    padding:clamp(1rem,1.2vw,1.5rem);
 }
 .detailed-refined-notice .detailed-community-title {
     font-size:clamp(1.5rem,1.7vw,2rem);
@@ -340,22 +340,22 @@ html.landscape-layout {
 }
 .detailed-refined-notice .detailed-community-fields {
     flex:1 0 auto;
-    margin-top:16px;
+    margin-top:1rem;
     padding-top:0;
-    gap:12px;
+    gap:0.75rem;
     align-content:space-evenly;
 }
 .detailed-refined-notice .detailed-community-field {
     grid-template-columns:minmax(0,1fr);
-    gap:5px;
-    padding-top:9px;
+    gap:0.3125rem;
+    padding-top:0.5625rem;
 }
 .detailed-refined-notice .detailed-community-field-label {
     font-size:clamp(.9rem,1vw,1.2rem);
     line-height:1.2;
 }
 .detailed-refined-notice .detailed-community-field-value {
-    font-size:var(--notice-value-size,22px);
+    font-size:var(--notice-value-size,1.375rem);
     line-height:1.2;
     white-space:pre-line;
 }
@@ -365,12 +365,12 @@ html.landscape-layout {
 }
 .detailed-refined-notice .detailed-notice-family .detailed-community-field-label { display:none; }
 .detailed-refined-notice .detailed-notice-primary .detailed-community-field-value {
-    font-size:calc(var(--notice-value-size,22px) * 1.15);
+    font-size:calc(var(--notice-value-size,1.375rem) * 1.15);
 }
 .detailed-refined-notice .detailed-community-body {
     flex:1 1 0;
     min-height:0;
-    margin:16px 0 0;
+    margin:1rem 0 0;
     display:flex;
     align-items:safe center;
     overflow:auto;
@@ -383,14 +383,14 @@ html.landscape-layout {
 .detailed-refined-notice .detailed-community-source {
     flex-shrink:0;
     margin-top:auto;
-    padding-top:12px;
+    padding-top:0.75rem;
     font-size:clamp(.75rem,.8vw,.95rem);
 }
 
 /* Salaah changes contain only two short values, so use the available card
    space for prominent text and a clearly separated label/value grid. */
 .detailed-community-salaah_change {
-    padding:clamp(16px,1.25vw,22px);
+    padding:clamp(1rem,1.25vw,1.375rem);
     text-align:center;
 }
 .detailed-community-salaah_change .detailed-community-type {
@@ -401,21 +401,21 @@ html.landscape-layout {
     font-size:clamp(1.65rem,1.9vw,2.1rem);
 }
 .detailed-community-salaah_change .detailed-community-fields {
-    margin-top:clamp(12px,1.2vh,16px);
-    padding-top:clamp(8px,.8vh,11px);
-    gap:clamp(6px,.65vh,9px);
+    margin-top:clamp(0.75rem,1.2vh,1rem);
+    padding-top:clamp(0.5rem,.8vh,0.6875rem);
+    gap:clamp(0.375rem,.65vh,0.5625rem);
 }
 .detailed-community-card.detailed-community-salaah_change .detailed-community-field {
-    grid-template-columns:minmax(118px,.42fr) minmax(0,1fr);
-    gap:clamp(16px,1.1vw,22px);
-    padding-top:clamp(7px,.7vh,10px);
+    grid-template-columns:minmax(7.375rem,.42fr) minmax(0,1fr);
+    gap:clamp(1rem,1.1vw,1.375rem);
+    padding-top:clamp(0.4375rem,.7vh,0.625rem);
     font-size:clamp(1.28rem,1.42vw,1.6rem);
 }
 .detailed-community-salaah_change .detailed-community-field-value {
     font-weight:800;
 }
 .detailed-community-salaah_change .detailed-community-source {
-    margin-top:clamp(10px,1vh,14px);
+    margin-top:clamp(0.625rem,1vh,0.875rem);
     font-size:clamp(.84rem,.9vw,1rem);
 }
 .detailed-community-card.detailed-community-salaah_change .detailed-community-title {
@@ -438,18 +438,18 @@ html.landscape-layout {
 .detailed-jumuah-schedule {
     flex:0 0 auto;
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr));
     align-items:center;
-    gap:clamp(10px,1vw,16px);
-    margin-top:clamp(14px,1.4vh,20px);
+    gap:clamp(0.625rem,1vw,1rem);
+    margin-top:clamp(0.875rem,1.4vh,1.25rem);
 }
 .detailed-jumuah-event {
     display:flex;
     min-width:0;
     flex-direction:column;
-    gap:clamp(5px,.55vh,8px);
-    padding:clamp(12px,1.2vw,18px) 8px;
-    border:1px solid var(--line);
+    gap:clamp(0.3125rem,.55vh,0.5rem);
+    padding:clamp(0.75rem,1.2vw,1.125rem) 0.5rem;
+    border:0.0625rem solid var(--line);
     border-radius:calc(var(--radius) * .7);
 }
 .detailed-jumuah-event span {
@@ -467,7 +467,7 @@ html.landscape-layout {
     text-align:center;
 }
 .detailed-community-jumuah_schedule .detailed-community-body {
-    margin-top:clamp(10px,1vh,14px);
+    margin-top:clamp(0.625rem,1vh,0.875rem);
     font-size:clamp(1.15rem,1.3vw,1.5rem);
     line-height:1.25;
 }
@@ -484,7 +484,7 @@ html.landscape-layout {
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:clamp(8px,.9vh,12px);
+    gap:clamp(0.5rem,.9vh,0.75rem);
     text-align:center;
 }
 .detailed-community-salaah_change .salaah-change-effective {
@@ -509,7 +509,7 @@ html.landscape-layout {
 }
 .detailed-community-economic > .detailed-community-body {
     flex:0 0 auto;
-    margin:12px 0 16px;
+    margin:0.75rem 0 1rem;
     font-size:clamp(1rem,1.1vw,1.35rem);
     font-weight:700;
 }
@@ -521,15 +521,15 @@ html.landscape-layout {
     gap:0;
     grid-auto-rows:minmax(0,1fr);
     overflow:hidden;
-    border:1px solid var(--line);
-    border-radius:12px;
+    border:0.0625rem solid var(--line);
+    border-radius:0.75rem;
     background:var(--panel);
 }
 .detailed-community-economic .detailed-community-field {
     grid-template-columns:repeat(2,minmax(0,1fr));
     align-items:center;
-    gap:10px;
-    padding:5px 12px;
+    gap:0.625rem;
+    padding:0.3125rem 0.75rem;
     font-size:clamp(1rem,2vh,1.4rem);
     line-height:1.15;
 }
@@ -540,23 +540,23 @@ html.landscape-layout {
 }
 .detailed-community-economic .detailed-community-footer {
     flex:0 0 auto;
-    margin-top:14px;
-    gap:6px;
+    margin-top:0.875rem;
+    gap:0.375rem;
     font-size:clamp(.85rem,.95vw,1.05rem);
     line-height:1.25;
 }
 .detailed-economic-note {
-    margin:0 0 4px;
+    margin:0 0 0.25rem;
     font-size:inherit;
     font-weight:600;
     overflow-wrap:anywhere;
 }
 .detailed-community-footer {
     margin-top:auto;
-    padding-top:clamp(12px,1.25vh,18px);
-    border-top:1px solid var(--line);
+    padding-top:clamp(0.75rem,1.25vh,1.125rem);
+    border-top:0.0625rem solid var(--line);
     display:grid;
-    gap:clamp(6px,.65vh,9px);
+    gap:clamp(0.375rem,.65vh,0.5625rem);
     color:var(--muted);
     font-size:clamp(.78rem,.86vw,.96rem);
     font-weight:610;
@@ -578,7 +578,7 @@ html.landscape-layout {
     display:flex;
     justify-content:flex-end;
     align-items:baseline;
-    column-gap:8px;
+    column-gap:0.5rem;
     font-variant-numeric:tabular-nums;
 }
 .detailed-community-economic .economic-currency-symbol {

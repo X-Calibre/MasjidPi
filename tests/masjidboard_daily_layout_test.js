@@ -26,7 +26,7 @@ const body = {style:{}, clientHeight:100, clientWidth:400};
 const text = {get scrollHeight(){ measurements++; return Number.parseInt(body.style.fontSize) * 4; }, scrollWidth:300};
 const card = {clientHeight:200, scrollHeight:200, querySelector: selector => selector === '.detailed-daily-text' ? text : body};
 const fitContext = {
-    window:{requestAnimationFrame: fn => {callback = fn;}, addEventListener:()=>{}},
+    window:{getComputedStyle:()=>({fontSize:"16px"}),requestAnimationFrame: fn => {callback = fn;}, addEventListener:()=>{}},
     document:{}, communityCards:{clientHeight:300,clientWidth:400,querySelectorAll:selector=>selector === ".detailed-daily-card" ? [card] : []},
     communityPage:0,communitySignature:'content',communityPages:[{layout:'daily',entries:[{item:daily[0]}]}],
 };
@@ -89,3 +89,25 @@ const groups=context.landscapeNoticeFields({type:'dawah',testFields:[{label:'Gas
 assert.equal(groups[0].value,'Thursday\nAfter Asr');
 assert.equal(groups[1].value,'Preserve me');
 console.log('Landscape notice text sizing and field preservation tests passed');
+// At a 4K CSS viewport the existing root scale is 32px, twice 1080p.
+fitContext.window.getComputedStyle=()=>({fontSize:'32px'});
+fitContext.communityCards.clientWidth=800;
+fitContext.communityCards.clientHeight=800;
+body.clientWidth=800;body.clientHeight=256;
+fitContext.communityCards.querySelectorAll=selector=>selector === '.detailed-daily-card' ? [card] : [];
+fitContext.communitySignature='4k-daily';
+fitContext.scheduleDailyFit();callback();
+assert.equal(body.style.fontSize,'64px','4K daily text maximum must double');
+const arabic4k=makeDuaRow(true,800,10);
+const translation4k=makeDuaRow(false,300,6);
+fitContext.communityCards.querySelectorAll=selector=>selector === '.detailed-dua-arabic, .detailed-dua-translation' ? [arabic4k,translation4k] : [];
+fitContext.communitySignature='4k-dua';
+fitContext.scheduleDailyFit();callback();
+assert.equal(arabic4k.value.style.fontSize,'80px','Fitted Arabic must scale proportionally');
+assert.equal(translation4k.value.style.fontSize,'50px','Fitted translation must scale proportionally');
+noticeBody.clientHeight=300;noticeBody.clientWidth=800;
+fitContext.communityCards.querySelectorAll=selector=>selector === '.detailed-refined-notice' ? [noticeCard] : [];
+fitContext.communitySignature='4k-notice';
+fitContext.scheduleDailyFit();callback();
+assert.equal(noticeBody.style.fontSize,'50px','Fitted notice text must scale proportionally');
+console.log('4K daily, Arabic, translation and notice text scaling tests passed');

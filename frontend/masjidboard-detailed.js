@@ -340,13 +340,18 @@
             const signature = `${communitySignature}:${pageIndex}:${communityCards.clientWidth}:${communityCards.clientHeight}`;
             if (signature === dailyFitSignature) return;
             dailyFitSignature = signature;
+            // The root font follows the 1920x1080 reference design (16px)
+            // and doubles at 4K. Keep measured font limits on the same scale.
+            const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+            const fontScale = rootFontSize / 16;
+            const scaledFont = (size) => Math.round(size * fontScale);
             for (const row of communityCards.querySelectorAll(".detailed-dua-arabic, .detailed-dua-translation")) {
                 const value = row.querySelector(".detailed-community-field-value");
                 const text = row.querySelector(".detailed-dua-text");
                 if (!text) continue;
                 const arabic = row.classList.contains("detailed-dua-arabic");
-                let low = arabic ? 28 : 18;
-                let high = arabic ? 48 : 30;
+                let low = scaledFont(arabic ? 28 : 18);
+                let high = scaledFont(arabic ? 48 : 30);
                 const fitsAt = (size) => {
                     value.style.fontSize = `${size}px`;
                     return text.scrollHeight <= value.clientHeight && text.scrollWidth <= value.clientWidth;
@@ -367,8 +372,8 @@
                     if (body) body.style.fontSize = `${size}px`;
                     return card.scrollHeight <= card.clientHeight && (!text || text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth);
                 };
-                let low = 18;
-                let high = body && !card.querySelector(".detailed-community-fields") ? 32 : 28;
+                let low = scaledFont(18);
+                let high = scaledFont(body && !card.querySelector(".detailed-community-fields") ? 32 : 28);
                 if (!fitsAt(low)) noticesFit = false;
                 while (high - low > 1) {
                     const middle = Math.floor((low + high) / 2);
@@ -385,8 +390,8 @@
                     body.style.fontSize = `${size}px`;
                     return text.scrollHeight <= body.clientHeight && text.scrollWidth <= body.clientWidth && card.scrollHeight <= card.clientHeight;
                 };
-                let low = 16;
-                let high = 32;
+                let low = scaledFont(16);
+                let high = scaledFont(32);
                 if (!fitsAt(low)) fits = false;
                 while (high - low > 1) {
                     const middle = Math.floor((low + high) / 2);

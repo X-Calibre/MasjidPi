@@ -380,9 +380,52 @@ html.landscape-layout {
 
 .detailed-community-economic .detailed-community-title {
     margin-top:0;
+    font-size:clamp(1.65rem,1.8vw,2.15rem);
+    line-height:1.1;
+}
+.detailed-community-economic > .detailed-community-body {
+    flex:0 0 auto;
+    margin:12px 0 16px;
+    font-size:clamp(1rem,1.1vw,1.35rem);
+    font-weight:700;
 }
 .detailed-community-economic .detailed-community-fields {
-    margin-bottom:clamp(12px,1.2vh,18px);
+    flex:1 1 0;
+    min-height:0;
+    margin:0;
+    padding:0;
+    gap:0;
+    grid-auto-rows:minmax(0,1fr);
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel);
+}
+.detailed-community-economic .detailed-community-field {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:center;
+    gap:10px;
+    padding:5px 12px;
+    font-size:clamp(1rem,2vh,1.4rem);
+    line-height:1.15;
+}
+.detailed-community-economic .detailed-community-field:first-child { border-top:0; }
+.detailed-community-economic .detailed-community-field-value {
+    font-size:clamp(1.1rem,2.2vh,1.55rem);
+    font-weight:750;
+}
+.detailed-community-economic .detailed-community-footer {
+    flex:0 0 auto;
+    margin-top:14px;
+    gap:6px;
+    font-size:clamp(.85rem,.95vw,1.05rem);
+    line-height:1.25;
+}
+.detailed-economic-note {
+    margin:0 0 4px;
+    font-size:inherit;
+    font-weight:600;
+    overflow-wrap:anywhere;
 }
 .detailed-community-footer {
     margin-top:auto;
@@ -404,13 +447,14 @@ html.landscape-layout {
     grid-template-columns:repeat(2,minmax(0,1fr));
 }
 .detailed-community-economic .detailed-community-field-label {
-    white-space:nowrap;
+    white-space:normal;
+    overflow-wrap:anywhere;
 }
 .detailed-community-economic .economic-accounting-value {
-    display:grid;
-    grid-template-columns:auto minmax(0,1fr);
+    display:flex;
+    justify-content:flex-end;
     align-items:baseline;
-    column-gap:clamp(10px,.8vw,14px);
+    column-gap:8px;
     font-variant-numeric:tabular-nums;
 }
 .detailed-community-economic .economic-currency-symbol {

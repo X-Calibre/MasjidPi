@@ -272,12 +272,12 @@
             card.append(list);
         }
         if (item.type === "economic") {
-            if (item.notes) {
-                const notes = makeElement("p", "detailed-community-body", item.notes);
-                notes.dir = "auto";
-                card.append(notes);
-            }
             const footer = makeElement("footer", "detailed-community-footer");
+            if (item.notes) {
+                const notes = makeElement("p", "detailed-economic-note", item.notes);
+                notes.dir = "auto";
+                footer.append(notes);
+            }
             if (item.fields.updated_at) {
                 footer.append(makeElement("div", "detailed-community-retrieved", `Updated at ${item.fields.updated_at}`));
             }

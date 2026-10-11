@@ -11,7 +11,13 @@ The application-package installer below is for an existing supported Linux insta
 For a supported 64-bit Linux system, install the latest official release with:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
+(
+  set -e
+  curl -fsSL \
+    https://raw.githubusercontent.com/X-Calibre/MasjidPi/3d43180c2776c1595155f0483214fbdad0a33167/scripts/install-latest.sh \
+    -o /tmp/masjidframe-install-latest.sh
+  sudo bash /tmp/masjidframe-install-latest.sh
+)
 ```
 
 On an interactive terminal, the production installer prompts for the appliance profile:

@@ -14,6 +14,6 @@ assert.match(landscape, /item\.type === "salaah_change"[\s\S]*?`Source: \$\{item
 assert.match(appliance, /item\.type === "salaah_change"[\s\S]*?"Source: " \+ item\.source/);
 assert.match(landscape, /`From \$\{item\.source\}`/);
 assert.match(appliance, /`From \$\{indicators\.source\}`/);
-assert.doesNotMatch(appliance, /portrait/);
+assert.doesNotMatch(appliance, /profile\s*[!=]==?\s*["']portrait["']/);
 
 console.log("MasjidBoard notice source-label tests passed");

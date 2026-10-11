@@ -72,13 +72,7 @@ For the Raspberry Pi 3 A/B appliance, the [v1.6.9 release](https://github.com/X-
 For installation on an existing supported Linux system, install the latest stable application release:
 
 ```bash
-(
-  set -e
-  curl -fsSL \
-    https://raw.githubusercontent.com/X-Calibre/MasjidPi/3d43180c2776c1595155f0483214fbdad0a33167/scripts/install-latest.sh \
-    -o /tmp/masjidframe-install-latest.sh
-  sudo bash /tmp/masjidframe-install-latest.sh
-)
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-latest.sh | sudo bash
 ```
 
 The installer prompts for one of three profiles:

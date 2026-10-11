@@ -220,6 +220,50 @@ body.appliance-720-layout {
 }
 
 
+/* Portrait banking details use the full width and distribute spare height
+   between fields. Auto-sized rows still allow long names and extra fields. */
+.appliance-720-layout .appliance-community-contribution .appliance-community-fields {
+    flex:1 0 auto;
+    margin-top:24px;
+    padding-top:0;
+    gap:16px;
+    align-content:space-evenly;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-community-field {
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    padding-top:14px;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-community-field-label {
+    font-size:25px;
+    line-height:1.2;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-community-field-value {
+    font-size:36px;
+    line-height:1.15;
+    overflow-wrap:anywhere;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-contribution-account-number .appliance-community-field-value {
+    font-size:42px;
+    font-variant-numeric:tabular-nums;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-contribution-fields-many {
+    gap:10px;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-contribution-fields-many .appliance-community-field {
+    padding-top:10px;
+    gap:6px;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-contribution-fields-many .appliance-community-field-label {
+    font-size:22px;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-contribution-fields-many .appliance-community-field-value {
+    font-size:30px;
+}
+.appliance-720-layout .appliance-community-contribution .appliance-contribution-fields-many .appliance-contribution-account-number .appliance-community-field-value {
+    font-size:36px;
+}
+
 /* Give Salaah Time Change cards a clearer reading rhythm at arm's length.
    Compact single cards get extra height; paired cards retain their two-row flow. */
 .appliance-720-layout .appliance-community-slide.compact-single {

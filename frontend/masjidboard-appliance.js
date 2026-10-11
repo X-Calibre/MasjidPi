@@ -220,8 +220,14 @@
         );
         if (fields.length > 0) {
             const list = element("div", "appliance-community-fields");
+            if (item.type === "contribution" && fields.length > 4) {
+                list.classList.add("appliance-contribution-fields-many");
+            }
             for (const field of fields) {
                 const row = element("div", "appliance-community-field");
+                if (item.type === "contribution" && field.label === "Account Number") {
+                    row.classList.add("appliance-contribution-account-number");
+                }
                 if (item.type === "dua_after_adhan") {
                     row.classList.add("appliance-dua-" + field.label.toLowerCase());
                 }

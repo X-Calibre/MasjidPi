@@ -5,6 +5,7 @@ root_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # Check both download entry points without running a production installation.
 for script in install-latest.sh github.sh; do
     (
+        # shellcheck disable=SC1090 -- Read only repository constants from each entry point.
         source <(awk '/^info\(\)|^update_repository\(\)/ {exit} {print}' "$root_dir/scripts/$script")
         test "$REPO_OWNER/$REPO_NAME" = "X-Calibre/MasjidPi"
         test "$RELEASE_API" = "https://api.github.com/repos/X-Calibre/MasjidPi/releases/latest"

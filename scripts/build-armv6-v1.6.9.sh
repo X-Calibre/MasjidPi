@@ -29,14 +29,7 @@ support_files=(
     scripts/packages.sh
     tests/installer_armv6_test.sh
 )
-for path in "${support_files[@]}"; do
-    # A local checkout may have the same tree under a different commit ID;
-    # verify each file against the pinned support tree before packaging.
-    expected="$(git -C "$ROOT" rev-parse "$SUPPORT_TREE:$path")"
-    actual="$(git -C "$ROOT" hash-object "$ROOT/$path")"
-    [[ "$actual" == "$expected" ]] || { printf 'Support file differs from pinned source: %s\n' "$path" >&2; exit 1; }
-    cp -p "$ROOT/$path" "$WORK/$path"
-done
+git -C "$ROOT" archive "$SUPPORT_TREE" "${support_files[@]}" | tar -x -C "$WORK"
 
 bash "$WORK/tests/installer_armv6_test.sh"
 for path in "$WORK"/scripts/*.sh; do bash -n "$path"; done

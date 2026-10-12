@@ -60,6 +60,7 @@ if (detect_arch) >/dev/null 2>&1; then
 fi
 
 # Exercise release download/extraction with a local archive and mocked network.
+# shellcheck disable=SC1090 -- Intentionally source function definitions without running main.
 source <(sed '$d' "$ROOT/scripts/install-listen-armv6-latest.sh")
 MOCK_ARCH=armv6l
 printf 'Raspberry Pi Zero W\n' > "$TMP/model"

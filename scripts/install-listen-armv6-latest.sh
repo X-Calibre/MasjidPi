@@ -12,8 +12,9 @@ main() {
     [[ "$(id -u)" -eq 0 ]] || die "Run this installer with sudo bash."
     [[ "$(uname -m)" == armv6l ]] || die "This installer requires an ARMv6 Raspberry Pi."
     local model_path="${MASJIDFRAME_DEVICE_MODEL_PATH:-/proc/device-tree/model}"
-    [[ -r "$model_path" ]] && grep -aq 'Raspberry Pi' "$model_path" \
-        || die "This installer requires Raspberry Pi hardware."
+    if [[ ! -r "$model_path" ]] || ! grep -aq 'Raspberry Pi' "$model_path"; then
+        die "This installer requires Raspberry Pi hardware."
+    fi
     local command
     for command in curl tar sha256sum; do
         command -v "$command" >/dev/null || die "$command is required."
@@ -25,9 +26,8 @@ main() {
     archive_name="masjidframe-${latest_tag}-linux-armv6.tar.gz"
     base_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${latest_tag}"
     work_dir="$(mktemp -d /tmp/masjidframe-armv6.XXXXXX)"
-    local cleanup_path
-    printf -v cleanup_path '%q' "$work_dir"
-    trap "rm -rf -- $cleanup_path" EXIT
+    ARMV6_DOWNLOAD_DIR="$work_dir"
+    trap 'rm -rf -- "$ARMV6_DOWNLOAD_DIR"' EXIT
 
     printf 'MasjidFrame Listen: Downloading %s for ARMv6...\n' "$latest_tag"
     curl -fL --retry 3 "${base_url}/${archive_name}" -o "$work_dir/$archive_name" \

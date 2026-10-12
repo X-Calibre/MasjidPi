@@ -1,0 +1,58 @@
+name: Add ARMv6 Listen package to v1.6.9
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/armv6-listen-installer]
+    paths: [.github/workflows/release-armv6-v169.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-armv6-v169
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Build and validate ARMv6 supplement
+        run: bash scripts/build-armv6-v1.6.9.sh "$RUNNER_TEMP/armv6-release"
+      - name: Add package and checksum to existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cd "$RUNNER_TEMP/armv6-release"
+          archive=masjidframe-v1.6.9-linux-armv6.tar.gz
+          # Never overwrite an existing ARMv6 package. A retry may continue
+          # only when GitHub confirms that its bytes match this build.
+          names=$(gh release view v1.6.9 --json assets --jq '.assets[].name')
+          if printf '%s\n' "$names" | grep -qx "$archive"; then
+            mkdir existing
+            gh release download v1.6.9 --pattern "$archive" --dir existing
+            cmp "$archive" "existing/$archive"
+          else
+            gh release upload v1.6.9 "$archive"
+          fi
+          gh release download v1.6.9 --pattern SHA256SUMS --dir .
+          cp SHA256SUMS SHA256SUMS.previous
+          # Preserve every previously published checksum verbatim.
+          if grep -Fq "  $archive" SHA256SUMS; then
+            sha256sum -c "$archive.sha256"
+            grep -F "  $archive" SHA256SUMS | sha256sum -c -
+          else
+            cat "$archive.sha256" >> SHA256SUMS
+            gh release upload v1.6.9 SHA256SUMS --clobber
+          fi
+          printf 'ARMv6 supplement added to v1.6.9; physical validation pending.\n' >> "$GITHUB_STEP_SUMMARY"

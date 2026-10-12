@@ -55,4 +55,23 @@ jobs:
             cat "$archive.sha256" >> SHA256SUMS
             gh release upload v1.6.9 SHA256SUMS --clobber
           fi
+          gh release view v1.6.9 --json body --jq .body > release-notes.md
+          if ! grep -q '^## ARMv6 Listen-only supplement' release-notes.md; then
+            cat >> release-notes.md <<'NOTES'
+
+          ## ARMv6 Listen-only supplement — 12 October 2026
+
+          Added `masjidframe-v1.6.9-linux-armv6.tar.gz` for original Raspberry Pi Zero, Zero W and other ARMv6 Raspberry Pis running Raspberry Pi OS Lite 32-bit. `SHA256SUMS` includes the new package.
+
+          This supplement contains the v1.6.9 application plus the dedicated Listen installer and updater safeguards from PR #123. Exact source revisions are recorded in `BUILD_INFO.txt`. Use the bundled `scripts/install-listen-armv6.sh`; it always installs Listen and disables Pi 3 appliance updates. Physical Pi Zero playback and soak testing are pending.
+
+          Download installer:
+
+          ```bash
+          curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/87ef0e4d851baeef2f6e8a0660157dd902da336d/scripts/install-listen-armv6-latest.sh -o /tmp/masjidframe-listen-armv6.sh
+          sudo bash /tmp/masjidframe-listen-armv6.sh
+          ```
+          NOTES
+            gh release edit v1.6.9 --notes-file release-notes.md
+          fi
           printf 'ARMv6 supplement added to v1.6.9; physical validation pending.\n' >> "$GITHUB_STEP_SUMMARY"

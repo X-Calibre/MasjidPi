@@ -72,16 +72,16 @@ network access configured and an ALSA-compatible audio device attached.
 Configure Listen from a phone or computer at `http://<pi-ip-address>:8080`.
 The original Zero needs a network adapter; Zero W has built-in Wi-Fi.
 
-Once a stable release containing `masjidframe-vX.Y.Z-linux-armv6.tar.gz` has
-been published, download and run the dedicated bootstrap:
+The v1.6.9 release now includes `masjidframe-v1.6.9-linux-armv6.tar.gz` as an
+ARMv6 supplement. Download and run the dedicated bootstrap:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/main/scripts/install-listen-armv6-latest.sh -o /tmp/masjidframe-listen-armv6.sh
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/87ef0e4d851baeef2f6e8a0660157dd902da336d/scripts/install-listen-armv6-latest.sh -o /tmp/masjidframe-listen-armv6.sh
 sudo bash /tmp/masjidframe-listen-armv6.sh
 ```
 
-**v1.6.9 has no ARMv6 package.** Until the first ARMv6 release is published,
-use a checkout containing these installer changes:
+The download installer verifies the release checksum and installs without Go.
+For source development, use a checkout containing these installer changes:
 
 ```bash
 sudo ./scripts/install-listen-armv6.sh --source
@@ -102,6 +102,9 @@ The dedicated installer:
 Update by rerunning the dedicated installer. This is an application installation,
 not a Pi Zero A/B image; it does not provide automatic OS updates. The existing
 Pi 3 image and signed update bundles cannot be used on an original Zero.
+
+The v1.6.9 ARMv6 package uses the v1.6.9 source plus the installer and updater
+safeguards from PR #123. `BUILD_INFO.txt` records both source revisions.
 
 ARMv6 cross-compilation is supported, but playback and reliability still require
 validation on physical hardware. Zero 2 W is a different, ARM64-capable model

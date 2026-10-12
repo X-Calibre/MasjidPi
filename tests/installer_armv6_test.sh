@@ -32,6 +32,7 @@ select_components </dev/null
 save_components
 grep -qx 'MASJIDFRAME_COMPONENTS=listen' "$COMPONENTS_FILE"
 grep -qx 'MASJIDFRAME_APPLIANCE_UPDATES=disabled' "$COMPONENTS_FILE"
+grep -qx 'MASJIDFRAME_MPV_STARTUP_TIMEOUT=30s' "$COMPONENTS_FILE"
 install_packages release
 grep -q 'mpv ffmpeg alsa-utils' "$TMP/packages"
 if grep -Eq 'cog|webkit|plymouth|build-essential|git' "$TMP/packages"; then
@@ -105,4 +106,31 @@ if (main) >/dev/null 2>&1; then
 fi
 [[ ! -f "$TMP/installed" ]]
 [[ ! -d "$(cat "$TMP/download-dir")" ]]
+
+# Simulate HTTP becoming ready beyond the general installer's wait budget,
+# without sleeping or starting any real services.
+source "$ROOT/scripts/selftest.sh"
+systemctl() { return 0; }
+sleep() { :; }
+aplay() { return 0; }
+journalctl() { :; }
+is_raspberry_pi() { return 1; }
+warn() { :; }
+error() { :; }
+INSTALL_LISTEN=true
+INSTALL_BOARD=false
+HTTP_CALLS=0
+curl() {
+    HTTP_CALLS=$((HTTP_CALLS + 1))
+    [[ "$HTTP_CALLS" -ge 80 ]] || return 1
+    printf '{"version":"v9.0.0"}\n'
+}
+MASJIDFRAME_ARMV6_LISTEN=0
+if (run_selftest v9.0.0); then
+    printf 'General HTTP wait budget unexpectedly accepted delayed startup\n' >&2
+    exit 1
+fi
+HTTP_CALLS=0
+MASJIDFRAME_ARMV6_LISTEN=1
+run_selftest v9.0.0
 printf '[PASS] ARMv6 hardware gating, forced Listen profile and dependencies\n'

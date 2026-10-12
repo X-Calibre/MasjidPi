@@ -76,6 +76,8 @@ chmod +x "$fixture/masjidframe" "$fixture/scripts/install-listen-armv6.sh"
 archive=masjidframe-v9.0.0-linux-armv6.tar.gz
 tar -czf "$TMP/$archive" -C "$TMP/fixture" "$(basename "$fixture")"
 (cd "$TMP" && sha256sum "$archive" > SHA256SUMS)
+# Invoked by the dynamically sourced bootstrap before the later readiness mock.
+# shellcheck disable=SC2317
 curl() {
     local url="" output=""
     while [[ $# -gt 0 ]]; do

@@ -35,13 +35,16 @@ jobs:
           set -Eeuo pipefail
           cd "$RUNNER_TEMP/armv6-release"
           archive=masjidframe-v1.6.9-linux-armv6.tar.gz
-          # Never overwrite an existing ARMv6 package. A retry may continue
-          # only when GitHub confirms that its bytes match this build.
+          # Replace only the known first ARMv6 supplement, or accept an
+          # identical revision-2 package when retrying publication.
           names=$(gh release view v1.6.9 --json assets --jq '.assets[].name')
           if printf '%s\n' "$names" | grep -qx "$archive"; then
             mkdir existing
             gh release download v1.6.9 --pattern "$archive" --dir existing
-            cmp "$archive" "existing/$archive"
+            if ! cmp -s "$archive" "existing/$archive"; then
+              (cd existing && printf '%s  %s\n' '3a2c34e63058cfcd98ac86c34e43eb76405a72bc1e2e1faa330ae2c521e915b1' "$archive" | sha256sum -c -)
+              gh release upload v1.6.9 "$archive" --clobber
+            fi
           else
             gh release upload v1.6.9 "$archive"
           fi
@@ -49,12 +52,16 @@ jobs:
           cp SHA256SUMS SHA256SUMS.previous
           # Preserve every previously published checksum verbatim.
           if grep -Fq "  $archive" SHA256SUMS; then
-            sha256sum -c "$archive.sha256"
-            grep -F "  $archive" SHA256SUMS | sha256sum -c -
+            previous=$(awk -v name="$archive" '$2 == name {print $1}' SHA256SUMS)
+            current=$(awk '{print $1}' "$archive.sha256")
+            [[ "$previous" == "$current" || "$previous" == 3a2c34e63058cfcd98ac86c34e43eb76405a72bc1e2e1faa330ae2c521e915b1 ]]
+            awk -v name="$archive" '$2 != name' SHA256SUMS > SHA256SUMS.updated
+            cat "$archive.sha256" >> SHA256SUMS.updated
+            mv SHA256SUMS.updated SHA256SUMS
           else
             cat "$archive.sha256" >> SHA256SUMS
-            gh release upload v1.6.9 SHA256SUMS --clobber
           fi
+          gh release upload v1.6.9 SHA256SUMS --clobber
           gh release view v1.6.9 --json body --jq .body > release-notes.md
           if ! grep -q '^## ARMv6 Listen-only supplement' release-notes.md; then
             cat >> release-notes.md <<'NOTES'
@@ -71,6 +78,15 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/87ef0e4d851baeef2f6e8a0660157dd902da336d/scripts/install-listen-armv6-latest.sh -o /tmp/masjidframe-listen-armv6.sh
           sudo bash /tmp/masjidframe-listen-armv6.sh
           ```
+          NOTES
+            gh release edit v1.6.9 --notes-file release-notes.md
+          fi
+          if ! grep -q '^### ARMv6 startup correction' release-notes.md; then
+            cat >> release-notes.md <<'NOTES'
+
+          ### ARMv6 startup correction — revision 2
+
+          The ARMv6 package was rebuilt after physical Pi Zero testing showed MPV startup close to the previous five-second limit. Listen-only ARMv6 installations now allow 30 seconds for MPV startup and a longer installer readiness window. Download the package again and rerun the dedicated installer. Physical playback and soak validation remain pending.
           NOTES
             gh release edit v1.6.9 --notes-file release-notes.md
           fi

@@ -41,6 +41,7 @@ install_packages() {
         info "Installing source-build dependencies..."
         apt-get install -y \
             git \
+            wget \
             build-essential
     fi
 

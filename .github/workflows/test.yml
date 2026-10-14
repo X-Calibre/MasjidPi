@@ -57,6 +57,7 @@ jobs:
           bash tests/appliance_update_workspace_test.sh
           bash tests/installer_recovery_test.sh
           bash tests/release_package_test.sh
+          bash tests/installer_armv6_test.sh
           bash tests/installer_repository_test.sh
           bash tests/source_build_version_test.sh
           bash tests/masjidboard_display_profile_test.sh

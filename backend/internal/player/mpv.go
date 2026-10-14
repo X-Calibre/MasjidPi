@@ -3,6 +3,7 @@ package player
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -50,7 +51,7 @@ func (m *MPV) Restart() error {
 }
 
 func (m *MPV) connectIPC() error {
-	deadline := time.Now().Add(mpvIPCReadyTimeout)
+	deadline := time.Now().Add(mpvStartupTimeout())
 	for {
 		if err := m.ipc.Connect(); err == nil {
 			return nil
@@ -60,6 +61,15 @@ func (m *MPV) connectIPC() error {
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
+}
+
+func mpvStartupTimeout() time.Duration {
+	if value := os.Getenv("MASJIDFRAME_MPV_STARTUP_TIMEOUT"); value != "" {
+		if timeout, err := time.ParseDuration(value); err == nil && timeout > 0 && timeout <= time.Minute {
+			return timeout
+		}
+	}
+	return mpvIPCReadyTimeout
 }
 
 func (m *MPV) Stop() error {

@@ -61,7 +61,54 @@ Component-specific requirements are installed only when needed:
 
 Raspberry Pi 3B and Raspberry Pi 4 have been validated with 64-bit Raspberry Pi OS. Board has also been validated as a dedicated Raspberry Pi OS Lite HDMI appliance using Cog/WPE directly on DRM/KMS. See [HARDWARE.md](HARDWARE.md) for platform status and measured performance.
 
-32-bit ARM (`armv6l` / `armv7l`) does not currently have an official pre-built release.
+The general installer does not support ARMv6. A separate Listen-only installer
+is provided below. ARMv7 still requires the source installer.
+
+## ARMv6 Raspberry Pi: Listen only
+
+The original Raspberry Pi Zero, Zero W and other Raspberry Pis reporting
+`armv6l` have a dedicated installer. Use Raspberry Pi OS Lite **32-bit** with
+network access configured and an ALSA-compatible audio device attached.
+Configure Listen from a phone or computer at `http://<pi-ip-address>:8080`.
+The original Zero needs a network adapter; Zero W has built-in Wi-Fi.
+
+The v1.6.9 release now includes `masjidframe-v1.6.9-linux-armv6.tar.gz` as an
+ARMv6 supplement. Download and run the dedicated bootstrap:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/87ef0e4d851baeef2f6e8a0660157dd902da336d/scripts/install-listen-armv6-latest.sh -o /tmp/masjidframe-listen-armv6.sh
+sudo bash /tmp/masjidframe-listen-armv6.sh
+```
+
+The download installer verifies the release checksum and installs without Go.
+For source development, use a checkout containing these installer changes:
+
+```bash
+sudo ./scripts/install-listen-armv6.sh --source
+```
+
+Source installation downloads a suitable Go toolchain when needed and compiles
+with `GOARM=6`, one build worker and CGO disabled. Compilation on the original
+Zero can be slow and may still need swap; the pre-built package avoids this.
+
+The dedicated installer:
+
+- Rejects non-ARMv6 and non-Raspberry Pi devices.
+- Always selects Listen, including unattended installations and updates.
+- Installs MPV, FFmpeg and ALSA tools; skips Board, Cog, WPE and splash packages.
+- Preserves existing settings and reuses application update validation and rollback.
+- Disables Pi 3 appliance update checks and Web UI installation actions.
+
+Update by rerunning the dedicated installer. This is an application installation,
+not a Pi Zero A/B image; it does not provide automatic OS updates. The existing
+Pi 3 image and signed update bundles cannot be used on an original Zero.
+
+The v1.6.9 ARMv6 package uses the v1.6.9 source plus the installer and updater
+safeguards from PR #123. `BUILD_INFO.txt` records both source revisions.
+
+ARMv6 cross-compilation is supported, but playback and reliability still require
+validation on physical hardware. Zero 2 W is a different, ARM64-capable model
+and should use the general installer with a supported 64-bit OS.
 
 ## What the installer changes
 

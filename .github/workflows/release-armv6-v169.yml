@@ -1,0 +1,93 @@
+name: Add ARMv6 Listen package to v1.6.9
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/armv6-listen-installer]
+    paths: [.github/workflows/release-armv6-v169.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-armv6-v169
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Build and validate ARMv6 supplement
+        run: bash scripts/build-armv6-v1.6.9.sh "$RUNNER_TEMP/armv6-release"
+      - name: Add package and checksum to existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cd "$RUNNER_TEMP/armv6-release"
+          archive=masjidframe-v1.6.9-linux-armv6.tar.gz
+          # Replace only the known first ARMv6 supplement, or accept an
+          # identical revision-2 package when retrying publication.
+          names=$(gh release view v1.6.9 --json assets --jq '.assets[].name')
+          if printf '%s\n' "$names" | grep -qx "$archive"; then
+            mkdir existing
+            gh release download v1.6.9 --pattern "$archive" --dir existing
+            if ! cmp -s "$archive" "existing/$archive"; then
+              (cd existing && printf '%s  %s\n' '3a2c34e63058cfcd98ac86c34e43eb76405a72bc1e2e1faa330ae2c521e915b1' "$archive" | sha256sum -c -)
+              gh release upload v1.6.9 "$archive" --clobber
+            fi
+          else
+            gh release upload v1.6.9 "$archive"
+          fi
+          gh release download v1.6.9 --pattern SHA256SUMS --dir .
+          cp SHA256SUMS SHA256SUMS.previous
+          # Preserve every previously published checksum verbatim.
+          if grep -Fq "  $archive" SHA256SUMS; then
+            previous=$(awk -v name="$archive" '$2 == name {print $1}' SHA256SUMS)
+            current=$(awk '{print $1}' "$archive.sha256")
+            [[ "$previous" == "$current" || "$previous" == 3a2c34e63058cfcd98ac86c34e43eb76405a72bc1e2e1faa330ae2c521e915b1 ]]
+            awk -v name="$archive" '$2 != name' SHA256SUMS > SHA256SUMS.updated
+            cat "$archive.sha256" >> SHA256SUMS.updated
+            mv SHA256SUMS.updated SHA256SUMS
+          else
+            cat "$archive.sha256" >> SHA256SUMS
+          fi
+          gh release upload v1.6.9 SHA256SUMS --clobber
+          gh release view v1.6.9 --json body --jq .body > release-notes.md
+          if ! grep -q '^## ARMv6 Listen-only supplement' release-notes.md; then
+            cat >> release-notes.md <<'NOTES'
+
+          ## ARMv6 Listen-only supplement — 12 October 2026
+
+          Added `masjidframe-v1.6.9-linux-armv6.tar.gz` for original Raspberry Pi Zero, Zero W and other ARMv6 Raspberry Pis running Raspberry Pi OS Lite 32-bit. `SHA256SUMS` includes the new package.
+
+          This supplement contains the v1.6.9 application plus the dedicated Listen installer and updater safeguards from PR #123. Exact source revisions are recorded in `BUILD_INFO.txt`. Use the bundled `scripts/install-listen-armv6.sh`; it always installs Listen and disables Pi 3 appliance updates. Physical Pi Zero playback and soak testing are pending.
+
+          Download installer:
+
+          ```bash
+          curl -fsSL https://raw.githubusercontent.com/X-Calibre/MasjidPi/87ef0e4d851baeef2f6e8a0660157dd902da336d/scripts/install-listen-armv6-latest.sh -o /tmp/masjidframe-listen-armv6.sh
+          sudo bash /tmp/masjidframe-listen-armv6.sh
+          ```
+          NOTES
+            gh release edit v1.6.9 --notes-file release-notes.md
+          fi
+          if ! grep -q '^### ARMv6 startup correction' release-notes.md; then
+            cat >> release-notes.md <<'NOTES'
+
+          ### ARMv6 startup correction — revision 2
+
+          The ARMv6 package was rebuilt after physical Pi Zero testing showed MPV startup close to the previous five-second limit. Listen-only ARMv6 installations now allow 30 seconds for MPV startup and a longer installer readiness window. Download the package again and rerun the dedicated installer. Physical playback and soak validation remain pending.
+          NOTES
+            gh release edit v1.6.9 --notes-file release-notes.md
+          fi
+          printf 'ARMv6 supplement added to v1.6.9; physical validation pending.\n' >> "$GITHUB_STEP_SUMMARY"

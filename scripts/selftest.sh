@@ -15,16 +15,21 @@ run_selftest() {
 
     info "Checking HTTP interface..."
 
-    for i in {1..50}; do
-        if curl -fs http://localhost:8080 >/dev/null 2>&1; then
+    local http_attempts=50
+    if [[ "${MASJIDFRAME_ARMV6_LISTEN:-0}" == "1" ]]; then
+        http_attempts=300
+    fi
+    for ((i=0; i<http_attempts; i++)); do
+        if curl -fs --max-time 2 http://localhost:8080 >/dev/null 2>&1; then
             success "HTTP interface is responding."
             break
         fi
         sleep 0.2
     done
 
-    if ! curl -fs http://localhost:8080 >/dev/null 2>&1; then
+    if ! curl -fs --max-time 2 http://localhost:8080 >/dev/null 2>&1; then
         error "HTTP interface failed to respond."
+        journalctl -u masjidframe.service --no-pager -n 20 || true
         return 1
     fi
 
